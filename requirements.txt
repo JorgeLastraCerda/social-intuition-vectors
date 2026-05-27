@@ -1,0 +1,13 @@
+torch
+transformers
+transformer-lens
+numpy
+pandas
+scikit-learn
+scipy
+matplotlib
+seaborn
+pyyaml
+tqdm
+jupyter
+pymupdf

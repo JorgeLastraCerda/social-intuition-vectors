@@ -1,0 +1,21 @@
+# Who Feels the Fear — dependencies
+
+# LLM API
+openai>=1.30.0
+python-dotenv>=1.0.0
+
+# Embedding (for emotion_scoring.py and build_anchors.py)
+sentence-transformers>=3.0.0
+
+# Emotion classifier
+transformers>=4.40.0
+torch>=2.0.0
+
+# Analysis
+numpy>=1.26.0
+pandas>=2.0.0
+scipy>=1.13.0
+scikit-learn>=1.4.0
+
+# Plotting (optional — used by analyze_priming.py)
+matplotlib>=3.8.0

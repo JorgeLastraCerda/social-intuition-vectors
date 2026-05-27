@@ -1,76 +1,106 @@
-# What is Normal? Measuring Status Quo Bias in LLM Embedding Geometry
+# Probing Warmth & Competence Representations in LLM Hiring Decisions
 
-**Fairness and Collective Decision-Making in AI — Research Project**
-University of Konstanz, SS 2026
+Do large language models encode **warmth** and **competence**, the two dimensions of the Stereotype Content Model, as internal, linearly probeable representations? If so, do those representations causally shape who the model recommends for a callback?
 
-Jorge · Emre
+This project adapts an interpretability pipeline originally built for emotion concepts and points it at hiring discrimination. The model behavior is then benchmarked against human correspondence-study data.
 
----
+## Background
 
-## Research question
+Two pieces of prior work motivate this project:
 
-Do large language models encode a structural bias toward the social status quo — treating concepts associated with social change as *deviant* or *disruptive*, while concepts associated with existing social order appear *normal* and *stable*? And does this vary across models trained on different cultural corpora?
+- **Sofroniew, Lindsey et al. (2026), _Emotion Concepts and their Function in a Large Language Model_.** This work shows that emotion concepts can exist inside a language model as linear vectors and that those vectors can causally influence behavior. This project adapts that method from emotion concepts to warmth and competence.
+- **Gallo, Hausladen et al. (2024), _Perceived warmth and competence predict callback rates in meta-analyzed North American labor market experiments_.** This work meta-analyzes correspondence studies and links perceived warmth and competence to callback disparities. This project uses it as the human benchmark.
 
-This project is distinct from prior work measuring left/right political orientation in LLMs. We measure a different axis: whether the *geometry* of model representations places change-adjacent concepts (redistribution, protest, solidarity) closer to semantic fields of deviance and disruption, independently of explicit political valence. We interpret findings through Althusser's Ideological State Apparatuses and Marcuse's one-dimensional thought.
+The bridge is simple: if emotions can be represented as causal internal directions, warmth and competence may be represented that way too, and they may help explain hiring bias in model outputs.
 
----
+## Research Questions
 
-## Method
+1. **Existence:** Can we extract linear warmth and competence vectors from an open-weights model?
+2. **Alignment:** Do those probes track human warmth/competence ratings of the same social signals?
+3. **Causality:** Does steering the vectors shift model callback recommendations?
+4. **Benchmark:** Do the model's callback disparities reproduce documented human hiring bias?
 
-- **WEAT (Word Embedding Association Test)** — measures cosine distance asymmetries between target and attribute word sets in embedding space
-- **Masked token completion** — probes what generative models predict in politically framed sentence templates
-- **Cross-model comparison** — same word sets applied across models representing distinct training corpora and geographic origins
+## Method Overview
 
----
+1. Generate synthetic stories exhibiting high/low warmth and high/low competence.
+2. Extract residual-stream activations and build concept vectors.
+3. Validate probes against held-out text and human warmth/competence ratings.
+4. Run steering experiments on a callback recommendation task.
+5. Benchmark model callback disparities against the PLOS ONE human data.
 
-## Models (planned)
+See `PLAN.md` for the phased implementation plan and `CLAUDE.md` for working conventions.
 
-| Model | Origin | Access |
-|-------|--------|--------|
-| Llama 3 | US — Meta | Ollama |
-| Gemma 4 | US — Google | Ollama |
-| Claude (API) | US — Anthropic | API |
-| LatamGPT | Chile/LatAm — CENIA | HuggingFace / GPU cluster |
-| Sea-Lion | Singapore — AISG | HuggingFace / GPU cluster |
-| Qwen | China — Alibaba | Ollama |
+## Requirements
 
-> Infrastructure note: LatamGPT and Sea-Lion require GPU access. University cluster access pending.
+- An open-weights model with residual-stream access.
+- A GPU capable of running the selected model.
+- Python dependencies from `requirements.txt`.
+- For SCCKN: Grid Engine / `qsub` access and cluster-specific values filled into `jobs/sge/*.sh`.
 
----
+## Repository Layout
 
-## Repository structure
-
+```text
+config/          Project configuration. Model selection lives in config/config.yaml.
+data/raw/        Downloaded source datasets. Ignored by git except .gitkeep.
+data/stimuli/    Generated concept stories and hiring prompts.
+data/processed/  Activations, vectors, and derived arrays. Ignored by git.
+docs/            Method and compute notes.
+jobs/sge/        SCCKN Grid Engine job wrappers.
+papers/          Downloaded source PDFs. Ignored by git except .gitkeep.
+results/         Figures, tables, and logs.
+src/             Python package and experiment entrypoints.
+tests/           Lightweight structural tests for future development.
+archive/         Previous projects and SCCKN notes.
 ```
-/
-├── notebooks/
-│   └── 01_weat_political_values.ipynb   # Main analysis notebook
-├── data/
-│   └── word_sets.json                   # Target and attribute word sets
-├── results/                             # Output files (ignored by git except .gitkeep)
-├── requirements.txt
-└── README.md
+
+## Setup
+
+Create an environment and install dependencies:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 ```
 
----
+Choose a model only after compute is confirmed:
+
+```yaml
+model:
+  name: "REPLACE_ME"
+```
+
+The model name must be set in `config/config.yaml`; scripts should not hardcode it.
+
+## Data and Secrets
+
+Local `.env` files, credentials, downloaded papers, raw datasets, model caches, activations, and cluster logs are ignored by git. Do not commit secrets or local SCCKN paths.
+
+The active repo tracks structure and source code. Downloaded papers and benchmark data should be fetched locally or on SCCKN when needed.
+
+## SCCKN
+
+This project targets SCCKN Grid Engine by default:
+
+```bash
+qsub jobs/sge/<job>.sh
+qstat -u emrecan.ulu
+qdel <job_id>
+qacct -j <job_id>
+```
+
+The job scripts contain `# ADJUST` placeholders for queue names, module versions, GPU resources, and scratch paths. Fill those in on the cluster before submitting heavy jobs.
 
 ## Status
 
-| Task | Status |
-|------|--------|
-| WEAT notebook (BERT baseline) | ✅ Done — effect size d = −1.12 |
-| Word set validation | 🔄 In progress |
-| Masked token analysis | 🔄 In progress |
-| Ollama model integration | ⬜ Pending |
-| GPU cluster access | ⬜ Pending application |
-| LatamGPT / Sea-Lion runs | ⬜ Pending infrastructure |
+Repository setup phase. Source papers and benchmark data are downloaded before experimental code is developed.
 
----
+## Caveats
 
-## Key references
+- Functional warmth/competence representations do not imply model subjective experience. This project studies representations and behavior.
+- Results are model-specific. Cross-model generalization is a stretch goal.
 
-- Caliskan et al. (2017). Semantics derived automatically from language corpora contain human-like biases. *Science.*
-- Tang et al. (2023). What Do Llamas Really Think? *ArXiv.*
-- Bai et al. (2025). Explicitly unbiased LLMs still form biased associations. *PNAS.*
-- Kronlund-Drouault (2024). Propaganda is all you need. *ArXiv.*
-- Althusser (1970). Ideology and Ideological State Apparatuses.
-- Marcuse (1964). One-Dimensional Man.
+## References
+
+- Sofroniew, Kauvar, Saunders, Chen, et al. (2026). _Emotion Concepts and their Function in a Large Language Model._ arXiv:2604.07729.
+- Gallo, Hausladen, Hsu, Jenkins, Ona, Camerer (2024). _Perceived warmth and competence predict callback rates in meta-analyzed North American labor market experiments._ PLOS ONE 19(7): e0304723. doi:10.1371/journal.pone.0304723.
