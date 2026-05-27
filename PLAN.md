@@ -11,10 +11,13 @@ Download and verify the two source papers:
 
 Also fetch the PLOS supplementary data or repository contents into `data/raw/`.
 
+- Carina Hausladen / Gallo project repository: `https://github.com/carinahausladen/SocialPerceptions-Predict-Callback`
+
 Verification:
 
 - `file papers/*.pdf` reports PDF documents.
 - PDF sizes are non-trivial.
+- `data/raw/` contains the cloned or downloaded Carina/Gallo repository contents.
 - Any download failure is reported with the exact error.
 
 ## Phase 1: Project Scaffolding
@@ -55,6 +58,18 @@ Read the downloaded papers before writing experimental logic. Write `docs/METHOD
 - probe validation approach,
 - causal steering design,
 - mapping from PLOS social signals to CV/hiring prompts.
+- a scope review of the Carina/Gallo GitHub repository before finalizing which social signals enter the first experiment.
+
+## Current Scope Draft
+
+Initial hiring-bias scope is intentionally narrow until the Carina/Gallo repository is reviewed in detail:
+
+- `name`
+- `race`
+- `gender`
+- `country` / national origin
+
+Before locking the final experimental scope, revisit `https://github.com/carinahausladen/SocialPerceptions-Predict-Callback`, inspect the available data columns, category levels, name-level callback data, warmth/competence ratings, and national-origin signals, then decide whether to keep only the initial four signals or expand to additional categories such as age, parenthood, religion, sexuality, disability, unemployment, military affiliation, union status, or wealth.
 
 ## Phase 3: Stimulus Generation
 
@@ -63,7 +78,7 @@ Implement `src/generate_stimuli.py`.
 Stimulus sets:
 
 - Concept story corpus for high/low warmth and high/low competence.
-- Hiring stimuli based on PLOS social signals and matched CV templates.
+- Hiring stimuli based on matched CV templates, initially varying name, race, gender, and country/national-origin signals while holding qualifications constant.
 
 Outputs:
 
