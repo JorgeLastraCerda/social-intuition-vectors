@@ -1,0 +1,22 @@
+model:
+  name: "REPLACE_ME"
+  dtype: "bfloat16"
+  device: "cuda"
+
+probing:
+  probe_layer_frac: 0.66
+  n_topics: 100
+  stories_per_topic: 12
+  start_token: 50
+  seed: 20260527
+
+steering:
+  strengths: [0.0, 0.25, 0.5, 1.0]
+
+paths:
+  papers: "papers/"
+  raw_data: "data/raw/"
+  stimuli: "data/stimuli/"
+  processed: "data/processed/"
+  results: "results/"
+  logs: "results/logs/"
