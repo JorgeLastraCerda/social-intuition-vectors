@@ -8,11 +8,6 @@ The project studies whether open-weights language models encode **warmth** and *
 
 ## Archive Map
 
-- `archive/status_quo_embedding_geometry/`
-  - Old WEAT / status quo bias / embedding geometry project.
-  - This project is unrelated to the current work.
-  - Do not use it as design, code, data, or conceptual guidance unless the user explicitly asks for it.
-
 - `archive/target_self_affect_leakage/`
   - Previous project titled "Who Feels the Fear?"
   - Treat this as the core prior source for workflow, phase discipline, validation/logging style, and SCCKN operational notes.
