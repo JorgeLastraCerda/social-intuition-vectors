@@ -44,7 +44,6 @@ tests/
 Repository rules:
 
 - All active docs, code, comments, filenames, and scripts are English.
-- `archive/status_quo_embedding_geometry/` is unrelated historical material.
 - `archive/target_self_affect_leakage/` is the core prior source for workflow and SCCKN operational conventions.
 - Heavy jobs target SCCKN Grid Engine first, via `jobs/sge/`.
 

@@ -1,13 +1,23 @@
+# Story generation (CPU / laptop — no GPU needed for this step)
+anthropic>=0.40.0
+tqdm>=4.66.0
+
+# Model probing and steering (GPU — run on H100)
 torch
 transformers
 transformer-lens
+
+# Data and numerics
 numpy
 pandas
 scikit-learn
 scipy
+
+# Plotting
 matplotlib
 seaborn
+
+# Config and utilities
 pyyaml
-tqdm
 jupyter
 pymupdf
