@@ -15,6 +15,15 @@ class ModelConfig:
 
 
 @dataclass(frozen=True)
+class GenerationConfig:
+    model: str
+    max_tokens: int
+    temperature: float
+    max_retries: int
+    requests_per_minute: int
+
+
+@dataclass(frozen=True)
 class ProbingConfig:
     probe_layer_frac: float
     n_topics: int
@@ -41,6 +50,7 @@ class PathConfig:
 @dataclass(frozen=True)
 class ProjectConfig:
     model: ModelConfig
+    generation: GenerationConfig
     probing: ProbingConfig
     steering: SteeringConfig
     paths: PathConfig
@@ -53,6 +63,7 @@ def load_config(path: str | Path = "config/config.yaml") -> ProjectConfig:
 
     return ProjectConfig(
         model=ModelConfig(**raw["model"]),
+        generation=GenerationConfig(**raw["generation"]),
         probing=ProbingConfig(**raw["probing"]),
         steering=SteeringConfig(**raw["steering"]),
         paths=PathConfig(**{key: Path(value) for key, value in raw["paths"].items()}),

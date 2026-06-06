@@ -3,6 +3,13 @@ model:
   dtype: "bfloat16"
   device: "cuda"
 
+generation:
+  model: "claude-haiku-4-5-20251001"
+  max_tokens: 300
+  temperature: 1.0
+  max_retries: 5
+  requests_per_minute: 50
+
 probing:
   probe_layer_frac: 0.66
   n_topics: 100

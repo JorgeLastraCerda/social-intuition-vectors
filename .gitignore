@@ -80,3 +80,4 @@ checkpoints/
 # Keep directory placeholders
 !data/processed/.gitkeep
 !results/logs/.gitkeep
+project_personal_plan.md
