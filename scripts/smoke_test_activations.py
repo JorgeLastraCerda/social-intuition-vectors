@@ -67,6 +67,7 @@ def run(config_path: str, device: str | None, fallback_cpu_model: str | None) ->
     # Rebuild config so all downstream helpers see the resolved device/model.
     cfg = cfg.__class__(
         model=cfg.model.__class__(name=effective_model, dtype=effective_dtype, device=effective_device),
+        generation=cfg.generation,
         probing=cfg.probing,
         steering=cfg.steering,
         paths=cfg.paths,
@@ -127,7 +128,7 @@ def run(config_path: str, device: str | None, fallback_cpu_model: str | None) ->
         )[0, -1]
 
     max_logit_delta = (steered_logits - baseline_logits).abs().max().item()
-    print(f"  max logit delta after steering (α={alpha}): {max_logit_delta:.6f}")
+    print(f"  max logit delta after steering (alpha={alpha}): {max_logit_delta:.6f}")
 
     assert max_logit_delta > 1e-4, "Steering hook had no effect on logits."
 
@@ -169,7 +170,7 @@ def main() -> None:
     log_dir = Path("results/logs")
     log_dir.mkdir(parents=True, exist_ok=True)
     log_path = log_dir / f"smoke_test_{int(time.time())}.json"
-    log_path.write_text(json.dumps(result, indent=2))
+    log_path.write_text(json.dumps(result, indent=2), encoding="utf-8")
 
     print(f"\n[PASS] All checks passed. Log: {log_path}")
 
