@@ -1,5 +1,9 @@
 model:
-  name: "REPLACE_ME"
+  # Local dev (RTX 4050m, 6 GB VRAM): Qwen2.5-1.5B fits in ~3 GB bf16.
+  # SCCKN production: switch to "Qwen/Qwen2.5-7B-Instruct" (needs ~14 GB VRAM).
+  # M4 Mac: do NOT use — MPS gives wrong results (transformer-lens issue #1178)
+  #         and CPU OOMs on 16 GB even for 1.5B.
+  name: "Qwen/Qwen2.5-1.5B-Instruct"
   dtype: "bfloat16"
   device: "cuda"
 

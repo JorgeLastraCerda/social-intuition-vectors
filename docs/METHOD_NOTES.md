@@ -159,6 +159,32 @@ Before running steering, validate that the vectors capture the intended concepts
 
 3. **Gallo-Hausladen correlation (our key external validation):** See Part 2 below.
 
+### 1.6 Open-weights feasibility — confirmed
+
+All techniques above are standard mechanistic interpretability operations. No proprietary model
+access is required. `transformer-lens` supports Qwen2.5, Llama-3.1, and Mistral out of the box.
+
+**Quick recipe:**
+```python
+hook_name = f"blocks.{layer}.hook_resid_post"
+_, cache = model.run_with_cache(tokens, names_filter=lambda n: n == hook_name)
+acts = cache[hook_name]  # [batch, seq, d_model]
+```
+
+**Causal steering:**
+```python
+def steer_hook(resid, hook):
+    resid[:, :, :] += alpha * vector.to(resid.device, resid.dtype)
+    return resid
+model.run_with_hooks(tokens, fwd_hooks=[(hook_name, steer_hook)])
+```
+
+**Device notes:**
+- SCCKN: `device: "cuda"`, model `Qwen/Qwen2.5-7B-Instruct`
+- RTX 4050m (6 GB VRAM): `device: "cuda"`, model `Qwen/Qwen2.5-1.5B-Instruct` (~3 GB)
+- M4 Mac: **do not use MPS** — PyTorch 2.x MPS can silently produce wrong results
+  (transformer-lens issue #1178). CPU OOMs on 16 GB even for 1.5B. Use SCCKN for real runs.
+
 ---
 
 ## Part 2: Benchmark Data — Gallo & Hausladen Repository
