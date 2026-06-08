@@ -96,7 +96,7 @@ def run(config_path: str, model_name: str, seed: int) -> dict:
     from sklearn.model_selection import StratifiedKFold, cross_val_score
 
     try:
-        from nnsight import LanguageModel
+        from nnsight import LanguageModel, VisionLanguageModel
     except ImportError:
         raise SystemExit(
             "nnsight is not installed in this environment.\n"
@@ -110,11 +110,17 @@ def run(config_path: str, model_name: str, seed: int) -> dict:
     torch.manual_seed(seed)
     np.random.seed(seed)
 
-    print(f"Loading model: {model_name} on {device} ({dtype})")
-    nns_model = LanguageModel(
+    # Gemma 4 is registered as a multimodal (image+text) model in HF; nnsight
+    # requires VisionLanguageModel for such checkpoints, not LanguageModel.
+    VISION_MODELS = ("gemma-4",)
+    use_vlm = any(tag in model_name.lower() for tag in VISION_MODELS)
+    ModelClass = VisionLanguageModel if use_vlm else LanguageModel
+
+    print(f"Loading model: {model_name} on {device} ({dtype}) [{'VisionLanguageModel' if use_vlm else 'LanguageModel'}]")
+    nns_model = ModelClass(
         model_name,
         device_map=device,
-        torch_dtype=dtype,
+        dtype=dtype,
     )
     tokenizer = nns_model.tokenizer
 
