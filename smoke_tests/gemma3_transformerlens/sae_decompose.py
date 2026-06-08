@@ -96,7 +96,7 @@ def top_features(feature_acts: np.ndarray, k: int = 20) -> list[dict]:
 # ---------------------------------------------------------------------------
 
 def run(config_path: str, model_name: str, sae_release: str, sae_id: str,
-        n_top_features: int, seed: int) -> dict:
+        n_top_features: int, seed: int, results_dir: Path | None = None) -> dict:
     from sklearn.linear_model import LogisticRegression
     from sklearn.model_selection import StratifiedKFold, cross_val_score
 
@@ -116,7 +116,8 @@ def run(config_path: str, model_name: str, sae_release: str, sae_id: str,
     device = cfg.model.device
 
     # -- load warmth vector saved by smoke_test_probe.py -------------------
-    results_dir = HERE / "results"
+    if results_dir is None:
+        results_dir = HERE / "results"
     warmth_vec_path = results_dir / "warmth_vector.npy"
     if not warmth_vec_path.exists():
         raise FileNotFoundError(
@@ -241,19 +242,27 @@ def main() -> None:
                         help="SAE ID (e.g. layer_17_width_16k_l0_medium).")
     parser.add_argument("--n-top-features", type=int, default=20)
     parser.add_argument("--seed", type=int, default=20260527)
+    parser.add_argument(
+        "--out-dir", default=None,
+        help="Directory where smoke_test_probe.py saved warmth_vector.npy / X_warm.npy / X_cold.npy, "
+             "and where this script writes its JSON log (default: smoke_tests/gemma3_transformerlens/results). "
+             "Must match the --out-dir used in the preceding probe run.",
+    )
     args = parser.parse_args()
+
+    results_dir = Path(args.out_dir) if args.out_dir else HERE / "results"
+    results_dir.mkdir(parents=True, exist_ok=True)
 
     try:
         result = run(
             args.config, args.model, args.sae_release, args.sae_id,
-            args.n_top_features, args.seed,
+            args.n_top_features, args.seed, results_dir=results_dir,
         )
     except Exception as exc:
         print(f"\n[FAIL] {exc}", file=sys.stderr)
         sys.exit(1)
 
-    out_dir  = HERE / "results"
-    log_path = out_dir / f"sae_decompose_{int(time.time())}.json"
+    log_path = results_dir / f"sae_decompose_{int(time.time())}.json"
     log_path.write_text(json.dumps(result, indent=2), encoding="utf-8")
     print(f"\n[DONE] SAE decomposition complete. Results: {log_path}")
 

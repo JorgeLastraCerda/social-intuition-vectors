@@ -141,6 +141,27 @@
 
 ---
 
+## 2026-06-08 · Step 9 — Six-test smoke matrix: 4 resource-tuned jobs added
+
+- **Context:** Smoke jobs 1015382 (gemma3 12B) and 1015383 (gemma4 12B) were stuck in `qw` due to single-node pin (`-q gpu@scc213`, h_vmem 64G, smp 4). Added 4 new jobs to get something running sooner.
+- **Did:**
+  - Added `--out-dir` parameter to `smoke_tests/gemma3_transformerlens/smoke_test_probe.py` and `sae_decompose.py` (default = `HERE/results`, backward-compatible). Prevents concurrent 12B + 4B runs from clobbering each other's `warmth_vector.npy` / `X_warm.npy` / `X_cold.npy` (d_model mismatch: 3840 vs 2560 would crash the SAE step).
+  - Created 4 new SGE job scripts in `jobs/sge/`:
+    - `smoke_gemma3_12b_light.sh`: Gemma 3 12B, wc-tl, queue pool `scc192,scc213,scc214` (3× nodes), h_vmem 32G, smp 2, h_rt 1h, `--out-dir .../results/g3_12b`.
+    - `smoke_gemma4_12b_light.sh`: Gemma 4 12B, wc-nn, same trimmed resources.
+    - `smoke_gemma3_4b.sh`: Gemma 3 4B-IT, wc-tl, `-q gpu` (any node), h_vmem 16G, smp 2, h_rt 30min, GemmaScope 2 `gemma-scope-2-4b-it-res` / `layer_22_width_16k_l0_medium`, `--out-dir .../results/g3_4b`.
+    - `smoke_gemma4_4b.sh`: Gemma 4 E4B-IT, wc-nn, same minimal resources.
+- **Findings:**
+  - Clarified: **"4B" (model size) ≠ "4-bit" (quantization)**. Previous concern about "4-bit approaches not working" referred to quantization; SCCKN runs bf16 full precision. Gemma 3 4B bf16 = ~8 GB VRAM, method intact (TL + GemmaScope 2 `gemma-scope-2-4b-it-res` confirmed available).
+  - There is no Gemma 3 "6B"; sizes are 270M / 1B / 4B / 12B / 27B.
+  - Gemma 4 4B model id: `google/gemma-4-E4B-it` (confirmed on HF).
+  - Gemma 3 4B has 34 layers; probe_layer_frac=0.66 → layer 22 ≈ 65% depth → matches GemmaScope 2 4B SAE checkpoint. **VERIFY sae-id** from catalog before relying on `layer_22_width_16k_l0_medium`.
+  - 12B headline commitment unchanged; 4B jobs are fast-feedback tier, not the main result.
+- **Decision / rationale:** Keep 12B→27B as the committed model for the paper. 4B bf16 is a fully valid fast iteration tier (all method components preserved). 12B-light jobs widen the node pool from 1 to 3, reducing queue wait without changing compute.
+- **Next:** User: `git add jobs/sge/smoke_gemma3_12b_light.sh jobs/sge/smoke_gemma4_12b_light.sh jobs/sge/smoke_gemma3_4b.sh jobs/sge/smoke_gemma4_4b.sh smoke_tests/gemma3_transformerlens/smoke_test_probe.py smoke_tests/gemma3_transformerlens/sae_decompose.py && git commit -m "Add four resource-tuned smoke jobs and --out-dir isolation fix" && git push`. Then on cluster: `git pull && qsub jobs/sge/smoke_gemma3_4b.sh && qsub jobs/sge/smoke_gemma4_4b.sh && qsub jobs/sge/smoke_gemma3_12b_light.sh && qsub jobs/sge/smoke_gemma4_12b_light.sh`. Submit 4B jobs first.
+
+---
+
 ## 2026-06-08 · Step 7 — Model selection finalized; job scripts + config updated for 12B
 
 - **Context:** User approved plan to run smoke tests on SCCKN with Gemma 3 12B-IT and Gemma 4 12B-IT.

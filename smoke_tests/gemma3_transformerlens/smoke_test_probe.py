@@ -72,7 +72,7 @@ def _extract_all(model, sentences: list[str], hook_name: str,
 # ---------------------------------------------------------------------------
 
 def run(config_path: str, model_override: str | None, start_token: int,
-        seed: int) -> dict:
+        seed: int, out_dir: Path | None = None) -> dict:
     from sklearn.linear_model import LogisticRegression
     from sklearn.model_selection import StratifiedKFold, cross_val_score
 
@@ -116,7 +116,8 @@ def run(config_path: str, model_override: str | None, start_token: int,
         X_cold = _extract_all(model, COLD_SENTENCES, hook_name, start_token)
 
     # Save the warmth vector so sae_decompose.py can load it without re-running
-    out_dir = HERE / "results"
+    if out_dir is None:
+        out_dir = HERE / "results"
     out_dir.mkdir(parents=True, exist_ok=True)
     mean_warm = X_warm.mean(dim=0)
     mean_cold = X_cold.mean(dim=0)
@@ -239,15 +240,22 @@ def main() -> None:
                         help="Gemma 3 model name (e.g. google/gemma-3-4b-it).")
     parser.add_argument("--start-token", type=int, default=1)
     parser.add_argument("--seed", type=int, default=20260527)
+    parser.add_argument(
+        "--out-dir", default=None,
+        help="Directory for saved vectors and JSON log (default: smoke_tests/gemma3_transformerlens/results). "
+             "Use per-model subdirs (e.g. results/g3_4b) when running multiple model sizes concurrently "
+             "to avoid clobbering each other's warmth_vector.npy / X_warm.npy / X_cold.npy.",
+    )
     args = parser.parse_args()
 
+    out_dir = Path(args.out_dir) if args.out_dir else HERE / "results"
+
     try:
-        result = run(args.config, args.model, args.start_token, args.seed)
+        result = run(args.config, args.model, args.start_token, args.seed, out_dir=out_dir)
     except Exception as exc:
         print(f"\n[FAIL] {exc}", file=sys.stderr)
         sys.exit(1)
 
-    out_dir  = HERE / "results"
     log_path = out_dir / f"smoke_probe_{int(time.time())}.json"
     log_path.write_text(json.dumps(result, indent=2), encoding="utf-8")
     print(f"\n[PASS] All checks passed. Log: {log_path}")
