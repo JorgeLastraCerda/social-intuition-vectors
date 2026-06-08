@@ -1,9 +1,9 @@
 model:
-  # Local dev (RTX 4050m, 6 GB VRAM): Qwen2.5-1.5B fits in ~3 GB bf16.
-  # SCCKN production: switch to "Qwen/Qwen2.5-7B-Instruct" (needs ~14 GB VRAM).
-  # M4 Mac: do NOT use — MPS gives wrong results (transformer-lens issue #1178)
-  #         and CPU OOMs on 16 GB even for 1.5B.
-  name: "Qwen/Qwen2.5-1.5B-Instruct"
+  # Committed model for the core result: google/gemma-3-12b-it (smoke tests)
+  # Scale-up target: google/gemma-3-27b-it on scc214 (RTX 6000, 96 GB VRAM)
+  # SCCKN smoke tests run on L40 48 GB nodes (scc213 / scc192); 12B needs ~24 GB bf16.
+  # Gemma 4 12B (google/gemma-4-12B-it) runs in the wc-nn environment via nnsight.
+  name: "google/gemma-3-12b-it"
   dtype: "bfloat16"
   device: "cuda"
 
