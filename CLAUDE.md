@@ -54,6 +54,28 @@ This project is expected to run primarily on the Universität Konstanz SCCKN clu
 - If SCCKN is used in a paper, include this acknowledgement:
   "The authors acknowledge support by the local computing resources through the core facility SCCKN."
 
+## Step Logging
+
+Maintain an append-only research log at `step_logs/STEP_LOG.md`.
+
+- At the start of each session, read the latest 5–10 entries to recover context before doing anything else.
+- Append a new entry for **every meaningful step**: a decision, a finding, an experiment run,
+  a library or model choice, a config change, a validation result. Not for every individual tool call.
+- Entry format (one entry per heading):
+
+  ```
+  ## YYYY-MM-DD · Step N — <short title>
+  - **Context:** which task/session this belongs to (1 sentence)
+  - **Did:** what was done (files read/run/changed)
+  - **Findings:** concrete results — numbers, file paths, pass/fail
+  - **Decision / rationale:** decision taken and why (omit if none)
+  - **Next:** immediate next action (omit if none)
+  ```
+
+- `Step N` resets to 1 each calendar date; the date in the heading disambiguates.
+- Never edit or delete previous entries — only append. English only.
+- This file is committed to git (shared with collaborators), so keep entries concise and factual.
+
 ## Working Conventions
 
 - Work phase by phase according to `PLAN.md`.

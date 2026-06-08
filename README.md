@@ -114,12 +114,12 @@ behaviors such as ignoring requests, withholding help, and dismissing others.
   direction at this layer. The result is not near-ceiling (accuracy could in principle reach 1.0 with
   a large enough corpus), which is expected with only 100 hand-written sentences.
 
-- **Max logit delta = 6.375 vs 0.344 (random vector, Test 1).** Steering along the estimated warmth
-  direction shifts the output logits roughly 18× more than steering along a random unit vector of
-  the same injected magnitude. This indicates that the direction is not merely a geometric artifact:
-  it is connected to the model's downstream computation. This is a preliminary positive signal for
-  Research Question 3 (Causality), but causal claims require the full steering experiment with the
-  hiring-task prompt.
+- **Max logit delta = 6.375 (warmth) vs 0.344 (random, Test 1).** Steering along the estimated
+  warmth direction shifts the output logits far more than steering along a random vector. Note:
+  these two numbers are not directly comparable — Test 1 used alpha = 0.5 (absolute) while Test 2
+  used alpha = 26.99 (0.5 × mean residual norm), a ~54× difference in injected magnitude. The
+  restructured smoke tests (`smoke_tests/`) fix this by using equal-magnitude random controls in
+  every test. Causal claims require the full steering experiment with the hiring-task prompt.
 
 - **High mean-vector cosine (0.9915).** The mean residual activations for warm and cold sentences
   point in nearly the same overall direction; the warmth signal is a relatively small, consistent
@@ -151,6 +151,40 @@ python scripts/smoke_test_probe.py --device cpu --fallback-cpu-model gpt2   # CP
 
 Logs are written to `results/logs/smoke_test_*.json` and
 `results/logs/smoke_test_probe_*.json`.
+
+## Smoke Test Suite (`smoke_tests/`)
+
+The pilot work above (Qwen2.5-1.5B) has been reorganised into a structured suite that
+compares three model + tooling combinations on identical stimuli:
+
+| Directory | Model | Tooling | Key addition |
+|-----------|-------|---------|--------------|
+| `smoke_tests/qwen_transformerlens/` | Qwen2.5-1.5B-Instruct | TransformerLens | Baseline (original pilot) |
+| `smoke_tests/gemma3_transformerlens/` | **Gemma 3 12B-IT** | TransformerLens + GemmaScope 2 | SAE warmth-vs-tone decomposition |
+| `smoke_tests/gemma4_nnsight/` | **Gemma 4 12B-IT** | nnsight | Exploratory; no SAE tooling yet |
+
+All three tests use the same 100 sentences (`smoke_tests/stimuli.py`) and report
+a `warmth_random_ratio` computed with **equal-magnitude** random and warmth vectors
+for a fair comparison.  Results go to each test's own `results/` subdirectory.
+
+**Model commitment and scale-up path.** The smoke tests run at 12B (fits on a single L40 48 GB
+GPU on SCCKN) to enable a fair Gemma 3 vs Gemma 4 comparison. The committed model for the core
+result is **Gemma 3 12B-IT** (`google/gemma-3-12b-it`) with GemmaScope 2 SAE decomposition to
+address the warmth-vs-valence confound. The scale-up target — pending validation that 12B
+results replicate — is **Gemma 3 27B-IT** (`google/gemma-3-27b-it`, ~54 GB bf16, runs on
+scc214's RTX 6000 96 GB). This door is intentionally left open and will be entered once the
+12B smoke results are satisfactory.
+
+Run on SCCKN (GPU required for meaningful signal):
+
+```bash
+qsub jobs/sge/smoke_qwen.sh
+qsub jobs/sge/smoke_gemma3.sh
+qsub jobs/sge/smoke_gemma4.sh
+```
+
+See `smoke_tests/README.md` for full details and `docs/SCCKN_WINDOWS.md` for
+Windows → cluster connection setup.
 
 ## Requirements
 

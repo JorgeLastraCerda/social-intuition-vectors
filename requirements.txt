@@ -2,10 +2,18 @@
 anthropic>=0.40.0
 tqdm>=4.66.0
 
-# Model probing and steering (GPU — run on H100)
+# Model probing and steering (GPU — run on SCCKN)
 torch
 transformers
+accelerate
+
+# TransformerLens path (Gemma 3, Qwen — conda env: wc-tl)
 transformer-lens
+sae-lens           # GemmaScope 2 SAE decomposition
+
+# nnsight path (Gemma 4 — conda env: wc-nn)
+nnsight
+nnterp
 
 # Data and numerics
 numpy
