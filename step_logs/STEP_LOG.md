@@ -121,6 +121,26 @@
 
 ---
 
+## 2026-06-08 · Step 8 — Conda envs created, HF login, smoke jobs submitted
+
+- **Context:** Cluster environment setup and smoke test execution for the warmth/competence probing project.
+- **Did:**
+  - Fixed BOM in `C:\Users\emrec\.ssh\config` (was causing `Bad configuration option` on every SSH call).
+  - Ran `setup_envs.sh` via nohup on cluster: created `wc-tl` and `wc-nn` conda envs in `/home/scc/emrecan.ulu/.conda/envs/`.
+  - Fixed conda activate in interactive shell: `conda init bash` → `source ~/.bashrc`.
+  - HF login via `hf auth login` (new CLI; `huggingface-cli` deprecated). Token saved to `/work/emrecan.ulu/hf_cache/token`. Git credential prompt answered No.
+  - User accepted Gemma 3 license on HuggingFace web (google/gemma-3-12b-it).
+  - Submitted three smoke jobs: `qsub smoke_qwen.sh` (1015381), `qsub smoke_gemma3.sh` (1015382), `qsub smoke_gemma4.sh` (1015383). All entered `qw` state.
+- **Findings:**
+  - `wc-tl` and `wc-nn` installed successfully: `torch 2.12.0+cu130`. CUDA: False on login node (expected — GPU nodes will show True).
+  - `module load conda/2024.10` is the correct module name on SCCKN.
+  - `hf auth login` / `hf auth whoami` is the current CLI. `hf auth whoami` throws latin-1 encoding error on this terminal but login is valid.
+  - Gemma 4 dense max is 12B; 27B is MoE — scale-up path for main result stays Gemma 3 27B.
+- **Decision / rationale:** Final model commitment: Gemma 3 12B for smoke, Gemma 3 27B as scale-up target. Gemma 4 12B runs as exploratory nnsight comparison only. Decision revisable after smoke results.
+- **Next:** Wait for job completion. Check `results/logs/smoke_*.out` and `smoke_tests/*/results/*.json`. If probe_cv_mean > 0.80 on Gemma 3 → proceed to Phase 4 (full corpus extraction).
+
+---
+
 ## 2026-06-08 · Step 7 — Model selection finalized; job scripts + config updated for 12B
 
 - **Context:** User approved plan to run smoke tests on SCCKN with Gemma 3 12B-IT and Gemma 4 12B-IT.
