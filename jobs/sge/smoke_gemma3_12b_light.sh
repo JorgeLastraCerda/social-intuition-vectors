@@ -21,7 +21,7 @@
 #$ -N smk_g3_12l
 #$ -q gpu@scc192,gpu@scc213,gpu@scc214   # ADJUST: three big-VRAM nodes; remove any that lack >=48 GB
 #$ -l h_rt=01:00:00
-#$ -l h_vmem=32G                          # ADJUST: RAM per slot
+#$ -l h_vmem=64G                          # ADJUST: RAM per slot (12B bf16 ~24GB VRAM + CPU overhead)
 #$ -pe smp 2                              # ADJUST: CPU cores
 #$ -l gpu=1
 #$ -o results/logs/smoke_gemma3_12b_light.out

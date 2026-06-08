@@ -25,7 +25,7 @@
 #$ -N smk_g3_4b
 #$ -q gpu                                 # ADJUST: any GPU queue (no node pin needed)
 #$ -l h_rt=00:30:00
-#$ -l h_vmem=16G                          # ADJUST: RAM per slot
+#$ -l h_vmem=32G                          # ADJUST: RAM per slot (4B bf16 ~8GB VRAM + CPU overhead)
 #$ -pe smp 2                              # ADJUST: CPU cores
 #$ -l gpu=1
 #$ -o results/logs/smoke_gemma3_4b.out
