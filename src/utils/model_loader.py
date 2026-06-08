@@ -17,7 +17,12 @@ def load_hooked_model(config: ProjectConfig):
     except ImportError as exc:
         raise ImportError("Install transformer-lens before loading hooked models.") from exc
 
-    return HookedTransformer.from_pretrained(
+    # from_pretrained_no_processing skips weight-folding steps (fold_biases,
+    # center_writing_weights) and avoids holding two copies of weights in CPU
+    # RAM simultaneously, halving peak memory during model load.  For linear
+    # probing on the residual stream the absence of weight-folding has no
+    # effect on probe accuracy.
+    return HookedTransformer.from_pretrained_no_processing(
         model_name,
         device=config.model.device,
         dtype=config.model.dtype,
