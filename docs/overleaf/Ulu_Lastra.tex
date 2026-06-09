@@ -1,0 +1,234 @@
+\documentclass[twocolumn]{article}
+
+% Essential packages
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{natbib}
+\usepackage{appendix}
+
+
+% Page geometry
+\usepackage[letterpaper,
+            includeheadfoot,
+            layoutsize={8.125in,10.875in},
+            layouthoffset=0.1875in,
+            layoutvoffset=0.0625in,
+            left=38.5pt,
+            right=43pt,
+            top=43pt,
+            bottom=44pt,
+            headheight=0pt,
+            headsep=-2pt,
+            columnsep=0.3125in,
+            footskip=25pt,
+            marginparwidth=38pt]{geometry}
+
+% Authors and affiliations
+\usepackage{authblk}
+
+% Float control
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.9}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.9}
+
+% Math operators
+\DeclareMathOperator*{\mean}{mean}
+\DeclareMathOperator*{\std}{std}
+\DeclareMathOperator*{\AbsDiff}{AbsDiff}
+
+% Bibliography settings
+\setlength{\bibsep}{0pt plus 0.3ex}
+
+% First page footer
+\usepackage{fancyhdr}
+\fancypagestyle{firstpage}{%
+  \fancyhf{}%
+  \fancyfoot[C]{\footnotesize
+    This version has not been peer reviewed. Comments and feedback are welcome.}%
+  \renewcommand{\headrulewidth}{0pt}%
+}
+
+% Caption formatting
+\usepackage{caption}
+\captionsetup{labelfont=bf, font=small}
+
+% Author/affiliation fonts
+\renewcommand\Authfont{\large}
+\renewcommand\Affilfont{\normalsize}
+
+% Autoref customization
+\renewcommand{\tableautorefname}{Tab.}
+\renewcommand{\figureautorefname}{Fig.}
+\renewcommand{\equationautorefname}{Eq.}
+\renewcommand{\appendixautorefname}{Appx.}
+
+\title{\LARGE Your amazing title}
+\date{\today}
+\author[1]{Emrecan Ulu}
+\author[2]{Jorge Lastra Cerda}
+\affil[1]{University of Konstanz}
+
+\begin{document}
+\twocolumn[
+  \begin{@twocolumnfalse}
+\maketitle
+\thispagestyle{firstpage} 
+
+
+\begin{abstract}
+\noindent
+Your abstract. \texttt{Due: Week 8}
+\vspace{0.50cm}
+\end{abstract}
+  \end{@twocolumnfalse}
+]
+
+
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\footnotetext[0]{Corresponding author: you@uni-konstanz.de}
+\renewcommand{\thefootnote}{\arabic{footnote}}
+\setcounter{footnote}{0}
+
+\section*{Introduction}
+\texttt{Due: Week 9.}
+Discrimination in hiring is one of the most persistent and consequential forms of social inequality. Access to work is not a neutral outcome. It shapes social mobility, material security, and the possibilities available to people across their lives. One of the most cited field experiments documenting the scope of this problem is Bertrand and Mullainathan (2004), who sent nearly 5,000 matched resumes to employers in Boston and Chicago, varying only the perceived race of the applicant through the name on the resume. Resumes assigned White-sounding names received approximately 50 percent more callbacks for interviews than otherwise identical resumes assigned African American-sounding names. That gap held across industries, occupations, and firm sizes. Similar audits have since documented comparable patterns for gender, age, disability, religion, sexual orientation, and national origin, establishing that differential treatment in hiring is not an isolated phenomenon but a structural feature of labor markets in North America and beyond (Correll, Benard, and Paik, 2007; Neumark, Burn, and Button, 2019; Tilcsik, 2011).
+The social psychology literature offers a theoretical framework for understanding why these disparities exist and what drives their magnitude. The Stereotype Content Model (Fiske, Cuddy, Glick, and Xu, 2002) proposes that social perception is organized along two fundamental dimensions: warmth, which captures perceived intentions and trustworthiness, and competence, which captures perceived ability and effectiveness. Groups that are stereotyped as low on warmth and low on competence elicit contempt and active harm, while groups stereotyped as high on both elicit admiration and active facilitation (Cuddy, Fiske, and Glick, 2007). Gallo, Hausladen, and colleagues (2024) tested this model directly against hiring outcomes. In a meta-analysis pooling callback data from over two decades of North American correspondence studies, they showed that human warmth and competence ratings of social signals predict callback disparities with substantial accuracy. The way people perceive the warmth and competence of a social group is not just a psychological description. It is a working predictor of whether members of that group get called back for a job interview.
+Large language models are now entering this picture. They are being used to screen resumes, rank candidates, and support or automate hiring decisions at scale. This raises an urgent question: do these systems reproduce the discriminatory patterns documented in human hiring, and if so, what is the underlying mechanism? Behavioral audit studies have already begun to answer the first part. Armstrong and colleagues (2024) found systematic disparities in GPT-3.5 callback recommendations across racial and ethnic groups. Gaebler, Goel, Huq, and Tambe (2024) audited multiple LLMs and found persistent race and gender disparities with potential legal implications under equal employment opportunity law. What these studies cannot tell us is where in the model this differential treatment originates, and how it could be addressed at the source rather than patched at the output.
+This paper addresses that gap by going inside the model. We ask whether warmth and competence, the same two dimensions that Gallo and Hausladen showed predict human hiring discrimination, are encoded as linear directions in the residual stream of an open-weights large language model. We then ask whether finding and manipulating those directions causally changes the model's hiring callback recommendations. Our approach adapts the method of Sofroniew, Lindsey, and colleagues (2026), who demonstrated that emotion concepts exist as functional internal representations in Claude Sonnet and that steering those representations shifts model behavior in alignment-relevant ways. We apply the same logic to social stereotypes in hiring: we generate stories expressing high and low levels of warmth and competence, extract residual-stream activations at the two-thirds depth of Gemma 3 12B, construct contrast vectors, and steer those vectors during binary callback recommendation tasks built around the social signals in the Gallo and Hausladen benchmark.
+Preliminary results from smoke tests on Gemma 3 12B are encouraging. A cross-validated linear probe on warmth versus cold sentences achieves 86 percent accuracy at layer 31 (Cohen's d = 2.90). Warmth steering produces roughly twice the logit shift of an equivalent random direction, which is consistent with the vector encoding something beyond surface-level noise. This is not the main result, it is an early technical check, but it supports the feasibility of the approach before we run the full pipeline.
+If the warmth and competence vectors we extract correspond to the same dimensions that drive discrimination in human hiring, this has implications that go beyond documenting yet another case of algorithmic bias. First, it suggests a mechanism: models may have learned an internal structure of social perception that mirrors the Stereotype Content Model, inherited from the human-generated text on which they were trained. Second, it opens a path to debiasing at the source, targeting the representation rather than post-hoc filtering of outputs. Third, it provides a basis for understanding how AI hiring tools can fail and potentially be exploited. These are questions that matter both for the science of how large language models represent social knowledge and for anyone designing or regulating systems that make consequential decisions about people's working lives.
+
+
+
+
+\section*{Literature}
+\texttt{Due: Week 9.}
+This is how you cite \cite{gallegos2024bias}.
+You should have at least 10 references. Make sure to read (listen to) those references. Also make use of what we collectively worked on the last few weeks: We have read a lot of papers you all (should) know them; new papers are not always better.
+
+
+
+\section*{Methods}
+\texttt{Due: Week 10.}
+Here you typically also have some formulas. 
+
+This is how I would explain Q-learning:
+
+
+Players are assumed to choose actions following an $\epsilon$-greedy policy, balancing exploration and exploitation:
+\[
+a =
+\begin{cases}
+\text{a random action}, & \text{with probability } \epsilon,\\[4pt]
+\displaystyle \arg\max_a Q(s,a), & \text{with probability } 1 - \epsilon.
+\end{cases}
+\]
+
+\paragraph{Data}
+Data description is usually part of the method. In-depth descriptive statistics of the data set can also be part of the appendix.
+
+\section*{Results}
+\texttt{Due: Week 10.}
+The results section I personally structured based on the main results I have. Usually, I have 3 to 5 main results, and each paragraph starts with a statement in a paragraph environment that makes a clear statement about that result. 
+E.g., like that:
+
+\paragraph{Proportional Aggregation Increases Welfare.}
+
+This is a sample figure:
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.99\linewidth]{sample_fig.pdf}
+    \caption{{\bf Global vs. Local Alignment.} Participants are clustered based on two different distance metrics: DTW (global) and Euclidean (local) distance. 
+Each small panel represents one cluster within a method, with participants sorted by their average contribution (highest on top).
+Red dots indicate when the most substantial consecutive drop in contribution occurs per participant.
+In the DTW cluster B, a quadratic regression curve is overlaid to illustrate that the drop can occur at any point in the game.
+In the Euclidean clusters B, C, and D, a vertical reference line is drawn to mark the period where most detected decline points are concentrated.
+Cell color encodes contribution magnitude (yellow indicates higher relative contribution, dark blue lower),
+and sample sizes per cluster appear above each panel.}
+    \label{fig:distance_metric_comparison}
+\end{figure}
+
+
+This is a sample \autoref{tab:type_comparison}. 
+Table notes should be extensive and descriptive. 
+From the abstract and figure/table captions ALONE I should be able to understand the table.
+
+\begin{table}
+\centering
+\caption{First-Round Cooperation Types by Period Length.}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}lcccc|cc@{}}
+\hline
+Type $|$ Periods & 7 & 10 & 20 & 30 & \textbf{Ours} & T\&V 2018 \\
+\hline
+Free Rider (\%)             & 14 & 16 & 23 & 9  & \textbf{14.0} & 19.2 \\
+Full Contributor (\%)       & 12 & 39 & 26 & 43 & \textbf{27.6} & 10.4 \\
+Conditional Cooperator (\%) & 75 & 45 & 51 & 49 & \textbf{58.4} & 61.3 \\
+\hline
+\end{tabular}%
+}
+\vspace{4pt}
+\parbox{\linewidth}{\footnotesize\raggedright
+\textit{Note:} Percentages based on first-round normalized contributions in our pooled dataset. Our dataset comprises 50,390 observations from 2,938 participants. Benchmark values from \citet{bai2025explicitly}, based on 7,107 conditional-contribution observations (strategy method).
+}
+\label{tab:type_comparison}
+\end{table}
+
+\section*{Discussion and Conclusion}
+\texttt{Due: Week 11.}
+
+\paragraph{Limitations}
+Being honest about the limitations of your work and not overselling your results is a marker of excellent research. Don't think you need to sell your results.
+
+\paragraph{Future Work}
+Write a little bit about how your work could be extended.
+
+{
+\small
+
+% Bibliography
+%\section*{References}
+\clearpage
+\bibliographystyle{unsrtnat}
+\bibliography{refs}
+}
+
+
+
+\clearpage
+\begin{appendices}
+\onecolumn
+\setcounter{figure}{0}   
+\setcounter{table}{0} 
+%\setcounter{section}{0}
+\renewcommand{\thesection}{\Alph{section}}%
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+\renewcommand\thefigure{S.\arabic{figure}} 
+\renewcommand\thetable{S.\arabic{table}}
+\begin{center}
+    \begin{minipage}{\textwidth}
+        \centering
+        \fontsize{16}{20}\selectfont
+        %\thetitle\\
+        Supplementary Materials
+    \end{minipage}
+\end{center}
+\vspace{.5cm}
+
+\section*{Details on Methods}
+\label{apx:methods}
+It is often not easy to know how much depth we want to have in the method's main paper versus the appendix. In practice, I often shift content between these two sections
+
+\section*{Additional Results}
+These are interesting plots that do not have space in main paper.
+
+
+
+
+\end{appendices}
+\end{document}
