@@ -1,0 +1,182 @@
+{
+  "test": "gemma3_sae_decompose",
+  "model": "google/gemma-3-12b-it",
+  "sae_release": "gemma-scope-2-12b-it-res",
+  "sae_id": "layer_31_width_16k_l0_medium",
+  "n_features": 16384,
+  "sae_cv_mean": 0.61,
+  "sae_cv_std": 0.073485,
+  "sae_cv_folds": [
+    0.65,
+    0.65,
+    0.7,
+    0.55,
+    0.5
+  ],
+  "top_warmth_direction_features": [
+    {
+      "feature_idx": 11996,
+      "activation": 16818.421875
+    },
+    {
+      "feature_idx": 13237,
+      "activation": 15128.8740234375
+    },
+    {
+      "feature_idx": 13951,
+      "activation": 15086.6376953125
+    },
+    {
+      "feature_idx": 13328,
+      "activation": 14969.0107421875
+    },
+    {
+      "feature_idx": 14337,
+      "activation": 13795.24609375
+    },
+    {
+      "feature_idx": 15663,
+      "activation": 13704.4736328125
+    },
+    {
+      "feature_idx": 13334,
+      "activation": 10943.07421875
+    },
+    {
+      "feature_idx": 2414,
+      "activation": 9604.4267578125
+    },
+    {
+      "feature_idx": 9197,
+      "activation": 9020.625
+    },
+    {
+      "feature_idx": 12877,
+      "activation": 8524.1279296875
+    },
+    {
+      "feature_idx": 12399,
+      "activation": 6807.2490234375
+    },
+    {
+      "feature_idx": 9042,
+      "activation": 6109.80224609375
+    },
+    {
+      "feature_idx": 14348,
+      "activation": 6017.58251953125
+    },
+    {
+      "feature_idx": 4393,
+      "activation": 5879.52490234375
+    },
+    {
+      "feature_idx": 437,
+      "activation": 5877.052734375
+    },
+    {
+      "feature_idx": 11632,
+      "activation": 5763.775390625
+    },
+    {
+      "feature_idx": 15502,
+      "activation": 5195.77587890625
+    },
+    {
+      "feature_idx": 243,
+      "activation": 5078.04833984375
+    },
+    {
+      "feature_idx": 463,
+      "activation": 4684.3984375
+    },
+    {
+      "feature_idx": 5744,
+      "activation": 4548.96240234375
+    }
+  ],
+  "top_warm_minus_cold_features": [
+    {
+      "feature_idx": 295,
+      "activation": -387.6735534667969
+    },
+    {
+      "feature_idx": 13092,
+      "activation": -218.6768798828125
+    },
+    {
+      "feature_idx": 349,
+      "activation": -167.33880615234375
+    },
+    {
+      "feature_idx": 249,
+      "activation": -122.474609375
+    },
+    {
+      "feature_idx": 107,
+      "activation": -102.18544006347656
+    },
+    {
+      "feature_idx": 1798,
+      "activation": -86.84526824951172
+    },
+    {
+      "feature_idx": 1473,
+      "activation": -85.22640228271484
+    },
+    {
+      "feature_idx": 442,
+      "activation": -82.282470703125
+    },
+    {
+      "feature_idx": 978,
+      "activation": -72.070556640625
+    },
+    {
+      "feature_idx": 15223,
+      "activation": 68.03390502929688
+    },
+    {
+      "feature_idx": 373,
+      "activation": 61.34641647338867
+    },
+    {
+      "feature_idx": 7669,
+      "activation": 59.159610748291016
+    },
+    {
+      "feature_idx": 784,
+      "activation": 58.28596115112305
+    },
+    {
+      "feature_idx": 12103,
+      "activation": 56.648033142089844
+    },
+    {
+      "feature_idx": 13234,
+      "activation": 55.635807037353516
+    },
+    {
+      "feature_idx": 766,
+      "activation": -54.140594482421875
+    },
+    {
+      "feature_idx": 1336,
+      "activation": 54.054107666015625
+    },
+    {
+      "feature_idx": 1259,
+      "activation": 53.10589599609375
+    },
+    {
+      "feature_idx": 1083,
+      "activation": 52.5006103515625
+    },
+    {
+      "feature_idx": 900,
+      "activation": -50.60069274902344
+    }
+  ],
+  "interpretation_note": "Look up feature indices on Neuronpedia (https://www.neuronpedia.org/) to determine whether top features represent warmth/care/friendliness (= warmth-specific) or positivity/joy/good (= valence confound).",
+  "status": "DONE"
+}

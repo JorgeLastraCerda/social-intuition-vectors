@@ -204,3 +204,41 @@
   result. Gemma 4's "smarter model" advantage is currently offset by having no tooling or
   literature. Both paths will be piloted before a final commitment.
 - **Next:** Await Carina's direction; run Gemma 3 4B smoke test locally.
+
+---
+
+## 2026-06-09 · Step 1 — Smoke matrix results: Gemma 3 12B PASS, Gemma 4 failed
+
+- **Context:** Final tally of the six-job SCCKN smoke-test matrix submitted 2026-06-08.
+- **Did:** Read `results/logs/smoke_gemma3_12b_light.out`, `smoke_gemma4_12b_light.out`,
+  `smoke_gemma3_4b.out`, `smoke_gemma4_4b.out` and the corresponding `.err` files on SCCKN.
+  Parsed `smoke_tests/gemma3_transformerlens/results/g3_12b/smoke_probe_1780951986.json` and
+  `sae_decompose_1780952012.json`. Cancelled stalled jobs 1015382 and 1015383 (`qdel`).
+- **Findings:**
+  - **Gemma 3 12B-IT — PASS.** layer 31/48, d_model 3840, seed 20260527.
+    diff_norm 1484.6, cosine(warm, cold) 0.99975, Cohen's d 2.896 (in-sample),
+    probe_cv_mean **0.86 ± 0.08** (folds 0.95/0.80/0.95/0.75/0.85), mean_resid_norm 66184.6,
+    steering_alpha 33092.3, max_logit_delta warmth 40.0 vs random 20.75,
+    warmth_random_ratio **1.93×**. Clears the >0.80 threshold.
+  - **Gemma 3 12B SAE decomposition (GemmaScope 2 `layer_31_width_16k_l0_medium`) — DONE but
+    low.** sae_cv_mean 0.61 ± 0.07 (barely above chance 0.50). Top warm-minus-cold features are
+    small and mixed-sign; Neuronpedia inspection still needed to close the valence-confound
+    question.
+  - **Gemma 4 4B and 12B — zero results.** Two separate failures: (a) all Gemma 4 variants are
+    registered as `AutoModelForImageTextToText` (multimodal) — nnsight's `LanguageModel()` can't
+    load them; `VisionLanguageModel` must be used. (b) even with `VisionLanguageModel`, nnsight
+    fails to import `Gemma4Processor`/`Gemma4UnifiedProcessor` and `Gemma4Config`/
+    `Gemma4UnifiedConfig` lacks the `num_hidden_layers` attribute nnsight requires to map layers.
+    Root cause: nnsight 0.6 (Feb 2026) predates Gemma 4's release (Apr 2026); no working path.
+  - **Gemma 3 4B — OOM** on CPU allocation (100 MB alloc failure); no result.
+  - Jobs 1015382, 1015383 (original 12B pinned jobs) were stuck in `qw` since submission;
+    cancelled this session.
+- **Decision / rationale:** Commit to **Gemma 3 12B-IT** as the sole model for the core
+  result. Gemma 4 dropped: nnsight support is absent, no SAEs exist, and the multimodal
+  registration adds complexity with no scientific benefit. The 12B smoke passes the probe
+  threshold; Gemma 3 27B remains an open-door scale-up. Gemma 4 can be revisited if nnsight
+  adds Gemma 4 native support in a future release.
+- **Next:** (1) Inspect top SAE features on Neuronpedia (`gemma-scope-2-12b-it-res`,
+  `layer_31_width_16k_l0_medium`) to assess warmth-vs-valence confound. (2) Phase 4 —
+  implement `src/extract_vectors.py` for full corpus extraction over ~4,800 API-generated
+  stories.
