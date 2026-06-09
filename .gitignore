@@ -53,9 +53,7 @@ data/processed/*
 # Generated outputs
 results/logs/*
 !results/logs/.gitkeep
-smoke_tests/*/results/*
-!smoke_tests/*/results/.gitkeep
-!smoke_tests/*/results/*.json
+smoke_tests/*/results/**/*.npy
 results/figures/*.png
 results/figures/*.pdf
 results/tables/*.csv
