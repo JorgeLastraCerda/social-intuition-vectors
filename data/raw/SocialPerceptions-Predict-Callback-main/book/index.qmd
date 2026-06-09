@@ -1,0 +1,113 @@
+# Introduction
+
+```{r setup, include=FALSE, warning=FALSE, message=FALSE}
+#rm(list=ls())
+library(tidyverse)
+library(ggpubr)
+library(gt)
+library(car)
+
+library(meta)
+library(metafor)
+library(dmetar)
+
+library(readr)
+library(lubridate)
+```
+
+# Data Structure
+
+The PRISMA Flow Diagram, which provides a comprehensive overview of our data selection process, can be accessed at the [following link](https://docs.google.com/document/d/1Jv8rHGgzQ8C93V2mUcBuqYwpiCgKilpG/edit?usp=sharing&ouid=108198120368611417890&rtpof=true&sd=true).
+
+```{r read df categories, include=FALSE}
+read.csv("../0_data/ratings/categories/categories.csv") %>%
+  group_by(study) %>%
+  mutate(warm = replace_na(warm, mean(warm, na.rm = TRUE))) %>%
+  mutate(competence = replace_na(competence, mean(competence, na.rm = TRUE))) ->wc
+cb<- read.csv("../0_data/extracted_data/df_all.csv",check.names = FALSE)
+
+wc %>%
+  group_by(study, category, level) %>% 
+  summarise(warm=mean(warm, na.rm=TRUE), competence=mean(competence, na.rm=TRUE), .groups="drop") %>%
+  left_join(cb,
+            by=c("study", "category", "level")) %>%
+  select(study, category, level) %>%
+  group_by(category)%>%
+  mutate(studies = n_distinct(study)) %>%
+  mutate(levels = n_distinct(level)) %>%
+  mutate(signals=levels)%>%
+  select(category, studies, levels, signals) %>%
+  unique()->df_wc
+```
+
+```{r read df names, include=FALSE}
+wc<-read_csv("../0_data/ratings/names/df_all.csv",show_col_types = FALSE)
+read_csv("../0_data/published_data/df_all.csv",show_col_types = FALSE) %>%
+  mutate(study=tolower(study)) %>%
+  mutate(callback_n=as.integer(callback_n))->cb
+
+cb %>%
+  left_join(wc %>% 
+              group_by(study, name) %>% 
+              summarise(warm=mean(warm), competent=mean(competent)),
+            by=c("study","name")) %>%
+  filter(!is.na(competent)) %>%
+  filter(!is.na(warm)) %>%
+  filter(!is.na(callback)) %>%
+  mutate(race=tolower(race)) %>%
+  mutate(gender=tolower(gender))  %>%
+  select(study, race, gender, name) %>%
+  pivot_longer(cols=c(race, gender), names_to = "category", values_to = "level") %>%
+  group_by(category) %>%
+  mutate(studies = n_distinct(study)) %>%
+  mutate(levels = n_distinct(level)) %>%
+  mutate(signals = n_distinct(name))  %>%
+  select(category, studies, levels, signals) %>%
+  unique()->df_names
+```
+
+::: columns
+::: {.column width="55%"}
+```{r show-data-overview}
+rbind(df_names, df_wc) %>%
+  mutate(category = if_else(category == "unemployed", "employment", category)) %>%
+  mutate(category = if_else(category == "race and national origin", "nationality", category)) %>%
+  mutate(category = if_else(category == "military service or affiliation", "nationality", category)) %>%
+  mutate(category = if_else(category == "sexual orientation", "secuality", category)) %>%
+  ungroup()%>%
+  arrange(desc(studies)) %>%
+  gt() %>%
+  summary_rows(
+    columns = c(studies, levels, signals),
+    fns = list(total = "sum")) #|> gtsave("table.tex")
+  #gtsave("tables/overview.tex")
+```
+:::
+
+::: {.column width="5%"}
+:::
+
+::: {.column width="40%"}
+There is a considerable body of research on correspondence studies that specifically examines the categories of race and gender. In these studies, one of the most frequently used signals is a person's name. Because of this, the number of signals used in studies on race and gender is much larger compared to other categories, due to the higher number of levels within these subsets. However, correspondence studies also exist that focus on categories other than race and gender. In these studies, the number of signals used is equivalent to the number of levels. Nevertheless, given that there are more observations on race and gender categories, we will first analyze a dataset that includes all categories before delving into an in-depth analysis of race and gender.
+:::
+:::
+
+```{r out.width="50%", warning=FALSE, message=FALSE, eval=FALSE}
+#| label: fig-year
+#| fig-cap: Time trend of studies in our database.
+
+source("/Users/carinaines/Documents/GitHub/NSF-Discrimination/book/helper_fct/plt_date.R") 
+plt_date(df_in=read_csv("/Users/carinaines/Documents/GitHub/NSF-Discrimination/0_data/extracted_data/covidence_raw.csv")) %>%
+  ggplot(aes(y=date, x=study, color=which_date, group=which_date)) +
+  geom_point() +
+  geom_line(size=.1)+
+  theme_classic()+
+  theme(text = element_text(size=20),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = 10),
+        legend.position="bottom")+
+  scale_fill_discrete(labels = c("Group A", "Group B"))
+```
+
+## Callback
+
+The main variable of interest is the callback proportion. To quantify the callback rate, we computed the risk ratio, $p_{callback} = \frac{callback}{opportunities}$. When p is close to 0 or close to 1, the standard error is artificially compressed, which leads us to overestimate the precision of the proportion estimate. To avoid this, the proportions are logit-transformed before they are pooled.

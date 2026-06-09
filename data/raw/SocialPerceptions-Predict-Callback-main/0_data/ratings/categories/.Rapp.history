@@ -1,0 +1,137 @@
+ls()
+library(readr)#
+library(tidyr)#
+#
+qualtrics <- read_delim("0_data/qualtrics_raw/CategorySignals-Kline-Flake-Leasure-Prolific.tsv", #
+                         delim = "\t", escape_double = FALSE, #
+                         locale = locale(encoding = "UTF-16"), #
+                         trim_ws = TRUE)#
+#
+# 1.  Delete unwanted rows and columns ------------------------------------#
+#
+# Remove empty columns#
+qualtrics <- qualtrics[, colSums(is.na(qualtrics)) != nrow(qualtrics)]#
+# Take out demographics#
+qualtrics <- qualtrics %>%#
+  select(-c("StartDate":"prolific_id"),#
+         -c("native_english":"comment"),#
+         -contains("names")) %>%#
+  rename(ResponseID = PROLIFIC_PID)#
+warm_ratings <- qualtrics %>%#
+  select(contains(vars = qualtrics[1,], "Warm"),#
+         ResponseID)#
+comp_ratings <- qualtrics %>%#
+  select(contains(vars = qualtrics[1,], "Competent"),#
+         ResponseID)#
+#
+# 3.  Average Ratings -----------------------------------------------------#
+#
+## Warm#
+warm_ratings <- warm_ratings[-c(1,2),] %>%#
+  pivot_longer(cols = !ResponseID,#
+               names_to = c("study","level"),#
+               names_sep = "_",#
+               values_to = "warmth") %>%#
+  mutate(study = case_when(level == "kline" ~ "kline",#
+                           .default = study),#
+         level = case_when(level == "kline" ~ "straight",#
+                              study == "kline" & level != "kline" ~ "gay",#
+                              .default = level),#
+         warmth = as.numeric(warmth)) %>%#
+  group_by(ResponseID, study,level) %>%#
+  summarise(warmth = mean(warmth,na.rm = TRUE))#
+#
+## Competent#
+comp_ratings <- comp_ratings[-c(1,2),] %>%#
+  pivot_longer(cols = !ResponseID,#
+               names_to = c("study","level"),#
+               names_sep = "_",#
+               values_to = "competence") %>%#
+  mutate(study = case_when(level == "kline" ~ "kline",#
+                           .default = study),#
+         level = case_when(level == "kline" ~ "straight",#
+                              study == "kline" & level != "kline" ~ "gay",#
+                              .default = level),#
+         competence = as.numeric(competence)) %>%#
+  group_by(ResponseID, study,level) %>%#
+  summarise(competence = mean(competence,na.rm = TRUE))#
+#
+# Merge#
+categories <- warm_ratings %>%#
+  inner_join(comp_ratings,#
+             by = c("ResponseID", "study","level"))#
+#
+batch2 <- categories %>%#
+  mutate(batch = 2)#
+#
+# 4. First categories survey ----------------------------------------------#
+#
+## Replacing qualtriccs with the first category survey#
+qualtrics <- read_delim("0_data/qualtrics_raw/CategorySignals-Prolific.tsv", #
+                         delim = "\t", escape_double = FALSE, #
+                         locale = locale(encoding = "UTF-16"), #
+                         trim_ws = TRUE)#
+#
+# Remove empty columns#
+qualtrics <- qualtrics[, colSums(is.na(qualtrics)) != nrow(qualtrics)]#
+# Take out demographics#
+qualtrics <- qualtrics %>%#
+  select(-c("StartDate":"prolific_id"),#
+         -c("native_english":"comment")) %>%#
+  rename(ResponseID = PROLIFIC_PID)#
+#
+warm_ratings <- qualtrics %>%#
+  select(contains(vars = qualtrics[1,], "Warm"),#
+         ResponseID)#
+names(warm_ratings) <- sub('1_', '', names(warm_ratings))#
+comp_ratings <- qualtrics %>%#
+  select(contains(vars = qualtrics[1,], "Competent"),#
+         ResponseID)#
+names(comp_ratings) <- sub('1_', '', names(comp_ratings))#
+#
+## Warm#
+warm_ratings <- warm_ratings[-c(1,2),] %>%#
+  pivot_longer(cols = !ResponseID,#
+               names_to = c("study","level"),#
+               names_sep = "_",#
+               values_to = "warmth") %>%#
+  filter(!is.na(warmth)) %>%#
+  mutate(level = case_when(study == "farber60" ~ "60",#
+                           study == "farber51" ~ "51",#
+                           .default = level),#
+         study = case_when(study == "farber60" |#
+                             study == "farber51" ~ "farber",#
+                           .default = study),#
+         warmth = as.numeric(warmth)) %>%#
+  group_by(ResponseID, study,level) %>%#
+  summarise(warmth = mean(warmth,na.rm = TRUE))#
+#
+## Competent#
+comp_ratings <- comp_ratings[-c(1,2),] %>%#
+  pivot_longer(cols = !ResponseID,#
+               names_to = c("study","level"),#
+               names_sep = "_",#
+               values_to = "competence") %>%#
+  filter(!is.na(competence)) %>%#
+  mutate(level = case_when(study == "farber60" ~ "60",#
+                           study == "farber51" ~ "51",#
+                           .default = level),#
+         study = case_when(study == "farber60" |#
+                             study == "farber51" ~ "farber",#
+                           .default = study),#
+         competence = as.numeric(competence)) %>%#
+  group_by(ResponseID, study,level) %>%#
+  summarise(competence = mean(competence,na.rm = TRUE))#
+#
+# Merge#
+categories <- warm_ratings %>%#
+  inner_join(comp_ratings,#
+             by = c("ResponseID", "study","level"))#
+#
+batch1 <- categories %>%#
+  mutate(batch = 1)#
+#
+# 5.  Save csv's ----------------------------------------------------------#
+#
+categories <- batch1 %>%bind_rows(batch2)#
+write.csv(categories, file = "0_data/ratings/categories.csv", row.names=FALSE)

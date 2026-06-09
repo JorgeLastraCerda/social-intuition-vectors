@@ -1,0 +1,853 @@
+{
+    "sources": [
+        {
+            "author": [
+                {
+                    "family": "Werner",
+                    "given": "Hannah"
+                },
+                {
+                    "family": "Marien",
+                    "given": "Sofie"
+                }
+            ],
+            "container-title": "British Journal of Political Science",
+            "id": "werner2022process",
+            "issue": "1",
+            "issued": {
+                "date-parts": [
+                    [
+                        2022
+                    ]
+                ]
+            },
+            "page": "429-436",
+            "publisher": "Cambridge University Press",
+            "title": "Process vs. Outcome? How to evaluate the effects of participatory processes on legitimacy perceptions",
+            "type": "article-journal",
+            "volume": "52"
+        },
+        {
+            "DOI": "10.5465/amr.2013.0318",
+            "author": [
+                {
+                    "family": "Bitektine",
+                    "given": "Alex"
+                },
+                {
+                    "family": "Haack",
+                    "given": "Patrick"
+                }
+            ],
+            "container-title": "The Academy of Management Review",
+            "id": "Bitektine2014",
+            "issue": "1",
+            "issued": {
+                "date-parts": [
+                    [
+                        2015
+                    ]
+                ]
+            },
+            "page": "49-75",
+            "publisher": "Academy of Management",
+            "title": "The \"Macro\" and the \"Micro\" of Legitimacy: Toward a Multilevel Theory of the Legitimacy Process",
+            "type": "article-journal",
+            "volume": "40"
+        },
+        {
+            "DOI": "10.1038/s41467-021-27618-5",
+            "author": [
+                {
+                    "family": "Brus",
+                    "given": "Jeroen"
+                },
+                {
+                    "family": "Aebersold",
+                    "given": "Helena"
+                },
+                {
+                    "family": "Grueschow",
+                    "given": "Marcus"
+                },
+                {
+                    "family": "Polania",
+                    "given": "Rafael"
+                }
+            ],
+            "container-title": "Nature Communications",
+            "id": "Brus2021",
+            "issue": "7337",
+            "issued": {
+                "date-parts": [
+                    [
+                        2021
+                    ]
+                ]
+            },
+            "title": "Sources of confidence in value-based choice",
+            "type": "article-journal",
+            "volume": "12"
+        },
+        {
+            "DOI": "10.1016/j.foodqual.2019.103754",
+            "author": [
+                {
+                    "family": "Chen",
+                    "given": "Xuqi"
+                },
+                {
+                    "family": "Gao",
+                    "given": "Zhifeng"
+                },
+                {
+                    "family": "McFadden",
+                    "given": "Brandon R."
+                }
+            ],
+            "container-title": "Food Quality and Preference",
+            "id": "Chen2020reveal",
+            "issued": {
+                "date-parts": [
+                    [
+                        2020
+                    ]
+                ]
+            },
+            "page": "103754",
+            "title": "Reveal Preference Reversal in Consumer Preference for Sustainable Food Products",
+            "type": "article-journal",
+            "volume": "79"
+        },
+        {
+            "ISBN": "978-3-030-20219-4",
+            "author": [
+                {
+                    "family": "Emerson",
+                    "given": "Peter"
+                }
+            ],
+            "id": "Emerson2020catalyst",
+            "issued": {
+                "date-parts": [
+                    [
+                        2020
+                    ]
+                ]
+            },
+            "publisher": "Springer",
+            "title": "Majority voting as a catalyst of populism",
+            "type": "book"
+        },
+        {
+            "author": [
+                {
+                    "family": "Kriesi",
+                    "given": "Hanspeter"
+                }
+            ],
+            "id": "kriesi2005direct",
+            "issued": {
+                "date-parts": [
+                    [
+                        2005
+                    ]
+                ]
+            },
+            "publisher": "Lexington Books",
+            "title": "Direct democratic choice: The swiss experience",
+            "title-short": "Direct democratic choice",
+            "type": "book"
+        },
+        {
+            "ISBN": "3030265811",
+            "author": [
+                {
+                    "family": "Haenggli",
+                    "given": "Regula"
+                }
+            ],
+            "id": "Haenggli2020Origin",
+            "issued": {
+                "date-parts": [
+                    [
+                        2020
+                    ]
+                ]
+            },
+            "publisher": "Palgrave Macmillan",
+            "title": "The Origin of Dialogue in the News Media (Challenges to Democracy in the 21st Century",
+            "type": "book"
+        },
+        {
+            "ISBN": "978-3-030-52808-9",
+            "author": [
+                {
+                    "family": "Emerson",
+                    "given": "Peter"
+                }
+            ],
+            "container-title": "Democratic decision-making",
+            "editor": [
+                {
+                    "family": "Emerson",
+                    "given": "Peter"
+                }
+            ],
+            "id": "Emerson2021",
+            "issued": {
+                "date-parts": [
+                    [
+                        2021
+                    ]
+                ]
+            },
+            "page": "41-51",
+            "publisher": "Springer",
+            "title": "The Consequences of Consequences",
+            "type": "chapter"
+        },
+        {
+            "URL": "https://www.defacto.expert/2015/10/15/die-nichtwaehlenden-bislang-unentdeckte-wesen/",
+            "author": [
+                {
+                    "family": "Fatke",
+                    "given": "Matthias"
+                },
+                {
+                    "family": "Freitag",
+                    "given": "Markus"
+                }
+            ],
+            "id": "Fatke2015",
+            "title": "Die Nichtwählenden – bislang unentdeckte Wesen",
+            "type": ""
+        },
+        {
+            "DOI": "10.1007/s11166-016-9233-z",
+            "author": [
+                {
+                    "family": "Alós-Ferrer",
+                    "given": "Carlos"
+                },
+                {
+                    "family": "Granic",
+                    "given": "Dura Georg"
+                },
+                {
+                    "family": "Kern",
+                    "given": "Johannes"
+                },
+                {
+                    "family": "Wagner",
+                    "given": "Alexander K."
+                }
+            ],
+            "container-title": "Journal of Risk and Uncertainty",
+            "id": "Ferrer2016",
+            "issue": "1",
+            "issued": {
+                "date-parts": [
+                    [
+                        2016
+                    ]
+                ]
+            },
+            "page": "65-97",
+            "title": "Preference reversals: Time and again",
+            "type": "article-journal",
+            "volume": "52"
+        },
+        {
+            "ISSN": "0036-8733",
+            "author": [
+                {
+                    "family": "Festinger",
+                    "given": "Leon"
+                }
+            ],
+            "container-title": "Scientific American",
+            "id": "Festinger1962",
+            "issue": "4",
+            "issued": {
+                "date-parts": [
+                    [
+                        1962
+                    ]
+                ]
+            },
+            "page": "93-106",
+            "publisher": "JSTOR",
+            "title": "Cognitive dissonance",
+            "type": "article-journal",
+            "volume": "207"
+        },
+        {
+            "DOI": "10.1017/CBO9780511618031",
+            "author": [
+                {
+                    "family": "Lichtenstein",
+                    "given": "Sarah"
+                },
+                {
+                    "family": "Slovic",
+                    "given": "Paul"
+                }
+            ],
+            "id": "Lichtenstein2006",
+            "issued": {
+                "date-parts": [
+                    [
+                        2006
+                    ]
+                ]
+            },
+            "publisher": "Cambridge University Press",
+            "title": "The construction of preference",
+            "type": "book"
+        },
+        {
+            "DOI": "10.1017/S1752971918000258",
+            "author": [
+                {
+                    "family": "Maffettone",
+                    "given": "Pietro"
+                },
+                {
+                    "family": "Ulaş",
+                    "given": "Luke"
+                }
+            ],
+            "container-title": "International Theory",
+            "id": "Maffettone2019",
+            "issue": "1",
+            "issued": {
+                "date-parts": [
+                    [
+                        2019
+                    ]
+                ]
+            },
+            "page": "81-109",
+            "title": "Legitimacy, metacoordination and context-dependence",
+            "type": "article-journal",
+            "volume": "11"
+        },
+        {
+            "DOI": "10.1080/1369823032000233573",
+            "author": [
+                {
+                    "family": "McBride",
+                    "given": "Cillian"
+                }
+            ],
+            "container-title": "Critical Review of International Social and Political Philosophy",
+            "id": "McBride2003",
+            "issue": "3",
+            "issued": {
+                "date-parts": [
+                    [
+                        2003
+                    ]
+                ]
+            },
+            "page": "104-128",
+            "title": "Consensus, Legitimacy, and the Exercise of Judgement in Political Deliberation",
+            "type": "article-journal",
+            "volume": "6"
+        },
+        {
+            "DOI": "10.48550/arxiv.2211.04577",
+            "author": [
+                {
+                    "family": "Navarrete",
+                    "given": "Carlos"
+                },
+                {
+                    "family": "Ferrada",
+                    "given": "Nicole"
+                },
+                {
+                    "family": "Macedo",
+                    "given": "Mariana"
+                },
+                {
+                    "family": "Colley",
+                    "given": "Rachael"
+                },
+                {
+                    "family": "Zhang",
+                    "given": "Jingling"
+                },
+                {
+                    "family": "Grandi",
+                    "given": "Umberto"
+                },
+                {
+                    "family": "Lang",
+                    "given": "Jerome"
+                },
+                {
+                    "family": "Hidalgo",
+                    "given": "César A."
+                }
+            ],
+            "id": "Navarrete2022",
+            "issued": {
+                "date-parts": [
+                    [
+                        2022,
+                        11
+                    ]
+                ]
+            },
+            "title": "Understanding Political Agreements and Disagreements: Evidence from the 2022 French Presidential Election",
+            "type": ""
+        },
+        {
+            "DOI": "10.1007/s00199-013-0775-x",
+            "author": [
+                {
+                    "family": "Núñez",
+                    "given": "Matías"
+                }
+            ],
+            "container-title": "Economic Theory",
+            "id": "Nunez2014",
+            "issue": "1",
+            "issued": {
+                "date-parts": [
+                    [
+                        2014
+                    ]
+                ]
+            },
+            "page": "157-189",
+            "title": "The strategic sincerity of Approval voting",
+            "type": "article-journal",
+            "volume": "56"
+        },
+        {
+            "DOI": "10.1017/S1755773912000173",
+            "author": [
+                {
+                    "family": "Persson",
+                    "given": "Mikael"
+                },
+                {
+                    "family": "Esaiasson",
+                    "given": "Peter"
+                },
+                {
+                    "family": "Gilljam",
+                    "given": "Mikael"
+                }
+            ],
+            "container-title": "European Political Science Review",
+            "id": "Persson2013",
+            "issue": "3",
+            "issued": {
+                "date-parts": [
+                    [
+                        2013
+                    ]
+                ]
+            },
+            "page": "381-399",
+            "title": "The effects of direct voting and deliberation on legitimacy beliefs: An experimental study of small group decision-making",
+            "type": "article-journal",
+            "volume": "5"
+        },
+        {
+            "ISBN": "3593361116",
+            "author": [
+                {
+                    "family": "Scharpf",
+                    "given": "Fritz W"
+                }
+            ],
+            "id": "Scharpf1999",
+            "issued": {
+                "date-parts": [
+                    [
+                        1999
+                    ]
+                ]
+            },
+            "publisher": "Campus Verlag",
+            "title": "Regieren in Europa: Effektiv und demokratisch?",
+            "type": "book"
+        },
+        {
+            "DOI": "10.1111/j.1467-9248.2012.00962.x",
+            "author": [
+                {
+                    "family": "Schmidt",
+                    "given": "Vivien A"
+                }
+            ],
+            "container-title": "Political Studies",
+            "id": "Schmidt2013",
+            "issue": "1",
+            "issued": {
+                "date-parts": [
+                    [
+                        2013
+                    ]
+                ]
+            },
+            "page": "2-22",
+            "title": "Democracy and legitimacy in the European Union revisited: Input, output and “throughput”",
+            "type": "article-journal",
+            "volume": "61"
+        },
+        {
+            "URL": "https://ecpr.eu/Events/Event/PaperDetails/28307",
+            "author": [
+                {
+                    "family": "Schmitt",
+                    "given": "Johannes"
+                }
+            ],
+            "container-title": "ECPR Graduate Student Conference",
+            "id": "Schmitt2016",
+            "issued": {
+                "date-parts": [
+                    [
+                        2016
+                    ]
+                ]
+            },
+            "title": "How to Measure Ideological Polarization in Party Systems",
+            "type": "article-journal",
+            "volume": "2016"
+        },
+        {
+            "DOI": "10.1017/S175577390900006X",
+            "ISSN": "1755-7747",
+            "URL": "https://www.cambridge.org/core/journals/european-political-science-review/article/partisan-choices-in-a-directdemocratic-campaign/5806A8544F68314FCC1D4DB5C26D0954",
+            "author": [
+                {
+                    "family": "Selb",
+                    "given": "Peter"
+                },
+                {
+                    "family": "Kriesi",
+                    "given": "Hanspeter"
+                },
+                {
+                    "family": "Hänggli",
+                    "given": "Regula"
+                },
+                {
+                    "family": "Marr",
+                    "given": "Mirko"
+                }
+            ],
+            "container-title": "European Political Science Review",
+            "id": "Selb2009",
+            "issue": "1",
+            "issued": {
+                "date-parts": [
+                    [
+                        2009
+                    ]
+                ]
+            },
+            "keyword": "activation, ambivalence, direct democracy, partisanship",
+            "page": "155-172",
+            "publisher": "Cambridge University Press",
+            "title": "Partisan choices in a direct-democratic campaign",
+            "type": "article-journal",
+            "volume": "1"
+        },
+        {
+            "DOI": "10.1007/BF00127531/METRICS",
+            "ISSN": "00485829",
+            "URL": "https://link.springer.com/article/10.1007/BF00127531",
+            "author": [
+                {
+                    "family": "Nitzan",
+                    "given": "Shmuel"
+                }
+            ],
+            "container-title": "Public Choice",
+            "id": "Shmuel1985",
+            "issue": "2",
+            "issued": {
+                "date-parts": [
+                    [
+                        1985,
+                        1
+                    ]
+                ]
+            },
+            "keyword": "Political Science, Public Finance",
+            "page": "349-370",
+            "publisher": "Kluwer Academic Publishers",
+            "title": "The vulnerability of point-voting schemes to preference variation and strategic manipulation",
+            "type": "article-journal",
+            "volume": "47"
+        },
+        {
+            "DOI": "10.1016/J.ELECTSTUD.2011.11.001",
+            "author": [
+                {
+                    "family": "Singh",
+                    "given": "Shane"
+                },
+                {
+                    "family": "Karakoç",
+                    "given": "Ekrem"
+                },
+                {
+                    "family": "Blais",
+                    "given": "André"
+                }
+            ],
+            "container-title": "Electoral Studies",
+            "id": "Singh2012",
+            "issue": "1",
+            "issued": {
+                "date-parts": [
+                    [
+                        2012,
+                        3
+                    ]
+                ]
+            },
+            "page": "201-211",
+            "publisher": "Pergamon",
+            "title": "Differentiating winners: How elections affect satisfaction with democracy",
+            "type": "article-journal",
+            "volume": "31"
+        },
+        {
+            "DOI": "10.5465/AMR.2010.0227",
+            "author": [
+                {
+                    "family": "Tost",
+                    "given": "Leigh Plunkett"
+                }
+            ],
+            "container-title": "Academy of Management Review",
+            "id": "Tost2011",
+            "issue": "4",
+            "issued": {
+                "date-parts": [
+                    [
+                        2011
+                    ]
+                ]
+            },
+            "page": "686-710",
+            "title": "An Integrative Model of Legitimacy Judgments",
+            "type": "article-journal",
+            "volume": "36"
+        },
+        {
+            "DOI": "10.1146/annurev.psych.57.102904.190038",
+            "author": [
+                {
+                    "family": "Tyler",
+                    "given": "Tom R."
+                }
+            ],
+            "container-title": "Annual Review of Psychology",
+            "id": "Tyler2005",
+            "issue": "1",
+            "issued": {
+                "date-parts": [
+                    [
+                        2006
+                    ]
+                ]
+            },
+            "page": "375-400",
+            "title": "Psychological perspectives on legitimacy and legitimation",
+            "type": "article-journal",
+            "volume": "57"
+        },
+        {
+            "DOI": "10.1007/s003550000071",
+            "author": [
+                {
+                    "family": "Valognes",
+                    "given": "William"
+                },
+                {
+                    "family": "Fabrice",
+                    "given": "Gehrlein"
+                }
+            ],
+            "container-title": "Social Choice and Welfare",
+            "id": "Valognes2001",
+            "issue": "1",
+            "issued": {
+                "date-parts": [
+                    [
+                        2001
+                    ]
+                ]
+            },
+            "page": "193-205",
+            "title": "Condorcet efficiency: A preference for indifference",
+            "type": "article-journal",
+            "volume": "18"
+        },
+        {
+            "DOI": "10.2307/1964021",
+            "author": [
+                {
+                    "family": "Weatherford",
+                    "given": "M. Stephen"
+                }
+            ],
+            "container-title": "American Political Science Review",
+            "id": "Weatherford1992",
+            "issue": "1",
+            "issued": {
+                "date-parts": [
+                    [
+                        1992
+                    ]
+                ]
+            },
+            "page": "149-166",
+            "publisher": "Cambridge University Press",
+            "title": "Measuring Political Legitimacy",
+            "type": "article-journal",
+            "volume": "86"
+        },
+        {
+            "author": [
+                {
+                    "family": "Weil",
+                    "given": "Leopold"
+                },
+                {
+                    "family": "Hänggli",
+                    "given": "Regula"
+                }
+            ],
+            "id": "Weil2021",
+            "issued": {
+                "date-parts": [
+                    [
+                        2021
+                    ]
+                ]
+            },
+            "page": "1-20",
+            "title": "How innovation in participation could increase legitimacy",
+            "type": "manuscript"
+        },
+        {
+            "DOI": "10.1007/978-1-4612-4380-9{\\_}16",
+            "author": [
+                {
+                    "family": "Wilcoxon",
+                    "given": "Frank"
+                },
+                {
+                    "family": "Cyanamid",
+                    "given": "American"
+                }
+            ],
+            "container-title": "Breakthroughs in statistics",
+            "id": "Wilcoxon1992",
+            "issued": {
+                "date-parts": [
+                    [
+                        1992
+                    ]
+                ]
+            },
+            "page": "196-202",
+            "publisher": "Springer, New York, NY",
+            "title": "Individual Comparisons by Ranking Methods",
+            "type": "article-journal"
+        },
+        {
+            "DOI": "10.1007/S40745-015-0040-1",
+            "author": [
+                {
+                    "family": "Xu",
+                    "given": "Dongkuan"
+                },
+                {
+                    "family": "Tian",
+                    "given": "Yingjie"
+                }
+            ],
+            "container-title": "Annals of Data Science 2015 2:2",
+            "id": "Xu2015",
+            "issue": "2",
+            "issued": {
+                "date-parts": [
+                    [
+                        2015
+                    ]
+                ]
+            },
+            "page": "165-193",
+            "title": "A Comprehensive Survey of Clustering Algorithms",
+            "type": "article-journal",
+            "volume": "2"
+        },
+        {
+            "DOI": "10.3389/fpsyg.2015.01538",
+            "author": [
+                {
+                    "family": "Yukalov",
+                    "given": "Vyacheslav I."
+                },
+                {
+                    "family": "Sornette",
+                    "given": "Didier"
+                }
+            ],
+            "container-title": "Frontiers in Psychology",
+            "id": "Yukalov2015",
+            "issued": {
+                "date-parts": [
+                    [
+                        2015
+                    ]
+                ]
+            },
+            "page": "1-7",
+            "title": "Preference reversal in quantum decision theory",
+            "type": "article-journal",
+            "volume": "6"
+        },
+        {
+            "author": [
+                {
+                    "family": "Alós-Ferrer",
+                    "given": "Carlos"
+                },
+                {
+                    "family": "Buckenmaier",
+                    "given": "Johannes"
+                }
+            ],
+            "container-title": "University of Zurich, Department of Economics, Working Paper",
+            "id": "alos2021voting",
+            "issue": "394",
+            "issued": {
+                "date-parts": [
+                    [
+                        2021
+                    ]
+                ]
+            },
+            "title": "Voting for compromises: Alternative voting methods in polarized societies",
+            "title-short": "Voting for compromises",
+            "type": "article-journal"
+        }
+    ],
+    "project_biblios": [
+        "references.bib"
+    ]
+}

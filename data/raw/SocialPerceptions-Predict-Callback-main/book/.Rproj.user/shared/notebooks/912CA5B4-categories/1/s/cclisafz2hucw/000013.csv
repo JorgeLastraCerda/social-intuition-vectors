@@ -1,0 +1,17 @@
+"0","df_plt %>%
+  nest_by(study, category) %>%
+  mutate(mod = list(lm(callback ~ pc1, data = data))) %>%
+  summarize(tidy(mod))
+"
+"1","[1m[33mError[39m in `mutate()`:[22m
+[38;5;252m[36mℹ[38;5;252m In argument: `mod = list(lm(callback ~ pc1, data = data))`.
+[36mℹ[38;5;252m In row 1.[39m
+[1mCaused by error in `model.frame.default()`:[22m
+[33m![39m variable lengths differ (found for 'pc1')
+Backtrace:
+[90m  1. [39m... %>% summarize(tidy(mod))
+[90m 10. [39m[1mstats[22m::lm(callback ~ pc1, data = data)
+[90m 11. [39m[1mbase[22m::eval(mf, parent.frame())
+[90m 12. [39mbase::eval(mf, parent.frame())
+[90m 14. [39m[1mstats[22m::model.frame.default(...)
+"

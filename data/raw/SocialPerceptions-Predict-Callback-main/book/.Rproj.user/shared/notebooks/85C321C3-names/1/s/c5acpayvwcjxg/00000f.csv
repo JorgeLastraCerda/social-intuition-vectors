@@ -1,0 +1,56 @@
+"0","m.bin
+"
+"1","Review:     Callback by race
+"
+"1","
+"
+"1","Number of studies combined: k = 2
+"
+"1","Number of observations: o = 79816
+"
+"1","Number of events: e = 18453
+"
+"1","
+"
+"1","                    "
+"1","     RR"
+"1","           95%-CI"
+"1","     t"
+"1"," p-value"
+"1","
+Random effects model"
+"1"," 0.7972"
+"1"," [0.1028; 6.1798]"
+"1"," -1.41"
+"1","  0.3936"
+"1","
+"
+"1","
+Quantifying heterogeneity:
+"
+"1"," tau^2 = 0.0474; tau = 0.2177"
+"1",";"
+"1"," I^2 = 90.5% [65.6%; 97.4%]; H = 3.24 [1.70; 6.17]"
+"1","
+"
+"1","
+Test of heterogeneity:
+"
+"1",""
+"1","     Q"
+"1"," d.f."
+"1"," p-value"
+"1","
+"
+"1"," 10.51"
+"1","    1"
+"1","  0.0012"
+"1","
+"
+"1","
+Details on meta-analytical method:
+- Mantel-Haenszel method
+- Paule-Mandel estimator for tau^2
+- Hartung-Knapp (HK) adjustment for random effects model (df = 1)"
+"1","
+"

@@ -1,0 +1,60 @@
+"0","corr_c
+"
+"1","Number of studies combined: k = 8
+"
+"1","Number of observations: o = 725
+"
+"1","
+"
+"1","                    "
+"1","    COR"
+"1","            95%-CI"
+"1","    t"
+"1"," p-value"
+"1","
+Random effects model"
+"1"," 0.2552"
+"1"," [-0.0584; 0.5230]"
+"1"," 1.93"
+"1","  0.0947"
+"1","
+Prediction interval "
+"1","       "
+"1"," [-0.4280; 0.7528]"
+"1","     "
+"1","        "
+"1","
+"
+"1","
+Quantifying heterogeneity:
+"
+"1"," tau^2 = 0.0713 [0.0159; 0.8294]; tau = 0.2671 [0.1261; 0.9107]"
+"1","
+"
+"1"," I^2 = 78.6% [58.1%; 89.1%]; H = 2.16 [1.54; 3.03]"
+"1","
+"
+"1","
+Test of heterogeneity:
+"
+"1",""
+"1","     Q"
+"1"," d.f."
+"1","  p-value"
+"1","
+"
+"1"," 32.74"
+"1","    7"
+"1"," < 0.0001"
+"1","
+"
+"1","
+Details on meta-analytical method:
+- Inverse variance method
+- Restricted maximum-likelihood estimator for tau^2
+- Q-Profile method for confidence interval of tau^2 and tau
+- Hartung-Knapp (HK) adjustment for random effects model (df = 7)
+- Prediction interval based on t-distribution (df = 6)"
+"1","
+- Fisher's z transformation of correlations
+"

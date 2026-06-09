@@ -1,0 +1,20 @@
+"0","df_wc %>%"
+"0","  group_by(study) %>%"
+"0","  add_count(study, name=""n_study"") %>%"
+"0","  "
+"0","  group_by(study) %>% "
+"0","  summarise(cor_coef = cor.test(warm, competence)$estimate,"
+"0","            p_val = cor.test(warm, competence)$p.value) %>%"
+"0","  gt() %>%"
+"0","  fmt_scientific(columns = 3,decimals = 2) %>%"
+"0","  fmt_number(columns = 2,decimals = 2)"
+"1","[1m[33mError[39m in `summarise()`:[22m
+[38;5;252m[36mℹ[38;5;252m In argument: `cor_coef = cor.test(warm, competence)$estimate`.
+[36mℹ[38;5;252m In group 1: `study = ""ameri""`.[39m
+[1mCaused by error in `cor.test.default()`:[22m
+[33m![39m not enough finite observations
+Backtrace:
+[90m  1. [39m... %>% fmt_number(columns = 2, decimals = 2)
+[90m 20. [39m[1mstats[22m:::cor.test.default(warm, competence)
+[90m 21. [39m[1mbase[22m::stop(""not enough finite observations"")
+"

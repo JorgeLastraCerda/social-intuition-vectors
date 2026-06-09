@@ -1,0 +1,29 @@
+"0","df_temp %>%"
+"0","  mutate(weight=(1/(m.qual$tau2+m.qual$vi))) %>%"
+"0","  pivot_longer(cols=c(pc1,pc2), "
+"0","               values_to = ""rating"", "
+"0","               names_to = ""which rating"") %>%"
+"0","  ggplot(aes(x=rating, y=cb))+"
+"0","  geom_point(aes(color=study, size=weight), shape=16, alpha=.6)+ "
+"0","  scale_size(range = c(.1, 3))+"
+"0","  facet_wrap(~`which rating`) +"
+"0","  geom_abline(data = subset(df_plt, `which rating` == ""pc1""),"
+"0","              aes(intercept =  m.qual[[""beta""]][1], slope =  m.qual[[""beta""]][2]), color = ""red"")+"
+"0","  geom_abline(data = subset(df_plt, `which rating` == ""pc2""),"
+"0","              aes(intercept =  m.qual[[""beta""]][1], slope =  m.qual[[""beta""]][3]), color = ""blue"")+"
+"0","  "
+"0","  "
+"0","  xlab(""difference ratings"") + ylab(""difference callback"") +"
+"0","  theme_classic()+"
+"0","  theme(text = element_text(size = 14),"
+"0","        aspect.ratio=3/3,"
+"0","        legend.position = ""bottom"")"
+"1","[1m[33mError[39m in `mutate()`:[22m
+[38;5;252m[36mℹ[38;5;252m In argument: `weight = (1/(m.qual$tau2 + m.qual$vi))`.
+[36mℹ[38;5;252m In group 1: `study = ""bertrand""`.[39m
+[1mCaused by error:[22m
+[38;5;252m[33m![38;5;252m `weight` must be size 36 or 1, not 686.[39m
+Backtrace:
+[90m  1. [39m... %>% ggplot(aes(x = rating, y = cb))
+[90m 11. [39m[1mdplyr[22m:::dplyr_internal_error(...)
+"
