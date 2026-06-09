@@ -186,6 +186,76 @@ qsub jobs/sge/smoke_gemma4.sh
 See `smoke_tests/README.md` for full details and `docs/SCCKN_WINDOWS.md` for
 Windows → cluster connection setup.
 
+### Smoke Test Results (SCCKN, Gemma 3 12B-IT)
+
+Run 2026-06-08 on `scc214` (NVIDIA RTX PRO 6000 Blackwell, 96 GB). Seed `20260527`.
+
+| Metric | Value |
+|---|---|
+| Model | google/gemma-3-12b-it |
+| Layer | 31 / 48 (frac = 0.66) |
+| d\_model | 3840 |
+| n warm / cold | 50 / 50 |
+| Diff-vector norm | 1484.6 |
+| Cosine(mean\_warm, mean\_cold) | 0.99975 |
+| Cohen's d (in-sample) | 2.896 |
+| 5-fold CV probe accuracy | **0.86 ± 0.08** |
+| Fold scores | [0.95, 0.80, 0.95, 0.75, 0.85] |
+| Chance baseline | 0.50 |
+| Mean residual norm at layer 31 | 66184.6 |
+| Steering alpha (0.5 × mean resid norm) | 33092.3 |
+| Max logit delta (warmth-direction steering) | 40.0 |
+| Max logit delta (equal-magnitude random) | 20.75 |
+| Warmth / random ratio | **1.93×** |
+| SAE CV accuracy (GemmaScope 2 layer\_31\_width\_16k\_l0\_medium) | 0.61 ± 0.07 |
+| Status | **PASS** |
+
+**Gemma 4 outcome (nnsight, 4B and 12B): zero results.** Both Gemma 4 sizes failed with the
+same two errors: (1) Gemma 4 is registered as `AutoModelForImageTextToText` (multimodal) —
+nnsight's `LanguageModel()` cannot load it; `VisionLanguageModel` is required but does not
+resolve the processor (`Gemma4Processor`/`Gemma4UnifiedProcessor` import fails). (2)
+`Gemma4Config` lacks the `num_hidden_layers` attribute that nnsight uses to map layer indices.
+Root cause: nnsight 0.6 (released Feb 2026) predates Gemma 4 (Apr 2026). No results were
+obtained from either Gemma 4 run. Gemma 4 is dropped from the pipeline until nnsight adds
+native support.
+
+#### Audit (Gemma 3 12B smoke)
+
+The 0.86 CV accuracy clears the pre-specified >0.80 threshold and improves on the Qwen pilot
+(0.83). The following caveats apply before treating this as a production-quality signal.
+
+1. **Cohen's d is in-sample.** d = 2.90 is computed on the same 100 sentences used to fit the
+   warmth direction — it measures separation, not generalization. The cross-validated probe
+   accuracy (0.86) is the correct held-out figure.
+
+2. **Causal signal is modest.** With an equal-magnitude random control, warmth steering
+   achieves a logit delta of 40.0 vs 20.75 for random — a **1.93× ratio**, not the
+   previously-reported (and since retracted) "18×." The ~2× ratio is consistent with warmth
+   being one of many active directions at this layer. A meaningful causal claim requires the
+   full hiring-task steering experiment, where the warmth vector is injected during a callback
+   recommendation and measured against an equal-magnitude random baseline.
+
+3. **Valence confound is unresolved.** The SAE probe (GemmaScope 2 `layer_31_width_16k_l0_medium`)
+   achieves **sae\_cv\_mean = 0.61 ± 0.07** — barely above chance (0.50) and far below the
+   raw-residual probe (0.86). The top warm-minus-cold SAE features are small in magnitude and
+   mixed in sign. This gap has two possible interpretations: the warmth direction is spread
+   across many features (no single warmth-specific feature), or the direction is dominated by
+   general-valence features that the SAE correctly refuses to label as warmth-specific. Both
+   are concerning. **Neuronpedia inspection of the top features is required before any
+   warmth-vs-valence claim can be made.** This is the project's primary open methodological
+   risk.
+
+4. **Residual-stream geometry.** Cosine(warm, cold) = 0.99975 and diff_norm / mean_resid_norm
+   ≈ 1484.6 / 66184.6 ≈ 2.2 %. Warmth is a tiny, consistent offset riding on a large shared
+   activation magnitude. This geometry (typical for mid-late concept directions) justifies the
+   projection-based analysis and confirms that raw cosine distance between individual sentence
+   activations would be uninformative.
+
+5. **Scope.** This run tests warmth only, on one model, at one layer, using 100 hand-written
+   sentences that confound warmth with positive sentiment. Competence is untested. All of these
+   limitations are carried forward to the main pipeline, which addresses them via API-generated
+   topic-controlled stories (~4,800) and PCA-based tone denoising.
+
 ## Requirements
 
 - An open-weights model with residual-stream access.
@@ -249,14 +319,20 @@ The job scripts contain `# ADJUST` placeholders for queue names, module versions
 
 ## Status
 
-**Pilot complete.** The extraction, linear-probe, and causal-steering machinery has been validated
-on Qwen2.5-1.5B-Instruct on a local GPU (see Pilot Experiment section). The warmth direction is
-linearly decodable at layer 18 with 83% cross-validated probe accuracy (chance 50%) and Cohen's d
-of 2.68 on a 50+50 hand-written sentence set.
+**Smoke tests complete. Committed model: Gemma 3 12B-IT.**
 
-**Next step:** Phase 4 — implement `src/extract_vectors.py` to run the same extraction loop over
-the full API-generated stimulus corpus (~4,800 stories), build per-concept mean-contrast vectors,
-and save activations to `data/processed/`.
+The Qwen pilot (local GPU) confirmed the machinery works. The SCCKN smoke test on
+`google/gemma-3-12b-it` confirmed the signal scales to a research-grade model: probe CV
+accuracy 0.86 (chance 0.50), Cohen's d 2.90, warmth_random_ratio 1.93× (equal-magnitude
+control). Gemma 4 was attempted via nnsight but produced zero results (see Smoke Test Results
+below); it is dropped for now. The committed model for the core result is **Gemma 3 12B-IT**
+with GemmaScope 2 SAE decomposition. Scale-up to Gemma 3 27B-IT on scc214 (96 GB) remains
+open pending 12B result replication.
+
+**Next step:** (1) Inspect top SAE features on Neuronpedia to close the valence-confound
+question. (2) Phase 4 — implement `src/extract_vectors.py` to run the extraction loop over
+the full API-generated stimulus corpus (~4,800 stories), build per-concept mean-contrast
+vectors, and save activations to `data/processed/`.
 
 ## Caveats
 
