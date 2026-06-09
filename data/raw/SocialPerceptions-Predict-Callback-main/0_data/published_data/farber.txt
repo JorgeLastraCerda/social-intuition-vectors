@@ -1,0 +1,2 @@
+1) download data from: https://www.openicpsr.org/openicpsr/project/113434/version/V1/view?path=/openicpsr/113434/fcr:versions/V1/P2016_1010_data/replication_files.zip&type=file
+2) rename the .dta file to "farber2016.dta"

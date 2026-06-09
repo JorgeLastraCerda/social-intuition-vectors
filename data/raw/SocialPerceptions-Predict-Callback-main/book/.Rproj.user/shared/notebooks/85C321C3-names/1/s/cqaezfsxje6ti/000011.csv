@@ -1,0 +1,5 @@
+"0",""
+"0","# Add a legend"
+"0","legend(x = 1.6, y = 0.01, "
+"0","       legend = c(""p < 0.1"", ""p < 0.05"", ""p < 0.01""),"
+"0","       fill = col.contour)"

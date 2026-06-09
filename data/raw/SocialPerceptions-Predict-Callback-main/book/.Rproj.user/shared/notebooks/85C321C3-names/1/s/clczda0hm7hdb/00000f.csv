@@ -1,0 +1,8 @@
+"0","df_avg %>%"
+"0","  filter(!race==""NA"") %>%"
+"0","  group_by(study, race, gender) %>%"
+"0","  summarise(names = n()) %>% "
+"0","  pivot_wider(names_from = race, values_from = names) %>%"
+"0","  group_by(study) %>%"
+"0","  gt() %>% gtsave(""table.tex"")"
+"2","`summarise()` has grouped output by 'study', 'race'. You can override using the `.groups` argument."

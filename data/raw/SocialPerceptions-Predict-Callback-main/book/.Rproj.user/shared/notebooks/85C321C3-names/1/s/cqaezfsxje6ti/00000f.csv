@@ -1,0 +1,7 @@
+"0","# Define fill colors for contour"
+"0","col.contour = c(""#FFF2B2"",""#FFF6CC"", ""#FFFAE5"")"
+"0",""
+"0","# Generate funnel plot (we do not include study labels here)"
+"0","funnel.meta(corr_pc, "
+"0","            contour = c(0.9, 0.95, 0.99),"
+"0","            col.contour = col.contour)"

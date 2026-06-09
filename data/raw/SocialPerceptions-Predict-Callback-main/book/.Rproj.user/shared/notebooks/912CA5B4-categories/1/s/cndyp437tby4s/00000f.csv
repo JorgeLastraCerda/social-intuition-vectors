@@ -1,0 +1,9 @@
+"0","#| caption: ""Graphic display of study heterogeneity for all possible subsets of $k$ studies, where $k$ is the total number of studies in the meta-analysis. The distribution of $I^2$ values is heavily right-skewed and bi-modal, indicating the presence of substantial heterogeneity across the different study combinations."""
+"0",""
+"0","mgen_comp_gosh <- rma(yi = mgen_comp$TE,"
+"0","                      sei = mgen_comp$seTE,"
+"0","                      method = mgen_comp$method.tau,"
+"0","                      test = ""knha"")"
+"2","Error in rma(yi = mgen_comp$TE, sei = mgen_comp$seTE, method = mgen_comp$method.tau,  : 
+  could not find function ""rma""
+"

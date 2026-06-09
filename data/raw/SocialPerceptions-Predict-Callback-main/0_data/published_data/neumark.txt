@@ -1,0 +1,2 @@
+1) download data from: https://www.journals.uchicago.edu/doi/suppl/10.1086/701029
+2) rename "mergefinal.dta" to "neumark2019.dta"

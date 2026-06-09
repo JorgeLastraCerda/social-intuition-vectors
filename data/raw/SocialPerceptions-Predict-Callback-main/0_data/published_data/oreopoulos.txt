@@ -1,0 +1,2 @@
+1) download data from: https://www.openicpsr.org/openicpsr/project/114770/version/V1/view?path=/openicpsr/114770/fcr:versions/V1/data/oreopoulos-resume-study-replication-data-file.dta&type=file
+2) rename the .dta file to "oreopoulos2011.dta"

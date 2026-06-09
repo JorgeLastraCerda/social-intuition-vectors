@@ -37,8 +37,6 @@ venv/
 # Model and data artifacts
 papers/*
 !papers/.gitkeep
-data/raw/*
-!data/raw/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
 *.pt

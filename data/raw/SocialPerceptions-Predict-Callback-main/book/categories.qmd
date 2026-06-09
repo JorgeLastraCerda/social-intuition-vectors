@@ -1,0 +1,589 @@
+# Mixed effects of social perception on callback rates in correspondence studies manipulating social identity categories
+
+```{r setup cat, include=FALSE, warning=FALSE, message=FALSE}
+rm(list=ls())
+library(tidyverse)
+library(ggpubr)
+library(ggh4x)
+library(ggExtra)
+library(gghighlight)
+library(gt)
+library(car)
+
+library(meta)
+library(metafor)
+library(dmetar)
+library(broom)
+library(ragg)
+```
+
+```{r replication, include=FALSE}
+info <- sessionInfo()
+packages <- info$otherPkgs
+
+df <- data.frame(Package = names(packages), Version = sapply(packages, `[[`, 'Version'), stringsAsFactors = FALSE)
+
+write.table(df, file = "../requirements.txt", sep = "==", row.names = FALSE, col.names = FALSE, quote = FALSE)
+rm(df)
+```
+
+```{r read df cat, include=FALSE}
+read.csv("../0_data/ratings/categories/categories.csv") %>%
+  group_by(study) %>%
+  mutate(warm = replace_na(warm, mean(warm, na.rm = TRUE))) %>%
+  mutate(competence = replace_na(competence, mean(competence, na.rm = TRUE))) ->wc
+cb<- read.csv("../0_data/extracted_data/df_all.csv",check.names = FALSE)
+
+wc %>%
+  group_by(study, category, level) %>% 
+  summarise(warm=mean(warm, na.rm=TRUE), competence=mean(competence, na.rm=TRUE), .groups="drop") %>%
+  mutate(category = ifelse(category == "wright", "wright", category)) %>%
+  left_join(cb,
+            by=c("study", "category", "level"))->df_wc
+```
+
+```{r count raters per name, include=FALSE}
+wc %>% 
+  select(study, category,level, ResponseId) %>%
+  group_by(study, category,level)  %>%
+  summarise(n=n(), .groups = "drop") %>%
+  ungroup() %>%
+  summarize(avg_raters = mean(n))->n_raters
+
+```
+
+Prolific participants (`r length(unique(wc$ResponseId))` raters total, `r round(n_raters, digits=2)` by level) rated each signal on a scale from 0 to 100 within a category (e.g., how warm/competent they think a "treasurer in gay and lesbian alliance" would be, Figure 1, and Figure 3A).
+
+```{r Table S3 icc, warning=FALSE, message=FALSE, cache=TRUE, echo=FALSE}
+# https://search.r-project.org/CRAN/refmans/psych/html/ICC.html
+library(psych)
+
+icc_fun<-function(df_in, which_rating, which_not) {
+  df_in %>%
+    select(!which_not) %>%
+    group_by(study) %>%
+    group_split() -> study_dfs
+
+  results <- lapply(study_dfs, function(df) {
+    st_label <- unique(df$study)
+    cat_label <- unique(df$category)
+    df <- df %>%
+      ungroup() %>%
+      pivot_wider(id_cols = c(study, category, level),
+                  names_from = "ResponseId",
+                  values_from = which_rating) %>%
+      dplyr::select(-c(study, category, level))
+    
+    icc_res <- ICC(df, missing = FALSE)
+    icc_tibble <- tibble(study = st_label,
+                         category = cat_label,
+                         signals = icc_res$n.obs,
+                         raters = icc_res$n.judge,
+                         icc_res$results[5,])
+    return(icc_tibble)
+  })
+  
+  df_temp <- bind_rows(results)
+  
+  return(df_temp)
+}
+
+
+icc_fun(df_in = wc, which_rating="warm", which_not="competence") %>% 
+  mutate(score = case_when(
+    ICC < 0.5 ~ "poor",
+    ICC >= 0.5 & ICC < 0.75 ~ "moderate",
+    ICC >= 0.75 & ICC < 0.9 ~ "good",
+    ICC >= 0.9 ~ "excellent",
+    TRUE ~ NA_character_
+  )) %>%
+  select(study, category, ICC, score) ->df_warmth #`lower bound`, `upper bound`, p
+
+icc_fun(df_in = wc, which_rating="competence", which_not="warm") %>% 
+  mutate(score = case_when(
+    ICC < 0.5 ~ "poor",
+    ICC >= 0.5 & ICC < 0.75 ~ "moderate",
+    ICC >= 0.75 & ICC < 0.9 ~ "good",
+    ICC >= 0.9 ~ "excellent",
+    TRUE ~ NA_character_
+  )) %>%
+  select(study, category, ICC, score)  ->df_competence
+
+
+### write table
+df_warmth %>%
+  rename_with(~paste0("warm_",.), -c(study, category)) %>%
+  full_join(df_competence %>%
+              rename_with(~paste0("comp_",.), -c(study, category)), by=c("study", "category")) %>%
+
+  mutate(warm_ICC = as.numeric(warm_ICC),
+         comp_ICC = as.numeric(comp_ICC),
+         avg_ICC = (warm_ICC + comp_ICC) / 2) %>%
+  mutate(avg_score = case_when(
+    avg_ICC < 0.5 ~ "poor",
+    avg_ICC >= 0.5 & avg_ICC < 0.75 ~ "moderate",
+    avg_ICC >= 0.75 & avg_ICC < 0.9 ~ "good",
+    avg_ICC >= 0.9 ~ "excellent",
+    TRUE ~ NA_character_
+  )) %>%
+  mutate(category = case_when(
+    category == "sexual orientation" ~ "sexuality",
+    category == "military service or affiliation" ~ "military",
+    category == "race and national origin" ~ "nationality",
+    TRUE ~ category
+  )) %>%
+  mutate_if(is.numeric, ~round(., 2)) %>%
+  arrange(avg_score) %>%
+
+  gt(rowname_col = "study") %>%
+  tab_spanner(label = "Warmth", columns = starts_with("warm_"), level = 2) %>%
+  tab_spanner(label = "Competence", columns = starts_with("comp_"), level = 2) %>%
+  tab_spanner(label = "Mean", columns = starts_with("avg_"), level = 2) %>%
+  tab_spanner(label = "95% CI", columns = ends_with("bound"),  level = 1, gather=FALSE) %>%
+  tab_header(title = "Table S3. ICC values for categories") |>
+  tab_footnote(footnote = "Average score intraclass correlations (ICCs) were used as an index of interrater reliability of warmth competence ratings. A twoway model with random effects for raters and subjects (amount of levels in category) was used. Between rater agreement was estimated. The unit of analysis was averages.") 
+  #gtsave("table.tex")
+```
+
+The intraclass correlation (ICC) (26) values vary across categories. Only two categories scored "poor", while the remaining scored either "moderate" or "excellent" (Figure 3A). Note that, for sexuality and wealth, the different signals yielded vastly different ICCs, ranging from `r min(df_warmth$ICC[df_warmth$category=="sexual orientation"])` to `r round(max(df_warmth$ICC[df_warmth$category=="sexual orientation"]), digits=2)` (Table S3).
+
+```{r w-c-meta, cache=TRUE, echo=FALSE}
+wc %>%
+  group_by(study, category, level) %>%
+  add_count(study, name="n") %>%
+  
+  mutate(se.w=sd(warm)/sqrt(n)) %>%
+  mutate(mean.w=mean(warm)) %>%
+  
+  mutate(se.c=sd(competence)/sqrt(n)) %>%
+  mutate(mean.c=mean(competence)) %>%
+  
+  select(study, category, level, n, se.w, se.c, mean.w, mean.c) %>%
+  unique() -> df_temp
+
+
+m.warmth <- metagen(TE = mean.w,
+                 seTE = se.w,
+                 studlab = level,
+                 data = df_temp,
+                 sm = "MRAW",
+                 fixed = FALSE,
+                 random = TRUE,
+                 method.tau = "REML",
+                 hakn = TRUE)
+
+m.competence <- metagen(TE = mean.c,
+                    seTE = se.c,
+                    studlab = level,
+                    data = df_temp,
+                    sm = "MRAW",
+                    fixed = FALSE,
+                    random = TRUE,
+                    method.tau = "REML",
+                    hakn = TRUE)
+```
+
+```{r Fig. 3A, cache=TRUE, echo=FALSE, warning=FALSE}
+#| fig-cap: "Fig. 3A: Each scatterplot shows warmth and competence for each category-signal (with the category name at the top). The correlations between the two rating scales are strongly positive in all nine categories (Table S5)."
+
+wc %>%
+  group_by(category) %>%
+  mutate(correlation=cor(warm, competence)) %>%
+  group_by(study, category, level, correlation) %>%
+  summarize(
+            warm=mean(warm),
+            competence=mean(competence))->df_temp
+
+
+df_temp$category <- gsub("sexual orientation", "sexuality", df_temp$category)
+df_temp$category <- gsub("military service or affiliation", "military", df_temp$category)
+df_temp$category <- gsub("race and national origin", "nationality", df_temp$category)
+
+df_temp %>%
+  mutate(category=factor(category, levels = c("health", "nationality", "religion", "unemployed",
+                                              "parenthood", "sexuality", "wealth", "age", "military"))) %>%
+  mutate(Nester = ifelse(category == "age" | category=="military", "poor", 
+                         ifelse(category == "wealth" |category == "sexuality"
+                                |category == "parenthood","moderate", 
+                                "excellent"))) %>%
+
+ggplot(aes(x= warm, y= competence))+
+  geom_point(aes(color=study), size=.5) +
+  geom_hline(yintercept =50, alpha=.2, linetype="dotted" )+
+  geom_vline(xintercept =50, alpha=.2, linetype="dotted")+
+  gghighlight(use_direct_label = FALSE, label_key = correlation, label_params = list(size=2)) +
+ # facet_wrap(~category, ncol=9) +
+  ggh4x::facet_nested(~ Nester + category, nest_line = element_line(color = "grey", size = .2)) +
+  theme_classic()+
+  theme(legend.position = "none",
+        text = element_text(size = 9.4),
+        strip.background = element_blank(),
+        legend.background = element_rect(fill = NA),
+        aspect.ratio = 1/1,
+        legend.text = element_text(margin = margin(t = 0, r = 0, b = 0, l = 0)),
+        legend.key.width = unit(.1, "cm"),
+        legend.key.height = unit(.1, "cm"),
+        legend.margin=margin(),
+        axis.text.y = element_text(size=rel(.6)),
+        axis.text.x = element_text(hjust=1, vjust = 0.5,size=rel(.6)),
+        legend.title = element_blank(),
+        legend.justification = c(0, 1)) + 
+  xlab("warmth")+
+  ylab("competence")+
+  scale_x_continuous(breaks = c(0, 50, 100), limits = c(0, 100), expand = c(0, 0), labels = c("0", "50", "100"))+
+  scale_y_continuous(breaks = c(0, 50, 100), limits = c(0, 100), expand = c(0, 0), labels = c("0", "50", "100")) ->plt1
+
+ggsave(plt1, filename = "cat_plot1.pdf", width = 7.02, height = 2, dpi = 1200, units = "in", device='pdf')
+plt1
+```
+
+<!-- Warmth and competence were assessed on a scale ranging from 0 to 100, which we consider as continuous data[^categories-2]. displays the mean ratings for each level. In our sample, we find that the pooled mean warmth rating was $\theta=$ `r round(m.warmth$TE.random, digits=2)` and the pooled mean competence rating was $\theta=$ `r round(m.competence$TE.random, digits=2)` (indicated by the green dot). The categories in our sample were perceived as more competent than warm, with a larger proportion of participants situated in the upper quadrant of the warmth-competence scale. -->
+
+<!-- [^categories-2]: We omitted one rater from the analysis, as they consistently assigned a score of 50 to all the questions posed, indicating a potential bias or lack of engagement with the evaluation process. -->
+
+```{r Table S5, echo=FALSE, cache=TRUE}
+wc %>%
+  #filter(study=="yemane" & level =="cuba")->dfdf
+  group_by(study) %>%
+  add_count(name="n") %>%
+  group_by(study,n) %>%
+  summarise(correlation=cor(warm, competence), .groups = "drop") ->df_temp
+
+m.cor <- metacor(cor = correlation, 
+                 n = n,
+                 studlab = study,
+                 data = df_temp,
+                 fixed = FALSE,
+                 random = TRUE,
+                 method.tau = "REML",
+                 hakn = TRUE)
+m.cor<-update.meta(m.cor, prediction = TRUE)
+rcor<-(exp(2*m.cor$TE.random)-1)/(1+exp(2*m.cor$TE.random))
+
+# table with meta model 
+tibble(
+  "variable"=c("", m.cor$studlab),
+  "correlation" = c(rcor, m.cor$cor),
+  "lower" = c(m.cor$lower.random, m.cor$lower),
+  "upper" = c(m.cor$upper.random,m.cor$upper),
+  "p-value" = c(m.cor$pval.random, m.cor$pval),
+  "SE" = c(m.cor$seTE.random,m.cor$seTE)) %>%
+  mutate_if(is.numeric, ~round(., 3)) %>%
+  gt(rowname_col = "variable") |>
+  tab_spanner(
+    label = "95% CI",
+    columns = c(lower,upper))|>
+  tab_row_group(
+    label = "pooled",
+    rows = 1
+  )%>%
+  tab_row_group(
+    label = "by study",
+    rows = 2:17
+  ) %>%
+  tab_header(title = "Table S5. Results of a random effects model with ρ(warmth, competence) for categories") %>%
+  tab_footnote(
+    footnote = "Meta-analysis of k = 16 studies with o = 7830 observations using inverse variance method. Random effects model with restricted maximum-likelihood estimator for tau^2 and Hartung-Knapp adjustment (df = 15). Confidence intervals for tau^2 and tau estimated using Q-Profile method. Fisher's z transformation used for correlations."
+  ) #%>% gtsave("table.tex")
+```
+
+Furthermore, we assessed the correlation between the warmth and competence ratings and found that the Pearson correlation index ($\rho$) was significant for most studies, with a pooled correlation of $\hat{\rho}$ = `r round(rcor, digits=3)` (p = `r round(m.cor$pval.random, digits=3)`, Table S5).
+
+::: columns
+::: column
+```{r Fig. 3C pc, echo = FALSE, cache=TRUE}
+#| fig-cap: "Fig. 3C: Scatter plots of category-specific warmth and competence ratings showing the structure of PC1 and PC2."
+
+pc <- prcomp(wc %>% ungroup() %>% dplyr::select(warm, competence), 
+             center = TRUE, scale. = TRUE)
+s_pc<-summary(pc)
+PC1<-pc[["x"]][,1] 
+PC2<-pc[["x"]][,2] 
+
+# plot PCA against rating
+wc %>%
+add_column(PC1,PC2) %>%
+pivot_longer(cols=c(warm,competence), values_to = "ratings", names_to = "which rating") %>%
+pivot_longer(cols=c(PC1,PC2), values_to = "pc", names_to = "which pc") %>%
+  ggplot(aes(x=ratings, y=pc, color=`which rating`))+
+  geom_point(alpha=.9, pch=".")+ 
+  facet_wrap(~`which pc`, ncol = 2)+
+  xlab("rating") + ylab("principal component") +
+  theme_classic()+
+  theme(text = element_text(size = 9.4),
+        strip.background = element_blank(),
+        legend.background = element_rect(fill = NA),
+        legend.position = c(0, 1), 
+        aspect.ratio = 1/1,
+        legend.text = element_text(margin = margin(t = 0, r = 0, b = 0, l = 0)),
+        legend.key.width = unit(.1, "cm"),
+        legend.key.height = unit(.1, "cm"),
+        legend.margin=margin(),
+        legend.title = element_blank(),
+        axis.text.y = element_text(size=rel(.6)),
+        axis.text.x = element_text(size=rel(.6)),
+        plot.margin=grid::unit(c(0,0,0,0), "mm"),
+        legend.justification = c(0, 1)) + 
+  scale_x_continuous(breaks = c(0, 50, 100)) +
+  scale_color_manual(values = c("warm" = "#DC143C", "competence" = "#4169E1"))->plt2
+#ggsave(plt2, filename = "cat_plot2.pdf", width = 4,height = 1.5, dpi = 1200, units = "in", device='pdf')
+ggsave(plt2, filename = "cat_plot2.png", width = 4,height = 1.5, dpi = 600)
+plt2
+```
+:::
+
+::: column
+To better capture the variability in social perception of different social categories, we conducted a PCA, revealing two principle components. PC1 explained `r round(s_pc$importance[2,1]*100, digits=2)`% of the variability in warmth and com- petence ratings, combining the positively correlated measures onto a single dimension. PC2 represented negative associations and accounted for `r 1-round(s_pc$importance[2,1]*100, digits=2)`% of variance.
+:::
+:::
+
+
+```{r Fig. 3B, echo = FALSE, cache=TRUE, warning=FALSE, message=FALSE}
+#| fig-cap: "Fig. 3B: Linear regression of PC1 on callback by category and study. Data from different studies are identified by colors, with the legend shown in the center of row three."
+
+library(ggrepel)
+
+wc %>%
+  add_column(PC1,PC2) %>%
+  group_by(study, category, level) %>% 
+  summarise(PC1=mean(PC1, na.rm=TRUE), 
+            PC2=mean(PC2, na.rm=TRUE), .groups="drop") %>%
+  left_join(cb,by=c("study", "category", "level")) -> df_pc
+
+df_pc$category <- gsub("sexual orientation", "sexuality", df_pc$category)
+df_pc$category <- gsub("military service or affiliation", "military", df_pc$category)
+df_pc$category <- gsub("race and national origin", "nationality", df_pc$category)
+
+df_pc %>%
+  group_by(study) %>%
+  add_count(name="n") %>%
+  ungroup() %>%
+  mutate(mean_cb=mean(callback)) %>%
+  mutate(mean_PC1=mean(PC1)) ->df_plt_3B
+
+
+# create labels
+yemane_label <- df_plt_3B %>% filter(level %in% c("germany", "russia", "france", "iraq",
+                                               "catholic", "jewish", "muslim",
+                                               "22", "51",
+                                               "50", "65"))
+bind_rows(df_plt_3B %>% 
+            filter(study != "yemane")%>% 
+            filter(study != "mishel")%>% 
+            filter(study != "farber")%>% 
+            filter(study != "neumark")%>% 
+            filter(study != "wrigth"),
+          yemane_label)%>%
+  mutate(category = factor(category, 
+                            levels = c("health", "nationality", "religion", "unemployed",
+                                       "parenthood", "sexuality", "wealth", "age", "military"),
+                            ordered = TRUE)) ->label_data
+
+  
+df_plt_3B %>%
+  mutate(category = factor(category, 
+                            levels = c("health", "nationality", "religion", "unemployed",
+                                       "parenthood", "sexuality", "wealth", "age", "military"),
+                            ordered = TRUE)) %>%
+  
+  ggplot(aes(PC1, callback, colour = study,group = study)) +
+  geom_point(size=.5, alpha=.5) +
+  facet_wrap(vars(category), ncol = 9)+
+
+
+  geom_vline(aes(xintercept = mean_PC1), size=.1, linetype="dotted") +
+  geom_hline(aes(yintercept = mean_cb), size=.1, linetype="dotted") +
+  #gghighlight(use_direct_label = FALSE, label_key = level, label_params = list(size=2)) + 
+  geom_text_repel(data = label_data, aes(label = level),
+    point.padding = 0.2, 
+    size=1.7,
+    min.segment.length = 0,
+    segment.linetype = 5,
+    arrow = arrow(length = unit(0.015, "npc")),
+    segment.curvature = -1e-20) +
+  
+  geom_smooth(linewidth=.4, method='glm', formula=y~x, se=F, alpha=.6)+
+  xlab("PC1")+
+  theme_classic()+
+  theme(text = element_text(size = 9.4),
+        legend.position = "none",
+        strip.background = element_blank(),
+        legend.box="vertical", 
+        legend.text = element_text(margin = margin(t = 0, r = 0, b = 0, l = 0)),
+        legend.key.width = unit(.1, "cm"),
+        legend.key.height = unit(.1, "cm"),
+        legend.margin=margin(),
+        aspect.ratio = 5/5,
+        axis.text.y = element_text(size=rel(.6)),
+        strip.text.x = element_blank(),
+        axis.text.x = element_text(size=rel(.6)))+
+  scale_x_continuous(breaks = c(-1, 0, 1)) ->plt3
+
+#ggsave(plt3, filename = "cat_plot3.pdf", width = 7.02,height = 3, dpi = 1200, units = "in", device='pdf')
+ggsave(plt3, filename = "cat_plot3.png", width = 7.02,height = 3, dpi = 600)
+plt3
+```
+
+<!-- In the following, our objective is to conduct a meta-analysis using callback as the effect size, followed by a meta-regression to examine the extent to which callback can be predicted by warmth and competence ratings. Given our analysis above, which revealed a strong correlation between warmth and competence, we have opted to apply Principal Component Analysis (**PCA**) to extract the principal component.[^categories-3] -->
+
+<!-- [^categories-3]: In our PCA, variables are scaled to have unit variance and are zero-centered. -->
+
+<!-- As each study encompasses multiple treatment groups and displays substantial variation in design, treatment, and industry, we followed standard practices by determining the **between-group difference**. Specifically, we identify the control group within each study as the level $l$ with the lowest callback rate. Subsequently, we calculate the difference between each level and the control level $l_c$ for more accurate comparisons. -->
+
+```{r diff 2, echo=FALSE, cache=TRUE}
+library(webshot2)
+df_pc %>%
+  filter(!callback==0) %>%
+  filter(!callback==1) %>%
+  mutate(callback=callback*100) %>%
+  mutate(se.cb = sqrt((callback*(100-callback))/ n)) %>%
+  group_by(study)%>%
+  mutate(callback=scale(callback, center=TRUE, scale=FALSE)) %>%
+  ungroup()->df_temp
+
+ # meta
+m.qual <- rma(yi = callback,
+              sei = se.cb,
+              data = df_temp,
+              method = "ML",
+              mods = ~ PC1+PC2,
+              test = "knha")
+
+m.qual.per<-permutest(m.qual, iter=1000)
+```
+
+```{r unused, include=FALSE, cache=TRUE}
+tbl_temp<-cbind(m.qual.per[["beta"]], m.qual.per[["pval"]])
+as_tibble(tbl_temp, rownames=NA) %>%
+  rownames_to_column(var = "variable") %>%
+  rename("beta"=V1) %>%
+  rename("pvalue"=V2) %>%
+  gt(rowname_col = "name") %>%
+  
+  fmt_scientific(
+    columns = c(beta,pvalue),
+    decimals = 2)|>
+  tab_caption(caption = md("")) %>%  
+  gtsave("table.tex")
+```
+
+```{r Table 1A, include=FALSE, cache=TRUE}
+# this table is added to Table 1B (names)
+tibble(
+  "variable"=c("intercept_c", "b_PC1_c", "b_PC2_c"),
+  "estimate" = as.vector(m.qual.per$beta),
+  "lower" = m.qual.per$ci.lb,
+  "upper" = m.qual.per$ci.ub,
+  "p-value" = m.qual.per$pval,
+  "SE" = m.qual$se) %>%
+  mutate_if(is.numeric, ~round(., 2)) ->tbl_categories
+  
+saveRDS(tbl_categories, file = "tbl_categories.rds")
+```
+
+In the following, we conduct a meta-regression pooling all studies to explore the extent to which the principal components predict callback. To increase the robustness of this analysis, we also perform a permutation test on our meta-regression models. The resulting estimate for the coefficient of the first principal component is `r round(m.qual.per[["beta"]][2], digits=2)`, which is not statistically significant (p = `r round(m.qual.per[["pval"]][2], digits=2)`). Our model explains a small portion of the heterogeneity, accounting for only `r round(m.qual$R2, digits=2)`% (Table 1). Figure 3D visualizes the meta-regression model.
+
+```{r Fig. 3D meta-reg, echo=FALSE, cache=TRUE, warning=FALSE}
+#| fig-cap: "Fig. 3D: Meta-regression of PC1 and PC2 on callback, where each circle identifies a signal by study; the circle size indicates the assigned weight in the meta-regression. Lines indicate fitted intercepts and betas."
+
+df_temp %>%
+  ungroup() %>%
+  mutate(weight=(1/(m.qual$tau2+m.qual$vi))/100) %>%
+  mutate(study=str_to_title(study)) %>%
+  pivot_longer(cols=c(PC1,PC2), 
+               values_to = "rating", 
+               names_to = "which rating") ->df_plt
+ggplot(df_plt,aes(x=rating, y=callback)) +
+  geom_point(aes(color=study, size=weight), shape=1) + 
+  #scale_size(range = c(2, 5))+
+  scale_size(range = c(.001, 3)) +
+  facet_wrap(~`which rating`) +
+  geom_abline(data = subset(df_plt, `which rating` == "PC1"),
+              aes(intercept =  m.qual[["beta"]][1], slope =  m.qual[["beta"]][2]), color = "#DC143C") +
+  geom_abline(data = subset(df_plt, `which rating` == "PC2"),
+              aes(intercept =  m.qual[["beta"]][1], slope =  m.qual[["beta"]][3]), color = "#4169E1")+
+  
+  
+  xlab("principal component") + ylab("callback") +
+  theme_classic()+
+   theme(text = element_text(size = 9.4),
+        aspect.ratio=1/1,
+        strip.background = element_blank(),
+        legend.background = element_rect(fill = NA),
+        legend.position="left",
+        legend.box="horizontal", 
+        legend.text = element_text(margin = margin(t = 0, r = 0, b = 0, l = 0)),
+        legend.key.width = unit(.1, "cm"),
+        legend.key.height = unit(.1, "cm"),
+        legend.margin=margin(),
+        axis.text.y = element_text(size=rel(.6)),
+        axis.text.x = element_text(size=rel(.6)))+ 
+  guides(color=guide_legend(nrow = 8))+
+  scale_x_continuous(breaks = c(-1, 0, 1)) ->plt4
+
+#ggsave(plt4, filename = "cat_plot4.pdf", width = 5,height = 3, dpi = 1200, units = "in", device='pdf')
+ggsave(plt4, filename = "cat_plot4.png", width = 5,height = 3, dpi = 600)
+plt4
+```
+
+```{r Table S7 slopes Fig. 3B, echo=FALSE, cache=TRUE, warning=FALSE}
+df_plt_3B %>%
+  nest_by(study, category) %>%
+  mutate(mod = list(lm(callback ~ PC1, data = data))) %>%
+  summarize(tidy(mod), .groups="drop") %>%
+  filter(term=="PC1") %>%
+  select(!term) %>%
+  unique() %>%
+  arrange(category) %>%
+  ungroup() |> 
+  mutate_if(is.numeric, ~round(., 2)) %>%
+  gt(rowname_col = "study")|>
+  tab_style(
+    style = list(
+      cell_fill(color = "#F9E3D6"),
+      cell_text(style = "italic")
+    ),
+    locations = cells_body(
+      columns = estimate,
+      rows = estimate <= 0)) |>
+  tab_row_group(
+        label = "age",
+        rows = study %in% c("farber", "neumark")
+      ) |>
+  tab_row_group(
+    label = "health",
+    rows = study %in% c("ameri", "hipes")
+  ) |>
+  tab_row_group(
+    label = "military",
+    rows = study %in% c("figinski")
+  ) |>
+  tab_row_group(
+    label = "nationality",
+    rows = study %in% c("yemane")
+  ) |>
+  tab_row_group(
+    label = "parenthood",
+    rows = study %in% c("correll", "ishizuka")
+  ) |>
+  tab_row_group(
+    label = "religion",
+    rows = study %in% c("wright")
+  ) |>
+  tab_row_group(
+    label = "sexuality",
+    rows = study %in% c("mishel", "tilcsik", "kline", "bailey")
+  ) |>
+  tab_row_group(
+    label = "unemployed",
+    rows = study %in% c("namingit")
+  ) |>
+  tab_row_group(
+    label = "wealth",
+    rows = study %in% c("rivera", "thomas")
+  ) |>
+  cols_hide(category) %>%
+  tab_header(title = "Table S7. Estimates of linear models of PC1 on callback by category") #|> gtsave("table.tex")
+```
+
+The meta-regression did not yield a significant overall effect. Therefore, we explored the relationship between PC1 and callback by category. Given the limited number of levels across categories (Figure 3B), it was not possible to calculate a meaningful effect size directly relating ratings to callback at the study level. Thus, we present a graphical representation in Figure 3B, with lines representing fitted linear models for each study (Table S7). For some categories, the relation between callback and PC1 is positive (e.g., nationality, which also samples a larger number---35---of categories). For most other categories, however, such as wealth, sexuality, and parenthood, there are both positive and negative slopes in different studies. Under the category of sexuality, slope signs in four studies were equally split between positive and negative, which is especially striking given the large range of ICCs across signals.

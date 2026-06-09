@@ -1,0 +1,6 @@
+"0","info <- sessionInfo()"
+"0","packages <- info$otherPkgs"
+"0",""
+"0","df <- data.frame(Package = names(packages), Version = sapply(packages, `[[`, 'Version'), stringsAsFactors = FALSE)"
+"0",""
+"0","write.table(df, file = ""../requirements.txt"", sep = ""=="", row.names = FALSE, col.names = FALSE, quote = FALSE)"

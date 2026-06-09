@@ -1,0 +1,2 @@
+1) download data from: https://www.openicpsr.org/openicpsr/project/116023/version/V1/view?path=/openicpsr/116023/fcr:versions/V1/lakisha_aer.dta&type=file
+2) rename the file to "bertrand2004.dta"

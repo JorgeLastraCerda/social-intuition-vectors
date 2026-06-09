@@ -1,0 +1,33 @@
+{
+    "id": "4E0DE257",
+    "path": "~/Documents/GitHub/NSF-Discrimination/book/index.qmd",
+    "project_path": "index.qmd",
+    "type": "quarto_markdown",
+    "hash": "615370365",
+    "contents": "",
+    "dirty": false,
+    "created": 1687740635362.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "rmdVisualMode": "false",
+        "rmdVisualWrapConfigured": "true",
+        "source_window_id": "",
+        "Source": "Source",
+        "docOutlineVisible": "1",
+        "rmdVisualCollapsedChunks": "",
+        "rmdVisualModeLocation": "14:0",
+        "cursorPosition": "5,15",
+        "scrollLine": "0",
+        "last_setup_crc32": "1ab8b6bb1e26c6e8",
+        "quartoPreviewFormat": "pdf"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1687649032,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1687649032,
+    "read_only": false,
+    "read_only_alternatives": []
+}

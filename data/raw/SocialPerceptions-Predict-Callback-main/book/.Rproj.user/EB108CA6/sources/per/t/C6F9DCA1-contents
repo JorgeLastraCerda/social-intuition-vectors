@@ -1,0 +1,1359 @@
+# Social perception predicts callback in correspondence studies that vary *names*
+
+```{r setup names, include=FALSE, warning=FALSE, message=FALSE}
+rm(list=ls())
+library(tidyverse)
+library(ggpubr)
+library(ggExtra)
+library(gt)
+library(car)
+library(haven)
+
+library(meta)
+library(metafor)
+library(dmetar)
+library(ragg)
+```
+
+```{r read df names, include=FALSE, cache=TRUE}
+wc<-read_csv("../0_data/ratings/names/df_all.csv",show_col_types = FALSE)
+read_csv("../0_data/published_data/df_all.csv",show_col_types = FALSE) %>%
+  mutate(study=tolower(study)) %>%
+  mutate(callback_n=as.integer(callback_n))->cb
+
+wc %>%
+  left_join(cb, by=c("study","name"), multiple="all") %>%
+  filter(!is.na(callback)) %>%
+  filter(!is.na(warm)) %>%
+  filter(!is.na(competent)) -> df
+
+cb %>%
+  left_join(wc %>% 
+              group_by(study, name) %>% 
+              summarise(warm=mean(warm), competent=mean(competent)),
+            by=c("study","name")) %>%
+  filter(!is.na(competent)) %>%
+  filter(!is.na(warm)) %>%
+  filter(!is.na(callback)) %>%
+  mutate(race=tolower(race)) %>%
+  mutate(gender=tolower(gender)) -> df_avg
+```
+
+```{r Table S1, cache=TRUE, include=FALSE}
+df_avg %>%
+  filter(!race=="NA") %>%
+  group_by(study, race, gender) %>%
+  summarise(names = n(), .groups = "drop") %>% 
+  pivot_wider(names_from = race, values_from = names) %>%
+  group_by(study) %>%
+  gt() %>%
+  tab_header(title = "Table S1. Published studies for which raw data was obtained. The numbers represent the count of signals (names) per race, gender, and study.
+") |>
+  tab_footnote(
+    footnote = "Neumark, Bertrand, Farber, and Kline varied the first name only. Oreopoulos, Flake, Leasure, Widner, and Jacquemet varied the first and the last name.",
+    locations = cells_column_labels(columns = gender)
+  ) #%>% gtsave("table.tex")
+```
+
+<!-- Callback -->
+
+```{r meta-race, echo=FALSE, cache=TRUE}
+df_avg %>%
+  filter(race=="black") %>%
+  group_by(study) %>%
+  summarise(callback_black=sum(callback_n),
+            n_black=sum(n)) %>%
+  left_join(df_avg %>%
+              filter(race=="white") %>%
+              group_by(study) %>%
+              summarise(callback_white=sum(callback_n),
+                        n_white=sum(n)) ,
+            by="study")-> df_temp
+  
+
+m.bin <- metabin(event.e = callback_black, 
+                 n.e = n_black,
+                 event.c = callback_white,
+                 n.c = n_white,
+                 studlab = study,
+                 data = df_temp,
+                 sm = "RR",
+                 method = "MH",
+                 MH.exact = TRUE,
+                 fixed = FALSE,
+                 random = TRUE,
+                 method.tau = "PM",
+                 hakn = TRUE,
+                 title = "Callback by race")
+RR.bin <- exp(m.bin$TE.random)
+RR.bin.se <- RR.bin * m.bin$seTE.random
+#summary(m.bin)
+```
+
+In our sample, the callback ratio is $\theta=$ `r round(RR.bin, digits=2)` for Black names, which was significantly less than one (p = `r round(m.bin$pval.random, digits=2)`).
+
+```{r meta-gender, echo=FALSE, cache=TRUE}
+df_avg %>%
+  filter(gender=="female") %>%
+  group_by(study) %>%
+  summarise(callback_female=sum(callback_n),
+            n_female=sum(n)) %>%
+  left_join(df_avg %>%
+              filter(gender=="male") %>%
+              group_by(study) %>%
+              summarise(callback_male=sum(callback_n),
+                        n_male=sum(n)),
+            by="study")->df_temp
+  
+
+m.bin.f <- metabin(event.e = callback_female, 
+                 n.e = n_female,
+                 event.c = callback_male,
+                 n.c = n_male,
+                 studlab = study,
+                 data = df_temp,
+                 
+                 sm = "RR",
+                 method = "MH",
+                 MH.exact = TRUE,
+                 fixed = FALSE,
+                 random = TRUE,
+                 method.tau = "PM",
+                 hakn = TRUE,
+                 title = "Callback by gender")
+RR.bin <- exp(m.bin.f$TE.random)
+RR.bin.se <- RR.bin * m.bin.f$seTE.random
+#summary(m.bin)
+
+#todo where is Table S6?
+```
+
+For the female gender compared to male, our estimated ratios are $\theta=$ `r round(RR.bin, digits=2)` (p = `r round(m.bin$pval.random, digits=2)`) in the eight studies we have. Together the data show a 20 − 30% reduction in callbacks for Black names and no reduction for female names (Table S6).
+
+<!-- ## warmth and competence -->
+
+```{r count raters per name, include=FALSE}
+wc %>% 
+  select(name, ResponseId) %>%
+  group_by(name)  %>%
+  summarise(n=n()) %>%
+  ungroup() %>%
+  summarize(avg_raters = mean(n))->avg
+```
+
+To measure warmth and competence, lists of names from the correspondence studies were given to participants on Prolific (`r length(unique(wc$ResponseId))` raters total, `r round(avg, digits=2)` per name).
+
+```{r Table S2 icc, warning=FALSE, message=FALSE, cache=TRUE, echo=FALSE}
+# https://search.r-project.org/CRAN/refmans/psych/html/ICC.html
+library(psych)
+
+icc_fun<-function(df_in, which_rating, which_not){
+
+  df_in %>%
+    select(!which_not) %>%
+    group_by(study) %>%
+    group_split() -> study_dfs
+  
+  results <- lapply(study_dfs, function(df) {
+    st_label <- unique(df$study)
+    df <- df %>%
+      pivot_wider(id_cols = c(study, name),
+                  names_from = "ResponseId",
+                  values_from = which_rating) %>%
+      ungroup() %>%
+      dplyr::select(-c(name,study))
+    
+    icc_res <- ICC(df, missing = FALSE)
+    icc_tibble <- tibble(study = st_label,
+                         signals = icc_res$n.obs,
+                         raters = icc_res$n.judge,
+                         icc_res$results[5,])
+    return(icc_tibble)
+  })
+  
+  df_temp <- bind_rows(results)
+  return(df_temp)
+}
+
+icc_fun(df_in = wc, which_rating="warm", which_not="competent") %>% 
+  mutate(score = case_when(
+    ICC < 0.5 ~ "poor",
+    ICC >= 0.5 & ICC < 0.75 ~ "moderate",
+    ICC >= 0.75 & ICC < 0.9 ~ "good",
+    ICC >= 0.9 ~ "excellent",
+    TRUE ~ NA_character_
+  )) %>%
+  select(study, ICC, score) %>%
+  filter(study %in% unique(df$study)) ->df_warmth 
+
+icc_fun(df_in = wc, which_rating="competent", which_not="warm") %>% 
+  mutate(score = case_when(
+    ICC < 0.5 ~ "poor",
+    ICC >= 0.5 & ICC < 0.75 ~ "moderate",
+    ICC >= 0.75 & ICC < 0.9 ~ "good",
+    ICC >= 0.9 ~ "excellent",
+    TRUE ~ NA_character_
+  )) %>%
+  select(study, ICC, score) %>%
+  filter(study %in% unique(df$study)) ->df_competence
+
+
+### write table
+df_warmth %>%
+  rename_with(~paste0("warm_",.), -c(study)) %>%
+  full_join(df_competence %>%
+              rename_with(~paste0("comp_",.), -c(study)), by=c("study")) %>%
+  
+  mutate(warm_ICC = as.numeric(warm_ICC),
+         comp_ICC = as.numeric(comp_ICC),
+         avg_ICC = (warm_ICC + comp_ICC) / 2) %>%
+  mutate(avg_score = case_when(
+    avg_ICC < 0.5 ~ "poor",
+    avg_ICC >= 0.5 & avg_ICC < 0.75 ~ "moderate",
+    avg_ICC >= 0.75 & avg_ICC < 0.9 ~ "good",
+    avg_ICC >= 0.9 ~ "excellent",
+    TRUE ~ NA_character_
+  )) %>%
+  mutate_if(is.numeric, ~round(., 2)) %>%
+  arrange(avg_score) %>%
+  
+  gt(rowname_col = "study") %>%
+  tab_spanner(label = "Warmth", columns = starts_with("warm_"), level = 2) %>%
+  tab_spanner(label = "Competence", columns = starts_with("comp_"), level = 2) %>%
+  tab_spanner(label = "Mean", columns = starts_with("avg_"), level = 2) %>%
+  tab_spanner(label = "95% CI", columns = ends_with("bound"),  level = 1, gather=FALSE) %>%
+  tab_header(title = "Table S2. ICC values for names") %>%
+  tab_footnote(footnote = "Average score intraclass correlations (ICCs) were used as an index of interrater reliability of warmth competence ratings. A twoway model with random effects for raters and subjects (amount of levels in category) was used. Between rater agreement was estimated. The unit of analysis was averages.") 
+ # gtsave("table.tex")
+```
+
+To evaluate the consistency of ratings across categories, we computed the intraclass correlation. Our results reveal that the level of agreement between raters differs across various studies, with agreement ranging from excellent to good in most studies (Figure 2A, Table S2).
+
+<!-- ### Figure 2A -->
+
+```{r w-c-meta-names, cache=TRUE, echo=FALSE}
+wc %>% 
+  group_by(study, name) %>% 
+  summarise(warm=mean(warm), competent=mean(competent),.groups = "drop") %>%
+  group_by(study) %>%
+  add_count(study, name="n") %>%
+  mutate(se.w=sd(warm)/sqrt(n),
+         mean.w=mean(warm),
+         se.c=sd(competent)/sqrt(n),
+         mean.c=mean(competent)) %>%
+  select(study, n, se.w, se.c, mean.w, mean.c) %>%
+  unique() -> df_temp
+
+m.warmth <- metagen(TE = mean.w,
+                 seTE = se.w,
+                 studlab = study,
+                 data = df_temp,
+                 sm = "MRAW",
+                 fixed = FALSE,
+                 random = TRUE,
+                 method.tau = "REML",
+                 hakn = TRUE)
+
+m.competence <- metagen(TE = mean.c,
+                    seTE = se.c,
+                    studlab = study,
+                    data = df_temp,
+                    sm = "MRAW",
+                    fixed = FALSE,
+                    random = TRUE,
+                    method.tau = "REML",
+                    hakn = TRUE)
+```
+
+```{r Fig. 2A, cache=TRUE, echo=FALSE}
+#| fig-cap: "Fig. 2A: Each scatterplot shows warmth and competence for each name in the sample one study (with the first author name at the top). The correlations between the two rating scales are strongly positive in all eight studies (Table S4)."
+library(gghighlight)
+
+df_avg %>%
+  mutate(study=str_to_title(study))%>%
+  mutate(Nester = ifelse(study == "Farber", "moderate", 
+                         ifelse(study == "Bertrand" |study == "Nunley"
+                                |study == "Neumark"|study == "Oreopoulos", "good", 
+                                "excellent"))) %>%
+
+  ggplot(aes(x= warm, y= competent))+
+  geom_point(aes(color=race, shape=gender), size=.6, alpha=.8) +
+  geom_hline(yintercept =50, alpha=.2, linetype="dotted" )+
+  geom_vline(xintercept =50, alpha=.2, linetype="dotted")+
+  theme_classic()+ 
+  theme(text = element_text(size = 9.4),
+        legend.position = "right",
+        strip.background = element_blank(),
+        legend.box="vertical", 
+        legend.text = element_text(margin = margin(t = 0, r = 0, b = 0, l = 0)),
+        legend.key.width = unit(.1, "cm"),
+        legend.key.height = unit(.1, "cm"),
+        legend.margin=margin(),
+        aspect.ratio = 1/1,
+        axis.text.y = element_text(size=rel(.6)),
+        axis.text.x = element_text(hjust=1, vjust = 0.5,size=rel(.6)))+
+  gghighlight(label_key = F) +  
+  #facet_wrap(vars(study), ncol=8)+ 
+  ggh4x::facet_nested(~ Nester + study, nest_line = element_line(color = "grey", size = .2)) +
+  xlab("warmth")+ylab("competence")+
+  scale_x_continuous(breaks = c(0, 50, 100), limits = c(0, 100), expand = c(0, 0), labels = c("0", "50", "100"))+
+  scale_y_continuous(breaks = c(0, 50, 100), limits = c(0, 100), expand = c(0, 0), labels = c("0", "50", "100")) +
+  scale_color_manual(values = c("black" = "black", "white" = "#4169E1"))+
+  scale_shape_manual(values = c("female" = 25, "male" = 24)) ->plt1
+
+ggsave(plt1, filename = "plot1.pdf", width = 7.2,height = 2, dpi = 1200, units = "in", device='pdf')
+plt1
+```
+
+The callback rates were computed by averaging the decisions of multiple hiring managers. Meanwhile, the warmth and competence scores were obtained from a different sample. To ensure reliable social perception measurements, we specifically recruited participants residing in North America with demographics closely resembling those of the average hiring manager, and we averaged ratings across raters. This enabled us to confidently match the social perception ratings with the callback rates per name. Those warmth and competence ratings, across names in different studies, are shown in Figure 2A.
+
+<!-- ### meta models -->
+
+```{r meta-race-wc, echo=FALSE, cache=TRUE, warning=FALSE, message=FALSE}
+prp_df<-function(which_race, which_rating, df_in){
+  
+df_in %>%
+  filter(race == which_race) %>%
+  group_by(study, race) %>%
+  add_count(race, name = paste0("n_", which_race)) %>%
+  group_by(study, across(starts_with("n_"))) %>%
+  summarise(!!paste0("mu_", which_race) := mean({{which_rating}}, na.rm = TRUE),
+            !!paste0("sd_", which_race) := sd({{which_rating}}, na.rm = TRUE)) -> df_temp
+  return(df_temp)
+  
+}
+
+prp_df("black", warm, df_avg) %>% full_join(prp_df("white", warm, df_avg),by="study") ->df_temp
+m_warm <- metacont(n.e = n_black,
+                   mean.e = mu_black,
+                   sd.e = sd_black,
+                   n.c = n_white,
+                   mean.c = mu_white,
+                   sd.c = sd_white,
+                   studlab = study,
+                   data = df_temp,
+                   sm = "MD", method.smd = "Hedges",
+                   fixed = FALSE,random = TRUE,
+                   method.tau = "REML",hakn = TRUE)
+
+prp_df("black", competent, df_avg) %>% full_join(prp_df("white", competent, df_avg),by="study") ->df_temp
+m_comp <- metacont(n.e = n_black,
+                   mean.e = mu_black,
+                   sd.e = sd_black,
+                   n.c = n_white,
+                   mean.c = mu_white,
+                   sd.c = sd_white,
+                   studlab = study,
+                   data = df_temp,
+                   sm = "MD", method.smd = "Hedges",
+                   fixed = FALSE,random = TRUE,
+                   method.tau = "REML",hakn = TRUE)
+```
+
+```{r meta-gender-wc, echo=FALSE, cache=TRUE, warning=FALSE, message=FALSE}
+prp_df<-function(which_gender, which_rating, df_in){
+  
+df_in %>%
+  filter(gender == which_gender) %>%
+  group_by(study, race) %>%
+  add_count(gender, name = paste0("n_", which_gender)) %>%
+  group_by(study, across(starts_with("n_"))) %>%
+  summarise(!!paste0("mu_", which_gender) := mean({{which_rating}}, na.rm = TRUE),
+            !!paste0("sd_", which_gender) := sd({{which_rating}}, na.rm = TRUE)) -> df_temp
+  return(df_temp)
+  
+}
+
+prp_df("female", warm, df_avg) %>% full_join(prp_df("male", warm, df_avg),by="study") ->df_temp
+m_warm_f <- metacont(n.e = n_female,
+                   mean.e = mu_female,
+                   sd.e = sd_female,
+                   n.c = n_male,
+                   mean.c = mu_male,
+                   sd.c = sd_male,
+                   studlab = study,
+                   data = df_temp,
+                   sm = "MD",method.smd = "Hedges",fixed = FALSE,
+                   random = TRUE,method.tau = "REML",hakn = TRUE)
+
+prp_df("female", competent, df_avg) %>% full_join(prp_df("male", competent, df_avg),by="study") ->df_temp
+m_comp_f <- metacont(n.e = n_female,
+                   mean.e = mu_female,
+                   sd.e = sd_female,
+                   n.c = n_male,
+                   mean.c = mu_male,
+                   sd.c = sd_male,
+                   studlab = study,
+                   data = df_temp,
+                   sm = "MD",method.smd = "Hedges",fixed = FALSE,
+                   random = TRUE,method.tau = "REML",hakn = TRUE)
+
+```
+
+```{r Table S6, echo=FALSE, cache=TRUE}
+tibble(
+  "variable"= c("black", "female", 
+                "black_w", "female_w",
+                "black_c", "female_c"),
+  "estimate" = c(exp(m.bin$TE.random),
+                 exp(m.bin.f$TE.random),
+                 m_warm$TE.random,
+                 m_warm_f$TE.random,
+                 m_comp$TE.random,
+                 m_comp_f$TE.random
+                 ),
+  "lower" = c(m.bin$lower.random,
+                 m.bin.f$lower.random,
+                 m_warm$lower.random,
+                 m_warm_f$lower.random,
+                 m_comp$lower.random,
+                 m_comp_f$lower.random
+                 ),
+  "upper" = c(m.bin$upper.random,
+                 m.bin.f$upper.random,
+                 m_warm$upper.random,
+                 m_warm_f$upper.random,
+                 m_comp$upper.random,
+                 m_comp_f$upper.random
+                 ),
+  "p-value" = c(m.bin$pval.random,
+                m.bin.f$pval.random,
+                m_warm$pval.random,
+                m_warm_f$pval.random,
+                m_comp$pval.random,
+                m_comp_f$pval.random
+  ),
+  "SE" = c(m.bin$seTE.random,
+            m.bin.f$seTE.random,
+            m_warm$seTE.random,
+            m_warm_f$seTE.random,
+            m_comp$seTE.random,
+            m_comp_f$seTE.random
+  )
+) %>% 
+  mutate_if(is.numeric, ~round(., 2)) |> 
+  gt(rowname_col = "variable")|>
+  tab_row_group(
+    label = "callback",
+    rows = 1:2
+  ) |>
+  tab_footnote(
+    footnote = "The Mantel-Haenszel method was used to calculate the overall effect size, with the Paule-Mandel estimator used to estimate the between-study variance (tau^2). A random-effects model was employed with the Hartung-Knapp (HK) adjustment to account for potential bias due to small sample sizes. The model had 1 degree of freedom (df = 1).",
+    locations = cells_row_groups(groups = "callback")
+  ) |>
+  tab_footnote(
+    footnote = "k=4 studies, o=89872 observations.",
+    cells_stub(rows = "black")
+  ) |>
+  tab_footnote(
+    footnote = "k=4 studies, o=143860 observations.",
+    cells_stub(rows = "female")
+  ) |>
+  
+  tab_row_group(
+    label = "warmth",
+    rows = 3:4
+  ) |>
+  tab_footnote(
+    footnote = "The meta-analytical involves the inverse variance method and a restricted maximum-likelihood estimator for tau^2. The Q-Profile method was used to compute the confidence interval of tau^2 and tau, and a Hartung-Knapp (HK) adjustment was applied for the random effects model, with degrees of freedom set to 10.",
+    locations = cells_row_groups(groups = "warmth")
+  ) |>
+  tab_footnote(
+    footnote = "k=4 studies, o=687 observations.",
+    cells_stub(rows = "black_w")
+  ) |>
+  tab_footnote(
+    footnote = "k=11 studies, o=816 observations.",
+    cells_stub(rows = "female_w")
+  ) |>
+  tab_row_group(
+    label = "competence",
+    rows = 5:6
+  ) |>
+  tab_footnote(
+    footnote = "The meta-analytical involves the inverse variance method and a restricted maximum-likelihood estimator for tau^2. The Q-Profile method was used to compute the confidence interval of tau^2 and tau, and a Hartung-Knapp (HK) adjustment was applied for the random effects model, with degrees of freedom set to 10.",
+    locations = cells_row_groups(groups = "competence")
+  ) |>
+  tab_footnote(
+    footnote = "k=4 studies, o=687 observations.",
+    cells_stub(rows = "black_c")
+  ) |>
+  tab_footnote(
+    footnote = "k=11 studies, o=816 observations.",
+    cells_stub(rows = "female_c")
+  )  |>
+  tab_spanner(
+    label = "95% CI",
+    columns = c(lower,upper)
+  ) |>
+  tab_header(title = "Table S6. Pooling effect sizes competence, warmth, and callback for the categories race and gender")#%>% gtsave("table.tex")
+```
+
+There were only minor differences in warmth or competence ratings between black and white candidates or males and females (between 2 and 7 points on the 100-point scale), except for a marginally significant difference in competence between black and white ($\theta=$ `r round(m_warm$TE.random, digits=2)`, p = `r round(m_warm$pval.random, digits=2)`, Table S6).
+
+```{r Table S4, echo=FALSE, cache=TRUE, warning=FALSE, message=FALSE}
+wc %>% 
+  group_by(study) %>% 
+  mutate(competent = replace_na(competent, mean(competent, na.rm = TRUE))) %>% 
+  group_by(study, name) %>% 
+  summarise(warm=mean(warm), competent=mean(competent),.groups = "drop") %>%
+  group_by(study) %>%
+  summarize(n_study = n(), 
+            correlation = cor(warm, competent),
+            .groups = "drop") %>%
+  ungroup()->df_temp
+
+m.cor_wc <- metacor(cor = correlation, 
+                 n = n_study,
+                 studlab = study,
+                 data = df_temp,
+                 fixed = FALSE,
+                 random = TRUE,
+                 method.tau = "REML",
+                 hakn = TRUE)
+m.cor_wc<-update.meta(m.cor_wc, prediction = TRUE)
+rcor<-(exp(2*m.cor_wc$TE.random)-1)/(1+exp(2*m.cor_wc$TE.random))
+
+# table with meta model 
+tibble(
+  "variable"=c("", m.cor_wc$studlab),
+  "correlation" = c(rcor, m.cor_wc$cor),
+  "lower" = c(m.cor_wc$lower.random, m.cor_wc$lower),
+  "upper" = c(m.cor_wc$upper.random,m.cor_wc$upper),
+  "p-value" = c(m.cor_wc$pval.random, m.cor_wc$pval),
+  "SE" = c(m.cor_wc$seTE.random,m.cor_wc$seTE)) %>%
+  mutate_if(is.numeric, ~round(., 3)) %>%
+  gt(rowname_col = "variable") |>
+  tab_spanner(
+    label = "95% CI",
+    columns = c(lower,upper))|>
+  tab_row_group(
+    label = "pooled",
+    rows = 1
+  )%>%
+  tab_row_group(
+    label = "by study",
+    rows = 2:11
+  )%>%
+  tab_header(title = "Table S4. Results of a random effects model with p(warmth, competence) for names") %>%
+  tab_footnote(
+    footnote = "Meta-analysis of k = 10 studies with o = 418 observations using inverse variance method. Random effects model with restricted maximum-likelihood estimator for tau^2 and Hartung-Knapp adjustment (df = 8). Confidence intervals for tau^2 and tau estimated using Q-Profile method. Fisher's z transformation used for correlations."
+  ) #%>% gtsave("table.tex")
+```
+
+Figure 2A shows strong, reliable positive associations between warmth and competence within all eight studies, ranging from `r round(min(m.cor_wc$cor), digits=2)` -- `r round(max(m.cor_wc$cor), digits=2)` (Table S4). The pooled correlation is $\hat{\rho}_{w,c}=$ `r round(rcor, digits=2)` (p = `r round(m.cor_wc$pval.random, digits=2)`).
+
+::: columns
+::: column
+```{r Fig. 2D pca, echo = FALSE, cache=TRUE, warning=FALSE}
+#| fig-cap: "Fig. 2D: Scatter plots of name-specific warmth and competence ratings showing the structure of PC1 and PC2."
+
+
+df %>%
+  ungroup() %>%
+  select(warm, competent) ->df_temp2
+pc <- prcomp(df_temp2,center = TRUE, scale. = TRUE)
+s_pc<-summary(pc)
+
+PC1<-pc[["x"]][,1] *-1 
+PC2<-pc[["x"]][,2] *-1  
+
+
+df %>%
+  add_column(PC1, PC2) %>%
+  pivot_longer(cols=c(warm,competent), values_to = "ratings", names_to = "which rating") %>%
+  pivot_longer(cols=c(PC1,PC2), values_to = "pc", names_to = "which pc") %>%
+  
+  ggplot(aes(x=ratings, y=pc, color=`which rating`))+ #color=`which rating`
+  geom_point(alpha=.8,pch='.')+ 
+  facet_wrap(~`which pc`, ncol = 1,strip.position="right")+
+  xlab("rating") + ylab("principal component") +
+  theme_classic()+
+  theme(text = element_text(size = 9.4),
+        strip.background = element_blank(),
+        legend.background = element_rect(fill = NA),
+        legend.position = c(0.3, .57), 
+        aspect.ratio = 1/1,
+        legend.text = element_text(margin = margin(t = 0, r = 0, b = 0, l = 0), size=9),
+        legend.key.width = unit(.01, "cm"),
+        legend.key.height = unit(.01, "cm"),
+        legend.margin=margin(),
+        legend.title = element_blank(),
+        axis.text.y = element_text(size=rel(.6)),
+        axis.text.x = element_text(size=rel(.6)),
+        plot.margin=grid::unit(c(0,0,0,0), "mm"),
+        legend.justification = c(0, 1)) + 
+  scale_x_continuous(breaks = c(0, 50, 100)) +
+  scale_color_manual(values = c("warm" = "#DC143C", "competent" = "#4169E1"))->plt2
+
+ggsave(plt2, filename = "plot2.pdf", width = 2,height = 2, dpi = 1200, units = "in", device='pdf')
+plt2
+```
+:::
+
+::: column
+We, therefore, used principal component analysis (PCA) as a proxy for social perceptions. Figure 2D shows how the principal component scores (y-axis) are related to warmth and competence ratings (x-axis). The first component (PC1) reflects the positive association; it explains `r round(s_pc$importance[2,1]*100, digits=2)`% of the variance. PC2 is high when only one rating is high. It accounts for only `r 1-round(s_pc$importance[2,1]*100, digits=2)`% of the total variance, indicating its less prominent role in the overall data structure. As a result, our subsequent analyses will focus on the PCs rather than the original ratings that generated them.
+:::
+:::
+
+## Correlation between callback and PC1 as an effect
+
+```{r corr abs, echo = FALSE, cache=TRUE, warning=FALSE}
+prp_df<-function(which_cor, df_in){
+  df_in %>%
+    add_column(PC1,PC2) %>%
+    group_by(study, name, callback) %>%
+    summarise(PC1=mean(PC1),
+              PC2=mean(PC2),
+              n_name = mean(n),
+              competent=mean(competent),
+              warm=mean(warm)
+              ) %>% 
+    mutate(callback=callback*100) %>%
+    #mutate(se = sqrt(callback*(100-callback)/n_name)) %>%
+    #filter(se != 0) %>%
+    group_by(study) %>%
+    add_count(name="n_study") %>%
+    group_by(study,n_study) %>%
+    summarise(corr=cor(callback,{{which_cor}}), 
+              .groups="drop") ->df_temp
+}
+prp_meta<-function(df_in){
+  m_cor <- metacor(cor = corr,
+                   n = n_study,
+                   studlab = study,
+                   data = df_in,
+                   fixed = FALSE,
+                   random = TRUE,
+                   method.tau = "REML",
+                   hakn = TRUE,
+                   prediction = TRUE)
+}
+
+raw_corr_pc <- prp_df(PC1, df) #Use it later for fmm
+corr_pc<-prp_meta(raw_corr_pc)
+
+corr_w<-prp_meta(prp_df(warm, df))
+corr_c<-prp_meta(prp_df(competent, df))
+
+rcor<-(exp(2*corr_pc$TE.random)-1)/(1+exp(2*corr_pc$TE.random))
+rcor_w<-(exp(2*corr_w$TE.random)-1)/(1+exp(2*corr_w$TE.random))
+rcor_c<-(exp(2*corr_c$TE.random)-1)/(1+exp(2*corr_c$TE.random))
+
+#forest.meta(corr_pc, layout = "JAMA", sortvar = TE)
+```
+
+```{r corr fmm, echo = FALSE, cache=TRUE, warning=FALSE}
+
+# Import class-specific correlations from Stata
+dta_files <- paste("../0_data/published_data/fmm/",
+                   list.files(pattern = "\\.dta$",
+                              path = "../0_data/published_data/fmm/"),
+                   sep = "")
+# function to summarize data by expclass name
+summarize_data <- function(data, class = TRUE) {
+  if (class) {
+    data <- data %>%
+      ungroup() %>%
+      dplyr::group_by(expclass, name)
+  } else {
+    data <- data %>%
+      ungroup() %>%
+      dplyr::group_by(name)
+  }
+  data %>%
+    dplyr::summarise(callback = mean(callback, na.rm = TRUE),
+                     PC1 = mean(pc1, na.rm = TRUE),
+                     PC2 = mean(pc1, na.rm = TRUE),
+                     n_name = n(),
+                     .groups = "drop") %>%
+    dplyr::mutate(se = sqrt(callback*(1-callback)/n_name)) %>%
+    filter(se != 0)
+}
+# Function to handle renaming and selection
+process_data <- function(data) {
+  data %>%
+    map_if(~any(c("call_back", "call", "cback", "cb") %in% names(.x)) &
+             any("callback" %in% names(.x)), select, -callback) %>%
+    map_if(~"call_back" %in% names(.x), rename, callback = call_back) %>%
+    map_if(~"call" %in% names(.x), rename, callback = call) %>%
+    map_if(~"cback" %in% names(.x), rename, callback = cback) %>%
+    map_if(~"cb" %in% names(.x), rename, callback = cb) %>%
+    map(select, name, callback, pc1, pc2, expclass)
+}
+# Function for weighted correlation across studies
+calculate_corr <- function(study_name) {
+  df <- df_noclass[df_noclass$study == study_name, ]
+  r1 <- cov.wt(select(df, callback, PC1), wt = 1/df$se, cor = TRUE)$cor[2, 1]
+  n1 <- nrow(df)
+  
+  df <- df_classes[df_classes$study == study_name &
+                     df_classes$expclass == 1, ]
+  if (nrow(df) != 0) {
+    r2 <- cov.wt(select(df, callback, PC1),
+                 wt = 1/df$se,
+                 cor = TRUE)$cor[2, 1]
+    n2 <- nrow(df)
+  } else {
+    r2 <- NA
+    n2 <- NA
+  }
+  df <- df_classes[df_classes$study == study_name &
+                     df_classes$expclass == 2, ]
+  if (nrow(df) != 0) {
+    r3 <- cov.wt(select(df, callback, PC1),
+                 wt = 1/df$se,
+                 cor = TRUE)$cor[2, 1]
+    n3 <- nrow(df)
+  } else {
+    r3 <- NA
+    n3 <- NA
+  }
+  return(c(r1, r2, r3, n1, n2, n3))
+}
+# Import all .dta files and bind them together
+data_list <- map(dta_files, read_dta) %>%
+  process_data()
+# Get the study names without path and extension
+study_names <- basename(dta_files) %>%
+  tools::file_path_sans_ext()
+
+df_classes <- data_list %>%
+  map(summarize_data) %>%
+  set_names(study_names) %>%
+  bind_rows(.id = "study") %>%
+  ungroup()
+
+df_noclass <- data_list %>%
+  map(summarize_data, class = FALSE) %>%
+  set_names(study_names) %>%
+  bind_rows(.id = "study") %>%
+  ungroup()
+
+study_corrs <- lapply(unique(df_classes$study), function(study_name) {
+  corr_value <- calculate_corr(study_name)
+  data.frame(study = study_name,
+             corr  = corr_value[1],
+             corr_c1 = corr_value[2],
+             corr_c2 = corr_value[3], 
+             n_study = corr_value[4],
+             n_c1 = corr_value[5],
+             n_c2 = corr_value[6])
+})
+corr_dta <- do.call(rbind, study_corrs) %>%
+  select(!c(corr,n_study)) %>%
+  right_join(raw_corr_pc, by = "study")
+
+```
+
+```{r corr weighted, eval=FALSE}
+# Use this function to calculate the correlation, where we account
+# for the differences in standard errors of callback rates across names in a study.
+
+prp_df<-function(which_cor, df_in){
+  df_in %>%
+    add_column(PC1,PC2) %>%
+    group_by(study, name, callback) %>%
+    summarise(PC1=mean(PC1),
+              PC2=mean(PC2),
+              n_name = mean(n),
+              competent=mean(competent),
+              warm=mean(warm)
+              ) %>% 
+    mutate(callback=callback*100) %>%
+    mutate(se = sqrt(callback*(100-callback)/n_name)) %>%
+    filter(se != 0) %>%
+    group_by(study) %>%
+    add_count(name="n_study") %>%
+    group_by(study,n_study) %>%
+    mutate(corr = cov.wt(cbind(callback, {{which_cor}}),
+                          wt = 1/se,
+                          cor = TRUE)$cor[1, 2]) %>%
+    summarise(corr=mean(corr),
+              .groups="drop") -> df_temp
+}
+
+```
+
+::: columns
+::: column
+```{r Fig. 2C forest, echo = FALSE, cache=TRUE, warning=FALSE, fig.width=3,fig.height=1.8}
+#| fig-cap: "Fig. 2C: Forest plot of confidence intervals for study-specific estimates of the correlation between callback rate and the first principal component PC1."
+library(ggforestplot)
+as.data.frame(corr_pc) %>%
+  rename(study=studlab) %>%
+  select(study, cor, seTE, pval) %>%
+  mutate(across(-study, as.numeric))%>%
+  as.tibble() %>%
+  arrange(cor) %>% 
+  mutate(study=str_to_title(study)) %>%
+  mutate(study = factor(study, levels = c("Bertrand", "Neumark", "Farber", "Widner", "Jacquemet", "Oreopoulos", "Kline", "Nunley")))  ->df_temp2
+
+forestplot(
+  df = df_temp2,
+  name=study,
+  estimate = cor,
+  pvalue = pval,
+  se=seTE,
+  colour=study,
+  logodds = FALSE
+) +
+  geom_vline(xintercept=rcor, size=1,color = "#4169E1")+
+  xlab("COR (95% CI)")+
+  theme(legend.position = "none",
+        aspect.ratio = 1/2,
+        text = element_text(size = 9.4))+
+  xlab(expression(hat(rho)))+
+  scale_x_continuous(breaks = c(0, 0.33, 1)) +
+  theme(axis.text.x = element_text(color = c("black", "#4169E1", "black"),size=rel(.6)),
+        panel.background = element_rect(fill = "transparent", color = NA),
+        plot.background = element_rect(fill = "transparent", color = NA))+
+  scale_color_manual(
+    values=c("#A1C720FF", "#FEC10BFF", "#0C5BB0FF", "#EC579AFF", "#665191", "#9DDAF5FF", "#EE0011FF", "#ffa609"),
+    breaks=c("Bertrand", "Neumark", "Farber", "Widner", "Jacquemet", "Oreopoulos", "Kline", "Nunley"))->plt3
+
+ ggsave(plt3, filename = "plot3.pdf", width = 3.5, height = 2, dpi = 1200, units = "in", device='pdf')
+ plt3
+```
+:::
+
+::: column
+Figure 2C is a forest plot of the estimated correlations $\rho(callback \times PC1)$ and 95% confidence intervals of the eight studies. The effects across studies were pooled via a meta-analytic random effects model. The pooled correlation between the callback percentage and PC1 is $\hat{\rho}=$ `r round(rcor, digits=2)` (p = `r round(corr_pc[["pval.random"]], digits=2)`), indicating a moderate correlation.
+:::
+:::
+
+To interpret the pooled effect size meaningfully, we must consider the variance of the true effect sizes distribution, $\tau^2$, and the between-study heterogeneity, $I^2$.
+
+As suggested by Figure 2C, there is "substantial heterogeneity" among studies: 83 percent of the variation in effect sizes is due to between-study heterogeneity (I2 = `r round(corr_pc$I2, digits=2)`, 95% CI \[`r round(corr_pc$lower.I2, digits=2)` − `r round(corr_pc$upper.I2, digits=2)`\]). Furthermore, the variance of the true effect sizes distribution is significantly greater than zero ($\tau^2=$ `r round(corr_pc$tau2, digits=2)`, 95% CI \[`r round(corr_pc$lower.random, digits=2)` − `r round(corr_pc$upper.random, digits=2)`\]).
+
+Given the large level of heterogeneity in our analysis, we find a wide prediction interval (from `r round(corr_pc$lower.predict, digits=2)` to `r round(corr_pc$upper.predict, digits=2)`, suggesting that future studies could potentially reveal negative correlations. Therefore, caution is warranted in interpreting the results, and further research is needed to clarify the effect of social perception on callback.
+
+<!-- Effects for *warmth* ($\theta=$ `r round(rcor_w, digits=2)`; p-value= `r round(corr_w[["pval.random"]], digits=2)`) and *competence* ($\theta=$ `r round(rcor_c, digits=2)`, p-value= `r round(corr_c[["pval.random"]], digits=2)`.), instead of the pc, are similar. -->
+
+```{r corr diff, echo = FALSE, cache=TRUE, warning=FALSE}
+meta_diff<-function(which_corr, df_in){
+  
+  df_in %>%
+    add_column(PC1,PC2) %>%
+        
+    group_by(study, name, callback) %>%
+    summarise(PC1=mean(PC1),
+              PC2=mean(PC2),
+              warm=mean(warm),
+              competent=mean(competent), .groups = "drop") %>%   
+    
+    group_by(study) %>%
+    add_count(name="n_study")%>%
+    
+    mutate(diff.PC1=PC1-PC1[which.min(callback)],
+           diff.w=warm-warm[which.min(callback)],
+           diff.c=competent-competent[which.min(callback)],
+           diff.cb=callback-min(callback)) %>%
+    
+    group_by(study, n_study)%>%
+    summarise(corr=cor(diff.cb, {{which_corr}}),
+              .groups="drop")->df_temp
+  
+  metacor(cor = corr, 
+          n = n_study,
+          studlab = study,
+          data = df_temp,
+          fixed = FALSE, random = TRUE,
+          method.tau = "REML", hakn = TRUE,
+          prediction = TRUE)
+}
+
+corr_pc<- meta_diff(diff.PC1, df)  
+corr_w<- meta_diff(diff.w, df)  
+corr_c<- meta_diff(diff.c, df)  
+```
+
+<!-- Effects for differences of *PC1* ($\theta=$ `r round(corr_pc$TE.random, digits=2)`; p-value= `r round(corr_pc[["pval.random"]], digits=2)`) and *warmth* ($\theta=$ `r round(corr_w$TE.random, digits=2)`; p-value= `r round(corr_w[["pval.random"]], digits=2)`) and *competence* ($\theta=$ `r round(corr_c$TE.random, digits=2)`, p-value= `r round(corr_c[["pval.random"]], digits=2)`.), instead of the raw values, are also similar. -->
+
+## Between-Study Heterogeneity and Publication Bias
+
+::: columns
+::: column
+```{r Fig. S2 Baujat, echo = FALSE, cache=TRUE, warning=FALSE}
+#| fig-cap: "Fig. S2"
+# Baujat: https://wviechtb.github.io/metafor/reference/baujat.html
+mgen_warm_out<-dmetar::find.outliers(corr_pc) #meta_cb
+m.gen.inf <- InfluenceAnalysis(corr_pc, random = TRUE)
+
+
+m.rma <- rma(yi = corr_pc$TE,
+             sei = corr_pc$seTE,
+             method = corr_pc$method.tau,
+             test = "knha")
+res.gosh <- gosh(m.rma)
+gosh.diagnostics(res.gosh, verbose = FALSE)
+
+corr_pc[["studlab"]][3:6] #outliers detected
+
+update.meta(corr_pc, exclude = c(2)) %>% # reestimate metamodel without kline
+  summary()->corr_pc_updated
+rcor_kline<-(exp(2*corr_pc_updated$TE.random)-1)/(1+exp(2*corr_pc_updated$TE.random)) 
+
+update.meta(corr_pc, exclude = c(5)) %>% # reestimate metamodel without neumark
+  summary()->corr_pc_updated
+rcor_neumark<-(exp(2*corr_pc_updated$TE.random)-1)/(1+exp(2*corr_pc_updated$TE.random)) 
+
+plot(m.gen.inf, "baujat")
+```
+:::
+
+::: column
+The Baujat plot is a diagnostic plot used to identify studies that disproportionately contribute to heterogeneity in a meta-analysis. The plot displays the contribution of each study to the overall heterogeneity (measured by Cochran's Q) on the x-axis and its impact on the pooled effect size (defined as the standardized squared difference between the overall estimate based on an equal-effects model with and without the ith study included in the model) on the y-axis. Our analysis found that Kline significantly influenced the heterogeneity but did not significantly affect the pooled effect size. On the other hand, Neumark contributed moderately to the overall heterogeneity but substantially impacted the pooled effect size.
+:::
+:::
+
+::: columns
+::: column
+```{r Fig. S3 Influence, cache=TRUE, warning=FALSE}
+#| fig-cap: "Fig. S3"
+plot(m.gen.inf, "influence")
+```
+:::
+
+::: column
+The plot displays different influence measures for each study, which help to identify potential outliers that do not fit well into the meta-analysis model. No study was detected as an outlier based on these measures.
+:::
+:::
+
+::: columns
+::: column
+```{r Fig. S4 I2, cache=TRUE, warning=FALSE}
+#| fig-cap: "Fig. S4"
+
+m.gen.inf[["ForestI2"]][["data"]]%>%
+  mutate(seTE=(upper-lower)/3.92) %>%
+  mutate(i2=round(i2, digits=2))->df_temp
+
+forestplot(
+  df = df_temp,
+  name=studlab,
+  estimate = mean,
+  se=seTE,
+  colour=factor(i2),
+  logodds = FALSE
+)+
+  theme(text = element_text(size = 9.4),aspect.ratio = 1/1)+
+  xlab(expression(hat(rho)))+
+  scale_x_continuous(breaks = c(0, 0.33, .7)) +
+  theme(axis.text.x = element_text(color = c("black", "#4169E1", "black")))+
+  guides(color=guide_legend(title=expression(I^2)))->plt_i2
+plt_i2
+```
+:::
+
+::: column
+The plot displays the overall effect and I2 heterogeneity of all meta-analyses with ρ(callback, PC1) as effectsize that were conducted using the leave-one-out method. The forest plot is sorted by the I2 value of the leave-one-out meta-analyses. The results show that excluding neumark leads to the largest reduction in I2, reducing it from 82% to 64%.
+:::
+:::
+
+::: columns
+::: column
+```{r Fig. S5 Gosh, echo = FALSE, cache=TRUE, warning=FALSE}
+#| fig-cap: "Fig. S5"
+library(ggExtra)
+tibble(res.gosh[["res"]]$estimate,
+     res.gosh[["res"]]$I2)->df_temp
+colnames(df_temp)<-c("rho", "I2")
+
+ggplot(df_temp, aes(rho, I2))+
+  geom_point()+
+  theme_classic()+
+  xlab(expression(hat(rho)))+
+  ylab(expression(I^2))+
+  theme(text = element_text(size = 9.4),
+        aspect.ratio = 1/1)->p
+ggMarginal(p, type="density")->plt_gosh
+plt_gosh
+```
+:::
+
+::: column
+We implemented a Graphical display of heterogeneity (GOSH) plot analysis. For this analysis, we fit all possible subsets 2k−1 of our k included studies. Each subset's pool effect size $\hat{\rho}$ is plotted on the x-axis, and the between-study heterogeneity I2 on the y-axis. Three (k-means, DBSCAN, gmm) clustering algorithms are used to determine patterns in the above scatter plot. The three algorithms did not consistently identify clusters therefore, we conclude that based on this analysis, no single study needs to be excluded from estimating the meta-model.
+:::
+:::
+
+```{r plt SI, include = FALSE, cache=TRUE, warning=FALSE}
+pdf(file = "SI/het_plots.pdf")
+  plot(m.gen.inf, "baujat")
+  plot(m.gen.inf, "influence")
+  plt_i2
+  plt_gosh
+  
+  col.contour = c("#FFF2B2","#FFF6CC", "#FFFAE5")
+  funnel.meta(corr_pc, contour = c(0.9, 0.95, 0.99), col.contour = col.contour)
+  legend(x = .2, y = 0.01, legend = c("p < 0.1", "p < 0.05", "p < 0.01"), fill = col.contour)
+dev.off()
+```
+
+In order to ensure the robustness of our findings and account for potential outliers, we conducted a comprehensive outlier and heterogeneity analysis. Overall, only two out of eight tests identified outliers.
+
+When excluded, re-estimate $\hat{\rho}$ as `r round(rcor_neumark, digits=2)` or `r round(rcor_kline, digits=2)` , both values remaining close to the `r round(rcor, digits=2)` all-study estimate in Figure 2C.
+
+```{r eggers test, echo=FALSE, cache=TRUE}
+et<-eggers.test(corr_pc) 
+```
+
+Furthermore, Egger's regression test (Fig. S6; intercept = `r round(et$intercept, digits=2)`, 95% CI \[`r round(et$llci, digits=2)`, `r round(et$ulci, digits=2)`\], t = `r round(et$t, digits=2)`, p = `r round(et$p, digits=2)`) did not indicate bias.
+
+## Meta Regression
+
+```{r Table 1b, echo = FALSE, cache=TRUE, warning=FALSE, message=FALSE}
+df %>%
+  add_column(PC1,PC2) %>%
+  group_by(study, name, callback,n) %>%
+  summarise(PC1=mean(PC1),
+            PC2=mean(PC2),.groups = "drop") %>%   
+  
+  filter(!callback==0) %>%
+  filter(!callback==1) %>%
+  mutate(callback=callback*100) %>%
+  mutate(se.cb = sqrt((callback*(100-callback))/ n)) %>%
+  group_by(study)%>%
+  mutate(callback=scale(callback, center=TRUE, scale=FALSE)) %>%
+  ungroup()->df_temp
+
+# meta
+m.qual <- rma(yi = callback,
+              sei = se.cb,
+              data = df_temp,
+              method = "ML",
+              mods = ~ PC1+PC2,
+              test = "knha")
+#m.qual<-permutest(m.qual, iter=1000)
+#regplot(m.qual, mod="diff.PC1")
+
+tbl_temp<-cbind(m.qual[["beta"]], m.qual[["pval"]])
+as_tibble(tbl_temp, rownames=NA) %>%
+  rownames_to_column(var = "variable") %>%
+  rename("beta"=V1) %>%
+  rename("pvalue"=V2) %>%
+  gt(rowname_col = "name") %>%
+  
+  fmt_scientific(
+    columns = c(beta,pvalue),
+    decimals = 2
+  ) |>
+  tab_options(
+    table.background.color = "#FFFFFF00",
+    column_labels.font.size = px(10),
+    column_labels.font.weight = "bold",
+    table.font.color = "white",
+    table.font.size = px(12L)) %>%
+  gtsave("tables/metareg.tex")
+```
+
+```{r Fig. 2B, echo = FALSE, cache=TRUE, warning=FALSE, message=FALSE}
+#| fig-cap: "Fig. 2B: Correlations between callback rates and PC1 and PC2 components associated with specific names (aggregating all studies). Data from different studies are identified by colors."
+df_temp %>%
+  mutate(weight=(1/(m.qual$tau2+m.qual$vi)/100)) %>%
+  pivot_longer(cols=c(PC1,PC2), 
+               values_to = "rating", 
+               names_to = "which rating") %>%
+  mutate(study=str_to_title(study)) %>%
+  mutate(study = factor(study, levels = c("Bertrand", "Neumark", "Farber", "Widner", "Jacquemet", "Oreopoulos", "Kline", "Nunley"))) -> df_plt
+ggplot(df_plt,aes(x=rating, y=callback)) +
+  geom_point(aes(color = study, 
+                 size = weight ,
+                 alpha = ifelse(study == "Neumark", .9, 1)
+                 ), shape = 1) +
+  scale_size(range = c(.001, 3)) +
+  scale_alpha(guide = "none") + # remove legend for alpha
+  facet_wrap(~`which rating`) +
+  geom_abline(data = subset(df_plt, `which rating` == "PC1"),
+              aes(intercept =  m.qual[["beta"]][1], slope =  m.qual[["beta"]][2]), color = "#DC143C")+
+  geom_abline(data = subset(df_plt, `which rating` == "PC2"),
+              aes(intercept =  m.qual[["beta"]][1], slope =  m.qual[["beta"]][3]), color = "#4169E1") +
+  xlab("principal component") + ylab("callback") +
+  theme_classic()+
+ # ylim(-.2, .3)+
+  theme(text = element_text(size = 9.4),
+        aspect.ratio=1/1,
+        strip.background = element_blank(),
+        legend.background = element_rect(fill = NA),
+        legend.position=c(.12,.7),
+        legend.box="horizontal", 
+        legend.text = element_text(margin = margin(t = 0, r = 0, b = 0, l = 0),size=5),
+        legend.key.width = unit(.1, "cm"),
+        legend.key.height = unit(.1, "cm"),
+        legend.margin=margin(),
+        axis.text.y = element_text(size=rel(.6)),
+        axis.text.x = element_text(size=rel(.6)))+
+    guides(color = FALSE)+
+    scale_x_continuous(breaks = c(-0.02, 0, 0.02)) +
+    scale_color_manual(values=c("#A1C720FF", "#FEC10BFF", "#0C5BB0FF", "#EC579AFF", "#665191", "#9DDAF5FF", "#EE0011FF", "#ffa609")) -> plt4
+  
+ggsave(plt4, filename = "plot4.pdf", width = 4,height = 2, dpi = 1200, units = "in", device='pdf')
+plt4  
+```
+
+```{r Table 1, echo=FALSE, cache=TRUE}
+rbind(
+tibble(
+  "variable"= c("PC1", "warmth", "comp"),
+  "estimate" = c(
+    (exp(2*corr_pc$TE.random)-1)/(1+exp(2*corr_pc$TE.random)),
+    (exp(2*corr_w$TE.random)-1)/(1+exp(2*corr_w$TE.random)),
+    (exp(2*corr_c$TE.random)-1)/(1+exp(2*corr_c$TE.random))
+  ),
+  "lower" = c(corr_pc$lower.random, 
+                 corr_w$lower.random,
+                 corr_c$lower.random),
+  "upper" = c(corr_pc$upper.random, 
+                 corr_w$upper.random,
+                 corr_c$upper.random),
+  "p-value" = c(corr_pc$pval.random, 
+                corr_w$pval.random,
+                corr_c$pval.random),
+  "SE" = c(corr_pc$seTE.random, 
+            corr_w$seTE.random,
+            corr_c$seTE.random)
+) ,
+tibble(
+  "variable"=c("intercept", "b_PC1", "b_PC2"),
+  "estimate" = as.vector(m.qual$beta),
+  "lower" = m.qual$ci.lb,
+  "upper" = m.qual$ci.ub,
+  "p-value" = m.qual$pval,
+  "SE" = m.qual$se
+),
+readRDS(file = "tbl_categories.rds")
+) |>
+  mutate_if(is.numeric, ~round(., 2)) |> 
+  gt(rowname_col = "variable") |>
+
+
+  tab_row_group(
+    label = "Correlations rho(callback times variable) for names",
+    rows = 1:3
+  ) |>
+  tab_row_group(
+    label = "Meta Regression for Names",
+    rows = 4:6
+  ) |>
+  tab_row_group(
+    label = "Meta Regression for Categories",
+    rows = 7:9
+  ) |>
+  tab_spanner(
+    label = "95% CI",
+    columns = c("lower","upper")) |>
+  
+  tab_footnote(
+    footnote = "Number of studies combined: k=8; Number of observations: o=725; The meta-analytical models employed inverse variance method, restricted maximum-likelihood estimator for tau^2, Q-Profile method for confidence interval of tau^2 and tau, Hartung-Knapp adjustment for random effects model (df = 7), prediction interval based on t-distribution (df = 6), and Fisher's z transformation of correlations.",
+    cells_row_groups(groups = "Correlations rho(callback times variable) for names")
+    ) |>
+  tab_footnote(
+    footnote = "Mixed-Effects Model (k = 691; tau^2 estimator: ML)",
+    cells_row_groups(groups = "Meta Regression for Names")
+  )|>
+  tab_footnote(
+    footnote = "Mixed-Effects Model (k = 79; tau^2 estimator: ML)",
+    cells_row_groups(groups = "Meta Regression for Categories")
+  ) |>
+  tab_header(title = "Table 1. Linear probability regressions of callback rates on principal components and social perception ratings")#|>gtsave("table.tex")
+```
+
+As an alternative specification to the meta-analysis with $\hat{\rho}$, Table 1 reports results of a mixed effects model of callback rates against the PCs and raw ratings. The results are visualized in Figure 2B. The coefficient for PC1 is positive $\hat{\beta}_{PC1}$ = `r round(m.qual[["beta"]][2], digits=2)` and highly significant (p = `r round(m.qual[["pval"]][2], digits=2)`).
+
+The correlations for warmth ($\hat{\rho}$ = `r round((exp(2*corr_w$TE.random)-1)/(1+exp(2*corr_w$TE.random)), digits=2)`, p = `r round(corr_w$pval.random, digits=2)`) and competence ($\hat{\rho}$ = `r round((exp(2*corr_c$TE.random)-1)/(1+exp(2*corr_c$TE.random)), digits=2)`, p = `r round(corr_c$pval.random, digits=2)`) are similar to those observed for the first principal component (PC1).
+
+::: columns
+::: column
+```{r Fig. S7, cache=TRUE, echo=FALSE}
+#fig.width=3, fig.height=3}
+df %>%
+  mutate(race=case_when(is.na(race) ~ "Foreign", .default = race)) %>%
+  mutate(name=str_to_title(name)) %>%
+  add_column(PC1, PC2) %>%
+  group_by(study, name, callback, race) %>%
+  summarise(PC1=mean(PC1),
+            PC2=mean(PC2),
+            warm=mean(warm),
+            competent=mean(competent),
+            .groups = "drop")%>% 
+  ungroup()%>% 
+  filter(study=="jacquemet")-> df_all
+
+# estimate model on just jacquemet and leave on name out
+cb_predictions <- numeric()
+name_leftout<-unique(df_all$name)[1]
+
+for (name_leftout in unique(df_all$name)) {
+
+  df_subset <- df_all %>% filter(name != name_leftout)
+  model <- lm(callback ~ PC1 + PC2, data = df_subset)
+  df_left_out <- df_all %>% filter(name == name_leftout)
+  cb_prediction <- predict(model, newdata = df_left_out)
+  cb_predictions <- c(cb_predictions, cb_prediction)
+}
+
+
+df_all$cb_pred<-cb_predictions
+
+###### PLOT     
+color_scale <- colorRampPalette(c("#4ADEDE", "#1E2F97"))
+
+df_all %>% 
+  mutate(median_c=median(competent)) %>%
+  mutate(median_w=median(warm)) %>%
+  mutate(cb_pred=round(cb_pred*100, digits=2))->df_plt
+  
+  ggplot(df_plt, aes(x=warm, y=competent, label=name)) +
+  geom_point(aes(shape=race, color=cb_pred), size=2.5) +
+  geom_text(aes(color=cb_pred), vjust = -1.5, size = 2) +
+  geom_hline(aes(yintercept = median_c), linetype="dotted")+
+  geom_vline(aes(xintercept = median_w), linetype="dotted")+
+  theme_classic()+ xlim(45,70)+ylim(45,70)+
+  theme(text = element_text(size = 9),
+        aspect.ratio=1/1,
+        strip.background = element_blank(),
+        legend.background = element_rect(fill = NA),
+        legend.position=c(.76,.13),
+        legend.box="horizontal", 
+        legend.text = element_text(size=7.5, margin = margin(t = 0, r = 0, b = 0, l = 0)),
+        legend.key.width = unit(.1, "cm"),
+        legend.key.height = unit(.1, "cm"),
+        legend.margin=margin(),
+        axis.text.y = element_text(size=rel(.6)),
+        axis.text.x = element_text(size=rel(.6)))+ 
+  labs(color='predicted\ncallback %')+xlab("warmth")+ylab("competence")+
+ # scale_color_manual(values=color_scale(10))+
+    scale_color_gradientn(colors = color_scale(100), na.value = "gray50")+
+    
+  scale_x_continuous(breaks = c(50, unique(df_plt$median_w), 70),
+                     labels = c(50, 
+                                paste("median:", round(unique(df_plt$median_w), digits=2), sep=""),
+                                70))+
+  scale_y_continuous(breaks = c(50, unique(df_plt$median_c), 70),
+                     labels = c(50, 
+                                paste("median:\n", round(unique(df_plt$median_c), digits=2), sep=""),
+                                70))+
+    coord_cartesian(clip = "off") ->p
+
+  
+p+  geom_text(
+  data    = df_plt%>%select(warm, competent, race, cb_pred),
+  mapping = aes(x = warm, y = competent , 
+                label = paste("cb=", factor(cb_pred), "%", sep=""),
+                color=cb_pred,
+                size=8),
+  size=2,hjust= .5,vjust= 2
+) ->plt5
+
+ggsave(plt5, filename = "plot5.pdf", width = 3.1,height = 3.1, dpi = 1200, units = "in", device='pdf')
+plt5
+```
+:::
+
+::: column
+Moreover, we tested the predictive potential of our model for names. We found that $\hat{\rho}$(callback, PC1) in (21) is closest to the pooled effect, and we, therefore, used data from this study to make predictions. Specifically, we trained a linear model on all names except one and then used this model to predict the callback for the left-out name. Fig. S7 visually represents our findings, with lighter shades of blue indicating lower callback rates. Our analysis reveals that callback rates are highest in the upper quadrant of the warmth and competence scale, while the callback rates are lowest in the lowest quadrant of this plot. Interestingly, we also observe clusters of the race that the names would signal (Black, White, or foreign-sounding).
+:::
+:::
+
+## Comparing Models
+```{r Table S8, cache=TRUE, echo=FALSE}
+df %>%
+  add_column(PC1,PC2) %>%
+  group_by(study, name, callback,n, race) %>%
+  summarise(PC1=mean(PC1),
+            PC2=mean(PC2),.groups = "drop") %>%   
+  
+  filter(!callback==0) %>%
+  filter(!callback==1) %>%
+  #filter(race=="Black" | race=="White" ) %>%
+  mutate(callback=callback*100) %>%
+  mutate(se.cb = sqrt((callback*(100-callback))/ n)) %>%
+  group_by(study)%>%
+  mutate(callback=scale(callback, center=TRUE, scale=FALSE)) %>%
+  ungroup()->df_temp
+
+
+df_temp$race <- factor(df_temp$race)
+df_temp$race <- relevel(df_temp$race, ref = "White")
+
+
+# meta-regression
+pc1race <- rma(yi = callback,
+               sei = se.cb,data = df_temp,method = "ML",
+               mods = ~ PC1+race,test = "knha")
+pc1 <- rma(yi = callback,
+           sei = se.cb,
+           data = df_temp,
+           method = "ML",
+           mods = ~ PC1,
+           test = "knha")
+race <- rma(yi = callback,
+            sei = se.cb,
+            data = df_temp,method = "ML",
+            mods = ~ race,test = "knha")
+
+as_tibble(
+  rbind(
+    cbind(
+      pc1race[["beta"]],
+      pc1race[["se"]],
+      pc1race[["pval"]],
+      pc1race[["ci.lb"]],
+      pc1race[["ci.ub"]],
+      pc1race[["R2"]]),
+    
+    cbind(
+      pc1[["beta"]],
+      pc1[["se"]],
+      pc1[["pval"]],
+      pc1[["ci.lb"]],
+      pc1[["ci.ub"]],
+      pc1[["R2"]]),
+    
+    cbind(
+      race[["beta"]],
+      race[["se"]],
+      race[["pval"]],
+      race[["ci.lb"]],
+      race[["ci.ub"]],
+      race[["R2"]])
+  ),
+  rownames=NA) %>%
+  rownames_to_column() %>%
+  
+  rename("beta"=V1) %>%
+  rename("se"=V2) %>%
+  rename("pval"=V3) %>%
+  rename("lower"=V4) %>%
+  rename("upper"=V5) %>%
+  rename("R2"=V6) %>%
+  gt() %>%
+  fmt_number(columns = !rowname,
+             rows = everything(),
+             decimals = 2)|>
+  tab_row_group(
+    label = "callback ~ race + PC1",
+    rows = 1:3
+  )|>
+  tab_row_group(
+    label = "callback ~ PC1",
+    rows = 4:5
+  )|>
+  tab_row_group(
+    label = "callback ~ race",
+    rows = 6:7
+  ) |>
+  tab_spanner(
+    label = "95% CI",
+    columns = c("lower","upper")) |>
+  tab_footnote(
+    footnote = "Mixed-Effects Model (k = 644; tau^2 estimator: ML)"
+  ) |>
+  tab_header(title = "Table S8. Mixed effects models with varying independent variables")#|> gtsave("table.tex")
+```
+
+Our findings suggest that PC1 is a positive and significant predictor of callback. The table investigates how PC1 compares as a predictor to categorical variables that are commonly used in correspondence studies. To this end, we fit three mixed-effects models, of different predictors (PC1, race, PC1+race) on callback. Our analysis reveals that the R2 value is highest for model three, as expected. However, we also observe that the $R^2$ value is substantially higher (`r round( pc1[["R2"]], digits=2)`) for model PC1 compared to the model with race only (`r round(race[["R2"]], digits=2)`). Notably, our results show that race is never a significant predictor of callback in either model one or model three, whereas PC1 is a significant predictor in both models. These findings underscore the importance of social perception as a valuable predictor of callback (Table S8).
+
+
+
+<!-- TODO Marcos: ## Exploratory analysis points to differential effects of social perceptions across job types -->

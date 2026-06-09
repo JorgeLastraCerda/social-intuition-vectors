@@ -1,0 +1,233 @@
+"study","category","level","callback","n"
+"acquisti","sexual orientation","lgb+ orientation",0.106941838649156,1066
+"acquisti","religion","majority religion",0.126415094339623,1060
+"acquisti","religion","muslim",0.10958904109589,1022
+"acquisti","sexual orientation","non-lgb+ orientation",0.106341463414634,1025
+"agan","race and national origin","anglo-saxon name",0.12896174863388,7320
+"agan","race and national origin","black-sounding name",0.105054644808743,7320
+"ameri","health","asperger",0.0494,1945
+"ameri","disability","asperger’s syndrome",0.0212976721149084,2019
+"ameri","disability","no disability",0.0253411306042885,2052
+"ameri","health","none",0.0658,2052
+"ameri","disability","spinal cord injury",0.0236503856041131,1945
+"ameri","health","spine",0.048,2019
+"bailey","sexual orientation","gay",0.163333333333333,576
+"bailey","sexual orientation","lesbian",0.116333333333333,576
+"bailey","sexual orientation","straight",0.1215,3072
+"beauregard","race and national origin","french canadian",0.2915,202
+"beauregard","race and national origin","north african",0.1385,202
+"bellemare","disability","no physical disability",0.146209386281588,554
+"bellemare","disability","wheelchair user",0.0682556879739978,923
+"bertrand","race and national origin","african american",0.0640333333333333,2435
+"bertrand","race and national origin","white",0.0923333333333333,2435
+"boyd-swan","race and national origin","anglo-saxon name",0.269852941176471,2720
+"boyd-swan","race and national origin","black-sounding name",0.201102941176471,2720
+"boyd-swan","race and national origin","hispanic-sounding name",0.237867647058824,2720
+"button","race and national origin","indigenous origin",0.201390944066292,6758
+"button","race and national origin","native origin",0.197839597514057,6758
+"correll","gender and motherhood status","childless woman",0.065625,320
+"correll","gender and motherhood status","female gender",0.096875,320
+"correll","gender and motherhood status","male gender",0.0786163522012579,318
+"correll","gender and motherhood status","mother",0.03125,320
+"correll","parenthood","nonparent",0.046963443395,638
+"correll","parenthood","parent",0.040782232705,638
+"decker","race and national origin","african name",0.0598455598455598,1036
+"decker","race and national origin","anglo-saxon name",0.0781853281853282,1036
+"decker","race and national origin","hispanic name",0.0849420849420849,1036
+"deming","race and national origin","nonwhite",0.0835,5408
+"deming","race and national origin","white",0.079,5076
+"farber","age","22",0.09379615953,1354
+"farber","age","27",0.1097708082,1658
+"farber","age","33",0.1260558804,1539
+"farber","age","42",0.1252624213,1429
+"farber","age","51",0.1109634551,1505
+"farber","age","60",0.09900990099,1414
+"farber","age","age 22–23",0.0667177914110429,1304
+"farber","age","age 33–34 or age 42–43",0.0891812865497076,1368
+"farber","age","age 33–34 or age 42–43",0.0952054794520548,1460
+"farber","age","age 37 or age 42",0.107048748353096,3036
+"farber","age","age 57 or age 58",0.0760869565217391,3036
+"farber","age","age 60–61",0.075092936802974,1345
+"figinski","military service or affiliation","current",0.08642290974,3911
+"figinski","military service or affiliation","current membership in the reserves",0.096906162106878,3911
+"figinski","military service or affiliation","military service",0.0971618511889542,3911
+"figinski","military service or affiliation","no military service",0.0813091281002301,3911
+"figinski","military service or affiliation","none",0.0813,3911
+"figinski","military service or affiliation","past",0.09690616211,3911
+"figinski","military service or affiliation","previous membership in the reserves",0.107389414472002,3911
+"flake","race and national origin","anglo-saxon name",0.238026124818578,689
+"flake","race and national origin","black-sounding name",0.130168453292496,653
+"flake","race and national origin","hispanic-sounding name",0.338855421686747,664
+"gaddis","race and national origin","anglo-saxon name",0.144957983193277,952
+"gaddis","race and national origin","black-sounding name",0.0892857142857143,952
+"gaulke","education","men",0.1045,NA
+"gaulke","education","women",0.1275,NA
+"gorsuch","race and national origin","african american name",0.169096209912536,686
+"gorsuch","race and national origin","anglo-saxon name",0.269679300291545,686
+"gorsuch","race and national origin","somali american name",0.174927113702624,1372
+"gorzig","race and national origin","african american",0.26,870
+"gorzig","race and national origin","somali american",0.19,1740
+"gorzig","race and national origin","white american",0.295,2610
+"hipes","disability","history of mental illness",0.148148148148148,324
+"hipes","health","mental",0.1481481481,324
+"hipes","health","physical",0.2186495177,311
+"hipes","disability","physical injury",0.218649517684887,311
+"ishizuka","parenthood","nonparent",0.25,1105
+"ishizuka","parenthood","parent",0.2,1105
+"jacquement","race and national origin","african american name",0.157575757575758,330
+"jacquement","race and national origin","anglo-saxon name",0.23030303030303,330
+"jaeger","race and national origin","anglo-saxon name",0.0670138888888889,5760
+"jaeger","race and national origin","black-sounding name",0.0170138888888889,5760
+"jolson","religion","black protestant",0.09,100
+"jolson","religion","white jewish",0.18,100
+"jolson","religion","white protestant",0.19,200
+"kang","race and national origin","anglo-saxon name",0.255,200
+"kang","race and national origin","anglo-saxon name",0.21,200
+"kang","race and national origin","asian name",0.115,200
+"kang","race and national origin","black-sounding name",0.1,200
+"kleykamp","race and national origin","anglo-saxon name",0.117283950617284,324
+"kleykamp","race and national origin","black-sounding name",0.099644128113879,281
+"kleykamp","race and national origin","hispanic-sounding name",0.103343465045593,329
+"kleykamp","military service or affiliation","military service",0.0588865096359743,934
+"kleykamp","military service or affiliation","no military service",0.069593147751606,934
+"kline","sexual orientation","black female",0.227,20879
+"kline","sexual orientation","black male",0.2335,20927
+"kline","sexual orientation","gay",0.245,6844
+"kline","sexual orientation","over 40",0.24,44730
+"kline","sexual orientation","straight",0.255,6943
+"kline","sexual orientation","under 40",0.245,38913
+"kline","sexual orientation","white female",0.2545,20862
+"kline","sexual orientation","white male",0.2465,20975
+"kreisberg","union","non-union",0.152,514
+"kreisberg","union","union",0.151,511
+"kroft","unemployed","employed",0.056,5636
+"kroft","unemployed","unemployment duration (<18 months)",0.054,7404
+"kroft","unemployed","unemployment duration (>=18 months)",0.0425,4650
+"lahey","age","age 35 or age 45",0.0571973307912297,3147
+"lahey","age","age 50, age 55, or age 62",0.0403707518022657,4855
+"lambert","race and national origin","asian domestic-born or white domestic-born",0.0775193798449612,129
+"lambert","race and national origin","asian foreign-born or white foreign-born",0.461538461538462,78
+"leasure","race and national origin","african american name",0.249146757679181,293
+"leasure","race and national origin","anglo-saxon name",0.288401253918495,319
+"mishel","sexual orientation","control",0.1677419355,775
+"mishel","sexual orientation","high match",0.173,NA
+"mishel","sexual orientation","lesbian",0.26,1486
+"mishel","sexual orientation","lgb+ organisation affiliation",0.121290322580645,775
+"mishel","sexual orientation","low match",0.028,NA
+"mishel","sexual orientation","no lgb+ organisation affiliation",0.167741935483871,775
+"mishel","sexual orientation","queer",0.1212903226,775
+"mishel","sexual orientation","straight",0.32,1529
+"mobasseri","race and national origin","anglo-saxon name",0.381818181818182,55
+"mobasseri","race and national origin","black-sounding name",0.164179104477612,67
+"mobasseri","race and national origin","hispanic-sounding name",0.390625,64
+"namingit","unemployed","illness",0.258,1257
+"namingit","unemployed","longgap",0.2345,1257
+"namingit","unemployed","shortgap",0.277,2514
+"neumark","age","30",0.1869263,13401
+"neumark","age","50",0.1540335,12731
+"neumark","age","65",0.121567,14091
+"neumark","age","age 29–31",0.242900890868597,7184
+"neumark","age","age 29–31",0.186926348779942,13401
+"neumark","age","age 64–66",0.172188195991091,7184
+"neumark","age","age 64–66",0.121566957632531,14091
+"neumark","gender and motherhood status","female gender",0.127984882322625,29105
+"neumark","gender and motherhood status","female gender",0.21478285077951,7184
+"neumark","gender and motherhood status","male gender",0.220723151645979,11118
+"neumark","gender and motherhood status","male gender",0.200306236080178,7184
+"nunley","race and national origin","anglo-saxon name",0.18007662835249,4698
+"nunley","race and national origin","black-sounding name",0.151979565772669,4698
+"oreopoulos","race and national origin","anglo-saxon name",0.14177131526768,3026
+"oreopoulos","race and national origin","anglo-saxon name",0.133843212237094,1569
+"oreopoulos","race and national origin","chinese name",0.108216432865731,998
+"oreopoulos","race and national origin","chinese name",0.108448928121059,793
+"oreopoulos","gender and motherhood status","female gender",0.109182275011421,6567
+"oreopoulos","gender and motherhood status","female gender",0.104380475594493,3995
+"oreopoulos","race and national origin","greek name",0.101092896174863,366
+"oreopoulos","race and national origin","greek name",0.107011070110701,542
+"oreopoulos","race and national origin","indian or pakistani name",0.0961420698101653,1633
+"oreopoulos","race and national origin","indian or pakistani name",0.0916988416988417,1036
+"oreopoulos","gender and motherhood status","male gender",0.0897051868201167,6343
+"oreopoulos","gender and motherhood status","male gender",0.0814132104454685,3906
+"pedulla","race and national origin","black",0.057,2402
+"pedulla","race and national origin","white",0.0745,2420
+"rivera","gender and motherhood status","female gender",0.0506329113924051,158
+"rivera","wealth","high",0.10023734177,159
+"rivera","wealth","high-class background",0.10062893081761,159
+"rivera","wealth","low",0.03805582603,157
+"rivera","wealth","low-class background",0.0382165605095541,157
+"rivera","gender and motherhood status","male gender",0.0886075949367089,158
+"thomas","wealth","high",0.0986617312025,1048
+"thomas","wealth","low",0.0985193621775,1048
+"tilcsik","sexual orientation","gay",0.07179197287,1769
+"tilcsik","sexual orientation","lgb+ organisation affiliation",0.071791972866026,1769
+"tilcsik","sexual orientation","no lgb+ organisation affiliation",0.114754098360656,1769
+"tilcsik","sexual orientation","straight",0.1147540984,1769
+"uggen","race and national origin","african american origin",0.274509803921569,153
+"uggen","race and national origin","anglo-saxon origin",0.387755102040816,147
+"vuolo","race and national origin","african american name",0.229096989966555,598
+"vuolo","race and national origin","anglo-saxon name",0.344771241830065,612
+"widner","race and national origin","anglo-saxon name",0.0528301886792453,265
+"widner","race and national origin","arab name",0.0188679245283019,265
+"wright","religion","expressing a religious identity",0.1,2800
+"wright","religion","expressing no religious identity",0.1825,400
+"wrigth","religion","atheist",0.075,796
+"wrigth","religion","catholic",0.078,796
+"wrigth","religion","control",0.085,796
+"wrigth","religion","evang",0.072,796
+"wrigth","religion","jewish",0.078,796
+"wrigth","religion","muslim",0.065,796
+"wrigth","religion","pagan",0.074,796
+"wrigth","religion","wallonian",0.082,796
+"yemane","race and national origin","1.5generation",0.17,645
+"yemane","race and national origin","2generation",0.15,645
+"yemane","race and national origin","albania",0.2199009009,51
+"yemane","race and national origin","anglo-saxon name",0.222522522522523,1110
+"yemane","race and national origin","anglo-saxon or native name",0.225621414913958,523
+"yemane","race and national origin","asian-sounding name",0.142857142857143,287
+"yemane","race and national origin","black",0.197989690721653,267
+"yemane","race","black",0.148,6180
+"yemane","race and national origin","black-sounding name",0.163727959697733,397
+"yemane","religion","buddhist or hindu",0.166666666666667,60
+"yemane","race and national origin","bulgaria",0.3199009009,42
+"yemane","race and national origin","china",0.0804878048780469,39
+"yemane","religion","christian",0.204406364749082,817
+"yemane","race and national origin","cuba",0.127,66
+"yemane","race and national origin","cuban, dominican, ecuadorian, mexican, puerto rican, or salvadorian name",0.124555160142349,281
+"yemane","race and national origin","egypt",0.1599009009,38
+"yemane","race and national origin","elsalvador",0.147,73
+"yemane","race and national origin","ethiopia",0.1579896907,47
+"yemane","parent","father",0.171,971
+"yemane","race and national origin","france",0.2599009009,43
+"yemane","race and national origin","germany",0.1399009009,46
+"yemane","race and national origin","greece",0.1999009009,43
+"yemane","race and national origin","hispanic-sounding name",0.152866242038217,314
+"yemane","race and national origin","india",0.1104878049,39
+"yemane","race and national origin","indonesia",0.1304878049,24
+"yemane","race and national origin","iran",0.1999009009,27
+"yemane","race and national origin","iraq",0.0799009009,38
+"yemane","race and national origin","italy",0.1599009009,31
+"yemane","race and national origin","japan",0.2104878049,43
+"yemane","race and national origin","lebanon",0.1599009009,30
+"yemane","gender","men",0.15,6110
+"yemane","race and national origin","mexico",0.167,68
+"yemane","race and national origin","morocco",0.1899009009,25
+"yemane","religion","muslim",0.102272727272727,176
+"yemane","race and national origin","netherlands",0.2299009009,28
+"yemane","race and national origin","nigeria",0.06798969072,42
+"yemane","religion","no religious affiliation",0.194681861348528,1053
+"yemane","race and national origin","norway",0.1599009009,34
+"yemane","race and national origin","pakistan",0.1304878049,37
+"yemane",NA,"parent",0.154,1023
+"yemane","race and national origin","philippines",0.2104878049,27
+"yemane","race and national origin","poland",0.1399009009,30
+"yemane","race and national origin","puertorico ",0.187,74
+"yemane","race and national origin","romania",0.2899009009,29
+"yemane","race and national origin","russia",0.2499009009,26
+"yemane","race and national origin","southkorea",0.1104878049,46
+"yemane","race and national origin","spain",0.111909090909064,33
+"yemane","race and national origin","turkey",0.2099009009,26
+"yemane","race and national origin","uganda",0.05798969072,32
+"yemane","race and national origin","vietnam",0.1804878049,32
+"yemane","race and national origin","white",0.249900900900901,523
+"yemane","race","white",0.162,6144
+"yemane","gender","women",0.16,6214
