@@ -242,3 +242,58 @@
   `layer_31_width_16k_l0_medium`) to assess warmth-vs-valence confound. (2) Phase 4 —
   implement `src/extract_vectors.py` for full corpus extraction over ~4,800 API-generated
   stories.
+
+## 2026-06-15 · Step 1 — Cross-audit corrections applied to overleaf/references.bib
+
+- **Context:** Resuming after previous session completed cross-audit of three files (Ulu_Lastra.tex, references.bib, literature_review_table.xlsx).
+- **Did:** Read overleaf/references.bib and confirmed two remaining errors from the audit had not been applied to the overleaf copy (outputs/ had the corrected version). Applied: (1) Gallo first author corrected from "Edoardo" to "Marcos"; Ona corrected from "Devon" to "Vaida"; Jenkins middle initial "C." added; Camerer "F." added. (2) Sofroniew et al. "and others" replaced with full 16-author list.
+- **Findings:** overleaf/Ulu_Lastra.tex is correct and complete (Introduction 3 paragraphs, Literature gap 4+1 subsections, Methods skeleton, Results with smoke-test placeholder, Discussion). overleaf/references.bib now clean.
+- **Decision / rationale:** The overleaf/ folder is the canonical Overleaf-ready bundle. Both files now match the verified versions from the audit.
+- **Next:** Write the abstract (collaborative). Then Methods section.
+
+---
+
+## 2026-06-15 · Step 2 — Pilot concept stimuli generated (in-Cowork, no API cost)
+
+- **Context:** Phase 3 stimulus generation. User wanted a quality pilot without paying for Anthropic API calls (`src/generate_stimuli.py` uses the paid API; a Pro subscription does not cover API usage).
+- **Did:**
+  - Generated 20 pilot stories directly via Claude in Cowork (model: **claude-opus-4-8**, manual generation — recorded in each story's `generation_model` field as "claude-opus-4-8 (Cowork manual)"). Wrote to `data/stimuli/concept_stories.jsonl` in the exact schema `src/generate_stimuli.py` produces (`id, condition, topic_idx, topic, text, generation_model`; id format `{cond}_t{idx:03d}_s{idx:05d}`).
+  - Design: matched/paired — topics 0–4, all 4 conditions per topic (5 per condition). Off-axis dimension held neutral; protagonist genders varied.
+  - Added `scripts/validate_stimuli.py`: mechanical QC (forbidden-word stems per condition, required fields, unique id, length band, per-condition counts vs target). Non-zero exit on hard violations so it can gate the pipeline.
+  - Added `data/stimuli/STIMULI_TRACKER.md`: target vs current per condition, run log, design rules, and open decisions D1–D3.
+- **Findings:** Validator PASS, 0 violations. Word lengths tightly matched across conditions (means 153–158, range 150–164) → no length confound in the pilot. Counts: 5 per condition, 20 total, 4,780 remaining to target.
+- **Decision / rationale:** Use in-Cowork generation (subscription-covered) instead of the paid API path for now. Flagged open decisions: (D1) whether to fold "hold off-axis neutral / demographic balance / behavioural diversity" into the API prompt; (D2) Figure 1 — mirror Carina's PCA-collapse vs. keep warmth/competence probes separate; (D3) reduce stories-per-topic for a faster first corpus.
+- **Next:** Jorge reviews pilot quality. Then either scale up generation (after deciding D1/D3) or proceed to wire Phase 4 extraction against this pilot to produce a first Figure 1.
+
+---
+
+## 2026-06-15 · Step 3 — Demographic + topic tracking; generator bias caught; D2 decided
+
+- **Context:** Jorge asked for (a) a system to track protected-attribute balance of story protagonists to prove variation and catch generator bias, (b) a topic tracker, and (c) a decision on D2 (warmth/competence aggregation).
+- **Did:**
+  - Added `data/stimuli/protagonist_metadata.jsonl` (per-story: name, gender, name_origin cue, age/disability/religion cues).
+  - Added `data/stimuli/name_roster.csv` (30 names balanced across gender x 7 name-origin groups + neutral) for assignment-by-design.
+  - Added `scripts/audit_stimuli.py`: advisory report of topic coverage (per-topic counts per condition, depth vs 12 target) and demographic balance by condition, with a 70%-skew warning.
+  - Updated `STIMULI_TRACKER.md`: demographics + topic sections; recorded D2 decision; added D4.
+- **Findings:**
+  - **Generator bias detected in the Run-1 pilot (model: claude-opus-4-8).** `audit_stimuli.py` flagged: low_warmth and low_competence = 100% male; low_warmth 80% / low_competence 100% Anglo-named; high_warmth 80% female and diverse. The "good" protagonists were diverse/female, the "bad" ones uniformly Anglo-male. Unfixed, the warmth/competence direction would encode gender + name-origin — a fatal confound. This validates exactly why the audit was requested.
+  - Topic coverage: 5/100 topics, 0 at full depth.
+- **Decision / rationale:**
+  - **D2 — DECIDED (Jorge):** extract warmth and competence as two separate probes (one-way-door: aggregation is reversible, separation is not). In analysis, report each separately AND test their correlation; if strongly positive like Carina's ratings, run PCA to reproduce her PC1/PC2 and compare to her published PC1. Delivers both the apples-to-apples comparison and the separate-dimension causal analysis. Do both.
+  - **D4 — OPEN:** neutralise demographics in concept stories vs. balance-by-design via roster. Either fixes the confound. Pending Jorge.
+- **Next:** Pick D4 (neutralise vs balance), then regenerate the pilot demographics accordingly and re-run `audit_stimuli.py` to confirm no skew. Then proceed to scale-up or Phase 4 wiring.
+
+---
+
+## 2026-06-15 · Step 4 — D4 decided (neutralise names); pilot regenerated name-free; validator bug fixed
+
+- **Context:** Jorge decided to remove protected-attribute signals from the concept stories (clarifying that names belong only at the measurement stage, sourced from Carina, not in the vector-defining stories).
+- **Did:**
+  - **D4 = NEUTRALISE.** Regenerated the 20-story pilot name-free (third-person "they", role words, no proper names) across **5 domains** (topics 0/19/45/65/75: workplace, learning, community, sport, travel), fixing the earlier all-workplace topic concentration. Off-axis dimension held neutral; generation_model recorded as "claude-opus-4-8 (Cowork manual, name-free)".
+  - Rewrote `protagonist_metadata.jsonl` as all-neutral (gender unspecified, origin none).
+  - Fixed a `validate_stimuli.py` false-positive: forbidden stem "friend" -> "friendl" (so "friendly/friendliness" is caught but the noun "friend" is not).
+  - Updated `STIMULI_TRACKER.md` (D2 + D4 decided, demographics + topic sections, Run-2 log).
+- **Findings:** `validate_stimuli.py` PASS, 0 violations, lengths 127-148 tightly matched across conditions. `audit_stimuli.py`: name-free => no demographic signal in concept stories, no skew. Topic coverage 5/100 across 5 domains.
+- **Decision / rationale:** Concept stories must define clean warmth/competence directions, so they carry no demographic signal; this also sidesteps the hard name-origin balancing problem. Demographic variation enters only at Fig-1/steering/benchmark, using Gallo-Hausladen's validated names. D1 (fold rules into the API generator) and D3 (stories per topic) remain open.
+- **Note:** Write-tool -> sandbox sync truncated code files mid-write twice this session; switched to writing code/docs via shell heredoc, which is reliable. (Matches the "cowork sandbox quirks" memory.)
+- **Next:** Confirm whether the model hiring-evaluation stage (PLAN.md Phases 6-7) is still in scope. Then settle D3, fold rules into `generate_stimuli.py` (D1), and scale generation across all 100 topics in validated batches.
