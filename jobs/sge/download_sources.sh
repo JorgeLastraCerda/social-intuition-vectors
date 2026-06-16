@@ -15,12 +15,12 @@ source activate python-3.13  # ADJUST
 
 mkdir -p papers data/raw results/logs
 
-curl -L -o papers/emotion_concepts_anthropic_2026.pdf https://arxiv.org/pdf/2604.07729
-curl -L -o papers/warmth_competence_callback_plos_2024.pdf "https://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.0304723&type=printable"
+curl -L -o literature/emotion_concepts_anthropic_2026.pdf https://arxiv.org/pdf/2604.07729
+curl -L -o literature/warmth_competence_callback_plos_2024.pdf "https://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.0304723&type=printable"
 
 if [ ! -d data/raw/SocialPerceptions-Predict-Callback ]; then
   git clone https://github.com/carinahausladen/SocialPerceptions-Predict-Callback.git data/raw/SocialPerceptions-Predict-Callback
 fi
 
-file papers/*.pdf
-ls -lh papers/
+file literature/*.pdf
+ls -lh literature/
