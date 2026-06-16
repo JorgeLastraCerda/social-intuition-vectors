@@ -310,3 +310,11 @@
 - **Findings:** Validator PASS, 0 rule violations, 200 unique ids. `audit_stimuli.py`: no demographic skew (name-free), topic coverage 50/100 across all 10 domains. Nothing lost across the interrupted session (verified line counts + unique ids).
 - **Decision / rationale:** 200 (50/condition) doubles the original smoke test's per-probe size and, unlike it, covers both warmth and competence and spans 50 real-world scenarios rather than 100 homogeneous sentences. Generated in Cowork to avoid API cost; batched + mechanically validated to bound drift.
 - **Next:** (deferred per Jorge) wire the Gemma3 smoke-test script to read `concept_stories.jsonl` (both probes) and run on SCCKN to produce the expanded smoke-test numbers. Open: D1 (fold rules into API generator), D3 (expand toward full 4,800 / more per topic).
+
+## 2026-06-16 · Step 2 — Implemented extract_vectors.py and validate_probes.py; updated extract_vectors SGE job
+
+- **Context:** Phase 4+5 implementation triggered by Jorge pushing 200 concept stories to `data/stimuli/concept_stories.jsonl`.
+- **Did:** Replaced stubs in `src/extract_vectors.py` and `src/validate_probes.py` with full implementations; rewrote `jobs/sge/extract_vectors.sh` with 3-node fan-out queue optimisation.
+- **Findings:** Dry-run passes — 4×50 stimulus balance confirmed, config load clean. All files pass `python3 --dry-run`.
+- **Decision / rationale:** Kept model fixed to `google/gemma-3-12b-it` (already in config). Used `probe_layer_frac=0.66` → layer 31 (GemmaScope 2 SAE compatible for future sprint). Cross-axis orthogonality test added to validate_probes because Jorge designed the stories to isolate each axis independently — this is the primary new scientific check vs the smoke tests.
+- **Next:** SSH to SCCKN, `git pull`, `qsub jobs/sge/extract_vectors.sh`. Monitor with `qstat -u emrecan.ulu`.
