@@ -239,7 +239,7 @@ This subtraction yields a direction in the 3,840-dimensional space that points f
 
 ![Empirical null distribution of Cohen's d for 1,000 random unit directions.](figures/fig2_random_baseline.png)
 
-**Figure 2.** Empirical null distribution of Cohen's d obtained from 1,000 randomly sampled unit vectors in the 3,840-dimensional residual-stream space (grey density, centred at zero). The red vertical line marks the Cohen's d achieved by our direction vector for each axis. Neither the warmth direction (d = 2.70) nor the competence direction (d = 2.83) is approached by any random direction, confirming that the extracted directions capture structured, condition-specific variance.
+**Figure 2.** Empirical null distribution of Cohen's d obtained from 1,000 randomly sampled unit vectors in the 3,840-dimensional residual-stream space (grey density, centred at zero). The red vertical line marks the Cohen's d achieved by our direction vector for each axis. For the warmth axis the null distribution has σ = 0.69; our direction (d = 2.70) corresponds to z = 3.9 (p < .001; 0 of 1,000 random directions exceeded it). For the competence axis the null has σ = 0.76; our direction (d = 2.83) corresponds to z = 3.7 (p < .001; 0 of 1,000 exceeded). Neither direction is approached by any sampled random direction, confirming that the extracted directions capture structured, condition-specific variance.
 
 **5. Meaning of a "projection score".** Given the warmth direction, any story can be projected onto it to produce a scalar value. A high score indicates that the model's internal state while reading that story resembles the average state observed when reading high-warmth material. All story-level scores reported in §5 are these projections.
 

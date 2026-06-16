@@ -191,19 +191,10 @@ def fig2_random_baseline(data: dict, n_random: int = 1000, seed: int = 20260527)
         z_score = actual / null_std
         n_exceed = int((null >= actual).sum())
         p_val = max(n_exceed, 1) / len(null)
+        print(f"  [{axis_label}] null σ={null_std:.2f}  d={actual:.2f}  z={z_score:.1f}  p<{p_val:.3f}  exceed={n_exceed}/{len(null)}")
         ax.set_xlabel("Cohen's $d$")
         ax.set_ylabel("Density" if ax is axes[0] else "")
         ax.set_title(f"Null distribution — {axis_label} axis")
-        ax.text(
-            0.03, 0.94,
-            f"Null: $\mu$ = 0, $\sigma$ = {null_std:.2f}\n"
-            f"Our direction: $d$ = {actual:.2f}\n"
-            f"$z$-score: {z_score:.1f}\n"
-            f"$p$ < {p_val:.3f} ({n_exceed}/{len(null)} random dirs exceed)",
-            transform=ax.transAxes, ha="left", va="top",
-            fontsize=9, color="#374151",
-            bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="#D1D5DB"),
-        )
 
     fig.tight_layout()
     save("fig2_random_baseline")
@@ -257,7 +248,7 @@ def fig3_lorenz_concentration(data: dict) -> None:
     ax.set_ylim(0, 1.03)
     ax.set_xlabel("Number of dimensions (sorted by contribution, log scale)")
     ax.set_ylabel("Cumulative fraction of vector norm²")
-    ax.legend(loc="lower right", framealpha=0.9)
+    ax.legend(loc="upper left", fontsize=8, framealpha=0.9)
 
     save("fig3_lorenz_concentration")
 
