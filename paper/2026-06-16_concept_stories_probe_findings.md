@@ -13,8 +13,8 @@
 1. We extracted the internal representations of 200 short stories from Gemma-3-12B-it and constructed linear direction vectors for warmth and competence.
 2. A simple linear classifier applied to those representations achieved 100% cross-validated accuracy in distinguishing high- from low-warmth stories, and equally in distinguishing high- from low-competence stories.
 3. This separation lies far outside the null distribution of random directions in the same space (*z* = 3.9, *p* < .001 for warmth; *z* = 3.7 for competence), indicating that the signal is structured rather than incidental.
-4. A cross-axis test confirms behavioural independence: the warmth direction performs at chance level (50%) when applied to competence stories, and vice versa.
-5. One complication remains: the cosine similarity between the warmth and competence direction vectors is 0.75, suggesting both share a general valence component. This is a known confound in concept probing and will be addressed via neutral-corpus PCA denoising in the next phase.
+4. The projection geometry also shows a shared valence component: high-warmth and high-competence stories both move toward the positive region, while low-warmth and low-competence stories move toward the negative region.
+5. Because the warmth and competence direction vectors have a cosine similarity of 0.75, this run should be treated as evidence for linearly probeable warmth and competence contrasts, not as proof of fully orthogonal representations. Neutral-corpus PCA denoising and symmetric cross-axis validation are the next phase.
 
 ---
 
@@ -47,7 +47,7 @@ The 200 stories span 50 distinct everyday situations — team meetings, public p
 
 ### Design Principle: Single-Axis Activation
 
-A key feature of the stimulus design is that each story targets *one* dimension while leaving the other unspecified. If warm stories were systematically also competent stories, no analysis could distinguish the two signals — the model would effectively learn a single "good vs. bad character" axis. By neutralising one dimension per condition, it becomes possible to test whether the model encodes warmth and competence independently.
+A key feature of the stimulus design is that each story targets *one* dimension while leaving the other unspecified. If warm stories were systematically also competent stories, no analysis could distinguish the two signals — the model would effectively learn a single "good vs. bad character" axis. By neutralising one dimension per condition, it becomes possible to test whether the model encodes warmth and competence as separable contrasts rather than only as one evaluative axis.
 
 ### Illustrative Example: Four Versions of the Same Situation
 
@@ -96,11 +96,10 @@ Given a direction vector, any story's internal state can be projected onto that 
 
 ### Step 4: Validation Metrics
 
-Four metrics were used to assess the validity of the extracted directions:
+Three metrics were used to assess the validity of the extracted directions:
 
-- **5-fold cross-validated classification accuracy (CV):** A logistic regression classifier trained on projection scores; 100% indicates perfect linear separability.
+- **5-fold cross-validated classification accuracy (CV):** A logistic regression classifier trained on the 3,840-dimensional representations within each target contrast; 100% indicates perfect linear separability.
 - **Cohen's d:** The standardised mean difference between the high and low condition projections. Values above 0.8 are considered large in social science; values above 2.0 are exceptional.
-- **Cross-axis accuracy:** The warmth direction is applied to competence stories and vice versa. Chance-level performance (50%) indicates that the two directions carry distinct information.
 - **Split-half cosine similarity:** The 50 stories per condition are randomly divided into two halves; a separate direction vector is computed from each half. High cosine similarity between the two halves indicates that the direction is a stable property of the condition rather than an artefact of specific stories.
 
 ---
@@ -111,18 +110,17 @@ Four metrics were used to assess the validity of the extracted directions:
 |--------|--------|------------|----------------|
 | 5-fold CV accuracy | **100%** | **100%** | Perfect linear separability at layer 31 |
 | Cohen's d | **2.70** | **2.83** | Extremely large separation between conditions |
-| Cross-axis CV | **50%** | **50%** | At-chance performance across axes — behavioural independence confirmed |
 | cos(warmth, competence) | **0.749** | — | Vectors share a substantial directional component (see §7) |
 | Split-half cosine | **0.833** | **0.884** | Directions are stable across random story subsets |
 | Random-direction Cohen's d | *z* = 3.9, *p* < .001 | *z* = 3.7, *p* < .001 | Our directions lie far outside the null distribution (0 of 1,000 random directions exceeded them) |
 
 ### Summary
 
-The model encodes both warmth and competence as clear, stable, linearly separable signals at layer 31. The separation strength (Cohen's d ≈ 2.7–2.8) is far above what would be expected from noise or a randomly chosen direction. The cross-axis test confirms that the two directions are behaviourally independent, despite their non-trivial cosine similarity.
+The model encodes both warmth and competence as clear, stable, linearly separable contrasts at layer 31. The separation strength (Cohen's d ≈ 2.7–2.8) is far above what would be expected from noise or a randomly chosen direction. At the same time, Figure 1 and the cosine similarity between the direction vectors show a substantial shared valence component, so this run should not be interpreted as proving fully independent or orthogonal warmth and competence representations.
 
 ![Joint density of all 200 story representations projected onto the warmth and competence axes.](figures/fig1_joint_density.png)
 
-**Figure 1.** Joint density of story representations projected onto the warmth (x-axis) and competence (y-axis) directions (z-scored). Each contour represents one of the four conditions. Marginal distributions are shown on the top and right panels. The four conditions separate clearly along their respective axes while remaining centred near zero on the other, consistent with the single-axis design principle. The shared diagonal orientation reflects the common valence component discussed in §7. In particular, the high-competence (amber) and high-warmth (blue) contours occupy distinct extents along the horizontal and vertical axes respectively, while remaining centred near the origin on the orthogonal axis — direct visual evidence of selective axis activation.
+**Figure 1.** Joint density of story representations projected onto the warmth (x-axis) and competence (y-axis) directions (z-scored). Each contour represents one of the four conditions, with marginal distributions shown on the top and right panels. The conditions separate along the intended high-vs-low contrasts, but they also align along a shared diagonal: high-warmth and high-competence stories occupy the positive region, while low-warmth and low-competence stories occupy the negative region. The figure therefore visualises both linearly readable target contrasts and the remaining valence overlap discussed in §7.
 
 ---
 
@@ -178,9 +176,9 @@ Each example below pairs the story text with the model's internal projection sco
 
 ---
 
-### Paired stimuli: evidence of axis independence
+### Paired stimuli: qualitative axis targeting
 
-The clearest behavioural demonstration of axis independence comes from paired stimuli: the same situation written in two versions, each targeting a different axis. The model assigns scores consistent with each version's intended target while remaining near the midpoint on the other axis.
+A useful qualitative check comes from paired stimuli: the same situation written in two versions, each targeting a different axis. These examples show whether the intended target dimension is visible in the model's scores, but they should not be read as a definitive test of representational independence because the projections also contain a shared valence signal.
 
 **Situation A — Competence-high version** (warmth intentionally unspecified)
 
@@ -204,7 +202,7 @@ The story contains no interpersonal warmth cues — only efficient, sequenced pr
 
 The story foregrounds attentiveness and emotional care. No information about the protagonist's skill or effectiveness is provided; accordingly, the model's competence score falls near the midpoint.
 
-Taken together, these two stories demonstrate that the model's warmth and competence scores respond selectively to the dimension each story was designed to activate.
+Taken together, these two stories are best read as stimulus-design sanity checks: the intended target dimension is visible, while the broader quantitative sections establish vector strength and the remaining valence overlap.
 
 ---
 
@@ -249,20 +247,16 @@ The warmth direction vector cannot be interpreted as locating warmth in a single
 
 ---
 
-## 7. Reconciling Cosine Similarity and Behavioural Independence
+## 7. Interpreting Cosine Similarity and Valence Overlap
 
 ### Observations
 
 - The warmth direction classifies warm vs. cold stories with **100% accuracy**.
 - The competence direction classifies competent vs. incompetent stories with **100% accuracy**.
-- Applied across axes, each direction performs at **50%** — indistinguishable from chance.
-- Yet the cosine similarity between the warmth and competence direction vectors is **0.75**, indicating that they point in broadly similar directions.
+- The cosine similarity between the warmth and competence direction vectors is **0.75**, indicating that they point in broadly similar directions.
+- The joint projection plot shows a strong diagonal structure: positively framed stories tend to move up and right, while negatively framed stories move down and left.
 
-This combination — high cross-axis similarity, zero cross-axis discriminability — requires explanation.
-
-![Axis geometry versus behavioural discriminability.](figures/fig4_axis_geometry.png)
-
-**Figure 4.** (*Left*) Cosine similarity matrix between the warmth and competence direction vectors, showing that the two vectors point in broadly similar directions (cosine = 0.749). (*Right*) Five-fold cross-validated classification accuracy when each direction is applied either within its own domain (diagonal, 1.00) or across domains (off-diagonal, 0.50). Despite a non-trivial cosine similarity of 0.749, the two directions carry entirely non-overlapping discriminative information — a dissociation that is the central finding of this phase.
+This combination suggests that the extracted directions are useful high-vs-low condition contrasts, but not yet cleanly orthogonal social dimensions.
 
 ### An intuitive analogy
 
@@ -270,11 +264,11 @@ Consider two people walking across a field, both moving roughly north-east. From
 
 The same principle applies here. Both the warmth and competence directions point "towards a character who is depicted positively" — because both high-warmth and high-competence stories portray a protagonist acting well, while both low-warmth and low-competence stories portray the opposite. This shared component reflects the **valence** of the stimulus material and is the source of the 0.75 cosine similarity.
 
-What the directions do *not* share is the more local structure: the specific activation patterns that distinguish *caring from indifferent* are not the same as those that distinguish *skilled from unskilled*. The cross-axis test, which forces classification on a domain different from the one used to construct the direction, reveals exactly this dissociation.
+The open question is how much of each direction reflects this shared evaluative component versus dimension-specific structure. The current run establishes strong target contrasts, but neutral-corpus denoising and a symmetric cross-axis analysis are needed before claiming that the model carries fully independent warmth and competence representations.
 
 ### Scientific interpretation
 
-The stimulus design objective — activating one axis while holding the other neutral — was successful at the behavioural level. The model's internal representations differentiate warmth from competence as distinct signals, even though both share a valence-related component.
+The stimulus design objective — activating one axis while holding the other neutral — was useful for constructing strong warmth and competence contrasts. The model's internal representations differentiate the intended high and low conditions, but the 0.75 cosine similarity and diagonal projection structure show that these contrasts remain entangled with valence.
 
 The 0.75 cosine similarity is an expected rather than an anomalous finding. It reflects a property of the stimuli: all stories involve a protagonist acting in a way that is framed as either positive or negative, and the model's general representation of that evaluative dimension is active across conditions. The analogous issue — warmth and valence activation co-occurring — was identified and addressed in Anthropic's emotion concepts work (Sofroniew, Lindsey et al., 2026) through a neutral-corpus principal component analysis (PCA) denoising step, which constitutes the next phase of this project.
 
