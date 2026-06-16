@@ -318,3 +318,11 @@
 - **Findings:** Dry-run passes — 4×50 stimulus balance confirmed, config load clean. All files pass `python3 --dry-run`.
 - **Decision / rationale:** Kept model fixed to `google/gemma-3-12b-it` (already in config). Used `probe_layer_frac=0.66` → layer 31 (GemmaScope 2 SAE compatible for future sprint). Cross-axis orthogonality test added to validate_probes because Jorge designed the stories to isolate each axis independently — this is the primary new scientific check vs the smoke tests.
 - **Next:** SSH to SCCKN, `git pull`, `qsub jobs/sge/extract_vectors.sh`. Monitor with `qstat -u emrecan.ulu`.
+
+## 2026-06-16 · Step 3 — Probe findings report revised after figure audit
+
+- **Context:** Audit found that Fig 4's off-diagonal 0.50 CV cells should not be used as a headline behavioural-independence claim, while Fig 2 and Fig 3 remained useful.
+- **Did:** Revised `paper/2026-06-16_concept_stories_probe_findings.md` to remove the Fig 4 embed and recast the result as linearly probeable warmth/competence contrasts with unresolved valence overlap. Updated `paper/figures/generate_figures.py` and regenerated Fig 3 PNG/PDF.
+- **Findings:** Verification grep found no remaining report claims of "full behavioural independence", "Cross-axis CV", "Figure 4", or `fig4_axis_geometry`. Fig 3 annotations now show Top 11 / 479 / 1426 dims and no horizontal threshold dotted lines.
+- **Decision / rationale:** Keep Fig 1 as a valence-overlap visual, keep Fig 2 and Fig 3 as quantitative evidence, and defer behavioural-independence claims until symmetric cross-axis validation after denoising.
+- **Next:** Commit and push the report and Fig 3 updates.

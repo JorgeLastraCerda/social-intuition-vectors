@@ -227,18 +227,14 @@ def fig3_lorenz_concentration(data: dict) -> None:
             linestyle=(0, (5, 2)),
             label="Competence direction")
 
-    thresholds = [0.50, 0.80, 0.95]
-    threshold_colors = ["#374151", "#374151", "#374151"]
-    for frac, col in zip(thresholds, threshold_colors):
-        ax.axhline(frac, color=col, linestyle=":", linewidth=0.9, alpha=0.6)
-
     # Annotations for warmth curve
     for frac, offset_x_factor in [(0.50, 2.5), (0.80, 2.0), (0.95, 1.5)]:
         idx = int(np.searchsorted(warmth_curve, frac))
+        dim_count = idx + 1
         ax.annotate(
-            f"Top {idx} dims = {int(frac*100)}%",
-            xy=(idx, frac),
-            xytext=(idx * offset_x_factor, frac - 0.07),
+            f"Top {dim_count} dims = {int(frac*100)}%",
+            xy=(dim_count, frac),
+            xytext=(dim_count * offset_x_factor, frac - 0.07),
             arrowprops=dict(arrowstyle="->", color="#374151", lw=0.9),
             fontsize=9, color="#374151",
         )
