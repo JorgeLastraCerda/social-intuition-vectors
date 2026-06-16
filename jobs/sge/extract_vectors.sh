@@ -34,6 +34,8 @@ export HF_HOME=/work/emrecan.ulu/hf_cache
 cd /work/emrecan.ulu/normalcy-axis
 git pull
 
+export PYTHONPATH=/work/emrecan.ulu/normalcy-axis
+
 mkdir -p results/logs results/tables results/figures data/processed/concept_vectors
 
 echo "[job] Step 1: Extract residual-stream activations and build vectors"
