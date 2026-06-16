@@ -326,3 +326,10 @@
 - **Findings:** Verification grep found no remaining report claims of "full behavioural independence", "Cross-axis CV", "Figure 4", or `fig4_axis_geometry`. Fig 3 annotations now show Top 11 / 479 / 1426 dims and no horizontal threshold dotted lines.
 - **Decision / rationale:** Keep Fig 1 as a valence-overlap visual, keep Fig 2 and Fig 3 as quantitative evidence, and defer behavioural-independence claims until symmetric cross-axis validation after denoising.
 - **Next:** Commit and push the report and Fig 3 updates.
+
+## 2026-06-16 · Step 4 — Fig 2 annotation spacing adjusted
+
+- **Context:** Visual audit of Fig 2 found the "Our direction" annotation too close to the red vertical line.
+- **Did:** Updated `paper/figures/generate_figures.py` to shift the Fig 2 annotation text left and regenerated `paper/figures/fig2_random_baseline.{png,pdf}`.
+- **Findings:** Fig 2 regenerated successfully. Visual inspection confirmed the annotation text no longer crowds the red line, while the arrow still points to the direction marker.
+- **Next:** Commit and push the figure polish.

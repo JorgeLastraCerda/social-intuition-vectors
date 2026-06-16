@@ -40,3 +40,10 @@ Never edit or delete previous entries — only append.
 - **Files:** `paper/2026-06-16_concept_stories_probe_findings.md`; `paper/figures/generate_figures.py`; `paper/figures/fig3_lorenz_concentration.{png,pdf}`; commands run: `python3 paper/figures/generate_figures.py --fig 3`, `rg` verification checks.
 - **Result:** Fig 3 regenerated successfully; visual inspection confirmed Top 11 / 479 / 1426 labels and no horizontal threshold dotted lines. Verification grep found no remaining report references to Fig 4, Cross-axis CV, or full behavioural-independence claims.
 - **Next:** Commit and push the revised report, Fig 3 outputs, and logs.
+
+## 2026-06-16 22:05 · gpt-5-codex — Polished Fig 2 annotation placement
+
+- **Step:** Shifted the Fig 2 "Our direction" annotation text left so it no longer visually crowds the red vertical line; regenerated Fig 2 PNG/PDF.
+- **Files:** `paper/figures/generate_figures.py`; `paper/figures/fig2_random_baseline.{png,pdf}`; command run: `python3 paper/figures/generate_figures.py --fig 2`
+- **Result:** Fig 2 regenerated successfully; visual inspection confirmed the text is clear of the red line and the arrow still targets the direction marker.
+- **Next:** Commit and push the figure polish.
