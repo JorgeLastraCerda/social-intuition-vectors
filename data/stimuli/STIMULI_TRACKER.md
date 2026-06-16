@@ -26,34 +26,39 @@ conditions = **4,800 stories** = **1,200 per condition**.
 
 ## Current status
 
-_Last updated 2026-06-15 (Run 2). From `validate_stimuli.py` / `audit_stimuli.py`._
+_Last updated 2026-06-16 (Run 6). From `validate_stimuli.py` / `audit_stimuli.py`._
 
-| Condition | Done | Remaining | Topics covered |
-|---|---|---|---|
-| high_warmth | 5 | 1,195 | 5 / 100 |
-| low_warmth | 5 | 1,195 | 5 / 100 |
-| high_competence | 5 | 1,195 | 5 / 100 |
-| low_competence | 5 | 1,195 | 5 / 100 |
-| **Total** | **20** | **4,780** | topics 0, 19, 45, 65, 75 |
+**Smoke-test milestone target = 200 stories (50 per condition)** — reached.
+(The full-corpus target from config remains 4,800; 200 is the batch built for the
+expanded smoke test before tomorrow.)
 
-Protagonists are **name-free / demographically neutral** (decision D4). Topics
-now span five domains (workplace, learning, community, sport, travel), not just
-workplace. Word lengths 127-148, tightly matched across conditions.
+| Condition | Done | Words (min/mean/max) |
+|---|---|---|
+| high_warmth | 50 | 90 / 103 / 148 |
+| low_warmth | 50 | 90 / 100 / 134 |
+| high_competence | 50 | 90 / 102 / 145 |
+| low_competence | 50 | 90 / 101 / 144 |
+| **Total** | **200** | balanced across conditions |
+
+Protagonists **name-free / demographically neutral**. **50 of 100 topics** covered,
+1 story per condition each, spanning all **10 domains** (Workplace 11, Learning 5,
+Social 4, Health 4, Community 5, Money 4, Sport 5, Travel 5, Technology 4, Misc 3).
+Validator PASS, 0 rule violations; audit shows no demographic skew.
 
 ---
 
 ## Run log
 
-| Run | Date | Generator | Added | Topics | Notes |
-|---|---|---|---|---|---|
-| 1 | 2026-06-15 | claude-opus-4-8 (Cowork) | 20 (named) | 0-4 (all workplace) | **Superseded.** Audit caught generator bias: "low" conditions 100% male / Anglo; "high" diverse / female. Demonstrated why the demographic audit is needed. |
-| 2 | 2026-06-15 | claude-opus-4-8 (Cowork) | 20 (name-free) | 0,19,45,65,75 | Replaces Run 1. Names removed (D4=neutralise); spread across 5 domains. Validator PASS, audit shows no demographic signal. |
+| Run | Date | Generator | Added | Notes |
+|---|---|---|---|---|
+| 1 | 2026-06-15 | claude-opus-4-8 (Cowork) | 20 (named) | **Superseded.** Audit caught generator bias (low conditions all male/Anglo). |
+| 2 | 2026-06-15 | claude-opus-4-8 (Cowork) | 20 (name-free) | Pilot, 5 domains. D4=neutralise. |
+| 3-6 | 2026-06-15/16 | claude-opus-4-8 (Cowork) | +180 (name-free) | Workplace, Learning, Social, Health, Community, Money, Sport, Travel, Technology, Misc. Built corpus to 200 (50/condition, 50 topics) in validated batches; short stories padded to keep lengths balanced. |
 
-> The committed full-run generator (`src/generate_stimuli.py`) uses the
-> Anthropic **API** (`claude-haiku-4-5`), which costs money and is separate from
-> a Pro subscription. These pilots were written via Claude in Cowork (no API
-> cost). Record the generating model in the Run log and each story's
-> `generation_model` field.
+> The committed full-run generator (`src/generate_stimuli.py`) uses the Anthropic
+> **API** (`claude-haiku-4-5`), separate from a Pro subscription. This 200-story
+> corpus was written via Claude in Cowork (no API cost), model recorded in each
+> story's `generation_model` field.
 
 ---
 
@@ -109,8 +114,7 @@ condition.
 reached full depth (12/condition). The 100 topics are content *scenarios*
 (family, work, travel, sport, ...) across 10 domains — not the treatment. Every
 topic is written in all 4 conditions so the concept varies while the scenario is
-held constant. Run 2 covers 5 topics across 5 domains, 1 per condition (0 at
-full depth).
+held constant. The corpus now covers 50 of 100 topics across all 10 domains, 1 story per condition each (0 topics at the full 12/condition depth).
 
 ---
 
