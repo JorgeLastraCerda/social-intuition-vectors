@@ -182,7 +182,7 @@ def fig2_random_baseline(data: dict, n_random: int = 1000, seed: int = 20260527)
         ax.annotate(
             f"Our direction\n$d$ = {actual:.2f}",
             xy=(actual, 0.05),
-            xytext=(actual - 1.1, 0.4),
+            xytext=(actual - 1.55, 0.4),
             arrowprops=dict(arrowstyle="->", color="#DC2626", lw=1.2),
             color="#DC2626",
             fontsize=10,
