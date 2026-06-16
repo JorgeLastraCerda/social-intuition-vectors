@@ -122,7 +122,7 @@ The model encodes both warmth and competence as clear, stable, linearly separabl
 
 ![Joint density of all 200 story representations projected onto the warmth and competence axes.](figures/fig1_joint_density.png)
 
-**Figure 1.** Joint density of story representations projected onto the warmth (x-axis) and competence (y-axis) directions (z-scored). Each contour represents one of the four conditions. Marginal distributions are shown on the top and right panels. The four conditions separate clearly along their respective axes while remaining centred near zero on the other, consistent with the single-axis design principle. The shared diagonal orientation reflects the common valence component discussed in §7.
+**Figure 1.** Joint density of story representations projected onto the warmth (x-axis) and competence (y-axis) directions (z-scored). Each contour represents one of the four conditions. Marginal distributions are shown on the top and right panels. The four conditions separate clearly along their respective axes while remaining centred near zero on the other, consistent with the single-axis design principle. The shared diagonal orientation reflects the common valence component discussed in §7. In particular, the high-competence (amber) and high-warmth (blue) contours occupy distinct extents along the horizontal and vertical axes respectively, while remaining centred near the origin on the orthogonal axis — direct visual evidence of selective axis activation.
 
 ---
 
@@ -231,7 +231,7 @@ This subtraction yields a direction in the 3,840-dimensional space that points f
 
 ![Cumulative norm concentration (Lorenz curve) for the warmth and competence direction vectors.](figures/fig3_lorenz_concentration.png)
 
-**Figure 3.** Cumulative fraction of squared vector norm as a function of the number of dimensions included (sorted by contribution, log scale). The dashed grey diagonal represents the baseline if the signal were spread uniformly across all 3,840 dimensions. Both direction vectors concentrate substantially faster than the uniform baseline, with annotations marking the 50%, 80%, and 95% thresholds for the warmth direction. The competence direction (orange dashed) is slightly more concentrated.
+**Figure 3.** Cumulative fraction of squared vector norm as a function of the number of dimensions included (sorted by contribution, log scale). The dashed grey diagonal represents the baseline if the signal were spread uniformly across all 3,840 dimensions. Both direction vectors concentrate substantially faster than the uniform baseline. For the warmth direction, the top 11, 479, and 1,426 dimensions account for 50%, 80%, and 95% of its squared norm, respectively. The competence direction (orange dashed) concentrates even faster: its single largest dimension alone accounts for 50% of its squared norm.
 
 **3. Stability across story subsets.** To test whether the direction reflects a consistent property of the condition rather than the particular stories used, we split each condition's 50 stories into two random halves of 25 and computed a separate direction from each half. The cosine similarity between the two half-vectors was **0.83** for warmth and **0.88** for competence — indicating reliable convergence and low sensitivity to the specific story sample.
 
@@ -239,7 +239,7 @@ This subtraction yields a direction in the 3,840-dimensional space that points f
 
 ![Empirical null distribution of Cohen's d for 1,000 random unit directions.](figures/fig2_random_baseline.png)
 
-**Figure 2.** Empirical null distribution of Cohen's d obtained from 1,000 randomly sampled unit vectors in the 3,840-dimensional residual-stream space (grey density, centred at zero). The red vertical line marks the Cohen's d achieved by our direction vector for each axis. For the warmth axis the null distribution has σ = 0.69; our direction (d = 2.70) corresponds to z = 3.9 (p < .001; 0 of 1,000 random directions exceeded it). For the competence axis the null has σ = 0.76; our direction (d = 2.83) corresponds to z = 3.7 (p < .001; 0 of 1,000 exceeded). Neither direction is approached by any sampled random direction, confirming that the extracted directions capture structured, condition-specific variance.
+**Figure 2.** Empirical null distribution of Cohen's d obtained from 1,000 randomly sampled unit vectors in the 3,840-dimensional residual-stream space (grey density, centred at zero). The red vertical line marks the Cohen's d achieved by our direction vector for each axis. For the warmth axis the null distribution has σ = 0.69; our direction (d = 2.70) corresponds to z = 3.9 (p < 1/1,000 (empirical); 0 of 1,000 random directions exceeded it). For the competence axis the null has σ = 0.76; our direction (d = 2.83) corresponds to z = 3.7 (p < 1/1,000 (empirical); 0 of 1,000 exceeded). Neither direction is approached by any sampled random direction. In short, the warmth and competence directions are not simply two strong directions among many — they are exceptional even relative to the strongest random directions in the same representational space.
 
 **5. Meaning of a "projection score".** Given the warmth direction, any story can be projected onto it to produce a scalar value. A high score indicates that the model's internal state while reading that story resembles the average state observed when reading high-warmth material. All story-level scores reported in §5 are these projections.
 
@@ -262,7 +262,7 @@ This combination — high cross-axis similarity, zero cross-axis discriminabilit
 
 ![Axis geometry versus behavioural discriminability.](figures/fig4_axis_geometry.png)
 
-**Figure 4.** (*Left*) Cosine similarity matrix between the warmth and competence direction vectors, showing that the two vectors point in broadly similar directions (cosine = 0.749). (*Right*) Five-fold cross-validated classification accuracy when each direction is applied either within its own domain (diagonal, 1.00) or across domains (off-diagonal, 0.50). Despite their geometric proximity, the two directions carry entirely non-overlapping discriminative information.
+**Figure 4.** (*Left*) Cosine similarity matrix between the warmth and competence direction vectors, showing that the two vectors point in broadly similar directions (cosine = 0.749). (*Right*) Five-fold cross-validated classification accuracy when each direction is applied either within its own domain (diagonal, 1.00) or across domains (off-diagonal, 0.50). Despite a non-trivial cosine similarity of 0.749, the two directions carry entirely non-overlapping discriminative information — a dissociation that is the central finding of this phase.
 
 ### An intuitive analogy
 
