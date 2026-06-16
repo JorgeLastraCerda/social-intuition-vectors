@@ -12,7 +12,7 @@
 
 1. We extracted the internal representations of 200 short stories from Gemma-3-12B-it and constructed linear direction vectors for warmth and competence.
 2. A simple linear classifier applied to those representations achieved 100% cross-validated accuracy in distinguishing high- from low-warmth stories, and equally in distinguishing high- from low-competence stories.
-3. This separation is approximately 9 times stronger than the separation produced by a random direction in the same representational space, indicating that the signal is meaningful rather than incidental.
+3. This separation lies far outside the null distribution of random directions in the same space (*z* = 3.9, *p* < .001 for warmth; *z* = 3.7 for competence), indicating that the signal is structured rather than incidental.
 4. A cross-axis test confirms behavioural independence: the warmth direction performs at chance level (50%) when applied to competence stories, and vice versa.
 5. One complication remains: the cosine similarity between the warmth and competence direction vectors is 0.75, suggesting both share a general valence component. This is a known confound in concept probing and will be addressed via neutral-corpus PCA denoising in the next phase.
 
@@ -114,11 +114,15 @@ Four metrics were used to assess the validity of the extracted directions:
 | Cross-axis CV | **50%** | **50%** | At-chance performance across axes — behavioural independence confirmed |
 | cos(warmth, competence) | **0.749** | — | Vectors share a substantial directional component (see §7) |
 | Split-half cosine | **0.833** | **0.884** | Directions are stable across random story subsets |
-| Random-direction Cohen's d | 0.29 (baseline) | — | Our directions are approximately 9× stronger than chance |
+| Random-direction Cohen's d | *z* = 3.9, *p* < .001 | *z* = 3.7, *p* < .001 | Our directions lie far outside the null distribution (0 of 1,000 random directions exceeded them) |
 
 ### Summary
 
 The model encodes both warmth and competence as clear, stable, linearly separable signals at layer 31. The separation strength (Cohen's d ≈ 2.7–2.8) is far above what would be expected from noise or a randomly chosen direction. The cross-axis test confirms that the two directions are behaviourally independent, despite their non-trivial cosine similarity.
+
+![Joint density of all 200 story representations projected onto the warmth and competence axes.](figures/fig1_joint_density.png)
+
+**Figure 1.** Joint density of story representations projected onto the warmth (x-axis) and competence (y-axis) directions (z-scored). Each contour represents one of the four conditions. Marginal distributions are shown on the top and right panels. The four conditions separate clearly along their respective axes while remaining centred near zero on the other, consistent with the single-axis design principle. The shared diagonal orientation reflects the common valence component discussed in §7.
 
 ---
 
@@ -225,9 +229,17 @@ This subtraction yields a direction in the 3,840-dimensional space that points f
 
 **2. Distribution across dimensions.** The warmth vector's energy is not uniformly distributed across all 3,840 dimensions. The top **11 dimensions** account for 50% of the vector's total energy. The top **479 dimensions** account for 80%, and the top **1,426 dimensions** cover 95%. The signal is therefore distributed rather than localised to a single neuron, but it is not uniform: a relatively small subset of dimensions carries the bulk of the variance.
 
+![Cumulative norm concentration (Lorenz curve) for the warmth and competence direction vectors.](figures/fig3_lorenz_concentration.png)
+
+**Figure 3.** Cumulative fraction of squared vector norm as a function of the number of dimensions included (sorted by contribution, log scale). The dashed grey diagonal represents the baseline if the signal were spread uniformly across all 3,840 dimensions. Both direction vectors concentrate substantially faster than the uniform baseline, with annotations marking the 50%, 80%, and 95% thresholds for the warmth direction. The competence direction (orange dashed) is slightly more concentrated.
+
 **3. Stability across story subsets.** To test whether the direction reflects a consistent property of the condition rather than the particular stories used, we split each condition's 50 stories into two random halves of 25 and computed a separate direction from each half. The cosine similarity between the two half-vectors was **0.83** for warmth and **0.88** for competence — indicating reliable convergence and low sensitivity to the specific story sample.
 
-**4. Comparison with a random baseline.** A direction chosen randomly in this 3,840-dimensional space achieves a Cohen's d of approximately **0.29** when used to separate high- from low-warmth stories. Our warmth direction achieves **2.70**, roughly **9 times** the random baseline, confirming that the extracted direction captures structure that is specific to the warmth contrast.
+**4. Comparison with a random baseline.** We drew 1,000 random unit vectors from the same 3,840-dimensional space and computed Cohen's d for each. The resulting null distribution is centred at zero (µ ≈ 0, σ ≈ 0.69 for warmth; σ ≈ 0.76 for competence). Our warmth direction achieves d = 2.70, a z-score of 3.9; no random direction in the sample came close (*p* < .001). The competence direction yields d = 2.83 (z = 3.7, *p* < .001).
+
+![Empirical null distribution of Cohen's d for 1,000 random unit directions.](figures/fig2_random_baseline.png)
+
+**Figure 2.** Empirical null distribution of Cohen's d obtained from 1,000 randomly sampled unit vectors in the 3,840-dimensional residual-stream space (grey density, centred at zero). The red vertical line marks the Cohen's d achieved by our direction vector for each axis. Neither the warmth direction (d = 2.70) nor the competence direction (d = 2.83) is approached by any random direction, confirming that the extracted directions capture structured, condition-specific variance.
 
 **5. Meaning of a "projection score".** Given the warmth direction, any story can be projected onto it to produce a scalar value. A high score indicates that the model's internal state while reading that story resembles the average state observed when reading high-warmth material. All story-level scores reported in §5 are these projections.
 
@@ -247,6 +259,10 @@ The warmth direction vector cannot be interpreted as locating warmth in a single
 - Yet the cosine similarity between the warmth and competence direction vectors is **0.75**, indicating that they point in broadly similar directions.
 
 This combination — high cross-axis similarity, zero cross-axis discriminability — requires explanation.
+
+![Axis geometry versus behavioural discriminability.](figures/fig4_axis_geometry.png)
+
+**Figure 4.** (*Left*) Cosine similarity matrix between the warmth and competence direction vectors, showing that the two vectors point in broadly similar directions (cosine = 0.749). (*Right*) Five-fold cross-validated classification accuracy when each direction is applied either within its own domain (diagonal, 1.00) or across domains (off-diagonal, 0.50). Despite their geometric proximity, the two directions carry entirely non-overlapping discriminative information.
 
 ### An intuitive analogy
 
