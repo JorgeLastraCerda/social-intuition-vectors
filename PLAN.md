@@ -6,8 +6,8 @@ This is the master implementation plan for the active repository. Work through p
 
 Download and verify the two source papers:
 
-- Anthropic emotion concepts paper: `papers/emotion_concepts_anthropic_2026.pdf`
-- PLOS ONE warmth/competence callback paper: `papers/warmth_competence_callback_plos_2024.pdf`
+- Anthropic emotion concepts paper: `literature/emotion_concepts_anthropic_2026.pdf`
+- PLOS ONE warmth/competence callback paper: `literature/warmth_competence_callback_plos_2024.pdf`
 
 Also fetch the PLOS supplementary data or repository contents into `data/raw/`.
 
@@ -15,7 +15,7 @@ Also fetch the PLOS supplementary data or repository contents into `data/raw/`.
 
 Verification:
 
-- `file papers/*.pdf` reports PDF documents.
+- `file literature/*.pdf` reports PDF documents.
 - PDF sizes are non-trivial.
 - `data/raw/` contains the cloned or downloaded Carina/Gallo repository contents.
 - Any download failure is reported with the exact error.
@@ -26,7 +26,7 @@ Create and maintain the root project structure:
 
 ```text
 config/
-papers/
+literature/
 data/raw/
 data/stimuli/
 data/processed/
