@@ -227,6 +227,11 @@ def fig3_lorenz_concentration(data: dict) -> None:
             linestyle=(0, (5, 2)),
             label="Competence direction")
 
+    thresholds = [0.50, 0.80, 0.95]
+    threshold_colors = ["#374151", "#374151", "#374151"]
+    for frac, col in zip(thresholds, threshold_colors):
+        ax.axhline(frac, color=col, linestyle=":", linewidth=0.9, alpha=0.6)
+
     # Annotations for warmth curve
     for frac, offset_x_factor in [(0.50, 2.5), (0.80, 2.0), (0.95, 1.5)]:
         idx = int(np.searchsorted(warmth_curve, frac))
