@@ -67,6 +67,7 @@ Maintain an append-only research log at `step_logs/STEP_LOG.md`.
   ```
   ## YYYY-MM-DD · Step N — <short title>
   - **Context:** which task/session this belongs to (1 sentence)
+  - **Agent:** <model-id> (omit if step was taken by a human)
   - **Did:** what was done (files read/run/changed)
   - **Findings:** concrete results — numbers, file paths, pass/fail
   - **Decision / rationale:** decision taken and why (omit if none)
@@ -76,25 +77,7 @@ Maintain an append-only research log at `step_logs/STEP_LOG.md`.
 - `Step N` resets to 1 each calendar date; the date in the heading disambiguates.
 - Never edit or delete previous entries — only append. English only.
 - This file is committed to git (shared with collaborators), so keep entries concise and factual.
-
-## AI Usage Logging
-
-Every meaningful step taken by an AI agent (file edits, runs, decisions, validations) must be appended to `ai-usage/steps.md`. Never edit or delete previous entries — append only.
-
-Entry format:
-
-```
-## YYYY-MM-DD HH:MM · <model-id> — <short title>
-- **Step:** what was done
-- **Files:** files touched / commands run
-- **Result:** outcome (numbers, pass/fail, file paths)
-- **Next:** immediate next action (omit if none)
-```
-
-- The timestamp uses local time (24-hour).
-- `<model-id>` is the exact model identifier (e.g. `claude-sonnet-4-6`, `gpt-4o`, `cursor-agent`).
-- This log complements `step_logs/STEP_LOG.md`: `STEP_LOG.md` is the human-facing research log; `ai-usage/steps.md` is the raw agent-action trail.
-- Append even for failed or partial steps — record what was attempted and what the error was.
+- `ai-usage/steps.md` was retired on 2026-06-19; all AI agent actions are recorded here.
 
 ## Working Conventions
 
