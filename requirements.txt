@@ -29,3 +29,4 @@ seaborn
 pyyaml
 jupyter
 pymupdf
+datasets  # login-node only: scripts/build_neutral_corpus.py

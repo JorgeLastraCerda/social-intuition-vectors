@@ -31,3 +31,13 @@ paths:
   processed: "data/processed/"
   results: "results/"
   logs: "results/logs/"
+
+neutral:
+  # Neutral corpus for PCA valence-denoising (Wikipedia intros, length-matched).
+  corpus_path: "data/stimuli/neutral_corpus.jsonl"
+  source_dataset: "wikimedia/wikipedia"
+  source_config: "20231101.en"
+  n_texts: 1500
+  min_words: 90
+  max_words: 200
+  variance_threshold: 0.50      # keep top PCs covering >= 50% of neutral variance
