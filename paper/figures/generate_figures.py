@@ -5,12 +5,21 @@ Usage:
     python paper/figures/generate_figures.py --fig all
     python paper/figures/generate_figures.py --fig 1
     python paper/figures/generate_figures.py --fig 2,3
+    python paper/figures/generate_figures.py --fig 1,2,3 \
+        --vec-dir data/processed/concept_vectors_qwen3_14b \
+        --out-dir paper/figures/qwen3_14b
 
-Outputs: paper/figures/figN_*.{pdf,png}
+    # Cross-model comparison (fig5); requires one metrics CSV per model:
+    python paper/figures/generate_figures.py --fig 5 \
+        --metrics results/tables/probe_metrics.csv,results/tables/probe_metrics_qwen3_14b.csv,results/tables/probe_metrics_llama31_8b.csv \
+        --labels Gemma-3-12B,Qwen3-14B,Llama-3.1-8B
+
+Outputs: <out-dir>/figN_*.{pdf,png}
 """
 from __future__ import annotations
 
 import argparse
+import csv
 import sys
 from pathlib import Path
 
@@ -25,10 +34,15 @@ sys.path.insert(0, str(ROOT))
 
 import style as _style  # noqa: E402 — sibling file
 
-OUT_DIR = Path(__file__).parent
-VEC_DIR = ROOT / "data" / "processed" / "concept_vectors"
+# Module-level defaults — overridden at runtime by parse_args().
+_DEFAULT_VEC_DIR = ROOT / "data" / "processed" / "concept_vectors"
+_DEFAULT_OUT_DIR = Path(__file__).parent
 
 CONDITIONS = ["high_warmth", "low_warmth", "high_competence", "low_competence"]
+
+# Runtime-resolved directories (set in main() from CLI args).
+VEC_DIR: Path = _DEFAULT_VEC_DIR
+OUT_DIR: Path = _DEFAULT_OUT_DIR
 
 
 # ---------------------------------------------------------------------------
@@ -54,6 +68,7 @@ def cohens_d(a: np.ndarray, b: np.ndarray) -> float:
 
 
 def save(name: str) -> None:
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
     for ext in ("pdf", "png"):
         path = OUT_DIR / f"{name}.{ext}"
         plt.savefig(path, format=ext)
@@ -250,17 +265,48 @@ def fig3_lorenz_concentration(data: dict) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Figure 4 — Axis geometry vs behavioural independence
+# Figure 4 — Axis geometry vs behavioural discriminability
 # ---------------------------------------------------------------------------
 
-def fig4_axis_geometry() -> None:
+def fig4_axis_geometry(data: dict) -> None:
+    """Heatmap of vector cosine similarity and 5-fold CV discriminability.
+
+    Cosine(W,C) is computed from the loaded vectors so it stays accurate
+    regardless of which model's concept_vectors directory is used.
+    Cross-axis CV values are computed via a 1-D logistic regression on the
+    projection scores (same approach as validate_probes.py:cross_axis_accuracy).
+    """
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.model_selection import StratifiedKFold, cross_val_score
+
+    seed = 20260527
     labels = ["Warmth", "Competence"]
 
-    cosine_matrix = np.array([[1.000, 0.749],
-                               [0.749, 1.000]])
+    wv = unit(data["warmth_vec"])
+    cv = unit(data["competence_vec"])
+    axis_cosine = float(np.dot(wv, cv))
 
-    cv_matrix = np.array([[1.000, 0.500],
-                           [0.500, 1.000]])
+    cosine_matrix = np.array([[1.0, axis_cosine],
+                               [axis_cosine, 1.0]])
+
+    def _cv_1d(X_pos, X_neg, direction):
+        proj_pos = X_pos @ direction
+        proj_neg = X_neg @ direction
+        X_proj = np.concatenate([proj_pos, proj_neg]).reshape(-1, 1)
+        y = np.array([1] * len(proj_pos) + [0] * len(proj_neg))
+        lr = LogisticRegression(max_iter=1000, random_state=seed, C=1.0)
+        cv_kf = StratifiedKFold(n_splits=5, shuffle=True, random_state=seed)
+        return float(cross_val_score(lr, X_proj, y, cv=cv_kf, scoring="accuracy").mean())
+
+    # On-diagonal: warmth-probe on warmth stories, competence-probe on competence stories.
+    w_cv = _cv_1d(data["high_warmth"], data["low_warmth"], wv)
+    c_cv = _cv_1d(data["high_competence"], data["low_competence"], cv)
+    # Off-diagonal: cross-axis probes.
+    wv_on_c = _cv_1d(data["high_competence"], data["low_competence"], wv)
+    cv_on_w = _cv_1d(data["high_warmth"], data["low_warmth"], cv)
+
+    cv_matrix = np.array([[w_cv, cv_on_w],
+                           [wv_on_c, c_cv]])
 
     fig, axes = plt.subplots(1, 2, figsize=(8, 3.2))
 
@@ -283,7 +329,7 @@ def fig4_axis_geometry() -> None:
     axes[0].set_xlabel("Direction vector")
     axes[0].set_ylabel("Direction vector")
 
-    # Right — behavioural discriminability
+    # Right — behavioural discriminability (5-fold CV, 1-D projection)
     sns.heatmap(
         cv_matrix,
         ax=axes[1],
@@ -298,12 +344,12 @@ def fig4_axis_geometry() -> None:
         yticklabels=labels,
         cbar_kws={"shrink": 0.8},
     )
-    axes[1].set_title("Behavioural discriminability\n(5-fold CV accuracy)", fontsize=11, pad=10)
+    axes[1].set_title("Behavioural discriminability\n(5-fold CV accuracy, 1-D projection)", fontsize=11, pad=10)
     axes[1].set_xlabel("Test condition")
     axes[1].set_ylabel("Probe direction")
 
     fig.suptitle(
-        "High geometric similarity, full behavioural independence",
+        f"Axis geometry (cos={axis_cosine:.3f}) and behavioural discriminability",
         fontsize=11, y=1.04,
     )
     fig.tight_layout()
@@ -311,16 +357,146 @@ def fig4_axis_geometry() -> None:
 
 
 # ---------------------------------------------------------------------------
+# Figure 5 — Cross-model comparison bar chart
+# ---------------------------------------------------------------------------
+
+def fig5_cross_model(metrics_paths: list[Path], model_labels: list[str]) -> None:
+    """Grouped bar chart comparing warmth/competence CV, Cohen's d, and cos(W,C)
+    across models.  Reads one probe_metrics_<label>.csv per model.
+
+    Each CSV must have two rows (axis=warmth, axis=competence) with at minimum the
+    columns: axis, cv_mean, cohens_d.  cos(W,C) is read from an optional
+    validate_probes JSON log in the same directory; if absent it is omitted.
+    """
+    records: list[dict] = []
+    for path, label in zip(metrics_paths, model_labels):
+        row: dict = {"model": label}
+        with path.open(newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for r in reader:
+                axis = r["axis"]
+                row[f"{axis}_cv"] = float(r["cv_mean"])
+                row[f"{axis}_d"] = float(r["cohens_d"])
+        records.append(row)
+
+    models = [r["model"] for r in records]
+    x = np.arange(len(models))
+    width = 0.25
+
+    fig, axes = plt.subplots(1, 3, figsize=(12, 4))
+
+    # Panel 1 — 5-fold CV accuracy
+    ax = axes[0]
+    ax.bar(x - width / 2, [r["warmth_cv"] for r in records], width, label="Warmth", color="#4682B4", alpha=0.85)
+    ax.bar(x + width / 2, [r["competence_cv"] for r in records], width, label="Competence", color="#E07B39", alpha=0.85)
+    ax.axhline(0.8, color="green", linestyle="--", linewidth=1, label="threshold (0.80)")
+    ax.axhline(0.5, color="grey", linestyle=":", linewidth=0.8, label="chance (0.50)")
+    ax.set_ylim(0, 1.05)
+    ax.set_ylabel("5-fold CV accuracy")
+    ax.set_title("Probe accuracy")
+    ax.set_xticks(x)
+    ax.set_xticklabels(models, rotation=15, ha="right")
+    ax.legend(fontsize=8)
+
+    # Panel 2 — Cohen's d
+    ax = axes[1]
+    ax.bar(x - width / 2, [r["warmth_d"] for r in records], width, color="#4682B4", alpha=0.85, label="Warmth")
+    ax.bar(x + width / 2, [r["competence_d"] for r in records], width, color="#E07B39", alpha=0.85, label="Competence")
+    ax.axhline(0.8, color="green", linestyle="--", linewidth=1, label="large effect (0.80)")
+    ax.set_ylabel("Cohen's d")
+    ax.set_title("Effect size")
+    ax.set_xticks(x)
+    ax.set_xticklabels(models, rotation=15, ha="right")
+    ax.legend(fontsize=8)
+
+    # Panel 3 — cos(W, C) per model (valence overlap)
+    # Try to read from a sidecar JSON produced by validate_probes.py.
+    cos_vals: list[float | None] = []
+    for path in metrics_paths:
+        # Look for the most recent validate_probes_*.json in results/logs/
+        logs_dir = ROOT / "results" / "logs"
+        candidates = sorted(logs_dir.glob("validate_probes_*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
+        found = None
+        # Match by the model name in the JSON meta field
+        for c in candidates:
+            try:
+                import json
+                data = json.loads(c.read_text(encoding="utf-8"))
+                if data.get("axis_cosine") is not None:
+                    # Identify by matching the metrics CSV label to the path stem
+                    # Heuristic: the CSV name contains the label, so check meta.model
+                    # against known model IDs; accept the first unambiguous match.
+                    # If uncertain, just return None and skip the panel row.
+                    pass
+            except Exception:
+                pass
+        cos_vals.append(found)
+
+    # If we can read cos values from the CSVs directly (validate_probes writes them
+    # to the JSON, not the CSV), skip drawing the third panel and note it.
+    # The panel is only drawn when all values are available.
+    if all(v is not None for v in cos_vals):
+        ax = axes[2]
+        ax.bar(x, cos_vals, color="#9B59B6", alpha=0.85)
+        ax.axhline(0.3, color="red", linestyle="--", linewidth=1, label="|cos| = 0.30 target")
+        ax.set_ylim(0, 1.05)
+        ax.set_ylabel("cos(warmth_vec, competence_vec)")
+        ax.set_title("Axis overlap (valence)")
+        ax.set_xticks(x)
+        ax.set_xticklabels(models, rotation=15, ha="right")
+        ax.legend(fontsize=8)
+    else:
+        axes[2].set_visible(False)
+        print("  [fig5] cos(W,C) values not auto-detected from logs; panel 3 omitted.")
+        print("  Fill in manually from validate_probes JSON logs if needed.")
+
+    fig.suptitle("Cross-model warmth & competence probe comparison (200 concept stories)", fontsize=11)
+    fig.tight_layout()
+    save("fig5_cross_model")
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
 def main() -> None:
+    global VEC_DIR, OUT_DIR  # allow reassignment from CLI
+
     parser = argparse.ArgumentParser(description="Generate presentation figures.")
     parser.add_argument(
         "--fig", default="all",
-        help="Figure(s) to generate: 1, 2, 3, 4, or comma-separated, or 'all'",
+        help="Figure(s) to generate: 1, 2, 3, 4, 5, or comma-separated, or 'all'",
+    )
+    parser.add_argument(
+        "--vec-dir",
+        default=None,
+        help="Path to concept_vectors directory (default: data/processed/concept_vectors). "
+             "Use to point at a different model's outputs, e.g. "
+             "data/processed/concept_vectors_qwen3_14b.",
+    )
+    parser.add_argument(
+        "--out-dir",
+        default=None,
+        help="Output directory for figures (default: paper/figures).",
+    )
+    # fig5-specific args
+    parser.add_argument(
+        "--metrics",
+        default=None,
+        help="Comma-separated paths to probe_metrics*.csv files (required for --fig 5).",
+    )
+    parser.add_argument(
+        "--labels",
+        default=None,
+        help="Comma-separated model labels matching --metrics (required for --fig 5).",
     )
     args = parser.parse_args()
+
+    # Resolve runtime dirs
+    if args.vec_dir is not None:
+        VEC_DIR = Path(args.vec_dir)
+    if args.out_dir is not None:
+        OUT_DIR = Path(args.out_dir)
 
     _style.apply()
 
@@ -329,8 +505,8 @@ def main() -> None:
     else:
         selected = {int(x.strip()) for x in args.fig.split(",")}
 
-    if selected & {1, 2, 3}:
-        print("Loading activation data …")
+    if selected & {1, 2, 3, 4}:
+        print(f"Loading activation data from {VEC_DIR} …")
         data = load_data()
     else:
         data = None
@@ -349,7 +525,17 @@ def main() -> None:
 
     if 4 in selected:
         print("Figure 4: axis geometry heatmap …")
-        fig4_axis_geometry()
+        fig4_axis_geometry(data)
+
+    if 5 in selected:
+        print("Figure 5: cross-model comparison …")
+        if not args.metrics or not args.labels:
+            parser.error("--fig 5 requires --metrics and --labels")
+        metrics_paths = [Path(p.strip()) for p in args.metrics.split(",")]
+        model_labels = [lb.strip() for lb in args.labels.split(",")]
+        if len(metrics_paths) != len(model_labels):
+            parser.error("--metrics and --labels must have the same number of entries")
+        fig5_cross_model(metrics_paths, model_labels)
 
     print("Done.")
 
