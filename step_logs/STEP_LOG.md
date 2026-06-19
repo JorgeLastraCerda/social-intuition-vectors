@@ -338,6 +338,21 @@
 
 ---
 
+## 2026-06-19 · Step 2 — Cross-model smoke tests: Qwen3-14B PASS, Llama-3.1-8B PASS
+
+- **Context:** Extending the Gemma 3 12B warmth-probeability result to two additional model families (Alibaba/Qwen, Meta/Llama) under identical conditions to show the finding is architecture-general.
+- **Agent:** claude-sonnet-4-6
+- **Did:** Created `smoke_tests/transformerlens_probe.py` (family-neutral probe script); wrote `jobs/sge/smoke_qwen3_14b.sh` and `jobs/sge/smoke_llama31_8b.sh`; committed + pushed; SSH'd to SCCKN, git pull, downloaded both models (~44 GB), submitted jobs. Llama OOM'd at h_vmem=32G → resubmitted at 64G; fixed the job script.
+- **Findings:**
+  - **Qwen3-14B** (40 layers, d_model 5120, probe layer 26, scc214 RTX 6000): probe_cv_mean **0.88 ± 0.05**, Cohen's d 3.08, warmth/random ratio 1.46×. **PASS.**
+  - **Llama-3.1-8B-Instruct** (32 layers, d_model 4096, probe layer 20, scc214 RTX 6000): probe_cv_mean **0.88 ± 0.06**, Cohen's d 3.45, warmth/random ratio 2.18×. **PASS.**
+  - Both loaded natively via TransformerLens (`trust_remote_code=True` warning for Qwen3 is non-blocking).
+  - Results in `smoke_tests/results/qwen3_14b/smoke_probe_1781866858.json` and `smoke_tests/results/llama31_8b/smoke_probe_1781867569.json`.
+- **Decision / rationale:** Warmth is linearly probeable (CV > 0.80) across all three tested families (Google Gemma 3, Alibaba Qwen3, Meta Llama 3.1) at the same layer fraction (0.66) and stimuli. This is the cross-family generalization result. h_vmem for Llama corrected to 64G in job script.
+- **Next:** Pull result JSONs to local, write `paper/YYYY-MM-DD_cross_model_smoke.md` with three-model comparison table, commit.
+
+---
+
 ## 2026-06-19 · Step 1 — Log consolidation, CLAUDE.md slimming, and new AGENTS.md rules
 
 - **Context:** Documentation hygiene session: retire duplicate `ai-usage/steps.md`, slim `CLAUDE.md` to a bare import, and add session-start + findings-report rules to `AGENTS.md`.
