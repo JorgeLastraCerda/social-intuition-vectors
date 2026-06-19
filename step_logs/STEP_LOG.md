@@ -392,3 +392,17 @@
 - **Did:** Updated `paper/figures/generate_figures.py` to shift the Fig 2 annotation text left and regenerated `paper/figures/fig2_random_baseline.{png,pdf}`.
 - **Findings:** Fig 2 regenerated successfully. Visual inspection confirmed the annotation text no longer crowds the red line, while the arrow still points to the direction marker.
 - **Next:** Commit and push the figure polish.
+
+---
+
+## 2026-06-19 · Step 1 — Valence-denoising scaffold (Wikipedia neutral corpus + PCA project-out)
+
+- **Context:** Phase "valence denoising". Emre's probe run left a shared good-vs-bad component: cos(warmth, competence) = 0.75. This step removes it, following the Anthropic emotion-concepts recipe in METHOD_NOTES 1.4.
+- **Did:**
+  - `scripts/build_neutral_corpus.py`: streams Wikipedia intros (HF `wikimedia/wikipedia`), length-matches to the concept stories (90-200 words), drops valence/violence intros via a stoplist, seed-samples 1,500 -> `data/stimuli/neutral_corpus.jsonl`. Runs on the SCCKN login node (has internet); offline `--self-test` for the filter logic (PASS).
+  - `src/extract_neutral.py`: GPU extraction of neutral activations at the same layer (31) and start_token, reusing `extract_vectors.extract_activations`; saves `data/processed/concept_vectors/X_neutral.npy`.
+  - `src/denoise_vectors.py`: PCA on neutral activations, keep top PCs covering >=50% variance, project them out of warmth/competence vectors; re-reports cos(w,c) and per-axis Cohen's d plus a warmth-on-competence "leak" diagnostic; saves `concept_vectors_denoised.npz` + `denoise_summary.json`.
+  - `jobs/sge/extract_neutral.sh` (mirrors extract_vectors.sh), `config` `neutral` section + `NeutralConfig` (optional, non-breaking), scikit-learn/datasets in requirements.
+- **Findings:** Synthetic verification PASS: project-out dropped a planted cos 0.906 -> 0.071 while preserving the axis-specific signal (0.99 alignment). Sandbox cannot reach Hugging Face (proxy 403), so corpus build is a login-node step; everything else verified locally.
+- **Decision / rationale:** Neutral corpus = Wikipedia intros (matches Anthropic; externally sourced, so no LLM circularity with the model we probe; length-matched so length cannot leak). Variance threshold 0.50 per method notes. Valence stoplist keeps it socially neutral. The exact number of PCs (k) is data-driven on the real neutral activations.
+- **Next (cluster):** login node `python scripts/build_neutral_corpus.py`; then `qsub jobs/sge/extract_neutral.sh` (extract_neutral -> denoise_vectors). Compare cos(w,c) before vs after and refresh the Figure 1 / Figure 4 story with denoised vectors. Then SAE decomposition and Phase 6 steering.

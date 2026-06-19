@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -38,6 +38,18 @@ class SteeringConfig:
 
 
 @dataclass(frozen=True)
+class NeutralConfig:
+    """Neutral corpus + PCA-denoising settings (Phase: valence denoising)."""
+    corpus_path: str = "data/stimuli/neutral_corpus.jsonl"
+    source_dataset: str = "wikimedia/wikipedia"
+    source_config: str = "20231101.en"
+    n_texts: int = 1500
+    min_words: int = 90
+    max_words: int = 200
+    variance_threshold: float = 0.50
+
+
+@dataclass(frozen=True)
 class PathConfig:
     papers: Path
     raw_data: Path
@@ -54,6 +66,7 @@ class ProjectConfig:
     probing: ProbingConfig
     steering: SteeringConfig
     paths: PathConfig
+    neutral: NeutralConfig = field(default_factory=NeutralConfig)
 
 
 def load_config(path: str | Path = "config/config.yaml") -> ProjectConfig:
@@ -67,6 +80,7 @@ def load_config(path: str | Path = "config/config.yaml") -> ProjectConfig:
         probing=ProbingConfig(**raw["probing"]),
         steering=SteeringConfig(**raw["steering"]),
         paths=PathConfig(**{key: Path(value) for key, value in raw["paths"].items()}),
+        neutral=NeutralConfig(**(raw.get("neutral") or {})),
     )
 
 
