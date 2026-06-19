@@ -60,7 +60,9 @@ This project runs primarily on the Universität Konstanz SCCKN cluster.
 
 Maintain an append-only research log at `step_logs/STEP_LOG.md`.
 
-- At the start of each session, read the latest 5–10 entries to recover context before doing anything else.
+- At the start of each session, recover current research state before doing anything else:
+  1. Read the latest 5–10 entries of `step_logs/STEP_LOG.md` for recent decisions and findings.
+  2. Read the most recent report(s) in `paper/` (see `paper/README.md`) for the current empirical state.
 - Append a new entry for **every meaningful step**: a decision, a finding, an experiment run, a library or model choice, a config change, a validation result. Not for every individual tool call.
 - Entry format (one entry per heading):
 
@@ -78,6 +80,15 @@ Maintain an append-only research log at `step_logs/STEP_LOG.md`.
 - Never edit or delete previous entries — only append. English only.
 - This file is committed to git (shared with collaborators), so keep entries concise and factual.
 - `ai-usage/steps.md` was retired on 2026-06-19; all AI agent actions are recorded here.
+
+## Findings Reports
+
+Any meaningful new finding, result, or methodological approach must be written up as a new dated Markdown file in `paper/`:
+
+- Naming convention: `YYYY-MM-DD_<short-slug>.md` (use the date the result was produced).
+- Figures go under `paper/figures/`; update `paper/figures/generate_figures.py` and regenerate as needed.
+- The corresponding `step_logs/STEP_LOG.md` entry records *that* a report was created and links to it by path; the report carries the full detail (tables, figures, caveats, interpretation).
+- See `paper/README.md` for the current list of reports and the figures inventory.
 
 ## Working Conventions
 

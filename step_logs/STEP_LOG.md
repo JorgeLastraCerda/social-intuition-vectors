@@ -338,6 +338,24 @@
 
 ---
 
+## 2026-06-19 · Step 1 — Log consolidation, CLAUDE.md slimming, and new AGENTS.md rules
+
+- **Context:** Documentation hygiene session: retire duplicate `ai-usage/steps.md`, slim `CLAUDE.md` to a bare import, and add session-start + findings-report rules to `AGENTS.md`.
+- **Agent:** claude-sonnet-4-6
+- **Did:**
+  - Pulled 9 commits from `origin/main` (Jorge's presentation + figure work 2026-06-16).
+  - Retired `ai-usage/steps.md` and `ai-usage/` directory; migrated unique entry (AGENTS.md infrastructure creation) into this log as Step 4a on 2026-06-16.
+  - Removed `## AI Usage Logging` section from `AGENTS.md`; added optional `**Agent:**` field to the Step Logging entry format.
+  - Fixed two stale `CLAUDE.md` → `AGENTS.md` references in `README.md` and the STEP_LOG header.
+  - Replaced `CLAUDE.md` body with a bare `@AGENTS.md` import (comment + directive only).
+  - Added session-start rule to `AGENTS.md` Step Logging: read latest STEP_LOG *and* latest `paper/` report at session start.
+  - Added `## Findings Reports` section to `AGENTS.md`: new findings go in `paper/YYYY-MM-DD_<slug>.md`.
+  - Created `paper/README.md`: naming convention, figures inventory, relationship to STEP_LOG, current reports list.
+- **Findings:** All changes verified; two commits pushed to `origin/main` (SHA `394028e` and this session's commit).
+- **Decision / rationale:** Single log (`STEP_LOG.md`) is simpler than two parallel logs; `CLAUDE.md` as a bare import eliminates prose drift between it and `AGENTS.md`; explicit session-start and findings-report rules make the workflow self-enforcing for any AI agent.
+
+---
+
 ## 2026-06-16 · Step 4 — Fig 2 annotation spacing adjusted
 
 - **Context:** Visual audit of Fig 2 found the "Our direction" annotation too close to the red vertical line.
