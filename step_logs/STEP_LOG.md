@@ -1,12 +1,13 @@
 # Step Log — Warmth & Competence Probing
 
 > Append-only research log. Every meaningful step/finding gets one entry, newest at the bottom.
-> Do not edit or delete past entries. English only. See the "Step Logging" rule in CLAUDE.md.
+> Do not edit or delete past entries. English only. See the "Step Logging" rule in AGENTS.md.
 >
 > Entry format:
 > ```
 > ## YYYY-MM-DD · Step N — <short title>
 > - **Context:** which task/session this belongs to (1 sentence)
+> - **Agent:** <model-id> (omit if step was taken by a human)
 > - **Did:** what was done
 > - **Findings:** concrete results — numbers, file paths, pass/fail
 > - **Decision / rationale:** decision taken and why (omit if none)
@@ -326,6 +327,16 @@
 - **Findings:** Verification grep found no remaining report claims of "full behavioural independence", "Cross-axis CV", "Figure 4", or `fig4_axis_geometry`. Fig 3 annotations now show Top 11 / 479 / 1426 dims and no horizontal threshold dotted lines.
 - **Decision / rationale:** Keep Fig 1 as a valence-overlap visual, keep Fig 2 and Fig 3 as quantitative evidence, and defer behavioural-independence claims until symmetric cross-axis validation after denoising.
 - **Next:** Commit and push the report and Fig 3 updates.
+
+## 2026-06-16 · Step 4a — AGENTS.md and ai-usage/ logging infrastructure created
+
+- **Context:** Jorge added a separate AI-action trail (`ai-usage/steps.md`) alongside `AGENTS.md` to support multi-agent (Claude + GPT/Codex) workflows.
+- **Agent:** claude-sonnet-4-6
+- **Did:** Created `AGENTS.md` as tool-agnostic single source of truth; rewrote `CLAUDE.md` as a 3-line pointer to `AGENTS.md`; created `ai-usage/steps.md` with entry format.
+- **Findings:** All three files created. Steps 2–4 on this date (extract_vectors, probe report, fig2 polish) were also recorded in `ai-usage/steps.md` by claude-opus-4-7 and gpt-5-codex respectively.
+- **Decision / rationale:** On 2026-06-19 the separate `ai-usage/steps.md` was retired — it duplicated this log with no unique scientific content. Model-id attribution is now captured here via the optional **Agent:** field.
+
+---
 
 ## 2026-06-16 · Step 4 — Fig 2 annotation spacing adjusted
 

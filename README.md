@@ -36,7 +36,7 @@ The bridge is simple: if emotions can be represented as causal internal directio
 4. Run steering experiments on a callback recommendation task.
 5. Benchmark model callback disparities against the PLOS ONE human data.
 
-See `PLAN.md` for the phased implementation plan and `CLAUDE.md` for working conventions.
+See `PLAN.md` for the phased implementation plan and `AGENTS.md` for working conventions.
 
 ## Pilot Experiment: Warmth Is Linearly Probeable
 
@@ -304,7 +304,7 @@ construct mapping is direct:
 | Callback rates from correspondence studies | Model callback probabilities from hiring prompts | Phase 7 |
 | — (not applicable) | Activation steering → causal shift in callback probability | Phase 6 |
 
-The three [headline outputs](CLAUDE.md) follow the same structure: (1) probe score vs human
+The three [headline outputs](AGENTS.md) follow the same structure: (1) probe score vs human
 rating, (2) steering strength vs callback shift, (3) model callback disparity vs human callback
 disparity.
 
