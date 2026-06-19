@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import time
+from dataclasses import replace
 from pathlib import Path
 
 import numpy as np
@@ -62,6 +63,12 @@ def extract_activations(
 def main() -> None:
     args = parse_args()
     cfg = load_config(args.config)
+
+    # Optional model override — use dataclasses.replace because ProjectConfig is frozen.
+    if args.model is not None:
+        cfg = replace(cfg, model=replace(cfg.model, name=args.model))
+        print(f"[override] model set to: {cfg.model.name}")
+
     print(f"[config] model: {cfg.model.name}")
     print(f"[config] probe_layer_frac: {cfg.probing.probe_layer_frac}, start_token: {cfg.probing.start_token}")
 
@@ -87,7 +94,7 @@ def main() -> None:
 
     buckets = load_stories(stimuli_path)
 
-    out_dir = Path(cfg.paths.processed) / "concept_vectors"
+    out_dir = Path(cfg.paths.processed) / args.out_subdir
     out_dir.mkdir(parents=True, exist_ok=True)
 
     X: dict[str, torch.Tensor] = {}
@@ -126,6 +133,18 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Extract warmth and competence vectors.")
     parser.add_argument("--config", default="config/config.yaml")
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument(
+        "--model",
+        default=None,
+        help="Override cfg.model.name (e.g. Qwen/Qwen3-14B). "
+             "Use together with --out-subdir to avoid clobbering Gemma outputs.",
+    )
+    parser.add_argument(
+        "--out-subdir",
+        default="concept_vectors",
+        help="Subdirectory under cfg.paths.processed for output files "
+             "(default: concept_vectors).",
+    )
     return parser.parse_args()
 
 

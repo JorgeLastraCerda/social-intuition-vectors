@@ -15,8 +15,8 @@ from src.utils.config import load_config
 from src.utils.plotting import save_figure
 
 
-def load_vectors(processed_dir: Path) -> dict:
-    vec_dir = processed_dir / "concept_vectors"
+def load_vectors(processed_dir: Path, subdir: str = "concept_vectors") -> dict:
+    vec_dir = processed_dir / subdir
     data: dict = {}
     data["warmth_vec"] = np.load(vec_dir / "warmth_vec.npy")
     data["competence_vec"] = np.load(vec_dir / "competence_vec.npy")
@@ -142,7 +142,7 @@ def main() -> None:
         return
 
     seed = cfg.probing.seed
-    data = load_vectors(Path(cfg.paths.processed))
+    data = load_vectors(Path(cfg.paths.processed), subdir=args.vectors_subdir)
     meta = data["meta"]
     print(f"[meta] model={meta['model']}, layer={meta['probe_layer']}, d_model={meta['d_model']}")
 
@@ -167,7 +167,12 @@ def main() -> None:
         "competence_vec on warmth stories", seed,
     )
 
+    # Label suffix keeps outputs for different models from clobbering each other.
+    label_suffix = f"_{args.label}" if args.label else ""
     fig_dir = Path(cfg.paths.results) / "figures"
+    if args.label:
+        fig_dir = fig_dir / args.label
+    fig_dir.mkdir(parents=True, exist_ok=True)
     plot_separation(data["high_warmth"] @ wv, data["low_warmth"] @ wv, "warmth", fig_dir / "probe_separation_warmth.png")
     plot_separation(data["high_competence"] @ cv, data["low_competence"] @ cv, "competence", fig_dir / "probe_separation_competence.png")
 
@@ -181,7 +186,7 @@ def main() -> None:
 
     table_dir = Path(cfg.paths.results) / "tables"
     table_dir.mkdir(parents=True, exist_ok=True)
-    csv_path = table_dir / "probe_metrics.csv"
+    csv_path = table_dir / f"probe_metrics{label_suffix}.csv"
     fieldnames = list(warmth_metrics.keys())
     with csv_path.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
@@ -220,6 +225,18 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Validate warmth and competence probes.")
     parser.add_argument("--config", default="config/config.yaml")
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument(
+        "--vectors-subdir",
+        default="concept_vectors",
+        help="Subdirectory under cfg.paths.processed where vectors were saved "
+             "(default: concept_vectors).",
+    )
+    parser.add_argument(
+        "--label",
+        default=None,
+        help="Short label to suffix output filenames (e.g. qwen3_14b). "
+             "Prevents overwriting Gemma outputs. If omitted, original filenames are used.",
+    )
     return parser.parse_args()
 
 

@@ -338,6 +338,21 @@
 
 ---
 
+## 2026-06-19 · Step 3 — Cross-model 200-story pipeline: parametrize extract/validate/figures + new SGE jobs
+
+- **Context:** Planning and implementing "Path B" — run the full 200-story warmth+competence pipeline on Qwen3-14B and Llama-3.1-8B under identical conditions as Gemma, to show the result is architecture-general and enable a parallel paper report.
+- **Agent:** claude-sonnet-4-6
+- **Did:**
+  - Added `--model` + `--out-subdir` to `src/extract_vectors.py` (uses `dataclasses.replace` for frozen config; default behaviour unchanged).
+  - Added `--vectors-subdir` + `--label` to `src/validate_probes.py`; label-suffixed outputs (`probe_metrics_<label>.csv`, `results/figures/<label>/`).
+  - Parametrized `paper/figures/generate_figures.py` with `--vec-dir` / `--out-dir`; fixed `fig4_axis_geometry` to compute cosine(W,C) from data (was hardcoded 0.749); added `fig5_cross_model` grouped-bar figure.
+  - Created `jobs/sge/extract_qwen3_14b.sh` and `jobs/sge/extract_llama31_8b.sh` (mirror `extract_vectors.sh`; h_vmem 64G, start_token 50 from config, model-scoped out-subdirs).
+- **Findings:** All changes local; Gemma's committed outputs are fully isolated (default flag values unchanged). Both new SGE jobs ready to submit.
+- **Decision / rationale:** CLI override (not per-model config files) matches the existing smoke-test pattern and keeps a single config.yaml.
+- **Next:** Commit + push, SSH to SCCKN, `git pull`, `qsub` both jobs, monitor, then scp vectors locally and generate figures.
+
+---
+
 ## 2026-06-19 · Step 2 — Cross-model smoke tests: Qwen3-14B PASS, Llama-3.1-8B PASS
 
 - **Context:** Extending the Gemma 3 12B warmth-probeability result to two additional model families (Alibaba/Qwen, Meta/Llama) under identical conditions to show the finding is architecture-general.
