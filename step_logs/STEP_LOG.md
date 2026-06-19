@@ -338,6 +338,30 @@
 
 ---
 
+## 2026-06-19 · Step 4 — Cross-model concept findings report + figures
+
+- **Context:** Writing up the three-model Phase 4+5 replication in `paper/`, with full figure suite and cross-model analyses.
+- **Agent:** claude-sonnet-4-6
+- **Did:**
+  - scp'd Gemma/Qwen3/Llama concept vectors (+ meta.json) and all validate_probes JSON logs + probe_metrics CSVs to local.
+  - Fixed `fig5_cross_model` cos(W,C) panel (was a non-functional stub); added `--logs` CLI arg to pass validate_probes JSONs directly.
+  - Added `fig6_cross_model_story_agreement`: two 3×3 Spearman ρ heatmaps (warmth + competence per-story ranking agreement across model pairs). Added `fig7_same_story_demo`: z-scored warmth/competence coordinates for 6 exemplar stories plotted simultaneously for all 3 models.
+  - Added `--vec-dirs`, `--logs`, `--stories` CLI args to `generate_figures.py`; updated `main()` for fig6/7 dispatch.
+  - Generated per-model fig1–3 for Qwen3/Llama (`paper/figures/qwen3_14b/`, `llama31_8b/`); regenerated Gemma fig4 (cos now computed from data).
+  - Generated cross-model fig5, fig6, fig7.
+  - Wrote `paper/2026-06-19_cross_model_concept_findings.md` (9 sections; model-selection rationale + rejected-models table; full results; same-story demo; cross-axis paradox §7; scale note §6; Phase B roadmap §8).
+  - Updated `paper/README.md`: added per-model and cross-model figure inventory rows + new report row.
+- **Findings:**
+  - All 3 models: warmth CV = 100%, competence CV = 100%. PASS.
+  - Random-baseline z: Gemma 3.9/3.7, Qwen3 14.1/14.6, Llama 15.0/15.1 — all far from null.
+  - Per-story Spearman ρ (warmth): Gemma↔Qwen=0.760, Gemma↔Llama=0.768, Qwen↔Llama=0.978.
+  - Per-story Spearman ρ (competence): Gemma↔Qwen=0.795, Gemma↔Llama=0.782, Qwen↔Llama=0.992.
+  - Cross-axis paradox confirmed: Gemma cos(W,C)=0.749 → cross-axis CV=0.50 (chance); Qwen/Llama cos≈0.51–0.54 → cross-axis CV=0.99–1.00. Paradox discussed in §7, three hypotheses proposed.
+- **Decision / rationale:** Spearman ρ results constitute strong evidence for a shared cross-model warmth/competence construct. Cross-axis paradox is the main open scientific question; Phase B layer sweep will directly test the depth-threshold hypothesis.
+- **Next:** Phase B — topic-holdout CV, layer sweep (all layers single pass), Gemma 3 27B, scale normalisation. Commit + push this session's work.
+
+---
+
 ## 2026-06-19 · Step 3 — Cross-model 200-story pipeline: parametrize extract/validate/figures + new SGE jobs
 
 - **Context:** Planning and implementing "Path B" — run the full 200-story warmth+competence pipeline on Qwen3-14B and Llama-3.1-8B under identical conditions as Gemma, to show the result is architecture-general and enable a parallel paper report.

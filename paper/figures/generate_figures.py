@@ -206,7 +206,7 @@ def fig2_random_baseline(data: dict, n_random: int = 1000, seed: int = 20260527)
         z_score = actual / null_std
         n_exceed = int((null >= actual).sum())
         p_val = max(n_exceed, 1) / len(null)
-        print(f"  [{axis_label}] null σ={null_std:.2f}  d={actual:.2f}  z={z_score:.1f}  p<{p_val:.3f}  exceed={n_exceed}/{len(null)}")
+        print(f"  [{axis_label}] null std={null_std:.2f}  d={actual:.2f}  z={z_score:.1f}  p<{p_val:.3f}  exceed={n_exceed}/{len(null)}")
         ax.set_xlabel("Cohen's $d$")
         ax.set_ylabel("Density" if ax is axes[0] else "")
         ax.set_title(f"Null distribution — {axis_label} axis")
@@ -360,14 +360,25 @@ def fig4_axis_geometry(data: dict) -> None:
 # Figure 5 — Cross-model comparison bar chart
 # ---------------------------------------------------------------------------
 
-def fig5_cross_model(metrics_paths: list[Path], model_labels: list[str]) -> None:
-    """Grouped bar chart comparing warmth/competence CV, Cohen's d, and cos(W,C)
-    across models.  Reads one probe_metrics_<label>.csv per model.
+def fig5_cross_model(
+    metrics_paths: list[Path],
+    model_labels: list[str],
+    log_paths: list[Path] | None = None,
+) -> None:
+    """Grouped bar chart: warmth/competence CV, Cohen's d, and cos(W,C) across models.
 
-    Each CSV must have two rows (axis=warmth, axis=competence) with at minimum the
-    columns: axis, cv_mean, cohens_d.  cos(W,C) is read from an optional
-    validate_probes JSON log in the same directory; if absent it is omitted.
+    Parameters
+    ----------
+    metrics_paths:
+        One probe_metrics_<label>.csv per model (two rows: warmth + competence).
+    model_labels:
+        Display labels matching metrics_paths.
+    log_paths:
+        One validate_probes_*.json per model (same order as metrics_paths).
+        Required for the cos(W,C) panel. Pass via --logs on CLI.
     """
+    import json as _json
+
     records: list[dict] = []
     for path, label in zip(metrics_paths, model_labels):
         row: dict = {"model": label}
@@ -379,11 +390,23 @@ def fig5_cross_model(metrics_paths: list[Path], model_labels: list[str]) -> None
                 row[f"{axis}_d"] = float(r["cohens_d"])
         records.append(row)
 
+    # Read cos(W,C) from JSON logs if provided.
+    cos_vals: list[float | None] = []
+    if log_paths:
+        for lp in log_paths:
+            try:
+                d = _json.loads(lp.read_text(encoding="utf-8"))
+                cos_vals.append(float(d["axis_cosine"]))
+            except Exception:
+                cos_vals.append(None)
+    else:
+        cos_vals = [None] * len(records)
+
     models = [r["model"] for r in records]
     x = np.arange(len(models))
     width = 0.25
 
-    fig, axes = plt.subplots(1, 3, figsize=(12, 4))
+    fig, axes = plt.subplots(1, 3, figsize=(13, 4))
 
     # Panel 1 — 5-fold CV accuracy
     ax = axes[0]
@@ -391,9 +414,9 @@ def fig5_cross_model(metrics_paths: list[Path], model_labels: list[str]) -> None
     ax.bar(x + width / 2, [r["competence_cv"] for r in records], width, label="Competence", color="#E07B39", alpha=0.85)
     ax.axhline(0.8, color="green", linestyle="--", linewidth=1, label="threshold (0.80)")
     ax.axhline(0.5, color="grey", linestyle=":", linewidth=0.8, label="chance (0.50)")
-    ax.set_ylim(0, 1.05)
+    ax.set_ylim(0, 1.10)
     ax.set_ylabel("5-fold CV accuracy")
-    ax.set_title("Probe accuracy")
+    ax.set_title("Probe accuracy\n(5-fold CV)")
     ax.set_xticks(x)
     ax.set_xticklabels(models, rotation=15, ha="right")
     ax.legend(fontsize=8)
@@ -404,55 +427,263 @@ def fig5_cross_model(metrics_paths: list[Path], model_labels: list[str]) -> None
     ax.bar(x + width / 2, [r["competence_d"] for r in records], width, color="#E07B39", alpha=0.85, label="Competence")
     ax.axhline(0.8, color="green", linestyle="--", linewidth=1, label="large effect (0.80)")
     ax.set_ylabel("Cohen's d")
-    ax.set_title("Effect size")
+    ax.set_title("Effect size\n(Cohen's d)")
     ax.set_xticks(x)
     ax.set_xticklabels(models, rotation=15, ha="right")
     ax.legend(fontsize=8)
 
-    # Panel 3 — cos(W, C) per model (valence overlap)
-    # Try to read from a sidecar JSON produced by validate_probes.py.
-    cos_vals: list[float | None] = []
-    for path in metrics_paths:
-        # Look for the most recent validate_probes_*.json in results/logs/
-        logs_dir = ROOT / "results" / "logs"
-        candidates = sorted(logs_dir.glob("validate_probes_*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
-        found = None
-        # Match by the model name in the JSON meta field
-        for c in candidates:
-            try:
-                import json
-                data = json.loads(c.read_text(encoding="utf-8"))
-                if data.get("axis_cosine") is not None:
-                    # Identify by matching the metrics CSV label to the path stem
-                    # Heuristic: the CSV name contains the label, so check meta.model
-                    # against known model IDs; accept the first unambiguous match.
-                    # If uncertain, just return None and skip the panel row.
-                    pass
-            except Exception:
-                pass
-        cos_vals.append(found)
-
-    # If we can read cos values from the CSVs directly (validate_probes writes them
-    # to the JSON, not the CSV), skip drawing the third panel and note it.
-    # The panel is only drawn when all values are available.
+    # Panel 3 — cos(W, C) per model (valence overlap indicator).
+    ax = axes[2]
     if all(v is not None for v in cos_vals):
-        ax = axes[2]
-        ax.bar(x, cos_vals, color="#9B59B6", alpha=0.85)
+        bars = ax.bar(x, cos_vals, color="#9B59B6", alpha=0.85)
         ax.axhline(0.3, color="red", linestyle="--", linewidth=1, label="|cos| = 0.30 target")
+        # Annotate bars with exact values.
+        for bar, val in zip(bars, cos_vals):
+            ax.text(
+                bar.get_x() + bar.get_width() / 2,
+                val + 0.02,
+                f"{val:.3f}",
+                ha="center", va="bottom", fontsize=9,
+            )
         ax.set_ylim(0, 1.05)
         ax.set_ylabel("cos(warmth_vec, competence_vec)")
-        ax.set_title("Axis overlap (valence)")
+        ax.set_title("Axis geometric overlap\n(valence entanglement)")
         ax.set_xticks(x)
         ax.set_xticklabels(models, rotation=15, ha="right")
         ax.legend(fontsize=8)
     else:
-        axes[2].set_visible(False)
-        print("  [fig5] cos(W,C) values not auto-detected from logs; panel 3 omitted.")
-        print("  Fill in manually from validate_probes JSON logs if needed.")
+        ax.set_visible(False)
+        print("  [fig5] log_paths not provided; cos(W,C) panel omitted. Pass --logs to enable it.")
 
     fig.suptitle("Cross-model warmth & competence probe comparison (200 concept stories)", fontsize=11)
     fig.tight_layout()
     save("fig5_cross_model")
+
+
+# ---------------------------------------------------------------------------
+# Figure 6 — Cross-model per-story agreement (Spearman heatmaps)
+# ---------------------------------------------------------------------------
+
+def fig6_cross_model_story_agreement(
+    vec_dirs: list[Path],
+    model_labels: list[str],
+) -> None:
+    """Two 3×3 Spearman-ρ heatmaps: warmth and competence per-story projections.
+
+    For each model, project all 200 stories onto that model's unit warmth_vec (and
+    competence_vec). The file order of X_<cond>.npy is the deterministic JSONL order,
+    so row i corresponds to the same story across all models.  High ρ between models
+    means the *same stories* are ranked the same → shared underlying construct.
+
+    Each 50-story condition is projected and the full 200-story projection vector is
+    assembled in JSONL order: high_warmth (0–49), low_warmth (50–99),
+    high_competence (100–149), low_competence (150–199).
+    """
+    from scipy.stats import spearmanr
+
+    def load_model_vecs(vec_dir: Path) -> dict:
+        d: dict = {}
+        for cond in CONDITIONS:
+            d[cond] = np.load(vec_dir / f"X_{cond}.npy").astype(np.float64)
+        d["warmth_vec"] = np.load(vec_dir / "warmth_vec.npy").astype(np.float64)
+        d["competence_vec"] = np.load(vec_dir / "competence_vec.npy").astype(np.float64)
+        return d
+
+    n_models = len(vec_dirs)
+    # Build per-model full projection arrays (200 stories, same order as JSONL).
+    warmth_projs: list[np.ndarray] = []
+    comp_projs: list[np.ndarray] = []
+
+    for vd in vec_dirs:
+        d = load_model_vecs(vd)
+        wv = unit(d["warmth_vec"])
+        cv = unit(d["competence_vec"])
+        # Stack in JSONL order: high_warmth, low_warmth, high_competence, low_competence.
+        all_X = np.concatenate([d[c] for c in CONDITIONS], axis=0)  # [200, d_model]
+        warmth_projs.append(all_X @ wv)
+        comp_projs.append(all_X @ cv)
+
+    # Compute Spearman ρ matrices.
+    def spearman_matrix(projs: list[np.ndarray]) -> np.ndarray:
+        mat = np.ones((n_models, n_models))
+        for i in range(n_models):
+            for j in range(i + 1, n_models):
+                rho, _ = spearmanr(projs[i], projs[j])
+                mat[i, j] = mat[j, i] = float(rho)
+        return mat
+
+    w_mat = spearman_matrix(warmth_projs)
+    c_mat = spearman_matrix(comp_projs)
+
+    print("  [fig6] Warmth Spearman matrix:")
+    for i, lbl in enumerate(model_labels):
+        row_str = "  ".join(f"{w_mat[i, j]:.3f}" for j in range(n_models))
+        print(f"    {lbl:20s} {row_str}")
+    print("  [fig6] Competence Spearman matrix:")
+    for i, lbl in enumerate(model_labels):
+        row_str = "  ".join(f"{c_mat[i, j]:.3f}" for j in range(n_models))
+        print(f"    {lbl:20s} {row_str}")
+
+    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    for ax, mat, title in [
+        (axes[0], w_mat, "Warmth projection\n(Spearman ρ, 200 stories)"),
+        (axes[1], c_mat, "Competence projection\n(Spearman ρ, 200 stories)"),
+    ]:
+        sns.heatmap(
+            mat,
+            ax=ax,
+            cmap="Blues",
+            vmin=0, vmax=1,
+            annot=True, fmt=".3f",
+            annot_kws={"size": 12, "weight": "bold"},
+            square=True,
+            linewidths=1.5,
+            linecolor="white",
+            xticklabels=model_labels,
+            yticklabels=model_labels,
+            cbar_kws={"shrink": 0.8},
+        )
+        ax.set_title(title, fontsize=11, pad=10)
+
+    fig.suptitle(
+        "Per-story ranking agreement across models\n"
+        "(High ρ = models rank the same stories the same way → shared construct)",
+        fontsize=10,
+    )
+    fig.tight_layout()
+    save("fig6_cross_model_story_agreement")
+
+
+# ---------------------------------------------------------------------------
+# Figure 7 — Same-story, three-model z-scored coordinate demo
+# ---------------------------------------------------------------------------
+
+def fig7_same_story_demo(
+    vec_dirs: list[Path],
+    model_labels: list[str],
+    stories_jsonl: Path | None = None,
+) -> None:
+    """Scatter: warmth-z vs competence-z for the same 6 exemplar stories across 3 models.
+
+    For each model, z-score ALL 200 story projections within that model's distribution.
+    Then plot the (warmth-z, competence-z) coordinate of ~6 extreme stories.
+    Same story → similar coordinate across models = convergent placement.
+
+    Story selection: most extreme per condition (top/bottom 1 on each axis) gives 4;
+    add 2 cross-axis sanity cases (high-warmth/mid-competence, high-competence/mid-warmth).
+    Stories are identified by their within-condition rank so no text lookup is needed
+    (text labels are optional if stories_jsonl is provided).
+    """
+    def load_model_projs(vec_dir: Path) -> tuple[np.ndarray, np.ndarray]:
+        d: dict = {}
+        for cond in CONDITIONS:
+            d[cond] = np.load(vec_dir / f"X_{cond}.npy").astype(np.float64)
+        wv = unit(np.load(vec_dir / "warmth_vec.npy").astype(np.float64))
+        cv = unit(np.load(vec_dir / "competence_vec.npy").astype(np.float64))
+        all_X = np.concatenate([d[c] for c in CONDITIONS], axis=0)  # [200, d_model]
+        return all_X @ wv, all_X @ cv  # raw projections, 200 entries each
+
+    # Collect projections per model.
+    all_w_raw: list[np.ndarray] = []
+    all_c_raw: list[np.ndarray] = []
+    for vd in vec_dirs:
+        wp, cp = load_model_projs(vd)
+        all_w_raw.append(wp)
+        all_c_raw.append(cp)
+
+    # Z-score within each model (over all 200 stories).
+    all_w_z = [(wp - wp.mean()) / (wp.std() + 1e-12) for wp in all_w_raw]
+    all_c_z = [(cp - cp.mean()) / (cp.std() + 1e-12) for cp in all_c_raw]
+
+    # Select exemplar stories by condition rank in the FIRST model (Gemma as reference).
+    # Indices in the stacked array: high_warmth=0..49, low_warmth=50..99,
+    # high_competence=100..149, low_competence=150..199.
+    w0 = all_w_z[0]
+    c0 = all_c_z[0]
+
+    # Within each 50-item block, find the story with the most extreme target-axis value.
+    exemplar_indices: list[int] = []
+    exemplar_names: list[str] = []
+
+    hw_block = np.arange(0, 50)
+    lw_block = np.arange(50, 100)
+    hc_block = np.arange(100, 150)
+    lc_block = np.arange(150, 200)
+
+    # Extreme warmth and competence exemplars (top/bottom on target axis).
+    top_hw_idx  = hw_block[w0[hw_block].argmax()]
+    bot_lw_idx  = lw_block[w0[lw_block].argmin()]
+    top_hc_idx  = hc_block[c0[hc_block].argmax()]
+    bot_lc_idx  = lc_block[c0[lc_block].argmin()]
+    # Cross-axis sanity: high-warmth story with mid competence (|c-z| smallest in hw block).
+    xax_w_idx = hw_block[np.abs(c0[hw_block]).argmin()]
+    # High-competence story with mid warmth.
+    xax_c_idx = hc_block[np.abs(w0[hc_block]).argmin()]
+
+    story_specs: list[tuple[int, str, str]] = [
+        (top_hw_idx,  "Strongest warm",        "#2166AC"),
+        (bot_lw_idx,  "Strongest cold",         "#D73027"),
+        (top_hc_idx,  "Strongest competent",    "#1A9850"),
+        (bot_lc_idx,  "Weakest competent",      "#D95F02"),
+        (xax_w_idx,   "Warm / mid-competence",  "#7FCDBB"),
+        (xax_c_idx,   "Competent / mid-warmth", "#FD8D3C"),
+    ]
+
+    # Optionally load story text snippets for tooltip-like labels.
+    story_texts: dict[int, str] = {}
+    if stories_jsonl and stories_jsonl.exists():
+        import json as _json
+        all_texts: list[str] = []
+        with stories_jsonl.open(encoding="utf-8") as f:
+            for line in f:
+                if line.strip():
+                    all_texts.append(_json.loads(line)["text"][:60] + "…")
+        for idx, _, _ in story_specs:
+            if idx < len(all_texts):
+                story_texts[idx] = all_texts[idx]
+
+    n_models = len(vec_dirs)
+    markers = ["o", "s", "D"]
+    model_colors = ["#333333", "#666666", "#999999"]
+
+    fig, ax = plt.subplots(figsize=(8, 6))
+    ax.axhline(0, color="lightgray", linewidth=0.7)
+    ax.axvline(0, color="lightgray", linewidth=0.7)
+
+    # Plot each story × each model.
+    for i_m in range(n_models):
+        for idx, name, color in story_specs:
+            wx = all_w_z[i_m][idx]
+            cy = all_c_z[i_m][idx]
+            ax.scatter(wx, cy, marker=markers[i_m], color=color, s=90,
+                       edgecolors="white", linewidths=0.6, zorder=3)
+
+    # Connect the same story across models with thin lines.
+    for idx, name, color in story_specs:
+        xs = [all_w_z[i_m][idx] for i_m in range(n_models)]
+        ys = [all_c_z[i_m][idx] for i_m in range(n_models)]
+        ax.plot(xs, ys, color=color, linewidth=0.8, alpha=0.6, zorder=2)
+        # Label at the mean position.
+        ax.text(float(np.mean(xs)) + 0.05, float(np.mean(ys)) + 0.05,
+                name, fontsize=7.5, color=color, va="bottom")
+
+    # Legend: model markers.
+    from matplotlib.lines import Line2D
+    legend_handles = [
+        Line2D([0], [0], marker=markers[i], color="gray", linestyle="None",
+               markersize=8, label=model_labels[i])
+        for i in range(n_models)
+    ]
+    ax.legend(handles=legend_handles, loc="lower right", fontsize=9, framealpha=0.9)
+
+    ax.set_xlabel("Warmth projection (z-score within model)")
+    ax.set_ylabel("Competence projection (z-score within model)")
+    ax.set_title(
+        "Same stories, three models: convergent placement\n"
+        "(Lines connect the same story across models; shapes = models)"
+    )
+    fig.tight_layout()
+    save("fig7_same_story_demo")
 
 
 # ---------------------------------------------------------------------------
@@ -465,30 +696,50 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Generate presentation figures.")
     parser.add_argument(
         "--fig", default="all",
-        help="Figure(s) to generate: 1, 2, 3, 4, 5, or comma-separated, or 'all'",
+        help="Figure(s) to generate: 1-7, comma-separated, or 'all' (runs 1-4 only).",
     )
     parser.add_argument(
         "--vec-dir",
         default=None,
-        help="Path to concept_vectors directory (default: data/processed/concept_vectors). "
-             "Use to point at a different model's outputs, e.g. "
-             "data/processed/concept_vectors_qwen3_14b.",
+        help="Path to concept_vectors directory for single-model figures (1-4). "
+             "Default: data/processed/concept_vectors.",
     )
     parser.add_argument(
         "--out-dir",
         default=None,
         help="Output directory for figures (default: paper/figures).",
     )
-    # fig5-specific args
+    # fig5 args
     parser.add_argument(
         "--metrics",
         default=None,
         help="Comma-separated paths to probe_metrics*.csv files (required for --fig 5).",
     )
     parser.add_argument(
+        "--logs",
+        default=None,
+        help="Comma-separated paths to validate_probes_*.json files; same order as "
+             "--metrics. Enables the cos(W,C) panel in fig5.",
+    )
+    # shared multi-model args (fig5, fig6, fig7)
+    parser.add_argument(
         "--labels",
         default=None,
-        help="Comma-separated model labels matching --metrics (required for --fig 5).",
+        help="Comma-separated model labels (required for --fig 5/6/7).",
+    )
+    parser.add_argument(
+        "--vec-dirs",
+        default=None,
+        help="Comma-separated concept_vectors directories, one per model "
+             "(required for --fig 6/7). E.g. "
+             "data/processed/concept_vectors,"
+             "data/processed/concept_vectors_qwen3_14b,"
+             "data/processed/concept_vectors_llama31_8b",
+    )
+    parser.add_argument(
+        "--stories",
+        default=None,
+        help="Path to concept_stories.jsonl for fig7 text labels (optional).",
     )
     args = parser.parse_args()
 
@@ -504,6 +755,9 @@ def main() -> None:
         selected = {1, 2, 3, 4}
     else:
         selected = {int(x.strip()) for x in args.fig.split(",")}
+
+    # Parse shared multi-model args once.
+    model_labels: list[str] = [lb.strip() for lb in args.labels.split(",")] if args.labels else []
 
     if selected & {1, 2, 3, 4}:
         print(f"Loading activation data from {VEC_DIR} …")
@@ -529,13 +783,36 @@ def main() -> None:
 
     if 5 in selected:
         print("Figure 5: cross-model comparison …")
-        if not args.metrics or not args.labels:
+        if not args.metrics or not model_labels:
             parser.error("--fig 5 requires --metrics and --labels")
         metrics_paths = [Path(p.strip()) for p in args.metrics.split(",")]
-        model_labels = [lb.strip() for lb in args.labels.split(",")]
         if len(metrics_paths) != len(model_labels):
             parser.error("--metrics and --labels must have the same number of entries")
-        fig5_cross_model(metrics_paths, model_labels)
+        log_paths: list[Path] | None = None
+        if args.logs:
+            log_paths = [Path(p.strip()) for p in args.logs.split(",")]
+            if len(log_paths) != len(model_labels):
+                parser.error("--logs and --labels must have the same number of entries")
+        fig5_cross_model(metrics_paths, model_labels, log_paths=log_paths)
+
+    if 6 in selected:
+        print("Figure 6: cross-model story agreement (Spearman) …")
+        if not args.vec_dirs or not model_labels:
+            parser.error("--fig 6 requires --vec-dirs and --labels")
+        vec_dirs = [Path(p.strip()) for p in args.vec_dirs.split(",")]
+        if len(vec_dirs) != len(model_labels):
+            parser.error("--vec-dirs and --labels must have the same number of entries")
+        fig6_cross_model_story_agreement(vec_dirs, model_labels)
+
+    if 7 in selected:
+        print("Figure 7: same-story three-model demo …")
+        if not args.vec_dirs or not model_labels:
+            parser.error("--fig 7 requires --vec-dirs and --labels")
+        vec_dirs = [Path(p.strip()) for p in args.vec_dirs.split(",")]
+        if len(vec_dirs) != len(model_labels):
+            parser.error("--vec-dirs and --labels must have the same number of entries")
+        stories_jsonl = Path(args.stories) if args.stories else None
+        fig7_same_story_demo(vec_dirs, model_labels, stories_jsonl=stories_jsonl)
 
     print("Done.")
 
