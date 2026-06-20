@@ -16,12 +16,11 @@ a specific type of memorisation (B1), and a scan across every layer of each netw
 to find where warmth and competence representations first appear and how strong they
 get (B2).
 
-The headline finding from B2 answers the open question left by the previous report:
-why does Gemma-3-12B show higher warmth/competence overlap (cos = 0.75) than Qwen3-14B
-(0.54) or Llama-3.1-8B (0.51), even though Gemma's cross-axis discriminability is
-*lower*?  The layer sweep shows that Gemma's entanglement is not specific to the probe
-layer — it is present at every depth.  The paradox is an architectural feature, not a
-depth-selection artifact.
+The headline finding from B2 is that Gemma-3-12B shows a persistently higher
+warmth/competence vector cosine than Qwen3-14B or Llama-3.1-8B across most network
+depths. This geometric difference is not specific to the probe layer. It should not,
+however, be interpreted as behavioural independence: corrected scale-standardised
+cross-axis CV is above chance in all three models.
 
 ---
 
@@ -129,7 +128,7 @@ discriminative metric for the rest of this analysis.**
 
 ![Layer sweep: Cohen's d emergence curves (left) and cos(W,C) depth profile (right)](figures/fig8_layer_emergence.png)
 
-**Figure 8.** *(Left)* Cohen's d as a function of layer depth (x = layer index / total layers) for warmth (solid) and competence (dotted) axes, three models. Vertical dotted line = probe layer (frac = 0.66). Llama-3.1-8B (red) and Qwen3-14B (purple) peak early and descend gradually; Gemma-3-12B (green) shows a distinctive late surge above frac = 0.80. *(Right)* cos(warmth\_vec, competence\_vec) at every layer. Gemma's cosine rises above 0.50 before frac = 0.20 and stays there; Qwen and Llama plateau near 0.50 from mid-depth onward. This panel is the key paradox diagnostic: the entanglement in Gemma is not an artefact of probe-layer choice.
+**Figure 8.** *(Left)* Cohen's d as a function of layer depth (x = layer index / total layers) for warmth (solid) and competence (dotted) axes. Vertical dotted line = probe layer (frac = 0.66). Llama-3.1-8B (red) and Qwen3-14B (purple) peak early and descend gradually; Gemma-3-12B (green) shows a distinctive late surge above frac = 0.80. *(Right)* cos(warmth\_vec, competence\_vec) at every layer. Gemma's cosine rises above 0.50 before frac = 0.20 and stays elevated; Qwen and Llama plateau near 0.50 from mid-depth onward. This panel diagnoses vector geometry across depth, not cross-axis classifier accuracy.
 
 See Figure 8 (left panel) for the full emergence curves.
 
@@ -181,32 +180,16 @@ The probe layer is well within the "plateau" region for Qwen and Llama, where d 
 high and stable across a wide range of depths.  A different probe layer in the range
 0.4–0.8 would give similar results.
 
-For Gemma, frac = 0.66 captures the beginning of the late surge, not the peak.  The
-scientific results reported in this study (topic-holdout CV, cross-axis behaviour) are
-unaffected — CV = 1.00 everywhere — but d at the probe layer (2.7) is well below the
+For Gemma, frac = 0.66 captures the beginning of the late surge, not the peak. The
+topic-holdout result is unaffected — CV = 1.00 everywhere — but d at the probe layer
+(2.7) is well below the
 layer-sweep maximum (6.1).  If steering vectors are built from the probe layer
 activations, Gemma's steering efficiency will be lower than Qwen/Llama.  A follow-up
 should test frac = 0.90 for Gemma-specific experiments.
 
 ---
 
-## The Cross-Axis Paradox: Resolution
-
-### What the paradox was
-
-The previous report noted a paradox:
-
-- Gemma has **high geometric overlap** between the warmth and competence directions
-  (cos = 0.749), but **low cross-axis behavioural discriminability** (the warmth probe
-  does not confidently classify competence stories and vice versa).
-- Qwen and Llama have **lower overlap** (cos ≈ 0.51–0.54), but **high cross-axis
-  discriminability** (the warmth probe partially predicts competence stories).
-
-Two hypotheses were proposed:
-- **H2 (depth effect):** the high cosine in Gemma is an artefact of which layer we
-  chose (frac = 0.66).  At a different layer, the axes would separate.
-- **H3 (architectural effect):** the entanglement is a consistent property of the
-  Gemma family's representations, not a layer-specific accident.
+## Axis Geometry Across Depth
 
 ### What the layer sweep shows
 
@@ -224,17 +207,13 @@ declines to 0.550 at the final layer.  It never exceeds 0.63.
 **Llama-3.1-8B:** cosine rises from 0.174 to 0.581 (L12, frac = 0.39), then plateaus
 remarkably stably at 0.50–0.52 for the remainder of the network.
 
-**Conclusion: H2 is falsified; H3 is supported.**  Gemma's warmth and competence
-directions are persistently entangled at every depth.  This is an architectural or
-training property of Gemma-3, not an accident of layer choice.
-
-The remaining puzzle — why high geometric overlap co-exists with low cross-axis
-discriminability in Gemma but not in Qwen/Llama — is not resolved here.  One
-possibility is that Gemma's probe directions, while geometrically close, each point
-to a portion of the space the opposite probe does not reach, maintaining axis-specific
-discriminability.  Another possibility is that the effective dimensionality of the
-relevant subspace differs.  This is a target for follow-up analysis (potentially via
-SAE decomposition or PCA on the combined warmth+competence projection space).
+**Conclusion:** Gemma's higher vector cosine persists across depth and is not an
+accident of choosing frac = 0.66. This supports an architecture- or training-related
+difference in representation geometry. The earlier claim that Gemma simultaneously
+had chance-level cross-axis predictability was caused by an unscaled
+logistic-regression solver and has been withdrawn. Corrected probe-layer cross-axis
+CV is 0.87/0.82 for Gemma-3-12B, compared with 1.00/1.00 for Qwen and 0.99/1.00 for
+Llama.
 
 ---
 
@@ -277,10 +256,9 @@ needed to compute relative steering strengths across the full depth profile for 
    which are established early.  Whether these early directions reflect the same
    concept as the deeper ones (or a lexical proxy) is not tested here.
 
-4. **Cross-axis CV depth profile not yet computed.**  The sweep records cos(W,C) per
-   layer, but not the behavioural cross-axis accuracy (how well the warmth probe
-   classifies competence stories, at each layer).  This would more directly test
-   whether the cross-axis paradox is constant across depth or localised.
+4. **Cross-axis CV depth profile not yet computed.** The sweep records cos(W,C) per
+   layer, but not scale-standardised cross-axis accuracy. A future sweep can show how
+   shared-valence predictability changes with depth.
 
 ---
 
@@ -288,7 +266,7 @@ needed to compute relative steering strengths across the full depth profile for 
 
 | Step | Task |
 |------|------|
-| B3 | Gemma-3-27B-Instruct sweep — does the paradox deepen with scale within the Gemma family? |
+| B3 | Gemma-3-27B-Instruct sweep — test whether Gemma's depth-wise geometry persists at larger scale |
 | B4 | Scale-normalised analysis using per-layer `mean_resid_norm` from this sweep |
 | B5 | Full report revision incorporating B1–B4 results |
 | B6 | Valence denoising (scripts ready; corpus build + extraction pending on SCCKN) |

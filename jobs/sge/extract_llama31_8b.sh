@@ -36,7 +36,7 @@ git pull
 
 export PYTHONPATH=/work/emrecan.ulu/normalcy-axis
 
-mkdir -p results/logs results/tables "results/figures/llama31_8b" \
+mkdir -p results/logs results/tables \
          data/processed/concept_vectors_llama31_8b
 
 echo "[job] Step 1: Extract residual-stream activations — Llama-3.1-8B-Instruct"

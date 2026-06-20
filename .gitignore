@@ -52,8 +52,6 @@ data/processed/*
 results/logs/*
 !results/logs/.gitkeep
 smoke_tests/*/results/**/*.npy
-results/figures/*.png
-results/figures/*.pdf
 results/tables/*.csv
 results/tables/*.tsv
 runs/
@@ -88,7 +86,7 @@ project_personal_plan.md
 !data/processed/concept_vectors/**
 !data/processed/concept_vectors_*/
 !data/processed/concept_vectors_*/**
-# Validation logs (timestamped JSON), metric tables (CSV), and layer-sweep outputs
+# Deterministic validation logs, metric tables (CSV), and layer-sweep outputs
 !results/logs/validate_probes_*.json
 !results/tables/probe_metrics*.csv
 !results/tables/layer_sweep*.csv

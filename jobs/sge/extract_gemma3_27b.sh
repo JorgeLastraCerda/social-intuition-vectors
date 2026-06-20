@@ -9,7 +9,7 @@
 # Outputs:
 #   data/processed/concept_vectors_gemma3_27b/   (warmth_vec, competence_vec, X_*.npy)
 #   results/tables/probe_metrics_gemma3_27b.csv
-#   results/logs/validate_probes_*_gemma3_27b.json
+#   results/logs/validate_probes_gemma3_27b.json
 #   results/tables/layer_sweep_gemma3_27b.csv + .meta.json
 #
 # Walltime estimate:
@@ -46,7 +46,7 @@ git pull
 
 export PYTHONPATH=/work/emrecan.ulu/normalcy-axis
 
-mkdir -p results/logs results/tables "results/figures/gemma3_27b" \
+mkdir -p results/logs results/tables \
          data/processed/concept_vectors_gemma3_27b
 
 echo "[job] ============================================================"

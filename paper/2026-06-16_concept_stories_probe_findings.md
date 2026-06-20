@@ -14,7 +14,7 @@
 2. A simple linear classifier applied to those representations achieved 100% cross-validated accuracy in distinguishing high- from low-warmth stories, and equally in distinguishing high- from low-competence stories.
 3. This separation lies far outside the null distribution of random directions in the same space (*z* = 3.9, *p* < .001 for warmth; *z* = 3.7 for competence), indicating that the signal is structured rather than incidental.
 4. The projection geometry also shows a shared valence component: high-warmth and high-competence stories both move toward the positive region, while low-warmth and low-competence stories move toward the negative region.
-5. Because the warmth and competence direction vectors have a cosine similarity of 0.75, this run should be treated as evidence for linearly probeable warmth and competence contrasts, not as proof of fully orthogonal representations. Neutral-corpus PCA denoising and symmetric cross-axis validation are the next phase.
+5. The warmth and competence directions have cosine similarity 0.75, and each direction also predicts the other axis above chance (0.87 and 0.82 in scale-standardised 1-D CV). The extracted contrasts therefore contain substantial shared valence and should not be treated as orthogonal representations.
 
 ---
 
@@ -258,21 +258,19 @@ The warmth direction vector cannot be interpreted as locating warmth in a single
 
 ![Axis geometry and cross-axis discriminability heatmaps for Gemma-3-12B.](figures/fig4_axis_geometry.png)
 
-**Figure 4.** *(Left)* Cosine similarity matrix between the warmth and competence direction vectors. The off-diagonal value (0.749) quantifies the geometric overlap between the two concept directions. *(Right)* Cross-axis behavioural discriminability: diagonal cells show on-target 5-fold CV (warmth probe on warmth stories; competence probe on competence stories, both = 1.00); off-diagonal cells show cross-axis accuracy (warmth probe on competence stories and vice versa). In Gemma-3-12B, cross-axis accuracy is 0.50 (at chance), meaning that the warmth direction carries no information about the competence label and vice versa — despite the high geometric cosine. This combination (high cosine, zero cross-axis CV) is the *cross-axis paradox* discussed further in the three-model report.
+**Figure 4.** *(Left)* Cosine similarity between the warmth and competence direction vectors. The off-diagonal value (0.749) quantifies their geometric overlap. *(Right)* Scale-standardised 1-D projection CV. The on-target cells are 0.90 (warmth direction on warmth stories) and 0.92 (competence direction on competence stories); the cross-axis cells are 0.87 (warmth direction on competence stories) and 0.82 (competence direction on warmth stories). These 1-D values are distinct from the 1.00 full-residual-stream CV reported in the main results.
 
 This combination suggests that the extracted directions are useful high-vs-low condition contrasts, but not yet cleanly orthogonal social dimensions.
 
 ### An intuitive analogy
 
-Consider two people walking across a field, both moving roughly north-east. From a distance, their trajectories appear similar. But one person walks only on grass, the other only on gravel. If asked to identify who is walking on grass, one cannot answer by observing direction of travel alone — one must examine the texture beneath their feet. The overall heading is shared; the local structure that carries the relevant information is not.
+The two directions are more like two thermometers that are intended to measure different properties but both respond strongly to general heat. Each still tracks its intended variable, yet either reading also reveals information about the other condition because both are influenced by a common source.
 
-The same principle applies here. Both the warmth and competence directions point "towards a character who is depicted positively" — because both high-warmth and high-competence stories portray a protagonist acting well, while both low-warmth and low-competence stories portray the opposite. This shared component reflects the **valence** of the stimulus material and is the source of the 0.75 cosine similarity.
-
-The open question is how much of each direction reflects this shared evaluative component versus dimension-specific structure. The current run establishes strong target contrasts, but neutral-corpus denoising and a symmetric cross-axis analysis are needed before claiming that the model carries fully independent warmth and competence representations.
+Here, that common source is likely **valence**: high-warmth and high-competence stories both portray a protagonist positively, while low-warmth and low-competence stories portray the opposite. The cross-axis results confirm that this overlap is predictive, not merely geometric.
 
 ### Scientific interpretation
 
-The stimulus design objective — activating one axis while holding the other neutral — was useful for constructing strong warmth and competence contrasts. The model's internal representations differentiate the intended high and low conditions, but the 0.75 cosine similarity and diagonal projection structure show that these contrasts remain entangled with valence.
+The stimulus design objective — activating one axis while holding the other neutral — produced strong warmth and competence contrasts, but did not isolate independent axes. The 0.75 cosine similarity, diagonal projection structure, and cross-axis CV of 0.82–0.87 all show that the contrasts remain entangled with valence.
 
 The 0.75 cosine similarity is an expected rather than an anomalous finding. It reflects a property of the stimuli: all stories involve a protagonist acting in a way that is framed as either positive or negative, and the model's general representation of that evaluative dimension is active across conditions. The analogous issue — warmth and valence activation co-occurring — was identified and addressed in Anthropic's emotion concepts work (Sofroniew, Lindsey et al., 2026) through a neutral-corpus principal component analysis (PCA) denoising step, which constitutes the next phase of this project.
 
@@ -314,7 +312,7 @@ The 0.75 cosine similarity is an expected rather than an anomalous finding. It r
 | Direction vectors | `data/processed/concept_vectors/warmth_vec.npy`, `competence_vec.npy` |
 | Per-condition activations | `data/processed/concept_vectors/X_<condition>.npy` (4 files) |
 | Results table | `results/tables/probe_metrics.csv` |
-| Full metric log | `results/logs/validate_probes_1781629889.json` |
+| Full metric log | `results/logs/validate_probes_default.json` |
 
 The job was executed on the SCCKN cluster (Universität Konstanz) on node `scc214` (NVIDIA RTX PRO 6000 Blackwell, 96 GB VRAM) and completed in under one hour.
 

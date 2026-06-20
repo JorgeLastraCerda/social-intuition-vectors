@@ -36,7 +36,7 @@ git pull
 
 export PYTHONPATH=/work/emrecan.ulu/normalcy-axis
 
-mkdir -p results/logs results/tables results/figures data/processed/concept_vectors
+mkdir -p results/logs results/tables data/processed/concept_vectors
 
 echo "[job] Step 1: Extract residual-stream activations and build vectors"
 python src/extract_vectors.py --config config/config.yaml

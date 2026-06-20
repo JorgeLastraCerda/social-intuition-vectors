@@ -99,7 +99,7 @@ Any meaningful new finding, result, or methodological approach must be written u
   are tracked in git under `data/processed/concept_vectors*/`, `results/logs/validate_probes_*.json`,
   and `results/tables/probe_metrics*.csv`. Commit and push them via `bash jobs/sync_outputs.sh`
   (also runs automatically at the end of each extraction SGE job). Model weights are never committed.
-- Figures go to `results/figures/`; tables go to `results/tables/`; logs go to `results/logs/`.
+- Report figures go to `paper/figures/`; tables go to `results/tables/`; logs go to `results/logs/`.
 - Use `transformer-lens` for hooks by default. `nnsight` can be added later for larger models.
 
 ## Done Criteria for the Core Result

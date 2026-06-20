@@ -1,5 +1,4 @@
 {
-  "timestamp": 1781881736,
   "meta": {
     "model": "Qwen/Qwen3-14B",
     "probe_layer": 26,
@@ -20,16 +19,25 @@
   },
   "warmth": {
     "axis": "warmth",
-    "diff_norm": 33.882305,
+    "diff_norm": 33.882301,
     "cosine_high_low": 0.985142,
-    "proj_high_mean": 17.17067,
+    "proj_high_mean": 17.170671,
     "proj_high_std": 4.698536,
-    "proj_low_mean": -16.711632,
+    "proj_low_mean": -16.711634,
     "proj_low_std": 2.545961,
-    "cohens_d": 8.966496,
+    "cohens_d": 8.966497,
     "cv_mean": 1.0,
     "cv_std": 0.0,
     "cv_folds": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "topic_cv_mean": 1.0,
+    "topic_cv_std": 0.0,
+    "topic_cv_folds": [
       1.0,
       1.0,
       1.0,
@@ -39,16 +47,25 @@
   },
   "competence": {
     "axis": "competence",
-    "diff_norm": 39.938683,
+    "diff_norm": 39.938679,
     "cosine_high_low": 0.980217,
-    "proj_high_mean": 38.036873,
+    "proj_high_mean": 38.036877,
     "proj_high_std": 4.352459,
     "proj_low_mean": -1.901804,
     "proj_low_std": 3.625701,
-    "cohens_d": 9.970719,
+    "cohens_d": 9.97072,
     "cv_mean": 1.0,
     "cv_std": 0.0,
     "cv_folds": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "topic_cv_mean": 1.0,
+    "topic_cv_std": 0.0,
+    "topic_cv_folds": [
       1.0,
       1.0,
       1.0,
@@ -61,5 +78,7 @@
   "cross_competence_on_warmth_cv": 1.0,
   "pass_warmth_cv": true,
   "pass_competence_cv": true,
-  "pass_orthogonality": false
+  "pass_orthogonality": false,
+  "pass_warmth_topic_cv": true,
+  "pass_competence_topic_cv": true
 }
