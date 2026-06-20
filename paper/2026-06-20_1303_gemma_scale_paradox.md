@@ -1,6 +1,6 @@
 # Gemma-3 Scale Comparison: Corrected Geometry Findings
 
-**Date:** 2026-06-20
+**Produced at:** 2026-06-20 13:03 Europe/Berlin
 **Models:** `google/gemma-3-12b-it`, `google/gemma-3-27b-it`
 **Phase:** B3 — within-family scale comparison
 **Figure:** `paper/figures/fig8_layer_emergence.{png,pdf}`

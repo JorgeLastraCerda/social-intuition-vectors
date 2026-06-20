@@ -85,7 +85,7 @@ Maintain an append-only research log at `step_logs/STEP_LOG.md`.
 
 Any meaningful new finding, result, or methodological approach must be written up as a new dated Markdown file in `paper/`:
 
-- Naming convention: `YYYY-MM-DD_<short-slug>.md` (use the date the result was produced).
+- Follow the timestamped report naming convention in `paper/README.md`.
 - Figures go under `paper/figures/`; update `paper/figures/generate_figures.py` and regenerate as needed.
 - The corresponding `step_logs/STEP_LOG.md` entry records *that* a report was created and links to it by path; the report carries the full detail (tables, figures, caveats, interpretation).
 - See `paper/README.md` for the current list of reports and the figures inventory.

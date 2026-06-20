@@ -5,10 +5,16 @@ This directory holds human-readable write-ups of empirical findings and methodol
 ## Naming convention
 
 ```
-YYYY-MM-DD_<short-slug>.md
+YYYY-MM-DD_HHMM_<short-slug>.md
 ```
 
-Use the date the result was produced, not the date it was written up. Keep the slug short and descriptive (e.g. `concept_stories_probe_findings`, `steering_callback_results`).
+Use the date and 24-hour local time when the result was produced, in the
+`Europe/Berlin` timezone. Zero-pad the hour and minute and omit the colon so
+lexicographic filename order is chronological. Use the result-production time,
+not a later edit time. When recovering historical reports whose production time
+was not recorded explicitly, use the report's earliest Git commit time. Keep the
+slug short and descriptive (e.g. `concept_stories_probe_findings`,
+`steering_callback_results`).
 
 ## Relationship to the step log
 
@@ -52,10 +58,10 @@ Cross-model figures:
 
 ## Current reports
 
-| File | Date | Model(s) | Scope | Status |
-|------|------|----------|-------|--------|
-| `2026-06-16_concept_stories_probe_findings.md` | 2026-06-16 | Gemma-3-12B-it | Phase 4+5: extraction + validation on 200 concept stories | Complete — steering and hiring evaluation to follow |
-| `2026-06-19_cross_model_concept_findings.md` | 2026-06-19 | Gemma-3-12B + Qwen3-14B + Llama-3.1-8B | Phase 4+5: three-model replication + cross-model agreement analysis | Complete — Phase B expansions (layer sweep, 27B, topic-holdout) to follow |
-| `2026-06-20_layer_sweep_topic_holdout.md` | 2026-06-20 | Gemma-3-12B + Qwen3-14B + Llama-3.1-8B | Phase B1+B2: topic-holdout CV + layer-sweep emergence and geometry | Complete; cross-axis interpretation corrected |
-| `2026-06-20_gemma_scale_paradox.md` | 2026-06-20 | Gemma-3-27B vs Gemma-3-12B | Phase B3: within-family scale test — Gemma depth-wise geometry persists at 27B | Corrected; filename retained for history |
-| `2026-06-20_cross_axis_metric_correction.md` | 2026-06-20 | Four models | Reproducibility correction for unscaled 1-D cross-axis logistic regression | Complete |
+| File | Produced at (Europe/Berlin) | Model(s) | Scope | Status |
+|------|-----------------------------|----------|-------|--------|
+| `2026-06-16_2001_concept_stories_probe_findings.md` | 2026-06-16 20:01 | Gemma-3-12B-it | Phase 4+5: extraction + validation on 200 concept stories | Complete — steering and hiring evaluation to follow |
+| `2026-06-19_1808_cross_model_concept_findings.md` | 2026-06-19 18:08 | Gemma-3-12B + Qwen3-14B + Llama-3.1-8B | Phase 4+5: three-model replication + cross-model agreement analysis | Complete — Phase B expansions (layer sweep, 27B, topic-holdout) to follow |
+| `2026-06-20_1137_layer_sweep_topic_holdout.md` | 2026-06-20 11:37 | Gemma-3-12B + Qwen3-14B + Llama-3.1-8B | Phase B1+B2: topic-holdout CV + layer-sweep emergence and geometry | Complete; cross-axis interpretation corrected |
+| `2026-06-20_1303_gemma_scale_paradox.md` | 2026-06-20 13:03 | Gemma-3-27B vs Gemma-3-12B | Phase B3: within-family scale test — Gemma depth-wise geometry persists at 27B | Corrected; filename retained for history |
+| `2026-06-20_1337_cross_axis_metric_correction.md` | 2026-06-20 13:37 | Four models | Reproducibility correction for unscaled 1-D cross-axis logistic regression | Complete |
