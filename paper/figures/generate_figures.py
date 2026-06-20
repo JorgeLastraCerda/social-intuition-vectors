@@ -33,6 +33,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 import style as _style  # noqa: E402 — sibling file
+from src.validate_probes import projected_cv_accuracy  # noqa: E402
 
 # Module-level defaults — overridden at runtime by parse_args().
 _DEFAULT_VEC_DIR = ROOT / "data" / "processed" / "concept_vectors"
@@ -273,12 +274,9 @@ def fig4_axis_geometry(data: dict) -> None:
 
     Cosine(W,C) is computed from the loaded vectors so it stays accurate
     regardless of which model's concept_vectors directory is used.
-    Cross-axis CV values are computed via a 1-D logistic regression on the
-    projection scores (same approach as validate_probes.py:cross_axis_accuracy).
+    All CV values use the scale-invariant 1-D projection metric from
+    validate_probes.py.
     """
-    from sklearn.linear_model import LogisticRegression
-    from sklearn.model_selection import StratifiedKFold, cross_val_score
-
     seed = 20260527
     labels = ["Warmth", "Competence"]
 
@@ -289,24 +287,19 @@ def fig4_axis_geometry(data: dict) -> None:
     cosine_matrix = np.array([[1.0, axis_cosine],
                                [axis_cosine, 1.0]])
 
-    def _cv_1d(X_pos, X_neg, direction):
-        proj_pos = X_pos @ direction
-        proj_neg = X_neg @ direction
-        X_proj = np.concatenate([proj_pos, proj_neg]).reshape(-1, 1)
-        y = np.array([1] * len(proj_pos) + [0] * len(proj_neg))
-        lr = LogisticRegression(max_iter=1000, random_state=seed, C=1.0)
-        cv_kf = StratifiedKFold(n_splits=5, shuffle=True, random_state=seed)
-        return float(cross_val_score(lr, X_proj, y, cv=cv_kf, scoring="accuracy").mean())
-
     # On-diagonal: warmth-probe on warmth stories, competence-probe on competence stories.
-    w_cv = _cv_1d(data["high_warmth"], data["low_warmth"], wv)
-    c_cv = _cv_1d(data["high_competence"], data["low_competence"], cv)
+    w_cv = projected_cv_accuracy(data["high_warmth"], data["low_warmth"], wv, seed)
+    c_cv = projected_cv_accuracy(data["high_competence"], data["low_competence"], cv, seed)
     # Off-diagonal: cross-axis probes.
-    wv_on_c = _cv_1d(data["high_competence"], data["low_competence"], wv)
-    cv_on_w = _cv_1d(data["high_warmth"], data["low_warmth"], cv)
+    wv_on_c = projected_cv_accuracy(
+        data["high_competence"], data["low_competence"], wv, seed
+    )
+    cv_on_w = projected_cv_accuracy(
+        data["high_warmth"], data["low_warmth"], cv, seed
+    )
 
-    cv_matrix = np.array([[w_cv, cv_on_w],
-                           [wv_on_c, c_cv]])
+    cv_matrix = np.array([[w_cv, wv_on_c],
+                          [cv_on_w, c_cv]])
 
     fig, axes = plt.subplots(1, 2, figsize=(8, 3.2))
 
@@ -694,16 +687,15 @@ def fig8_layer_emergence(
     sweep_csv_paths: list[Path],
     model_labels: list[str],
 ) -> None:
-    """Two-panel layer-sweep figure focused on the cross-axis paradox.
+    """Two-panel layer-sweep figure for representation strength and geometry.
 
     Panel 1 (left): Cohen's d vs layer fraction for warmth and competence axes.
     Solid lines = warmth; dotted = competence.  One color per model.
     Shows WHERE representations become strongest and whether frac=0.66 is optimal.
 
     Panel 2 (right): cos(warmth_vec, competence_vec) vs layer fraction.
-    This is the paradox diagnostic: Gemma's cosine stays elevated across ALL depths,
-    while Qwen / Llama plateau near 0.50.  Establishes that the entanglement is an
-    architectural feature, not a depth-selection artifact.
+    This compares depth-wise vector geometry across model families. It does not
+    measure cross-axis classification accuracy.
 
     CSV columns expected (from src/layer_sweep.py):
         frac, warmth_cohens_d, comp_cohens_d, cos_wc
@@ -751,7 +743,7 @@ def fig8_layer_emergence(
     ax.set_ylim(0, None)
     ax.legend(fontsize=7.5, loc="upper left", ncol=1, framealpha=0.9)
 
-    # ---- Panel 2: cos(W,C) depth profile — the paradox panel ----
+    # ---- Panel 2: cos(W,C) depth profile ----
     ax2 = axes[1]
     for i_m, (sweep, label) in enumerate(zip(sweeps, model_labels)):
         c  = model_colors[i_m % len(model_colors)]

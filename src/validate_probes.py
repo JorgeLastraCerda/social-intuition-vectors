@@ -3,16 +3,15 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-import time
 from pathlib import Path
 
-import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GroupKFold, StratifiedKFold, cross_val_score
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 
 from src.utils.config import load_config
-from src.utils.plotting import save_figure
 
 
 EXPECTED_CONDITIONS = ("high_warmth", "low_warmth", "high_competence", "low_competence")
@@ -147,56 +146,36 @@ def cross_axis_accuracy(
     label: str,
     seed: int,
 ) -> float:
+    acc = projected_cv_accuracy(X_high, X_low, vec, seed)
+    print(f"  [{label}]: {acc:.4f}")
+    return acc
+
+
+def projected_cv_accuracy(
+    X_high: np.ndarray,
+    X_low: np.ndarray,
+    vec: np.ndarray,
+    seed: int,
+) -> float:
+    """Return scale-invariant 1-D CV accuracy along a fixed direction.
+
+    Standardisation is fitted inside each training fold. Residual-stream
+    projections differ by orders of magnitude across model families; without
+    scaling, logistic regression can stop at its constant initial prediction
+    and report a spurious 0.50 accuracy.
+    """
     unit_vec = vec / (np.linalg.norm(vec) + 1e-12)
     proj_high = X_high @ unit_vec
     proj_low = X_low @ unit_vec
     X_proj = np.concatenate([proj_high, proj_low]).reshape(-1, 1)
     y = np.array([1] * len(proj_high) + [0] * len(proj_low))
-    lr = LogisticRegression(max_iter=1000, random_state=seed, C=1.0)
+    estimator = make_pipeline(
+        StandardScaler(),
+        LogisticRegression(max_iter=1000, random_state=seed, C=1.0),
+    )
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=seed)
-    scores = cross_val_score(lr, X_proj, y, cv=cv, scoring="accuracy")
-    acc = float(scores.mean())
-    print(f"  [{label}]: {acc:.4f}  (expect ~0.50)")
-    return acc
-
-
-def plot_separation(
-    proj_high: np.ndarray,
-    proj_low: np.ndarray,
-    label: str,
-    fig_path: Path,
-) -> None:
-    plt.figure(figsize=(6, 4))
-    plt.hist(proj_high, bins=20, alpha=0.6, label="high", color="steelblue")
-    plt.hist(proj_low, bins=20, alpha=0.6, label="low", color="tomato")
-    plt.xlabel(f"{label} projection")
-    plt.ylabel("count")
-    plt.title(f"{label} probe separation")
-    plt.legend()
-    save_figure(fig_path)
-    plt.close()
-
-
-def plot_orthogonality(orth: dict, fig_path: Path) -> None:
-    labels = ["warmth→warmth", "comp→comp", "warmth→comp", "comp→warmth"]
-    accs = [
-        orth["warmth_cv"],
-        orth["competence_cv"],
-        orth["cross_warmth_on_competence"],
-        orth["cross_competence_on_warmth"],
-    ]
-    colors = ["steelblue", "steelblue", "tomato", "tomato"]
-    plt.figure(figsize=(7, 4))
-    plt.bar(labels, accs, color=colors)
-    plt.axhline(0.5, color="gray", linestyle="--", linewidth=1, label="chance (0.5)")
-    plt.axhline(0.8, color="green", linestyle="--", linewidth=1, label="threshold (0.8)")
-    plt.ylim(0, 1.05)
-    plt.ylabel("5-fold CV accuracy")
-    plt.title("Axis orthogonality")
-    plt.xticks(rotation=15, ha="right")
-    plt.legend(fontsize=8)
-    save_figure(fig_path)
-    plt.close()
+    scores = cross_val_score(estimator, X_proj, y, cv=cv, scoring="accuracy")
+    return float(scores.mean())
 
 
 def main() -> None:
@@ -263,20 +242,6 @@ def main() -> None:
 
     # Label suffix keeps outputs for different models from clobbering each other.
     label_suffix = f"_{args.label}" if args.label else ""
-    fig_dir = Path(cfg.paths.results) / "figures"
-    if args.label:
-        fig_dir = fig_dir / args.label
-    fig_dir.mkdir(parents=True, exist_ok=True)
-    plot_separation(data["high_warmth"] @ wv, data["low_warmth"] @ wv, "warmth", fig_dir / "probe_separation_warmth.png")
-    plot_separation(data["high_competence"] @ cv, data["low_competence"] @ cv, "competence", fig_dir / "probe_separation_competence.png")
-
-    orth = {
-        "warmth_cv": warmth_metrics["cv_mean"],
-        "competence_cv": competence_metrics["cv_mean"],
-        "cross_warmth_on_competence": cross_w_on_c,
-        "cross_competence_on_warmth": cross_c_on_w,
-    }
-    plot_orthogonality(orth, fig_dir / "axis_orthogonality.png")
 
     table_dir = Path(cfg.paths.results) / "tables"
     table_dir.mkdir(parents=True, exist_ok=True)
@@ -290,7 +255,6 @@ def main() -> None:
     print(f"\n[table] {csv_path}")
 
     log = {
-        "timestamp": int(time.time()),
         "meta": meta,
         "warmth": warmth_metrics,
         "competence": competence_metrics,
@@ -305,7 +269,8 @@ def main() -> None:
     }
     log_dir = Path(cfg.paths.logs)
     log_dir.mkdir(parents=True, exist_ok=True)
-    log_path = log_dir / f"validate_probes_{int(time.time())}.json"
+    log_label = args.label or "default"
+    log_path = log_dir / f"validate_probes_{log_label}.json"
     log_path.write_text(json.dumps(log, indent=2), encoding="utf-8")
     print(f"[log] {log_path}")
 
@@ -317,8 +282,8 @@ def main() -> None:
     if "topic_cv_mean" in competence_metrics:
         print(f"  competence topic-hold  : {competence_metrics['topic_cv_mean']:.4f}  {'PASS' if log['pass_competence_topic_cv'] else 'FAIL'}  (discriminative; threshold 0.80)")
     print(f"  |cos(W,C)|             : {abs(axis_cosine):.4f}  {'PASS' if log['pass_orthogonality'] else 'FAIL'}  (threshold 0.30)")
-    print(f"  cross-W->C CV          : {cross_w_on_c:.4f}  (expect ~0.50)")
-    print(f"  cross-C->W CV          : {cross_c_on_w:.4f}  (expect ~0.50)")
+    print(f"  cross-W->C CV          : {cross_w_on_c:.4f}")
+    print(f"  cross-C->W CV          : {cross_c_on_w:.4f}")
 
 
 def parse_args() -> argparse.Namespace:

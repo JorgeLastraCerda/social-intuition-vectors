@@ -1,5 +1,4 @@
 {
-  "timestamp": 1781881644,
   "meta": {
     "model": "meta-llama/Llama-3.1-8B-Instruct",
     "probe_layer": 20,
@@ -35,6 +34,15 @@
       1.0,
       1.0,
       1.0
+    ],
+    "topic_cv_mean": 1.0,
+    "topic_cv_std": 0.0,
+    "topic_cv_folds": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
     ]
   },
   "competence": {
@@ -54,6 +62,15 @@
       1.0,
       1.0,
       1.0
+    ],
+    "topic_cv_mean": 1.0,
+    "topic_cv_std": 0.0,
+    "topic_cv_folds": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
     ]
   },
   "axis_cosine": 0.505418,
@@ -61,5 +78,7 @@
   "cross_competence_on_warmth_cv": 1.0,
   "pass_warmth_cv": true,
   "pass_competence_cv": true,
-  "pass_orthogonality": false
+  "pass_orthogonality": false,
+  "pass_warmth_topic_cv": true,
+  "pass_competence_topic_cv": true
 }

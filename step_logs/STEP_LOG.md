@@ -529,3 +529,14 @@
   - mean_resid_norm at probe layer: 61,576 (lower than 12B's 79,756 — reflects absolute layer position; final layer is 177,437).
 - **Decision / rationale:** Cross-axis paradox is scale-invariant within Gemma-3 family — confirms architectural explanation. Four-model picture (2 Gemma + Qwen + Llama) now fully populated.
 - **Next:** B4 (scale-normalised analysis using per-layer mean_resid_norm) or B6 (valence denoising, login-node corpus build pending).
+
+---
+
+## 2026-06-20 · Step 7 — Cross-axis metric correction and figure-output cleanup
+
+- **Context:** Reproducibility audit and cleanup of unused validation figures after Phase B3.
+- **Agent:** gpt-5-codex
+- **Did:** Added fold-local standardisation to 1-D projected CV; regenerated four deterministic validation logs and Figure 4; removed the unused `results/figures` plotting path and helper; corrected affected reports; wrote `paper/2026-06-20_cross_axis_metric_correction.md`.
+- **Findings:** Unscaled logistic regression produced spurious 0.50 Gemma results under scikit-learn 1.9.0. Corrected W→C/C→W CV: Gemma-12B 0.87/0.82, Gemma-27B 0.90/0.86, Qwen 1.00/1.00, Llama 0.99/1.00. All 5 tests pass; all 14 report PNGs are referenced.
+- **Decision / rationale:** Withdraw the cross-axis paradox claim. Retain the supported finding that Gemma's elevated cos(W,C) depth profile persists from 12B to 27B.
+- **Next:** Push the correction, remove untracked validation/smoke artifacts on SCCKN, and fast-forward the cluster checkout.

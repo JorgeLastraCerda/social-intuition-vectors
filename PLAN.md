@@ -35,7 +35,7 @@ src/utils/
 docs/
 jobs/sge/
 notebooks/
-results/figures/
+paper/figures/
 results/tables/
 results/logs/
 tests/
@@ -109,7 +109,7 @@ Validation targets:
 
 Outputs:
 
-- figures in `results/figures/`,
+- report figures in `paper/figures/`,
 - tables in `results/tables/`,
 - reproducible metadata in `results/logs/`.
 

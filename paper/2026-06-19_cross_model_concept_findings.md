@@ -13,7 +13,7 @@
 1. Warmth and competence are linearly probeable from residual-stream activations in all three tested models — Google Gemma-3-12B-it, Alibaba Qwen3-14B, and Meta Llama-3.1-8B-Instruct — achieving 100% cross-validated accuracy on both dimensions simultaneously.
 2. The result holds across three independent research laboratories and three distinct model architectures, at the same layer fraction (0.66) and under strictly identical experimental conditions. This rules out the hypothesis that the finding reflects a Gemma-specific representational quirk.
 3. Critically, the three models do not merely separate high from low warmth and competence internally: they **agree on which specific stories are warm or cold** (Spearman ρ = 0.76–0.98 across model pairs, warmth and competence), indicating convergence on a shared underlying construct rather than independent, idiosyncratic representations.
-4. A cross-axis paradox is present across all models: warmth and competence direction vectors are geometrically similar (cosine 0.51–0.75), yet the two dimensions cannot be separated by each other's probe alone in Gemma (cross-axis CV = 0.50, at chance), while in Qwen3 and Llama-3.1 the vectors are more distinct in angle yet the cross-axis accuracy is near ceiling (0.99–1.00). This asymmetry is discussed in detail in §7.
+4. All three models show cross-axis predictability: the warmth direction predicts competence labels and the competence direction predicts warmth labels. The effect is moderate-to-strong in Gemma (0.82–0.87) and near ceiling in Qwen3/Llama (0.99–1.00), consistent with a shared positive-versus-negative valence component.
 5. The effect sizes are dramatically larger in Qwen3 (Cohen's d = 9.0–10.0) and Llama-3.1 (d = 8.5–9.1) than in Gemma (d = 2.7–2.8). This difference is artefactual rather than substantive; it reflects differences in model scale, residual-stream magnitude, and the relationship between the mean-difference vector norm and the within-condition variance. A scale-normalised comparison is provided in §6.
 
 ---
@@ -157,29 +157,23 @@ In the meantime, all cross-model comparisons in this report use scale-free metri
 
 ---
 
-## 7. Orthogonality, Valence Overlap, and the Cross-Axis Paradox
+## 7. Orthogonality and Valence Overlap
 
 ### 7.1 Observations
 
 | Model | cos(warmth\_vec, competence\_vec) | Cross W→C CV | Cross C→W CV |
 |-------|----------------------------------|--------------|--------------|
-| Gemma-3-12B | **0.749** | **0.50** | **0.50** |
+| Gemma-3-12B | **0.749** | **0.87** | **0.82** |
 | Qwen3-14B | 0.536 | 1.00 | 1.00 |
 | Llama-3.1-8B | 0.505 | 0.99 | 1.00 |
 
-### 7.2 The paradox
+### 7.2 Interpretation
 
-Gemma-3-12B has the *most geometrically similar* warmth and competence vectors (highest cosine, 0.749), yet displays *complete behavioural independence* between the two axes (cross-axis CV = 0.50, at chance). Qwen3 and Llama-3.1 have *more distinct* vectors (cosine ≈ 0.51–0.54) but *cross-axis CV close to ceiling* (0.99–1.00), meaning that the warmth vector nearly perfectly predicts the competence label and vice versa.
+Gemma-3-12B has the most geometrically similar warmth and competence vectors (cosine 0.749), and its cross-axis CV is also clearly above chance. Qwen3 and Llama-3.1 have lower cosine similarity (0.51–0.54) but stronger cross-axis predictability (0.99–1.00). Cosine and classification accuracy therefore describe related but non-equivalent properties: angular overlap between two mean-difference vectors versus label separation along a particular projection.
 
-This is the opposite of what one would expect if cosine similarity were the primary measure of representational independence. Several interpretations are possible, and all should be treated as hypotheses pending the Phase B layer sweep:
+The earlier 0.50 Gemma values were numerical artefacts. Logistic regression was fitted directly to projection values around 40,000–60,000 in Gemma, while Qwen/Llama projections were orders of magnitude smaller. With scikit-learn 1.9.0, the unscaled solver remained at its constant initial prediction for Gemma. Fitting `StandardScaler` inside each CV fold produces stable results across environments: 0.87 for warmth→competence and 0.82 for competence→warmth.
 
-1. **Effective dimensionality.** Gemma's residual stream has 3840 dimensions; Qwen3 has 5120; Llama has 4096. A higher cosine in a higher-dimensional space does not imply the same degree of linear entanglement. Two vectors can point in similar directions while still spanning largely independent subspaces if they are long enough. The layer sweep may reveal that the warmth and competence directions in Gemma sit in a genuinely different geometric relationship than the raw cosine implies.
-
-2. **Depth effect.** The probe layer fraction of 0.66 is held constant across models, but the absolute depth varies: layer 31 (Gemma), 26 (Qwen3), 20 (Llama). It is possible that the relevant representational structure is more disentangled at deeper layers, and that Gemma's 0.66-fraction layer happens to sit past a disentanglement threshold that Qwen3 and Llama's corresponding layers do not reach. The layer sweep will directly test this.
-
-3. **Architecture family effects.** The Qwen3 and Llama-3.1 architectures may co-locate warmth and competence in a common "positive protagonist" dimension more tightly than Gemma-3 does, producing the higher cross-axis CV even at lower cosine similarity.
-
-The paradox does not undermine the headline finding — all models encode warmth and competence linearly — but it means the relationship between the two representations differs across models in a way that warrants further investigation.
+The corrected result removes the claimed “cross-axis paradox.” It strengthens the simpler interpretation that the current story design induces a shared evaluative direction in every model, although its magnitude differs by architecture.
 
 ### 7.3 Valence overlap
 
@@ -227,7 +221,7 @@ For the Gemma-3-12B per-model figures (fig1–4), see `2026-06-16_concept_storie
 
 **Saturated CV.** All models achieve 100% on the standard 5-fold cross-validation. This is a ceiling, not a precision measurement: it establishes that the representations are linearly separable, but it cannot discriminate between models or layers. The same stories appear in both train and test folds, allowing the probe to exploit topic-specific features.
 
-**Fixed layer fraction.** The 0.66 fraction was set once and applied uniformly. The paradox in §7 suggests this choice may interact with model depth in unexpected ways. The layer sweep will map probe accuracy across all layers for all three models.
+**Fixed layer fraction.** The 0.66 fraction was set once and applied uniformly. A layer sweep is needed to map representation strength and vector geometry across all layers.
 
 **Single seed.** All results used seed 20260527. Variability across seeds is unknown but is expected to be negligible given the complete separation.
 
@@ -240,7 +234,7 @@ For the Gemma-3-12B per-model figures (fig1–4), see `2026-06-16_concept_storie
 | Item | Description | Dependency |
 |------|-------------|-----------|
 | **Topic-level holdout** | `GroupKFold` by `topic_idx` in `validate_probes.py`; tests generalisation to *unseen situations*, not just unseen stories | Existing vectors; GPU-free |
-| **Layer sweep** | All residual layers in a single forward pass; emergence curves per model; explains the §7 paradox | One GPU job per model |
+| **Layer sweep** | All residual layers in a single forward pass; emergence and vector-geometry curves per model | One GPU job per model |
 | **Gemma 3 27B scale-up** | Same pipeline on `google/gemma-3-27b-it`; within-family scale comparison | scc214, ~54 GB VRAM |
 | **Scale normalisation** | Record mean residual-stream norm at probe layer; express all projections as `proj / E[‖resid‖]` | Integrated into layer sweep |
 | **Valence denoising** | Neutral-corpus PCA; subtract first PC from warmth/competence vectors | Requires neutral corpus |
@@ -259,7 +253,7 @@ For the Gemma-3-12B per-model figures (fig1–4), see `2026-06-16_concept_storie
 | SGE jobs | `jobs/sge/extract_vectors.sh` (Gemma), `extract_qwen3_14b.sh`, `extract_llama31_8b.sh` |
 | Direction vectors | `data/processed/concept_vectors{,_qwen3_14b,_llama31_8b}/warmth_vec.npy`, `competence_vec.npy` |
 | Per-condition activations | `data/processed/concept_vectors{,_qwen3_14b,_llama31_8b}/X_<condition>.npy` |
-| Validation logs | `results/logs/validate_probes_1781629889.json` (Gemma), `_1781881736.json` (Qwen3), `_1781881644.json` (Llama) |
+| Validation logs | `results/logs/validate_probes_default.json` (Gemma), `validate_probes_qwen3_14b.json`, `validate_probes_llama31_8b.json` |
 | Results tables | `results/tables/probe_metrics{,_qwen3_14b,_llama31_8b}.csv` |
 | Figures | `paper/figures/fig5_cross_model.{png,pdf}`, `fig6_cross_model_story_agreement.{png,pdf}`, `fig7_same_story_demo.{png,pdf}` |
 |          | Per-model fig1–3: `paper/figures/{qwen3_14b,llama31_8b}/fig{1,2,3}_*.{png,pdf}` |
