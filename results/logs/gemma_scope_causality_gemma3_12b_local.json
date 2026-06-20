@@ -1,0 +1,125 @@
+{
+  "label": "gemma3_12b_local",
+  "model": "google/gemma-3-12b-it",
+  "probe_layer": 31,
+  "hook": "blocks.31.hook_resid_post",
+  "seed": 20260527,
+  "sae_release": "gemma-scope-2-12b-it-res",
+  "sae_id": "layer_31_width_65k_l0_medium",
+  "train_topics": [
+    0,
+    1,
+    2,
+    4,
+    5,
+    6,
+    7,
+    9,
+    10,
+    15,
+    16,
+    17,
+    18,
+    25,
+    26,
+    27,
+    28,
+    36,
+    37,
+    38,
+    45,
+    46,
+    47,
+    48,
+    49,
+    55,
+    58,
+    65,
+    67,
+    68,
+    69,
+    75,
+    76,
+    77,
+    85,
+    86,
+    87,
+    88,
+    95,
+    96
+  ],
+  "test_topics": [
+    3,
+    8,
+    19,
+    35,
+    56,
+    57,
+    66,
+    78,
+    79,
+    97
+  ],
+  "mean_resid_norm": 79722.296875,
+  "strengths": [
+    -0.1,
+    -0.05,
+    0.0,
+    0.05,
+    0.1
+  ],
+  "skip_ablation": true,
+  "ablation_energy": 0.5,
+  "selected_feature_counts": {
+    "warmth": 5,
+    "competence": 3,
+    "shared": 5,
+    "warmth_specific": 5,
+    "competence_specific": 2
+  },
+  "direction_metadata": {
+    "warmth": {
+      "raw_dense": {
+        "norm": 2891.9130859375
+      },
+      "sae_reconstructed": {
+        "norm": 604.609130859375
+      },
+      "axis_specific": {
+        "norm": 319.92205810546875
+      },
+      "shared": {
+        "norm": 325.92120361328125
+      },
+      "other_axis": {
+        "norm": 527.9971313476562
+      },
+      "random": {
+        "norm": 61.40093994140625
+      }
+    },
+    "competence": {
+      "raw_dense": {
+        "norm": 3214.61328125
+      },
+      "sae_reconstructed": {
+        "norm": 527.9971313476562
+      },
+      "axis_specific": {
+        "norm": 426.5614929199219
+      },
+      "shared": {
+        "norm": 325.92120361328125
+      },
+      "other_axis": {
+        "norm": 604.609130859375
+      },
+      "random": {
+        "norm": 62.065223693847656
+      }
+    }
+  },
+  "raw_output": "results/tables/gemma_scope_causality_raw_gemma3_12b_local.csv",
+  "summary_output": "results/tables/gemma_scope_causality_gemma3_12b_local.csv",
+  "causal_vectors": "data/processed/gemma_scope_gemma3_12b/causal_vectors_65k.npz"
+}
