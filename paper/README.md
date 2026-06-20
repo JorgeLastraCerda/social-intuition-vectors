@@ -29,7 +29,7 @@ Single-model figures (Gemma-3-12B baseline):
 
 | File | Description |
 |------|-------------|
-| `generate_figures.py` | Script that produces all figures; supports `--fig N`, `--vec-dir`, `--out-dir`, `--metrics`, `--logs`, `--vec-dirs`, `--labels`, `--stories` |
+| `generate_figures.py` | Script that produces all figures; supports single-model, cross-model, layer-sweep, Gemma Scope metrics, causality, ablation, and feature-match inputs |
 | `style.py` | Shared matplotlib style constants |
 | `fig1_joint_density.{png,pdf}` | Joint density of warmth and competence projections (Gemma) |
 | `fig2_random_baseline.{png,pdf}` | Warmth/competence direction vs random-baseline null (Gemma) |
@@ -55,6 +55,10 @@ Cross-model figures:
 | `fig6_cross_model_story_agreement.{png,pdf}` | 3×3 Spearman ρ heatmaps for per-story ranking agreement |
 | `fig7_same_story_demo.{png,pdf}` | 6 exemplar stories in z-scored warmth/competence space, 3 models overlaid |
 | `fig8_layer_emergence.{png,pdf}` | Layer sweep: (left) Cohen's d emergence curves vs depth, 4 models; (right) cos(W,C) vs depth — Gemma-12B and 27B both elevated through most depths |
+| `fig9_gemma_scope_decomposition.{png,pdf}` | Gemma Scope 2 reconstruction, sparsity, topic-holdout concept signal, and decoded-direction alignment across 16k/65k/262k widths |
+| `fig10_gemma_scope_steering.{png,pdf}` | Local-regime held-out concept steering for dense, SAE, shared, axis-specific, other-axis, and random directions |
+| `fig11_gemma_scope_ablation.{png,pdf}` | Error-preserving ablation of target, shared, other-axis, and random 65k feature sets |
+| `fig12_gemma_scope_feature_matching.{png,pdf}` | One-to-one 12B↔27B feature-profile matches compared with a 500-permutation row-shuffle null |
 
 ## Current reports
 
@@ -65,3 +69,4 @@ Cross-model figures:
 | `2026-06-20_1137_layer_sweep_topic_holdout.md` | 2026-06-20 11:37 | Gemma-3-12B + Qwen3-14B + Llama-3.1-8B | Phase B1+B2: topic-holdout CV + layer-sweep emergence and geometry | Complete; cross-axis interpretation corrected |
 | `2026-06-20_1303_gemma_scale_paradox.md` | 2026-06-20 13:03 | Gemma-3-27B vs Gemma-3-12B | Phase B3: within-family scale test — Gemma depth-wise geometry persists at 27B | Corrected; filename retained for history |
 | `2026-06-20_1337_cross_axis_metric_correction.md` | 2026-06-20 13:37 | Four models | Reproducibility correction for unscaled 1-D cross-axis logistic regression | Complete |
+| `2026-06-20_1451_gemma_scope2_feature_causality.md` | 2026-06-20 14:51 | Gemma-3-12B + Gemma-3-27B | Gemma Scope 2 sparse decomposition, cross-scale feature matching, concept steering, and feature ablation | Complete for direct concept causality; hiring evaluation remains future work |

@@ -572,3 +572,14 @@
 - **Findings:** Existing committed activations match the published SAE layers (12B layer 31; 27B layer 40). SAELens 6.44.2 contains all six requested checkpoints. Gemma tokenizers encode both `" Yes"` and `" No"` as one token, enabling one-forward logit-margin evaluation. Local test suite: 11 passed.
 - **Decision / rationale:** Reuse the committed 200 mean residual activations instead of rerunning extraction; use 65k as the primary causal SAE, 16k as baseline, and 262k as reconstruction/robustness analysis. Jobs do not push independently, preventing concurrent git races.
 - **Next:** Commit and push the implementation, fast-forward SCCKN, submit both jobs in parallel, then sync and analyse their outputs.
+
+---
+
+## 2026-06-20 · Step 11 — Gemma Scope 2 cross-scale and causal results
+
+- **Context:** Execute and report the Gemma Scope 2 analysis for Gemma-3-12B and 27B.
+- **Agent:** gpt-5-codex
+- **Did:** Ran parallel full jobs 1059187/1059188 and local-regime steering jobs 1059225/1059226; synced compact outputs through Git; matched 12B↔27B features with a 500-permutation null; generated Figures 9–12; wrote `paper/2026-06-20_1451_gemma_scope2_feature_causality.md`.
+- **Findings:** Reconstruction cosine was 0.995–0.998. Cross-scale feature-profile means were 0.490–0.655 and exceeded all permutation nulls (p=0.002). Dense target steering was positive and locally linear in all four model×axis cases (R²=0.915–0.990). SAE causal preservation held in 3/4 cases and failed for 27B warmth. In 27B, shared-feature ablation reduced warmth and competence gaps by -0.725 and -0.319; 12B did not replicate this necessity pattern.
+- **Decision / rationale:** Claim dense concept-level causality and cross-scale feature conservation, but not clean axis-specific sparse localization or hiring causality. Retain the broad steering run as a saturation diagnostic and use the ±0.10 local run for causal slopes.
+- **Next:** Implement the hiring callback evaluation before extending the causal claim to employment decisions.
