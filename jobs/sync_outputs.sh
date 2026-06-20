@@ -5,6 +5,7 @@
 #   data/processed/concept_vectors*/   (direction vectors, activation matrices, meta.json)
 #   results/logs/validate_probes_*.json
 #   results/tables/probe_metrics*.csv
+#   results/tables/layer_sweep*.csv + layer_sweep*.meta.json
 #
 # NOT committed: model weights (*.safetensors, *.bin, *.pt), SGE logs (*.out, *.err),
 #               HF cache (/work/.../hf_cache).
@@ -34,6 +35,8 @@ git add \
     data/processed/concept_vectors*/ \
     results/logs/validate_probes_*.json \
     results/tables/probe_metrics*.csv \
+    results/tables/layer_sweep*.csv \
+    results/tables/layer_sweep*.meta.json \
     2>/dev/null || true   # tolerate missing globs (e.g. first run before extraction)
 
 if git diff --cached --quiet; then

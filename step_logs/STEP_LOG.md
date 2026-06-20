@@ -445,3 +445,18 @@
 - **Findings:** Total artifact footprint ~10 MB (float32, write-once across 3 models) — comfortably within plain git; Git LFS not needed at this scale. `git check-ignore` verified negations win (gitignore last-match-wins; directory must be re-included before its contents).
 - **Decision / rationale:** Bidirectional sync via git (not scp): SCCKN jobs push outputs after extraction; collaborators and local pull via `git pull`. Additive only — `pull --rebase` before every push prevents overwriting parallel report/code work. Model weights excluded (public on HF Hub, 8–54 GB, reproducible via model id + seed).
 - **Next:** Commit this session's changes (gitignore, sync script, job updates, AGENTS.md), push, then on SCCKN: `git pull` + `bash jobs/sync_outputs.sh` to upload existing 3-model artifacts.
+
+---
+
+## 2026-06-20 · Step 2 — Phase B1 (topic-holdout CV) + B2 (layer sweep) implementation
+
+- **Context:** Phase B: add discriminative evaluation metric (B1) and cross-layer analysis (B2) to the 3-model warmth/competence probing result.
+- **Agent:** claude-sonnet-4-6
+- **Did:**
+  - **B1:** Extended `src/validate_probes.py` with `load_topic_groups()` helper (reads topic_idx per condition in same sequential order as extract_vectors.load_stories), `topic_holdout_cv()` function (GroupKFold, n_splits=5, deterministic), and optional `groups_high/groups_low` params on `probe_axis()`. Runs automatically when concept_stories.jsonl is present; alignment-asserted. New fields in CSV/JSON: `topic_cv_mean`, `topic_cv_std`, `topic_cv_folds`, `pass_warmth_topic_cv`, `pass_competence_topic_cv`. SUMMARY now prints both metrics. Ran on all 3 models (GPU-free).
+  - **B2:** Created `src/layer_sweep.py`: loads model once, `run_with_cache(names_filter=endswith("hook_resid_post"))` captures all n_layers in one forward pass per story; per-layer warmth/competence vectors + topic-holdout CV + Cohen's d + cos(W,C) + mean_resid_norm; writes `results/tables/layer_sweep_<label>.csv` + `.meta.json`; no .npy dumps (scale guard). Created 3 SGE jobs: `jobs/sge/layer_sweep_{gemma,qwen3_14b,llama31_8b}.sh`.
+  - **Figure 8:** Added `fig8_layer_emergence()` to `paper/figures/generate_figures.py`: two-panel (warmth/competence) emergence curves vs layer fraction, one line per model, Cohen's d twin axis; `--sweep-csvs` CLI arg + dispatch in main().
+  - **gitignore + sync_outputs.sh:** un-ignored `results/tables/layer_sweep*.csv` and `layer_sweep*.meta.json`; added to `git add` list in `jobs/sync_outputs.sh`.
+- **Findings:** B1 topic-holdout CV = 1.0000 on all 3 models (same as 5-fold CV). This is a **strong positive result**: separation is not topic-vocabulary leakage but genuine cross-topic generalization. Cohen's d (Qwen 9.0, Llama 8.5, Gemma 2.7) predicts this — very large effect sizes are robust to unseen-topic test. B2 layer sweep will reveal WHERE in the network this emerges and whether the cross-axis paradox is a depth effect.
+- **Decision / rationale:** Topic-holdout staying at 1.0 is scientifically meaningful, not disappointing — it shows the representations generalize completely across situations. The sweep (B2) is now the key analysis for ranking layers and testing the paradox hypothesis.
+- **Next:** SSH to SCCKN, git pull, qsub the 3 layer-sweep jobs. When done, pull CSVs locally and run `generate_figures.py --fig 8 --sweep-csvs ... --labels ...`.

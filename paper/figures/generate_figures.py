@@ -687,6 +687,84 @@ def fig7_same_story_demo(
 
 
 # ---------------------------------------------------------------------------
+# Figure 8 — Layer emergence curves (topic-holdout CV and Cohen's d vs depth)
+# ---------------------------------------------------------------------------
+
+def fig8_layer_emergence(
+    sweep_csv_paths: list[Path],
+    model_labels: list[str],
+) -> None:
+    """Two-panel emergence curve: warmth (left) and competence (right) topic-holdout
+    CV vs layer fraction, one line per model.  Vertical dashed line at frac=0.66.
+    A Cohen's d twin axis (right y-axis, faint) overlays each panel.
+
+    CSV columns expected (from src/layer_sweep.py):
+        frac, warmth_topic_cv, comp_topic_cv, warmth_cohens_d, comp_cohens_d, is_probe_layer
+    """
+    import csv as _csv
+
+    model_colors = ["#1b7837", "#762a83", "#d6604d"]  # Gemma green, Qwen purple, Llama red
+    model_ls     = ["-",       "--",       "-."]
+
+    # Load per-model sweep data.
+    sweeps: list[dict[str, list]] = []
+    for path in sweep_csv_paths:
+        rows: dict[str, list] = {
+            "frac": [], "warmth_cv": [], "comp_cv": [], "warmth_d": [], "comp_d": []
+        }
+        with path.open(newline="", encoding="utf-8") as f:
+            reader = _csv.DictReader(f)
+            for row in reader:
+                rows["frac"].append(float(row["frac"]))
+                rows["warmth_cv"].append(float(row["warmth_topic_cv"]))
+                rows["comp_cv"].append(float(row["comp_topic_cv"]))
+                rows["warmth_d"].append(float(row["warmth_cohens_d"]))
+                rows["comp_d"].append(float(row["comp_cohens_d"]))
+        sweeps.append(rows)
+        print(f"  [fig8] {path.name}: {len(rows['frac'])} layers")
+
+    fig, axes = plt.subplots(1, 2, figsize=(10, 4), sharey=False)
+
+    for panel_idx, (axis_name, cv_key, d_key) in enumerate([
+        ("Warmth", "warmth_cv", "warmth_d"),
+        ("Competence", "comp_cv", "comp_d"),
+    ]):
+        ax = axes[panel_idx]
+        ax2 = ax.twinx()   # Cohen's d twin axis
+
+        for i_m, (sweep, label) in enumerate(zip(sweeps, model_labels)):
+            c  = model_colors[i_m % len(model_colors)]
+            ls = model_ls[i_m % len(model_ls)]
+            ax.plot(sweep["frac"], sweep[cv_key], color=c, linestyle=ls,
+                    linewidth=1.8, label=label, zorder=3)
+            ax2.plot(sweep["frac"], sweep[d_key], color=c, linestyle=ls,
+                     linewidth=0.7, alpha=0.35, zorder=2)
+
+        ax.axvline(0.66, color="gray", linestyle=":", linewidth=1.2,
+                   label="frac=0.66 (used)", zorder=1)
+        ax.axhline(0.80, color="green", linestyle="--", linewidth=0.8,
+                   label="threshold 0.80", zorder=1)
+
+        ax.set_xlabel("Layer fraction (depth / n_layers)")
+        ax.set_ylabel("Topic-holdout CV accuracy")
+        ax2.set_ylabel("Cohen's d (faint)", color="gray", fontsize=9)
+        ax2.tick_params(axis="y", labelcolor="gray", labelsize=8)
+        ax.set_title(f"{axis_name} probe emergence")
+        ax.set_xlim(0, 1)
+        ax.set_ylim(0.4, 1.05)
+        if panel_idx == 0:
+            ax.legend(fontsize=9, loc="lower right")
+
+    fig.suptitle(
+        "Layer sweep: where do warmth and competence representations emerge?\n"
+        "(topic-holdout CV; dashed = Cohen's d; vertical marker = frac=0.66)",
+        fontsize=10, y=1.02,
+    )
+    fig.tight_layout()
+    save("fig8_layer_emergence")
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -740,6 +818,12 @@ def main() -> None:
         "--stories",
         default=None,
         help="Path to concept_stories.jsonl for fig7 text labels (optional).",
+    )
+    parser.add_argument(
+        "--sweep-csvs",
+        default=None,
+        help="Comma-separated paths to layer_sweep_<label>.csv files "
+             "(required for --fig 8). Same order as --labels.",
     )
     args = parser.parse_args()
 
@@ -813,6 +897,15 @@ def main() -> None:
             parser.error("--vec-dirs and --labels must have the same number of entries")
         stories_jsonl = Path(args.stories) if args.stories else None
         fig7_same_story_demo(vec_dirs, model_labels, stories_jsonl=stories_jsonl)
+
+    if 8 in selected:
+        print("Figure 8: layer emergence curves …")
+        if not args.sweep_csvs or not model_labels:
+            parser.error("--fig 8 requires --sweep-csvs and --labels")
+        sweep_paths = [Path(p.strip()) for p in args.sweep_csvs.split(",")]
+        if len(sweep_paths) != len(model_labels):
+            parser.error("--sweep-csvs and --labels must have the same number of entries")
+        fig8_layer_emergence(sweep_paths, model_labels)
 
     print("Done.")
 
