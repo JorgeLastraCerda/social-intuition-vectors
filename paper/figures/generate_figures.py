@@ -772,7 +772,7 @@ def fig8_layer_emergence(
 
     fig.suptitle(
         "Layer sweep: representation strength and axis geometry across depth  "
-        "(topic-holdout CV = 1.00 at every layer; three open-weights models)",
+        "(topic-holdout CV = 1.00 at every layer; four open-weights models)",
         fontsize=10, y=1.02,
     )
     fig.tight_layout()
