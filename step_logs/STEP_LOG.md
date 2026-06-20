@@ -507,3 +507,25 @@
 - **Findings:** n/a (job not yet submitted; script ready for SCCKN).
 - **Decision / rationale:** Single chained job to use scc214's 96 GB allocation only once (avoid double queueing on the cluster's most contended node). Extract step fails fast if TransformerLens cannot load 27B — acceptable risk per plan.
 - **Next:** git pull on SCCKN login node; confirm `hf auth whoami`; `qsub jobs/sge/extract_gemma3_27b.sh`. When done: pull results, run `python paper/figures/generate_figures.py --fig 8 --sweep-csvs ...<4 CSVs>... --labels ...`, write B3 report.
+
+---
+
+## 2026-06-20 · Step 6 — B3 Gemma-3-27B results + report
+
+- **Context:** Phase B3 — within-family scale test: SCCKN job 1059107 completed; 27B results pulled and analysed.
+- **Agent:** claude-sonnet-4-6
+- **Did:**
+  - Pulled 11 output files from SCCKN via `jobs/sync_outputs.sh` (concept_vectors_gemma3_27b/, probe_metrics_gemma3_27b.csv, layer_sweep_gemma3_27b.csv + .meta.json, validate_probes_1781952895.json).
+  - Regenerated `paper/figures/fig8_layer_emergence.{png,pdf}` with 4 models (added Gemma-3-27B dark teal); updated suptitle to "four open-weights models".
+  - Wrote `paper/2026-06-20_gemma_scale_paradox.md`: B3 findings report with fig8 embedded; covers probe metrics, layer sweep emergence curves, cos(W,C) depth profile comparison (12B vs 27B), and four-model summary table.
+  - Updated `paper/README.md`: fig8 description updated to 4 models; new report row added.
+- **Findings:**
+  - TransformerLens loaded google/gemma-3-27b-it: n_layers=62, d_model=5376, probe_layer=40.
+  - CV=1.0, topic-CV=1.0 on both axes (same as 12B).
+  - Cohen's d: warmth=2.95, comp=3.27 — slightly stronger than 12B (2.70/2.83).
+  - axis_cosine=0.708 — slightly lower than 12B (0.749) but same order.
+  - cross_warmth_on_competence_cv=0.50, cross_competence_on_warmth_cv=0.50 — paradox preserved at 27B.
+  - cos(W,C) depth profile: same shape as 12B (rises to ~0.93 by frac=0.38, stays elevated); peak cos=0.933 at L23 vs 12B peak 0.952 at L16. Scale does not change the entanglement pattern.
+  - mean_resid_norm at probe layer: 61,576 (lower than 12B's 79,756 — reflects absolute layer position; final layer is 177,437).
+- **Decision / rationale:** Cross-axis paradox is scale-invariant within Gemma-3 family — confirms architectural explanation. Four-model picture (2 Gemma + Qwen + Llama) now fully populated.
+- **Next:** B4 (scale-normalised analysis using per-layer mean_resid_norm) or B6 (valence denoising, login-node corpus build pending).
