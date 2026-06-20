@@ -127,6 +127,10 @@ discriminative metric for the rest of this analysis.**
 
 ## Results: Cohen's d Emergence Curves
 
+![Layer sweep: Cohen's d emergence curves (left) and cos(W,C) depth profile (right)](figures/fig8_layer_emergence.png)
+
+**Figure 8.** *(Left)* Cohen's d as a function of layer depth (x = layer index / total layers) for warmth (solid) and competence (dotted) axes, three models. Vertical dotted line = probe layer (frac = 0.66). Llama-3.1-8B (red) and Qwen3-14B (purple) peak early and descend gradually; Gemma-3-12B (green) shows a distinctive late surge above frac = 0.80. *(Right)* cos(warmth\_vec, competence\_vec) at every layer. Gemma's cosine rises above 0.50 before frac = 0.20 and stays there; Qwen and Llama plateau near 0.50 from mid-depth onward. This panel is the key paradox diagnostic: the entanglement in Gemma is not an artefact of probe-layer choice.
+
 See Figure 8 (left panel) for the full emergence curves.
 
 **Table: Cohen's d at selected layers**
@@ -206,7 +210,7 @@ Two hypotheses were proposed:
 
 ### What the layer sweep shows
 
-See Figure 8 (right panel) for the cos(W,C) depth profiles.
+Refer to Figure 8 (right panel, shown above) for the cos(W,C) depth profiles.
 
 **Gemma:** cosine starts near 0 at L0 (cos = 0.017), rises steeply through the early
 and middle layers (reaching 0.95 at L16, frac = 0.34), then remains elevated — between
