@@ -183,11 +183,41 @@ The paradox does not undermine the headline finding — all models encode warmth
 
 ### 7.3 Valence overlap
 
-All three models show substantial cosine similarity between their warmth and competence vectors (0.50–0.75), consistent with the stimulus design: both high-warmth and high-competence stories feature a protagonist acting well, while both low-warmth and low-competence stories feature the opposite. This shared evaluative signal (valence) creates a diagonal structure in the joint projection space visible in the per-model Figure 1 plots.
+All three models show substantial cosine similarity between their warmth and competence vectors (0.50–0.75), consistent with the stimulus design: both high-warmth and high-competence stories feature a protagonist acting well, while both low-warmth and low-competence stories feature the opposite. This shared evaluative signal (valence) creates a diagonal structure in the joint projection space visible in the per-model figures below.
 
 A neutral-corpus PCA denoising step (following Sofroniew, Lindsey et al., 2026) would subtract this shared component, potentially reducing both the cosine similarity and, in Qwen3/Llama, the cross-axis CV. This is planned but not yet implemented.
 
-Per-model joint density, random-baseline null, and Lorenz concentration figures are provided for each model in `paper/figures/gemma-3-12b/` (see the Gemma report), `paper/figures/qwen3_14b/`, and `paper/figures/llama31_8b/`.
+**Qwen3-14B — per-model diagnostics**
+
+![Joint density of story representations — Qwen3-14B](figures/qwen3_14b/fig1_joint_density.png)
+
+**Figure Q1.** Joint density of all 200 story representations projected onto the Qwen3-14B warmth and competence axes (z-scored). The four conditions separate cleanly along the intended axes, with the same positive-diagonal valence structure as Gemma.
+
+![Null distribution of Cohen's d — Qwen3-14B](figures/qwen3_14b/fig2_random_baseline.png)
+
+**Figure Q2.** Empirical null distribution (1,000 random unit vectors) vs. our warmth and competence directions for Qwen3-14B. Cohen's d = 8.97 (warmth, z = 14.1) and 9.97 (competence, z = 14.6) — both far beyond the null.
+
+![Lorenz concentration curve — Qwen3-14B](figures/qwen3_14b/fig3_lorenz_concentration.png)
+
+**Figure Q3.** Lorenz concentration of the Qwen3-14B direction vectors. Signal concentrates faster than the uniform baseline, indicating a structured rather than diffuse representation.
+
+---
+
+**Llama-3.1-8B-Instruct — per-model diagnostics**
+
+![Joint density of story representations — Llama-3.1-8B](figures/llama31_8b/fig1_joint_density.png)
+
+**Figure L1.** Joint density of all 200 story representations projected onto the Llama-3.1-8B warmth and competence axes (z-scored). Separation is sharp and the diagonal valence structure is present, consistent with the other models.
+
+![Null distribution of Cohen's d — Llama-3.1-8B](figures/llama31_8b/fig2_random_baseline.png)
+
+**Figure L2.** Empirical null distribution vs. our directions for Llama-3.1-8B. Cohen's d = 8.48 (warmth, z = 15.0) and 9.07 (competence, z = 15.1).
+
+![Lorenz concentration curve — Llama-3.1-8B](figures/llama31_8b/fig3_lorenz_concentration.png)
+
+**Figure L3.** Lorenz concentration of the Llama-3.1-8B direction vectors. Energy concentrates in a relatively small number of dimensions, similarly to the other two models.
+
+For the Gemma-3-12B per-model figures (fig1–4), see `2026-06-16_concept_stories_probe_findings.md`.
 
 ---
 

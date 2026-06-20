@@ -256,6 +256,10 @@ The warmth direction vector cannot be interpreted as locating warmth in a single
 - The cosine similarity between the warmth and competence direction vectors is **0.75**, indicating that they point in broadly similar directions.
 - The joint projection plot shows a strong diagonal structure: positively framed stories tend to move up and right, while negatively framed stories move down and left.
 
+![Axis geometry and cross-axis discriminability heatmaps for Gemma-3-12B.](figures/fig4_axis_geometry.png)
+
+**Figure 4.** *(Left)* Cosine similarity matrix between the warmth and competence direction vectors. The off-diagonal value (0.749) quantifies the geometric overlap between the two concept directions. *(Right)* Cross-axis behavioural discriminability: diagonal cells show on-target 5-fold CV (warmth probe on warmth stories; competence probe on competence stories, both = 1.00); off-diagonal cells show cross-axis accuracy (warmth probe on competence stories and vice versa). In Gemma-3-12B, cross-axis accuracy is 0.50 (at chance), meaning that the warmth direction carries no information about the competence label and vice versa — despite the high geometric cosine. This combination (high cosine, zero cross-axis CV) is the *cross-axis paradox* discussed further in the three-model report.
+
 This combination suggests that the extracted directions are useful high-vs-low condition contrasts, but not yet cleanly orthogonal social dimensions.
 
 ### An intuitive analogy
