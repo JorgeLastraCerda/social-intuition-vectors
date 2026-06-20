@@ -66,6 +66,8 @@ def main() -> None:
     left_vectors = np.load(left_dir / "vectors_65k.npz")
     right_vectors = np.load(right_dir / "vectors_65k.npz")
     rows: list[dict] = []
+    null_rows: list[dict] = []
+    rng = np.random.default_rng(args.seed)
     for vector_name in VECTOR_NAMES:
         left_vector = left_vectors[f"feature_{vector_name}"]
         right_vector = right_vectors[f"feature_{vector_name}"]
@@ -112,12 +114,49 @@ def main() -> None:
                 }
             )
 
+        null_means = np.empty(args.n_permutations, dtype=np.float64)
+        null_medians = np.empty(args.n_permutations, dtype=np.float64)
+        for permutation_i in range(args.n_permutations):
+            permutation = rng.permutation(right_profiles.shape[1])
+            null_similarity = left_profiles @ right_profiles[:, permutation].T
+            null_left, null_right = linear_sum_assignment(-null_similarity)
+            null_values = null_similarity[null_left, null_right]
+            null_means[permutation_i] = null_values.mean()
+            null_medians[permutation_i] = np.median(null_values)
+        observed_values = np.array(
+            [similarity[left_pos, right_pos] for left_pos, right_pos in matched]
+        )
+        null_rows.append(
+            {
+                "vector": vector_name,
+                "n_matches": len(matched),
+                "observed_mean": float(observed_values.mean()),
+                "observed_median": float(np.median(observed_values)),
+                "null_mean": float(null_means.mean()),
+                "null_mean_ci_low": float(np.quantile(null_means, 0.025)),
+                "null_mean_ci_high": float(np.quantile(null_means, 0.975)),
+                "null_median": float(null_medians.mean()),
+                "permutation_p_mean": float(
+                    (1 + np.sum(null_means >= observed_values.mean()))
+                    / (args.n_permutations + 1)
+                ),
+                "n_permutations": args.n_permutations,
+                "seed": args.seed,
+            }
+        )
+
     output_path = table_dir / "gemma_scope_feature_matches_12b_27b.csv"
     with output_path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=list(rows[0].keys()))
         writer.writeheader()
         writer.writerows(rows)
     check_file_size(output_path)
+    null_path = table_dir / "gemma_scope_feature_match_null_12b_27b.csv"
+    with null_path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(null_rows[0].keys()))
+        writer.writeheader()
+        writer.writerows(null_rows)
+    check_file_size(null_path)
 
     log = {
         "left_label": args.left_label,
@@ -126,15 +165,19 @@ def main() -> None:
         "right_subdir": args.right_subdir,
         "width": "65k",
         "top_k_per_vector": args.top_k,
+        "n_permutations": args.n_permutations,
+        "seed": args.seed,
         "matching": (
             "One-to-one Hungarian matching that maximizes centered cosine "
             "similarity of each feature's activation profile over the same stories."
         ),
         "output": str(output_path),
+        "null_output": str(null_path),
     }
     log_path = log_dir / "gemma_scope_feature_matching_12b_27b.json"
     log_path.write_text(json.dumps(log, indent=2), encoding="utf-8")
     print(f"[done] {output_path}")
+    print(f"[done] {null_path}")
     print(f"[done] {log_path}")
 
 
@@ -148,6 +191,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--left-label", default="gemma3_12b")
     parser.add_argument("--right-label", default="gemma3_27b")
     parser.add_argument("--top-k", type=int, default=250)
+    parser.add_argument("--n-permutations", type=int, default=500)
+    parser.add_argument("--seed", type=int, default=20260527)
     parser.add_argument("--left-neuronpedia-base")
     parser.add_argument("--right-neuronpedia-base")
     return parser.parse_args()
