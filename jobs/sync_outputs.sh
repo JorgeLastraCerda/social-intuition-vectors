@@ -6,6 +6,9 @@
 #   results/logs/validate_probes_*.json
 #   results/tables/probe_metrics*.csv
 #   results/tables/layer_sweep*.csv + layer_sweep*.meta.json
+#   data/processed/gemma_scope_*/   (sparse activations and derived vectors)
+#   results/logs/gemma_scope_*.json
+#   results/tables/gemma_scope_*.csv
 #
 # NOT committed: model weights (*.safetensors, *.bin, *.pt), SGE logs (*.out, *.err),
 #               HF cache (/work/.../hf_cache).
@@ -33,10 +36,13 @@ cd "$REPO"
 
 git add \
     data/processed/concept_vectors*/ \
+    data/processed/gemma_scope_*/ \
     results/logs/validate_probes_*.json \
+    results/logs/gemma_scope_*.json \
     results/tables/probe_metrics*.csv \
     results/tables/layer_sweep*.csv \
     results/tables/layer_sweep*.meta.json \
+    results/tables/gemma_scope_*.csv \
     2>/dev/null || true   # tolerate missing globs (e.g. first run before extraction)
 
 if git diff --cached --quiet; then

@@ -561,3 +561,14 @@
 - **Findings:** Earliest Git commit times established the order: 2026-06-16 20:01, 2026-06-19 18:08, and 2026-06-20 at 11:37, 13:03, and 13:37 (Europe/Berlin).
 - **Decision / rationale:** Use result-production time in Europe/Berlin; for historical reports without an explicit production timestamp, use the earliest Git commit time.
 - **Rename map:** `2026-06-16_2001_concept_stories_probe_findings.md`; `2026-06-19_1808_cross_model_concept_findings.md`; `2026-06-20_1137_layer_sweep_topic_holdout.md`; `2026-06-20_1303_gemma_scale_paradox.md`; `2026-06-20_1337_cross_axis_metric_correction.md`.
+
+---
+
+## 2026-06-20 · Step 10 — Gemma Scope 2 analysis and concept-causality implementation
+
+- **Context:** Decompose the existing Gemma-3-12B and 27B warmth/competence activations with Gemma Scope 2 and test concept-level causal effects.
+- **Agent:** gpt-5-codex
+- **Did:** Added sparse SAE analysis for 16k/65k/262k widths, held-out concept steering and error-preserving feature ablation at 65k, cross-scale story-profile feature matching, compact-output git tracking, tests, and parallel SGE jobs pinned to `scc213` (12B) and `scc214` (27B).
+- **Findings:** Existing committed activations match the published SAE layers (12B layer 31; 27B layer 40). SAELens 6.44.2 contains all six requested checkpoints. Gemma tokenizers encode both `" Yes"` and `" No"` as one token, enabling one-forward logit-margin evaluation. Local test suite: 11 passed.
+- **Decision / rationale:** Reuse the committed 200 mean residual activations instead of rerunning extraction; use 65k as the primary causal SAE, 16k as baseline, and 262k as reconstruction/robustness analysis. Jobs do not push independently, preventing concurrent git races.
+- **Next:** Commit and push the implementation, fast-forward SCCKN, submit both jobs in parallel, then sync and analyse their outputs.
