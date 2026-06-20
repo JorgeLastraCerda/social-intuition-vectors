@@ -28,7 +28,7 @@ from src.utils.model_loader import load_hooked_model
 
 
 AXES = ("warmth", "competence")
-STRENGTHS = (-0.5, -0.25, 0.0, 0.25, 0.5)
+DEFAULT_STRENGTHS = "-0.5,-0.25,0,0.25,0.5"
 
 
 def unit(vector: np.ndarray) -> np.ndarray:
@@ -318,6 +318,13 @@ def summarize_ablation(
 
 def main() -> None:
     args = parse_args()
+    strengths = tuple(
+        float(value.strip())
+        for value in args.strengths.split(",")
+        if value.strip()
+    )
+    if 0.0 not in strengths:
+        raise ValueError("--strengths must include 0.")
     cfg = load_config(args.config)
     vectors_dir = Path(cfg.paths.processed) / args.vectors_subdir
     scope_dir = Path(cfg.paths.processed) / args.scope_subdir
@@ -487,7 +494,7 @@ def main() -> None:
                 print(f"[baseline] {axis} {index}/{len(test_records)}", flush=True)
 
         for direction_name, vector in directions.items():
-            for strength in STRENGTHS:
+            for strength in strengths:
                 if strength == 0:
                     for record, label in test_records:
                         raw_rows.append(
@@ -528,36 +535,43 @@ def main() -> None:
                     flush=True,
                 )
 
-        ablation_sets = {
-            "target_axis": selected_features[axis],
-            "other_axis": selected_features[other],
-            "shared": selected_features["shared"],
-            "random_features": random_feature_sets[axis],
-        }
-        for name, indices in ablation_sets.items():
-            hook = make_error_preserving_ablation_hook(sae, indices)
-            for record, label in test_records:
-                prompt = judgement_prompt(record["text"], axis)
-                margin = yes_no_margin(model, prompt, hook_name, hook)
-                raw_rows.append(
-                    {
-                        "mode": "ablation",
-                        "axis": axis,
-                        "story_id": record["id"],
-                        "topic_idx": int(record["topic_idx"]),
-                        "condition": record["condition"],
-                        "label": label,
-                        "direction": name,
-                        "strength": "",
-                        "margin": margin,
-                        "delta_margin": margin - baseline_margins[record["id"]],
-                    }
+        if not args.skip_ablation:
+            ablation_sets = {
+                "target_axis": selected_features[axis],
+                "other_axis": selected_features[other],
+                "shared": selected_features["shared"],
+                "random_features": random_feature_sets[axis],
+            }
+            for name, indices in ablation_sets.items():
+                hook = make_error_preserving_ablation_hook(sae, indices)
+                for record, label in test_records:
+                    prompt = judgement_prompt(record["text"], axis)
+                    margin = yes_no_margin(model, prompt, hook_name, hook)
+                    raw_rows.append(
+                        {
+                            "mode": "ablation",
+                            "axis": axis,
+                            "story_id": record["id"],
+                            "topic_idx": int(record["topic_idx"]),
+                            "condition": record["condition"],
+                            "label": label,
+                            "direction": name,
+                            "strength": "",
+                            "margin": margin,
+                            "delta_margin": (
+                                margin - baseline_margins[record["id"]]
+                            ),
+                        }
+                    )
+                print(
+                    f"[ablation] {axis} {name} n={len(indices)}",
+                    flush=True,
                 )
-            print(f"[ablation] {axis} {name} n={len(indices)}", flush=True)
 
     summary_rows = summarize_baseline(raw_rows, cfg.probing.seed)
     summary_rows.extend(summarize_steering(raw_rows, cfg.probing.seed))
-    summary_rows.extend(summarize_ablation(raw_rows, cfg.probing.seed))
+    if not args.skip_ablation:
+        summary_rows.extend(summarize_ablation(raw_rows, cfg.probing.seed))
     raw_path = table_dir / f"gemma_scope_causality_raw_{args.label}.csv"
     with raw_path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=list(raw_rows[0].keys()))
@@ -580,7 +594,8 @@ def main() -> None:
         "train_topics": train_topics.tolist(),
         "test_topics": test_topics.tolist(),
         "mean_resid_norm": mean_resid_norm,
-        "strengths": list(STRENGTHS),
+        "strengths": list(strengths),
+        "skip_ablation": args.skip_ablation,
         "ablation_energy": args.ablation_energy,
         "selected_feature_counts": {
             name: len(indices) for name, indices in selected_features.items()
@@ -609,6 +624,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--sae-id", required=True)
     parser.add_argument("--n-test-topics", type=int, default=10)
     parser.add_argument("--ablation-energy", type=float, default=0.50)
+    parser.add_argument(
+        "--strengths",
+        default=DEFAULT_STRENGTHS,
+        help="Comma-separated steering strengths; must include zero.",
+    )
+    parser.add_argument("--skip-ablation", action="store_true")
     return parser.parse_args()
 
 

@@ -772,6 +772,314 @@ def fig8_layer_emergence(
 
 
 # ---------------------------------------------------------------------------
+# Figure 9 — Gemma Scope reconstruction and retained concept signal
+# ---------------------------------------------------------------------------
+
+def _read_csv(path: Path) -> list[dict[str, str]]:
+    with path.open(newline="", encoding="utf-8") as handle:
+        return list(csv.DictReader(handle))
+
+
+def fig9_gemma_scope_decomposition(
+    metrics_paths: list[Path],
+    model_labels: list[str],
+) -> None:
+    width_order = ["16k", "65k", "262k"]
+    width_x = np.arange(len(width_order))
+    colors = ["#1b7837", "#006d6d"]
+    fig, axes = plt.subplots(2, 2, figsize=(10, 7.2))
+
+    for model_i, (path, label) in enumerate(zip(metrics_paths, model_labels)):
+        rows = {row["width"]: row for row in _read_csv(path)}
+        color = colors[model_i % len(colors)]
+        reconstruction = [
+            float(rows[width]["reconstruction_cosine_mean"])
+            for width in width_order
+        ]
+        active = [
+            float(rows[width]["active_features_mean"])
+            for width in width_order
+        ]
+        axes[0, 0].plot(width_x, reconstruction, marker="o", color=color, label=label)
+        axes[0, 1].plot(width_x, active, marker="o", color=color, label=label)
+
+        for axis, linestyle in (("warmth", "-"), ("competence", "--")):
+            topic_cv = [
+                float(rows[width][f"{axis}_topic_cv"])
+                for width in width_order
+            ]
+            alignment = [
+                float(rows[width][f"decoded_{axis}_alignment"])
+                for width in width_order
+            ]
+            axis_label = axis.capitalize()
+            axes[1, 0].plot(
+                width_x,
+                topic_cv,
+                marker="o",
+                color=color,
+                linestyle=linestyle,
+                label=f"{label} — {axis_label}",
+            )
+            axes[1, 1].plot(
+                width_x,
+                alignment,
+                marker="o",
+                color=color,
+                linestyle=linestyle,
+                label=f"{label} — {axis_label}",
+            )
+
+    for ax in axes.flat:
+        ax.set_xticks(width_x, width_order)
+        ax.set_xlabel("SAE width")
+        ax.grid(axis="y", alpha=0.2)
+    axes[0, 0].set_title("Residual reconstruction")
+    axes[0, 0].set_ylabel("Cosine(original, reconstruction)")
+    axes[0, 0].set_ylim(0.98, 1.0)
+    axes[0, 0].legend(framealpha=0.9)
+    axes[0, 1].set_title("Sparsity")
+    axes[0, 1].set_ylabel("Mean active features per story vector")
+    axes[1, 0].set_title("Concept signal in sparse feature space")
+    axes[1, 0].set_ylabel("Topic-holdout CV accuracy")
+    axes[1, 0].set_ylim(0.45, 1.0)
+    axes[1, 0].legend(fontsize=8, framealpha=0.9)
+    axes[1, 1].set_title("Decoded direction vs dense direction")
+    axes[1, 1].set_ylabel("Cosine alignment")
+    axes[1, 1].set_ylim(0.0, 1.0)
+    fig.suptitle(
+        "Gemma Scope 2 preserves residual activations better than it isolates "
+        "warmth and competence",
+        fontsize=12,
+    )
+    fig.tight_layout()
+    save("fig9_gemma_scope_decomposition")
+
+
+# ---------------------------------------------------------------------------
+# Figure 10 — Held-out concept steering
+# ---------------------------------------------------------------------------
+
+def fig10_gemma_scope_steering(
+    causality_paths: list[Path],
+    model_labels: list[str],
+) -> None:
+    directions = [
+        "raw_dense",
+        "sae_reconstructed",
+        "axis_specific",
+        "shared",
+        "other_axis",
+        "random",
+    ]
+    labels = {
+        "raw_dense": "Dense direction",
+        "sae_reconstructed": "SAE reconstruction",
+        "axis_specific": "Axis-specific features",
+        "shared": "Shared features",
+        "other_axis": "Other axis",
+        "random": "Random direction",
+    }
+    colors = {
+        "raw_dense": "#1b7837",
+        "sae_reconstructed": "#006d6d",
+        "axis_specific": "#762a83",
+        "shared": "#d6604d",
+        "other_axis": "#4575b4",
+        "random": "#777777",
+    }
+    fig, axes = plt.subplots(
+        2,
+        len(causality_paths),
+        figsize=(6.2 * len(causality_paths), 8),
+        sharex=True,
+    )
+    axes = np.asarray(axes).reshape(2, len(causality_paths))
+    for model_i, (path, model_label) in enumerate(
+        zip(causality_paths, model_labels)
+    ):
+        rows = _read_csv(path)
+        for axis_i, axis_name in enumerate(("warmth", "competence")):
+            ax = axes[axis_i, model_i]
+            for direction in directions:
+                selected = sorted(
+                    (
+                        row
+                        for row in rows
+                        if row["mode"] == "steering"
+                        and row["axis"] == axis_name
+                        and row["direction"] == direction
+                    ),
+                    key=lambda row: float(row["strength"]),
+                )
+                x = np.array([float(row["strength"]) for row in selected])
+                y = np.array([float(row["effect"]) for row in selected])
+                low = np.array([float(row["ci_low"]) for row in selected])
+                high = np.array([float(row["ci_high"]) for row in selected])
+                ax.plot(
+                    x,
+                    y,
+                    marker="o",
+                    color=colors[direction],
+                    label=labels[direction],
+                )
+                ax.fill_between(x, low, high, color=colors[direction], alpha=0.10)
+            ax.axhline(0, color="black", linewidth=0.8)
+            ax.axvline(0, color="gray", linewidth=0.8, linestyle=":")
+            ax.set_title(f"{model_label} — {axis_name.capitalize()}")
+            ax.set_ylabel("Change in Yes-vs-No logit margin")
+            ax.set_xlabel("Steering strength × mean residual norm")
+            ax.grid(axis="y", alpha=0.2)
+    axes[0, 0].legend(fontsize=8, framealpha=0.9)
+    fig.suptitle(
+        "Held-out concept judgements under residual-stream steering",
+        fontsize=12,
+    )
+    fig.tight_layout()
+    save("fig10_gemma_scope_steering")
+
+
+# ---------------------------------------------------------------------------
+# Figure 11 — Error-preserving feature ablation
+# ---------------------------------------------------------------------------
+
+def fig11_gemma_scope_ablation(
+    causality_paths: list[Path],
+    model_labels: list[str],
+) -> None:
+    directions = ["target_axis", "shared", "other_axis", "random_features"]
+    display = ["Target axis", "Shared", "Other axis", "Random"]
+    colors = ["#762a83", "#d6604d", "#4575b4", "#777777"]
+    fig, axes = plt.subplots(
+        2,
+        len(causality_paths),
+        figsize=(5.4 * len(causality_paths), 7.6),
+        sharey=False,
+    )
+    axes = np.asarray(axes).reshape(2, len(causality_paths))
+    for model_i, (path, model_label) in enumerate(
+        zip(causality_paths, model_labels)
+    ):
+        rows = _read_csv(path)
+        for axis_i, axis_name in enumerate(("warmth", "competence")):
+            ax = axes[axis_i, model_i]
+            selected = {
+                row["direction"]: row
+                for row in rows
+                if row["mode"] == "ablation" and row["axis"] == axis_name
+            }
+            effects = np.array(
+                [float(selected[direction]["effect"]) for direction in directions]
+            )
+            low = np.array(
+                [float(selected[direction]["ci_low"]) for direction in directions]
+            )
+            high = np.array(
+                [float(selected[direction]["ci_high"]) for direction in directions]
+            )
+            yerr = np.vstack([effects - low, high - effects])
+            ax.bar(
+                np.arange(len(directions)),
+                effects,
+                yerr=yerr,
+                capsize=3,
+                color=colors,
+                alpha=0.9,
+            )
+            ax.axhline(0, color="black", linewidth=0.8)
+            ax.set_xticks(np.arange(len(directions)), display, rotation=20)
+            ax.set_ylabel("Change in high–low margin gap")
+            ax.set_title(f"{model_label} — {axis_name.capitalize()}")
+            ax.grid(axis="y", alpha=0.2)
+    fig.suptitle(
+        "Error-preserving ablation of 65k Gemma Scope feature sets",
+        fontsize=12,
+    )
+    fig.tight_layout()
+    save("fig11_gemma_scope_ablation")
+
+
+# ---------------------------------------------------------------------------
+# Figure 12 — Cross-scale feature matching
+# ---------------------------------------------------------------------------
+
+def fig12_gemma_scope_feature_matching(
+    matches_path: Path,
+    null_path: Path,
+) -> None:
+    rows = _read_csv(matches_path)
+    null_rows = {
+        row["vector"]: row
+        for row in _read_csv(null_path)
+    }
+    vector_order = [
+        "warmth",
+        "competence",
+        "shared",
+        "warmth_specific",
+        "competence_specific",
+    ]
+    values = [
+        [
+            float(row["story_profile_correlation"])
+            for row in rows
+            if row["vector"] == vector_name
+        ]
+        for vector_name in vector_order
+    ]
+    labels = [
+        "Warmth",
+        "Competence",
+        "Shared",
+        "Warmth-specific",
+        "Competence-specific",
+    ]
+    fig, ax = plt.subplots(figsize=(8.5, 4.8))
+    parts = ax.boxplot(
+        values,
+        widths=0.5,
+        patch_artist=True,
+        showfliers=False,
+        medianprops={"color": "#004c4c", "linewidth": 2},
+    )
+    for box in parts["boxes"]:
+        box.set_facecolor("#77b5b5")
+        box.set_alpha(0.65)
+    null_means = np.array(
+        [float(null_rows[name]["null_mean"]) for name in vector_order]
+    )
+    null_low = np.array(
+        [float(null_rows[name]["null_mean_ci_low"]) for name in vector_order]
+    )
+    null_high = np.array(
+        [float(null_rows[name]["null_mean_ci_high"]) for name in vector_order]
+    )
+    ax.errorbar(
+        np.arange(1, len(labels) + 1),
+        null_means,
+        yerr=np.vstack([null_means - null_low, null_high - null_means]),
+        fmt="D",
+        color="#d6604d",
+        capsize=4,
+        label="Permutation-null matched mean (95% interval)",
+    )
+    ax.axhline(0, color="black", linewidth=0.8)
+    ax.set_xticks(np.arange(1, len(labels) + 1), labels, rotation=18)
+    ax.set_ylabel("Centered story-profile correlation")
+    ax.set_title(
+        "One-to-one 12B↔27B feature matches among top 65k concept features"
+    )
+    ax.legend(
+        loc="lower center",
+        bbox_to_anchor=(0.5, 1.01),
+        framealpha=0.9,
+    )
+    ax.grid(axis="y", alpha=0.2)
+    fig.tight_layout()
+    save("fig12_gemma_scope_feature_matching")
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -781,7 +1089,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Generate presentation figures.")
     parser.add_argument(
         "--fig", default="all",
-        help="Figure(s) to generate: 1-7, comma-separated, or 'all' (runs 1-4 only).",
+        help="Figure(s) to generate: 1-12, comma-separated, or 'all' (runs 1-4 only).",
     )
     parser.add_argument(
         "--vec-dir",
@@ -831,6 +1139,29 @@ def main() -> None:
         default=None,
         help="Comma-separated paths to layer_sweep_<label>.csv files "
              "(required for --fig 8). Same order as --labels.",
+    )
+    parser.add_argument(
+        "--scope-metrics",
+        default=None,
+        help="Comma-separated gemma_scope_metrics CSVs (required for --fig 9).",
+    )
+    parser.add_argument(
+        "--causality-csvs",
+        default=None,
+        help=(
+            "Comma-separated gemma_scope_causality summary CSVs "
+            "(required for --fig 10/11)."
+        ),
+    )
+    parser.add_argument(
+        "--feature-matches",
+        default=None,
+        help="Cross-scale feature-match CSV (required for --fig 12).",
+    )
+    parser.add_argument(
+        "--feature-match-null",
+        default=None,
+        help="Permutation-null summary CSV (required for --fig 12).",
     )
     args = parser.parse_args()
 
@@ -913,6 +1244,43 @@ def main() -> None:
         if len(sweep_paths) != len(model_labels):
             parser.error("--sweep-csvs and --labels must have the same number of entries")
         fig8_layer_emergence(sweep_paths, model_labels)
+
+    if 9 in selected:
+        print("Figure 9: Gemma Scope decomposition quality …")
+        if not args.scope_metrics or not model_labels:
+            parser.error("--fig 9 requires --scope-metrics and --labels")
+        scope_metric_paths = [
+            Path(path.strip()) for path in args.scope_metrics.split(",")
+        ]
+        if len(scope_metric_paths) != len(model_labels):
+            parser.error("--scope-metrics and --labels must have equal lengths")
+        fig9_gemma_scope_decomposition(scope_metric_paths, model_labels)
+
+    if selected & {10, 11}:
+        if not args.causality_csvs or not model_labels:
+            parser.error("--fig 10/11 requires --causality-csvs and --labels")
+        causality_paths = [
+            Path(path.strip()) for path in args.causality_csvs.split(",")
+        ]
+        if len(causality_paths) != len(model_labels):
+            parser.error("--causality-csvs and --labels must have equal lengths")
+        if 10 in selected:
+            print("Figure 10: Gemma Scope concept steering …")
+            fig10_gemma_scope_steering(causality_paths, model_labels)
+        if 11 in selected:
+            print("Figure 11: Gemma Scope feature ablation …")
+            fig11_gemma_scope_ablation(causality_paths, model_labels)
+
+    if 12 in selected:
+        print("Figure 12: Gemma Scope cross-scale feature matching …")
+        if not args.feature_matches or not args.feature_match_null:
+            parser.error(
+                "--fig 12 requires --feature-matches and --feature-match-null"
+            )
+        fig12_gemma_scope_feature_matching(
+            Path(args.feature_matches),
+            Path(args.feature_match_null),
+        )
 
     print("Done.")
 

@@ -32,11 +32,22 @@ def load_sae(release: str, sae_id: str, device: str):
         from sae_lens import SAE
     except ImportError as exc:
         raise ImportError("Install sae-lens before running Gemma Scope analysis.") from exc
-    sae, cfg_dict, sparsity = SAE.from_pretrained(
-        release=release,
-        sae_id=sae_id,
-        device=device,
-    )
+    if hasattr(SAE, "from_pretrained_with_cfg_and_sparsity"):
+        sae, cfg_dict, sparsity = SAE.from_pretrained_with_cfg_and_sparsity(
+            release=release,
+            sae_id=sae_id,
+            device=device,
+        )
+    else:
+        loaded = SAE.from_pretrained(
+            release=release,
+            sae_id=sae_id,
+            device=device,
+        )
+        if isinstance(loaded, tuple):
+            sae, cfg_dict, sparsity = loaded
+        else:
+            sae, cfg_dict, sparsity = loaded, {}, None
     sae.eval()
     return sae, cfg_dict, sparsity
 
