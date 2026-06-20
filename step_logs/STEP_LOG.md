@@ -460,3 +460,19 @@
 - **Findings:** B1 topic-holdout CV = 1.0000 on all 3 models (same as 5-fold CV). This is a **strong positive result**: separation is not topic-vocabulary leakage but genuine cross-topic generalization. Cohen's d (Qwen 9.0, Llama 8.5, Gemma 2.7) predicts this — very large effect sizes are robust to unseen-topic test. B2 layer sweep will reveal WHERE in the network this emerges and whether the cross-axis paradox is a depth effect.
 - **Decision / rationale:** Topic-holdout staying at 1.0 is scientifically meaningful, not disappointing — it shows the representations generalize completely across situations. The sweep (B2) is now the key analysis for ranking layers and testing the paradox hypothesis.
 - **Next:** SSH to SCCKN, git pull, qsub the 3 layer-sweep jobs. When done, pull CSVs locally and run `generate_figures.py --fig 8 --sweep-csvs ... --labels ...`.
+
+---
+
+## 2026-06-20 · Step 3 — B2 layer sweep jobs completed; fig8 generated
+
+- **Context:** Phase B2 — layer sweep jobs submitted to SCCKN and completed.
+- **Agent:** claude-sonnet-4-6
+- **Did:** qsub layer_sweep_{gemma,qwen3_14b,llama31_8b}.sh (jobs 1058948-1058950); all 3 finished; manual sync from login node (compute-node push fallback as designed); git pull locally; generated paper/figures/fig8_layer_emergence.{png,pdf}.
+- **Findings:**
+  - All 3 models: topic-holdout CV = 1.0000 at ALL layers above a low threshold — representations are robustly separable from very early layers onward.
+  - **Gemma-3-12B**: first peak at L10 (frac=0.21, d=1.29/1.79), probe layer L31 (frac=0.66, cos=0.749, norm=79756).
+  - **Qwen3-14B**: warmth peak L13 (frac=0.33, d=6.26), competence peak L3 (frac=0.08, d=4.75), probe layer L26 (frac=0.67, cos=0.536, norm=206.6).
+  - **Llama-3.1-8B**: warmth peak L7 (frac=0.23, d=6.95), competence peak L2 (frac=0.06, d=5.72), probe layer L20 (frac=0.65, cos=0.505, norm=11.4).
+  - Cross-axis paradox: Gemma cos(W,C)=0.749 at L31 vs Qwen/Llama cos~0.51-0.54. The emergence curves will show whether cosine diverges across depth.
+- **Decision / rationale:** CV ceiling at 1.0 across all layers means Cohen's d is the discriminative metric for ranking layers. Emergence is early (frac<0.25) for Qwen/Llama, later for Gemma.
+- **Next:** Inspect fig8 visually; commit figure; update paper/README.md; consider B3 (Gemma 27B) or B5 (report revision).
