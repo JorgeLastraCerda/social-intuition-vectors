@@ -48,6 +48,7 @@ Cross-model figures:
 | `fig5_cross_model.{png,pdf}` | Grouped bars: CV accuracy, Cohen's d, cos(W,C) across 3 models |
 | `fig6_cross_model_story_agreement.{png,pdf}` | 3×3 Spearman ρ heatmaps for per-story ranking agreement |
 | `fig7_same_story_demo.{png,pdf}` | 6 exemplar stories in z-scored warmth/competence space, 3 models overlaid |
+| `fig8_layer_emergence.{png,pdf}` | Layer sweep: (left) Cohen's d emergence curves vs depth, 3 models; (right) cos(W,C) vs depth — shows Gemma's entanglement is architectural, not a probe-layer artefact |
 
 ## Current reports
 
@@ -55,3 +56,4 @@ Cross-model figures:
 |------|------|----------|-------|--------|
 | `2026-06-16_concept_stories_probe_findings.md` | 2026-06-16 | Gemma-3-12B-it | Phase 4+5: extraction + validation on 200 concept stories | Complete — steering and hiring evaluation to follow |
 | `2026-06-19_cross_model_concept_findings.md` | 2026-06-19 | Gemma-3-12B + Qwen3-14B + Llama-3.1-8B | Phase 4+5: three-model replication + cross-model agreement analysis | Complete — Phase B expansions (layer sweep, 27B, topic-holdout) to follow |
+| `2026-06-20_layer_sweep_topic_holdout.md` | 2026-06-20 | Gemma-3-12B + Qwen3-14B + Llama-3.1-8B | Phase B1+B2: topic-holdout CV (generalization confirmed) + layer sweep (emergence curves + cross-axis paradox resolved) | Complete — B3 (27B), B4 (scale norm), B5 (full report revision) to follow |

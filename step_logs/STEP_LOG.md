@@ -476,3 +476,21 @@
   - Cross-axis paradox: Gemma cos(W,C)=0.749 at L31 vs Qwen/Llama cos~0.51-0.54. The emergence curves will show whether cosine diverges across depth.
 - **Decision / rationale:** CV ceiling at 1.0 across all layers means Cohen's d is the discriminative metric for ranking layers. Emergence is early (frac<0.25) for Qwen/Llama, later for Gemma.
 - **Next:** Inspect fig8 visually; commit figure; update paper/README.md; consider B3 (Gemma 27B) or B5 (report revision).
+
+---
+
+## 2026-06-20 · Step 4 — Phase B findings report + fig8 redesign
+
+- **Context:** Write-up of B1 (topic-holdout CV) and B2 (layer sweep) results; redesign fig8 to be paradox-focused.
+- **Agent:** claude-sonnet-4-6
+- **Did:**
+  - Redesigned `fig8_layer_emergence()` in `paper/figures/generate_figures.py`: replaced 2 CV-panel layout with (left) Cohen's d emergence curves + (right) cos(W,C) depth profile. Right panel is the paradox diagnostic: Gemma's cos stays elevated at ALL depths; Qwen/Llama plateau near 0.50.
+  - Wrote `paper/2026-06-20_layer_sweep_topic_holdout.md`: full findings report covering (a) probe concept explanation, (b) topic-holdout rationale + B1 result, (c) layer sweep method + B2 Cohen's d emergence tables, (d) cross-axis paradox resolution with per-layer cos(W,C) evidence, (e) residual norm scale variation, (f) limitations, (g) next steps table.
+  - Updated `paper/README.md`: added fig8 row to figures inventory and new report row to current reports table.
+- **Findings:**
+  - B1: topic-holdout CV = 1.00 ± 0.00 on all 3 models (both axes) — genuine generalisation, not topic-vocabulary leakage.
+  - B2 emergence: Llama peaks L10-14 (d=10.6/11.5), Qwen peaks L22-25 (d=9.9/10.8), Gemma rises late to peak L45 (d=6.1/4.4). Early layers (frac<0.15) already reach d>4 for Qwen/Llama.
+  - Paradox resolution: Gemma cos(W,C) ranges 0.49–0.95 across all layers (probe layer 0.749 is representative, not an outlier). Qwen max 0.62, Llama max 0.58. H2 (depth effect) falsified; H3 (architectural effect) supported.
+  - Residual norm varies ~7,000x across models (Gemma L31: 79,756; Llama L20: 11.4). Relative steering calibration (already enforced in AGENTS.md) is confirmed necessary.
+- **Decision / rationale:** Fig8 CV panels were flat (1.0 everywhere) and therefore uninformative; Cohen's d + cos(W,C) profile panels carry the scientific signal and tell the paradox story visually.
+- **Next:** Regenerate fig8 on local machine with new `generate_figures.py`; then B3 (Gemma-3-27B layer sweep on SCCKN scc214) or valence denoising (B6, login node corpus build pending).

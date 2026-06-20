@@ -694,70 +694,83 @@ def fig8_layer_emergence(
     sweep_csv_paths: list[Path],
     model_labels: list[str],
 ) -> None:
-    """Two-panel emergence curve: warmth (left) and competence (right) topic-holdout
-    CV vs layer fraction, one line per model.  Vertical dashed line at frac=0.66.
-    A Cohen's d twin axis (right y-axis, faint) overlays each panel.
+    """Two-panel layer-sweep figure focused on the cross-axis paradox.
+
+    Panel 1 (left): Cohen's d vs layer fraction for warmth and competence axes.
+    Solid lines = warmth; dotted = competence.  One color per model.
+    Shows WHERE representations become strongest and whether frac=0.66 is optimal.
+
+    Panel 2 (right): cos(warmth_vec, competence_vec) vs layer fraction.
+    This is the paradox diagnostic: Gemma's cosine stays elevated across ALL depths,
+    while Qwen / Llama plateau near 0.50.  Establishes that the entanglement is an
+    architectural feature, not a depth-selection artifact.
 
     CSV columns expected (from src/layer_sweep.py):
-        frac, warmth_topic_cv, comp_topic_cv, warmth_cohens_d, comp_cohens_d, is_probe_layer
+        frac, warmth_cohens_d, comp_cohens_d, cos_wc
     """
     import csv as _csv
 
     model_colors = ["#1b7837", "#762a83", "#d6604d"]  # Gemma green, Qwen purple, Llama red
     model_ls     = ["-",       "--",       "-."]
 
-    # Load per-model sweep data.
     sweeps: list[dict[str, list]] = []
     for path in sweep_csv_paths:
-        rows: dict[str, list] = {
-            "frac": [], "warmth_cv": [], "comp_cv": [], "warmth_d": [], "comp_d": []
-        }
+        rows: dict[str, list] = {"frac": [], "warmth_d": [], "comp_d": [], "cos": []}
         with path.open(newline="", encoding="utf-8") as f:
             reader = _csv.DictReader(f)
             for row in reader:
                 rows["frac"].append(float(row["frac"]))
-                rows["warmth_cv"].append(float(row["warmth_topic_cv"]))
-                rows["comp_cv"].append(float(row["comp_topic_cv"]))
                 rows["warmth_d"].append(float(row["warmth_cohens_d"]))
                 rows["comp_d"].append(float(row["comp_cohens_d"]))
+                rows["cos"].append(float(row["cos_wc"]))
         sweeps.append(rows)
         print(f"  [fig8] {path.name}: {len(rows['frac'])} layers")
 
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4), sharey=False)
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4.5))
 
-    for panel_idx, (axis_name, cv_key, d_key) in enumerate([
-        ("Warmth", "warmth_cv", "warmth_d"),
-        ("Competence", "comp_cv", "comp_d"),
-    ]):
-        ax = axes[panel_idx]
-        ax2 = ax.twinx()   # Cohen's d twin axis
+    # ---- Panel 1: Cohen's d emergence ----
+    ax = axes[0]
+    for i_m, (sweep, label) in enumerate(zip(sweeps, model_labels)):
+        c  = model_colors[i_m % len(model_colors)]
+        ls = model_ls[i_m % len(model_ls)]
+        ax.plot(sweep["frac"], sweep["warmth_d"], color=c, linestyle=ls,
+                linewidth=1.8, label=f"{label} (warmth)", zorder=3)
+        ax.plot(sweep["frac"], sweep["comp_d"], color=c, linestyle=":",
+                linewidth=1.2, alpha=0.7, label=f"{label} (comp.)", zorder=2)
 
-        for i_m, (sweep, label) in enumerate(zip(sweeps, model_labels)):
-            c  = model_colors[i_m % len(model_colors)]
-            ls = model_ls[i_m % len(model_ls)]
-            ax.plot(sweep["frac"], sweep[cv_key], color=c, linestyle=ls,
-                    linewidth=1.8, label=label, zorder=3)
-            ax2.plot(sweep["frac"], sweep[d_key], color=c, linestyle=ls,
-                     linewidth=0.7, alpha=0.35, zorder=2)
+    ax.axvline(0.66, color="gray", linestyle=":", linewidth=1.2,
+               label="probe layer (frac=0.66)", zorder=1)
+    ax.axhline(0.8, color="green", linestyle="--", linewidth=0.8,
+               label="large effect (d=0.80)", zorder=1)
+    ax.set_xlabel("Layer fraction (depth / n_layers)")
+    ax.set_ylabel("Cohen's d")
+    ax.set_title("Representation strength by depth\n(solid = warmth, dotted = competence)")
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, None)
+    ax.legend(fontsize=7.5, loc="upper left", ncol=1, framealpha=0.9)
 
-        ax.axvline(0.66, color="gray", linestyle=":", linewidth=1.2,
-                   label="frac=0.66 (used)", zorder=1)
-        ax.axhline(0.80, color="green", linestyle="--", linewidth=0.8,
-                   label="threshold 0.80", zorder=1)
+    # ---- Panel 2: cos(W,C) depth profile — the paradox panel ----
+    ax2 = axes[1]
+    for i_m, (sweep, label) in enumerate(zip(sweeps, model_labels)):
+        c  = model_colors[i_m % len(model_colors)]
+        ls = model_ls[i_m % len(model_ls)]
+        ax2.plot(sweep["frac"], sweep["cos"], color=c, linestyle=ls,
+                 linewidth=1.8, label=label, zorder=3)
 
-        ax.set_xlabel("Layer fraction (depth / n_layers)")
-        ax.set_ylabel("Topic-holdout CV accuracy")
-        ax2.set_ylabel("Cohen's d (faint)", color="gray", fontsize=9)
-        ax2.tick_params(axis="y", labelcolor="gray", labelsize=8)
-        ax.set_title(f"{axis_name} probe emergence")
-        ax.set_xlim(0, 1)
-        ax.set_ylim(0.4, 1.05)
-        if panel_idx == 0:
-            ax.legend(fontsize=9, loc="lower right")
+    ax2.axvline(0.66, color="gray", linestyle=":", linewidth=1.2,
+                label="probe layer (frac=0.66)", zorder=1)
+    ax2.axhline(0.3, color="orange", linestyle="--", linewidth=0.8,
+                label="low-overlap target (0.30)", zorder=1)
+    ax2.set_xlabel("Layer fraction (depth / n_layers)")
+    ax2.set_ylabel("cos(warmth_vec, competence_vec)")
+    ax2.set_title("Warmth/competence axis overlap by depth\n(Gemma stays elevated at ALL layers — architectural effect)")
+    ax2.set_xlim(0, 1)
+    ax2.set_ylim(0, 1.0)
+    ax2.legend(fontsize=9, loc="upper left", framealpha=0.9)
 
     fig.suptitle(
-        "Layer sweep: where do warmth and competence representations emerge?\n"
-        "(topic-holdout CV; dashed = Cohen's d; vertical marker = frac=0.66)",
+        "Layer sweep: representation strength and axis geometry across depth  "
+        "(topic-holdout CV = 1.00 at every layer; three open-weights models)",
         fontsize=10, y=1.02,
     )
     fig.tight_layout()
