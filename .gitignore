@@ -86,8 +86,12 @@ project_personal_plan.md
 !data/processed/concept_vectors/**
 !data/processed/concept_vectors_*/
 !data/processed/concept_vectors_*/**
+!data/processed/gemma_scope_*/
+!data/processed/gemma_scope_*/**
 # Deterministic validation logs, metric tables (CSV), and layer-sweep outputs
 !results/logs/validate_probes_*.json
+!results/logs/gemma_scope_*.json
 !results/tables/probe_metrics*.csv
 !results/tables/layer_sweep*.csv
 !results/tables/layer_sweep*.meta.json
+!results/tables/gemma_scope_*.csv
