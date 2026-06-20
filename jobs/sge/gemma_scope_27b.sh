@@ -23,7 +23,6 @@ export HF_HOME=/work/emrecan.ulu/hf_cache
 export PYTHONPATH=/work/emrecan.ulu/normalcy-axis
 
 cd /work/emrecan.ulu/normalcy-axis
-git pull --ff-only
 mkdir -p data/processed/gemma_scope_gemma3_27b results/logs results/tables
 
 python -c "import sae_lens; print('[env] sae_lens', sae_lens.__version__)"
