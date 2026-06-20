@@ -494,3 +494,16 @@
   - Residual norm varies ~7,000x across models (Gemma L31: 79,756; Llama L20: 11.4). Relative steering calibration (already enforced in AGENTS.md) is confirmed necessary.
 - **Decision / rationale:** Fig8 CV panels were flat (1.0 everywhere) and therefore uninformative; Cohen's d + cos(W,C) profile panels carry the scientific signal and tell the paradox story visually.
 - **Next:** Regenerate fig8 on local machine with new `generate_figures.py`; then B3 (Gemma-3-27B layer sweep on SCCKN scc214) or valence denoising (B6, login node corpus build pending).
+
+---
+
+## 2026-06-20 · Step 5 — Phase B3: Gemma-3-27B job script + fig8 4-model prep
+
+- **Context:** Phase B3 — within-family scale test: does Gemma-3-27B show the same cos(W,C) entanglement as 12B at every depth?
+- **Agent:** claude-sonnet-4-6
+- **Did:**
+  - Created `jobs/sge/extract_gemma3_27b.sh`: single chained SGE job (extract → validate → sweep → sync) pinned to `gpu@scc214` only (96 GB RTX 6000; 27B bf16 ~54 GB VRAM does not fit L40 nodes). h_rt=04:00:00, h_vmem=96G (conservative: from_pretrained_no_processing halves peak but 27B is large). CLI overrides: `--model google/gemma-3-27b-it --out-subdir concept_vectors_gemma3_27b --label gemma3_27b`. config.yaml unchanged (model name passed via --model flag per AGENTS.md constraint).
+  - Extended `fig8_layer_emergence` in `paper/figures/generate_figures.py`: added 4th model_color (#006d6d dark teal, readable as "Gemma family" but distinct from 12B green) and 4th linestyle (dash-dot-dot `(0,(3,1,1,1))`). No other code change needed — function already loops over zip(sweeps, model_labels).
+- **Findings:** n/a (job not yet submitted; script ready for SCCKN).
+- **Decision / rationale:** Single chained job to use scc214's 96 GB allocation only once (avoid double queueing on the cluster's most contended node). Extract step fails fast if TransformerLens cannot load 27B — acceptable risk per plan.
+- **Next:** git pull on SCCKN login node; confirm `hf auth whoami`; `qsub jobs/sge/extract_gemma3_27b.sh`. When done: pull results, run `python paper/figures/generate_figures.py --fig 8 --sweep-csvs ...<4 CSVs>... --labels ...`, write B3 report.

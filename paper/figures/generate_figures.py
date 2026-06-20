@@ -710,8 +710,10 @@ def fig8_layer_emergence(
     """
     import csv as _csv
 
-    model_colors = ["#1b7837", "#762a83", "#d6604d"]  # Gemma green, Qwen purple, Llama red
-    model_ls     = ["-",       "--",       "-."]
+    # Colors: Gemma-12B light green, Gemma-27B dark teal (same family, distinct shade),
+    # Qwen purple, Llama red.  Linestyles: solid, dash-dot-dot, dashed, dash-dot.
+    model_colors = ["#1b7837", "#006d6d", "#762a83", "#d6604d"]
+    model_ls     = ["-", (0, (3, 1, 1, 1)), "--", "-."]
 
     sweeps: list[dict[str, list]] = []
     for path in sweep_csv_paths:
