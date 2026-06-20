@@ -1,0 +1,12 @@
+{
+  "model": "Qwen/Qwen3-14B",
+  "n_layers": 40,
+  "d_model": 5120,
+  "probe_layer": 26,
+  "probe_layer_frac": 0.66,
+  "start_token": 50,
+  "seed": 20260527,
+  "n_stories": 200,
+  "label": "qwen3_14b",
+  "timestamp": 1781947130
+}

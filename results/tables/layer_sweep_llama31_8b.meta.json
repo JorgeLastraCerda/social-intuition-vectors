@@ -1,0 +1,12 @@
+{
+  "model": "meta-llama/Llama-3.1-8B-Instruct",
+  "n_layers": 32,
+  "d_model": 4096,
+  "probe_layer": 20,
+  "probe_layer_frac": 0.66,
+  "start_token": 50,
+  "seed": 20260527,
+  "n_stories": 200,
+  "label": "llama31_8b",
+  "timestamp": 1781947072
+}
