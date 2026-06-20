@@ -3,7 +3,7 @@
 # Uses committed layer-31 activations; it does not rerun activation extraction.
 
 #$ -N wc_scope_12b
-#$ -q gpu@scc213
+#$ -q gpu@scc192,gpu@scc213
 #$ -l h_rt=12:00:00
 #$ -l h_vmem=64G
 #$ -pe smp 2
