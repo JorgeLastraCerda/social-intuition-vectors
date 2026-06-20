@@ -1,0 +1,12 @@
+{
+  "model": "google/gemma-3-27b-it",
+  "n_layers": 62,
+  "d_model": 5376,
+  "probe_layer": 40,
+  "probe_layer_frac": 0.66,
+  "start_token": 50,
+  "seed": 20260527,
+  "n_stories": 200,
+  "label": "gemma3_27b",
+  "timestamp": 1781953012
+}
