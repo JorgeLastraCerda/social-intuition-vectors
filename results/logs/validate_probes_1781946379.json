@@ -1,0 +1,85 @@
+{
+  "timestamp": 1781946379,
+  "meta": {
+    "model": "google/gemma-3-12b-it",
+    "probe_layer": 31,
+    "n_layers": 48,
+    "d_model": 3840,
+    "hook": "blocks.31.hook_resid_post",
+    "start_token": 50,
+    "seed": 20260527,
+    "timestamp": 1781629884,
+    "n_per_condition": {
+      "high_warmth": 50,
+      "low_warmth": 50,
+      "high_competence": 50,
+      "low_competence": 50
+    },
+    "warmth_vec_norm": 2837.621826,
+    "competence_vec_norm": 3389.775879
+  },
+  "warmth": {
+    "axis": "warmth",
+    "diff_norm": 2837.621582,
+    "cosine_high_low": 0.999647,
+    "proj_high_mean": 54546.34375,
+    "proj_high_std": 1099.170654,
+    "proj_low_mean": 51708.730469,
+    "proj_low_std": 1001.267944,
+    "cohens_d": 2.698994,
+    "cv_mean": 1.0,
+    "cv_std": 0.0,
+    "cv_folds": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "topic_cv_mean": 1.0,
+    "topic_cv_std": 0.0,
+    "topic_cv_folds": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "competence": {
+    "axis": "competence",
+    "diff_norm": 3389.776123,
+    "cosine_high_low": 0.999559,
+    "proj_high_mean": 58713.148438,
+    "proj_high_std": 1286.745361,
+    "proj_low_mean": 55323.386719,
+    "proj_low_std": 1103.788696,
+    "cohens_d": 2.827718,
+    "cv_mean": 1.0,
+    "cv_std": 0.0,
+    "cv_folds": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "topic_cv_mean": 1.0,
+    "topic_cv_std": 0.0,
+    "topic_cv_folds": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "axis_cosine": 0.748953,
+  "cross_warmth_on_competence_cv": 0.87,
+  "cross_competence_on_warmth_cv": 0.82,
+  "pass_warmth_cv": true,
+  "pass_competence_cv": true,
+  "pass_orthogonality": false,
+  "pass_warmth_topic_cv": true,
+  "pass_competence_topic_cv": true
+}

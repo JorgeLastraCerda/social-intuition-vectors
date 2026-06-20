@@ -88,6 +88,8 @@ project_personal_plan.md
 !data/processed/concept_vectors/**
 !data/processed/concept_vectors_*/
 !data/processed/concept_vectors_*/**
-# Validation logs (timestamped JSON) and metric tables (CSV)
+# Validation logs (timestamped JSON), metric tables (CSV), and layer-sweep outputs
 !results/logs/validate_probes_*.json
 !results/tables/probe_metrics*.csv
+!results/tables/layer_sweep*.csv
+!results/tables/layer_sweep*.meta.json

@@ -9,10 +9,65 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import StratifiedKFold, cross_val_score
+from sklearn.model_selection import GroupKFold, StratifiedKFold, cross_val_score
 
 from src.utils.config import load_config
 from src.utils.plotting import save_figure
+
+
+EXPECTED_CONDITIONS = ("high_warmth", "low_warmth", "high_competence", "low_competence")
+
+
+def load_topic_groups(stimuli_path: Path) -> dict[str, np.ndarray]:
+    """Return topic_idx arrays per condition, in the same row order as X_<cond>.npy.
+
+    Reads concept_stories.jsonl sequentially and buckets topic_idx by condition,
+    mirroring the exact pass that extract_vectors.load_stories uses.  Row i of the
+    returned array for a condition == row i of X_<cond>.npy.
+    """
+    buckets: dict[str, list[int]] = {c: [] for c in EXPECTED_CONDITIONS}
+    with stimuli_path.open(encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            record = json.loads(line)
+            cond = record["condition"]
+            if cond in buckets:
+                buckets[cond].append(int(record["topic_idx"]))
+    groups: dict[str, np.ndarray] = {}
+    for cond, idxs in buckets.items():
+        if not idxs:
+            raise ValueError(f"load_topic_groups: no stories found for condition {cond!r} in {stimuli_path}")
+        groups[cond] = np.array(idxs, dtype=np.int64)
+    return groups
+
+
+def topic_holdout_cv(
+    X_high: np.ndarray,
+    X_low: np.ndarray,
+    groups_high: np.ndarray,
+    groups_low: np.ndarray,
+    n_splits: int = 5,
+) -> tuple[float, float, list[float]]:
+    """Full-feature topic-holdout cross-validation (GroupKFold, deterministic).
+
+    Groups ensure a topic's high and low stories are always in the same fold,
+    preventing the probe from exploiting shared topic vocabulary.
+    """
+    X = np.concatenate([X_high, X_low], axis=0)
+    y = np.array([1] * len(X_high) + [0] * len(X_low), dtype=np.int64)
+    groups = np.concatenate([groups_high, groups_low])
+    n_distinct = len(set(groups.tolist()))
+    if n_distinct < n_splits:
+        raise ValueError(
+            f"topic_holdout_cv: only {n_distinct} distinct topics but n_splits={n_splits}; "
+            "need at least as many topics as folds."
+        )
+    lr = LogisticRegression(max_iter=1000, C=1.0)
+    cv = GroupKFold(n_splits=n_splits)
+    scores = cross_val_score(lr, X, y, cv=cv, groups=groups, scoring="accuracy")
+    return float(scores.mean()), float(scores.std()), [round(float(s), 6) for s in scores.tolist()]
 
 
 def load_vectors(processed_dir: Path, subdir: str = "concept_vectors") -> dict:
@@ -33,6 +88,8 @@ def probe_axis(
     vec: np.ndarray,
     label: str,
     seed: int,
+    groups_high: np.ndarray | None = None,
+    groups_low: np.ndarray | None = None,
 ) -> dict:
     unit_vec = vec / (np.linalg.norm(vec) + 1e-12)
     mean_high = X_high.mean(axis=0)
@@ -49,16 +106,16 @@ def probe_axis(
     X_np = np.concatenate([X_high, X_low], axis=0)
     y_np = np.array([1] * len(X_high) + [0] * len(X_low))
     lr = LogisticRegression(max_iter=1000, random_state=seed, C=1.0)
-    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=seed)
-    scores = cross_val_score(lr, X_np, y_np, cv=cv, scoring="accuracy")
+    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=seed)
+    scores = cross_val_score(lr, X_np, y_np, cv=skf, scoring="accuracy")
 
     print(f"\n[{label}]")
     print(f"  diff_norm      : {diff_norm:.4f}")
     print(f"  cosine(H,L)    : {cosine:.6f}")
     print(f"  Cohen's d      : {cohens_d:.4f}")
-    print(f"  5-fold CV      : {scores.mean():.4f} ± {scores.std():.4f}  {[round(s, 3) for s in scores.tolist()]}")
+    print(f"  5-fold CV      : {scores.mean():.4f} +/- {scores.std():.4f}  {[round(s, 3) for s in scores.tolist()]}")
 
-    return {
+    result = {
         "axis": label,
         "diff_norm": round(diff_norm, 6),
         "cosine_high_low": round(cosine, 6),
@@ -71,6 +128,16 @@ def probe_axis(
         "cv_std": round(float(scores.std()), 6),
         "cv_folds": [round(float(s), 6) for s in scores.tolist()],
     }
+
+    # Topic-level holdout (GroupKFold) — discriminative metric; avoids topic vocabulary leakage.
+    if groups_high is not None and groups_low is not None:
+        th_mean, th_std, th_folds = topic_holdout_cv(X_high, X_low, groups_high, groups_low)
+        print(f"  topic-holdout  : {th_mean:.4f} +/- {th_std:.4f}  {[round(s, 3) for s in th_folds]}")
+        result["topic_cv_mean"] = round(th_mean, 6)
+        result["topic_cv_std"] = round(th_std, 6)
+        result["topic_cv_folds"] = th_folds
+
+    return result
 
 
 def cross_axis_accuracy(
@@ -149,8 +216,35 @@ def main() -> None:
     warmth_vec = data["warmth_vec"]
     competence_vec = data["competence_vec"]
 
-    warmth_metrics = probe_axis(data["high_warmth"], data["low_warmth"], warmth_vec, "warmth", seed)
-    competence_metrics = probe_axis(data["high_competence"], data["low_competence"], competence_vec, "competence", seed)
+    # Load topic groups for holdout CV (groups by topic_idx prevent vocabulary leakage).
+    stimuli_path = Path(cfg.paths.stimuli) / "concept_stories.jsonl"
+    topic_groups: dict[str, np.ndarray] | None = None
+    if stimuli_path.exists():
+        topic_groups = load_topic_groups(stimuli_path)
+        # Validate alignment: group arrays must match loaded activation matrices.
+        for cond in EXPECTED_CONDITIONS:
+            n_stories = len(data[cond])
+            n_groups = len(topic_groups[cond])
+            if n_stories != n_groups:
+                raise ValueError(
+                    f"Alignment error for condition {cond!r}: "
+                    f"X_{cond}.npy has {n_stories} rows but topic_groups has {n_groups} entries. "
+                    "Ensure concept_stories.jsonl was not modified after extraction."
+                )
+        print(f"[topic-groups] loaded from {stimuli_path}")
+    else:
+        print(f"[topic-groups] WARNING: {stimuli_path} not found; skipping topic-holdout CV")
+
+    warmth_metrics = probe_axis(
+        data["high_warmth"], data["low_warmth"], warmth_vec, "warmth", seed,
+        groups_high=topic_groups["high_warmth"] if topic_groups else None,
+        groups_low=topic_groups["low_warmth"] if topic_groups else None,
+    )
+    competence_metrics = probe_axis(
+        data["high_competence"], data["low_competence"], competence_vec, "competence", seed,
+        groups_high=topic_groups["high_competence"] if topic_groups else None,
+        groups_low=topic_groups["low_competence"] if topic_groups else None,
+    )
 
     wv = warmth_vec / (np.linalg.norm(warmth_vec) + 1e-12)
     cv = competence_vec / (np.linalg.norm(competence_vec) + 1e-12)
@@ -206,6 +300,8 @@ def main() -> None:
         "pass_warmth_cv": warmth_metrics["cv_mean"] > 0.8,
         "pass_competence_cv": competence_metrics["cv_mean"] > 0.8,
         "pass_orthogonality": abs(axis_cosine) < 0.3,
+        "pass_warmth_topic_cv": warmth_metrics.get("topic_cv_mean", 0.0) > 0.8,
+        "pass_competence_topic_cv": competence_metrics.get("topic_cv_mean", 0.0) > 0.8,
     }
     log_dir = Path(cfg.paths.logs)
     log_dir.mkdir(parents=True, exist_ok=True)
@@ -214,11 +310,15 @@ def main() -> None:
     print(f"[log] {log_path}")
 
     print("\n--- SUMMARY ---")
-    print(f"  warmth CV      : {warmth_metrics['cv_mean']:.4f}  {'PASS' if log['pass_warmth_cv'] else 'FAIL'}  (threshold 0.80)")
-    print(f"  competence CV  : {competence_metrics['cv_mean']:.4f}  {'PASS' if log['pass_competence_cv'] else 'FAIL'}  (threshold 0.80)")
-    print(f"  |cos(W,C)|     : {abs(axis_cosine):.4f}  {'PASS' if log['pass_orthogonality'] else 'FAIL'}  (threshold 0.30)")
-    print(f"  cross-W→C CV   : {cross_w_on_c:.4f}  (expect ~0.50)")
-    print(f"  cross-C→W CV   : {cross_c_on_w:.4f}  (expect ~0.50)")
+    print(f"  warmth CV (5-fold)     : {warmth_metrics['cv_mean']:.4f}  {'PASS' if log['pass_warmth_cv'] else 'FAIL'}  (threshold 0.80)")
+    print(f"  competence CV (5-fold) : {competence_metrics['cv_mean']:.4f}  {'PASS' if log['pass_competence_cv'] else 'FAIL'}  (threshold 0.80)")
+    if "topic_cv_mean" in warmth_metrics:
+        print(f"  warmth topic-holdout   : {warmth_metrics['topic_cv_mean']:.4f}  {'PASS' if log['pass_warmth_topic_cv'] else 'FAIL'}  (discriminative; threshold 0.80)")
+    if "topic_cv_mean" in competence_metrics:
+        print(f"  competence topic-hold  : {competence_metrics['topic_cv_mean']:.4f}  {'PASS' if log['pass_competence_topic_cv'] else 'FAIL'}  (discriminative; threshold 0.80)")
+    print(f"  |cos(W,C)|             : {abs(axis_cosine):.4f}  {'PASS' if log['pass_orthogonality'] else 'FAIL'}  (threshold 0.30)")
+    print(f"  cross-W->C CV          : {cross_w_on_c:.4f}  (expect ~0.50)")
+    print(f"  cross-C->W CV          : {cross_c_on_w:.4f}  (expect ~0.50)")
 
 
 def parse_args() -> argparse.Namespace:
