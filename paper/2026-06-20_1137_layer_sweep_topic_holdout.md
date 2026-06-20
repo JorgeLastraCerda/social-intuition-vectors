@@ -1,6 +1,6 @@
 # Layer Sweep and Topic-Holdout Validation
 
-**Date:** 2026-06-20  
+**Produced at:** 2026-06-20 11:37 Europe/Berlin  
 **Models:** Gemma-3-12B-Instruct, Qwen3-14B, Llama-3.1-8B-Instruct  
 **Phase:** B1 (topic-holdout cross-validation) + B2 (layer sweep)  
 **Figure:** `paper/figures/fig8_layer_emergence.{png,pdf}`  
@@ -11,7 +11,7 @@
 ## Overview
 
 This report covers two extensions to the initial three-model probing result
-(`2026-06-19_cross_model_concept_findings.md`): a stricter validation that rules out
+(`2026-06-19_1808_cross_model_concept_findings.md`): a stricter validation that rules out
 a specific type of memorisation (B1), and a scan across every layer of each network
 to find where warmth and competence representations first appear and how strong they
 get (B2).

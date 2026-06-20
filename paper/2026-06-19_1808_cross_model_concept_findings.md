@@ -1,7 +1,7 @@
 # Warmth and Competence Are Linearly Probeable Across Model Families
 ## Cross-Model Concept Story Probe — Findings Report
 
-**Date:** 19 June 2026
+**Produced at:** 19 June 2026, 18:08 Europe/Berlin
 **Models:** Gemma-3-12B-it, Qwen3-14B, Llama-3.1-8B-Instruct
 **Scope:** Phase 4 (vector extraction) + Phase 5 (probe validation), three-model cross-model replication
 **Status:** Complete — analysis expansions (layer sweep, Gemma 3 27B, topic-holdout) to follow
@@ -20,7 +20,7 @@
 
 ## 1. Research Question and Motivation
 
-The previous report (`2026-06-16_concept_stories_probe_findings.md`) established that Gemma-3-12B-it encodes warmth and competence as linearly separable internal representations. This raises an immediate question: is that a property of the model's training data, its architecture, or its scale? Or does it reflect something more general about how current large language models represent social information?
+The previous report (`2026-06-16_2001_concept_stories_probe_findings.md`) established that Gemma-3-12B-it encodes warmth and competence as linearly separable internal representations. This raises an immediate question: is that a property of the model's training data, its architecture, or its scale? Or does it reflect something more general about how current large language models represent social information?
 
 This report tests the generality hypothesis by replicating the identical extraction and validation pipeline on two additional models from different research laboratories and built on different architectural lineages.
 
@@ -211,7 +211,7 @@ A neutral-corpus PCA denoising step (following Sofroniew, Lindsey et al., 2026) 
 
 **Figure L3.** Lorenz concentration of the Llama-3.1-8B direction vectors. Energy concentrates in a relatively small number of dimensions, similarly to the other two models.
 
-For the Gemma-3-12B per-model figures (fig1–4), see `2026-06-16_concept_stories_probe_findings.md`.
+For the Gemma-3-12B per-model figures (fig1–4), see `2026-06-16_2001_concept_stories_probe_findings.md`.
 
 ---
 
@@ -263,4 +263,4 @@ For the Gemma-3-12B per-model figures (fig1–4), see `2026-06-16_concept_storie
 
 ---
 
-*This report covers Phase 4 and Phase 5 of the project pipeline for three model families. For the execution plan, see `PLAN.md`. For the step-by-step research log, see `step_logs/STEP_LOG.md`. For the Gemma-3-12B single-model report, see `2026-06-16_concept_stories_probe_findings.md`.*
+*This report covers Phase 4 and Phase 5 of the project pipeline for three model families. For the execution plan, see `PLAN.md`. For the step-by-step research log, see `step_logs/STEP_LOG.md`. For the Gemma-3-12B single-model report, see `2026-06-16_2001_concept_stories_probe_findings.md`.*

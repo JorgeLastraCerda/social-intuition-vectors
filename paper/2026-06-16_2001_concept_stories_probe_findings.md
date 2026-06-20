@@ -1,7 +1,7 @@
 # Probing Warmth and Competence in a Large Language Model
 ## Concept Stories — Probe Run Findings
 
-**Date:** 16 June 2026
+**Produced at:** 16 June 2026, 20:01 Europe/Berlin
 **Model:** Gemma-3-12B-it
 **Scope:** Phase 4 (vector extraction) + Phase 5 (probe validation)
 **Status:** Complete — steering and hiring evaluation to follow

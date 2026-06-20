@@ -550,3 +550,14 @@
 - **Did:** Deleted 12 unused validation PNGs under the legacy results figure path and 8 Qwen/Llama smoke-test artifacts while preserving both smoke-test `.gitkeep` files; fast-forwarded SCCKN to correction commit `d5f4721`.
 - **Findings:** SCCKN had no remaining result-figure files or untracked smoke outputs; its working tree was clean and matched `origin/main`.
 - **Decision / rationale:** Keep only report figures under `paper/figures/`; retain smoke-test scripts and empty result directories for future compatibility checks.
+
+---
+
+## 2026-06-20 · Step 9 — Timestamped report filenames
+
+- **Context:** Restore chronological ordering after report edit times obscured the original sequence.
+- **Agent:** gpt-5-codex
+- **Did:** Renamed all five findings reports to `YYYY-MM-DD_HHMM_<short-slug>.md`, updated active cross-report references and the `paper/README.md` inventory, and made `paper/README.md` the canonical naming rule.
+- **Findings:** Earliest Git commit times established the order: 2026-06-16 20:01, 2026-06-19 18:08, and 2026-06-20 at 11:37, 13:03, and 13:37 (Europe/Berlin).
+- **Decision / rationale:** Use result-production time in Europe/Berlin; for historical reports without an explicit production timestamp, use the earliest Git commit time.
+- **Rename map:** `2026-06-16_2001_concept_stories_probe_findings.md`; `2026-06-19_1808_cross_model_concept_findings.md`; `2026-06-20_1137_layer_sweep_topic_holdout.md`; `2026-06-20_1303_gemma_scale_paradox.md`; `2026-06-20_1337_cross_axis_metric_correction.md`.

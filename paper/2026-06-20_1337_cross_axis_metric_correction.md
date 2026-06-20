@@ -1,6 +1,6 @@
 # Cross-Axis Metric Correction
 
-**Date:** 2026-06-20  
+**Produced at:** 2026-06-20 13:37 Europe/Berlin  
 **Scope:** Four-model probe validation and affected reports
 
 ## Finding
