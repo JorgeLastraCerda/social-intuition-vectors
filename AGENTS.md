@@ -95,7 +95,10 @@ Any meaningful new finding, result, or methodological approach must be written u
 - Work phase by phase according to `PLAN.md`.
 - Stop and summarize after each phase when running the research pipeline.
 - Do not launch long GPU jobs before confirming `config/config.yaml` is filled in.
-- Activations and vectors go under `data/processed/` and are ignored by git.
+- Pipeline outputs (direction vectors, activation matrices, validation JSON logs, metric CSVs)
+  are tracked in git under `data/processed/concept_vectors*/`, `results/logs/validate_probes_*.json`,
+  and `results/tables/probe_metrics*.csv`. Commit and push them via `bash jobs/sync_outputs.sh`
+  (also runs automatically at the end of each extraction SGE job). Model weights are never committed.
 - Figures go to `results/figures/`; tables go to `results/tables/`; logs go to `results/logs/`.
 - Use `transformer-lens` for hooks by default. `nnsight` can be added later for larger models.
 

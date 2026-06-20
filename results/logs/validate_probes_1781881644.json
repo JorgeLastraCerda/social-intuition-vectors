@@ -1,0 +1,65 @@
+{
+  "timestamp": 1781881644,
+  "meta": {
+    "model": "meta-llama/Llama-3.1-8B-Instruct",
+    "probe_layer": 20,
+    "n_layers": 32,
+    "d_model": 4096,
+    "hook": "blocks.20.hook_resid_post",
+    "start_token": 50,
+    "seed": 20260527,
+    "timestamp": 1781881641,
+    "n_per_condition": {
+      "high_warmth": 50,
+      "low_warmth": 50,
+      "high_competence": 50,
+      "low_competence": 50
+    },
+    "warmth_vec_norm": 2.885782,
+    "competence_vec_norm": 3.349797
+  },
+  "warmth": {
+    "axis": "warmth",
+    "diff_norm": 2.885782,
+    "cosine_high_low": 0.958511,
+    "proj_high_mean": 0.846428,
+    "proj_high_std": 0.40402,
+    "proj_low_mean": -2.039354,
+    "proj_low_std": 0.261903,
+    "cohens_d": 8.476143,
+    "cv_mean": 1.0,
+    "cv_std": 0.0,
+    "cv_folds": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "competence": {
+    "axis": "competence",
+    "diff_norm": 3.349797,
+    "cosine_high_low": 0.944857,
+    "proj_high_mean": 1.546223,
+    "proj_high_std": 0.41599,
+    "proj_low_mean": -1.803574,
+    "proj_low_std": 0.315422,
+    "cohens_d": 9.074427,
+    "cv_mean": 1.0,
+    "cv_std": 0.0,
+    "cv_folds": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "axis_cosine": 0.505418,
+  "cross_warmth_on_competence_cv": 0.99,
+  "cross_competence_on_warmth_cv": 1.0,
+  "pass_warmth_cv": true,
+  "pass_competence_cv": true,
+  "pass_orthogonality": false
+}

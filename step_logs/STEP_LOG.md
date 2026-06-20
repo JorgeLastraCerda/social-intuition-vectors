@@ -430,3 +430,18 @@
 - **Findings:** Synthetic verification PASS: project-out dropped a planted cos 0.906 -> 0.071 while preserving the axis-specific signal (0.99 alignment). Sandbox cannot reach Hugging Face (proxy 403), so corpus build is a login-node step; everything else verified locally.
 - **Decision / rationale:** Neutral corpus = Wikipedia intros (matches Anthropic; externally sourced, so no LLM circularity with the model we probe; length-matched so length cannot leak). Variance threshold 0.50 per method notes. Valence stoplist keeps it socially neutral. The exact number of PCs (k) is data-driven on the real neutral activations.
 - **Next (cluster):** login node `python scripts/build_neutral_corpus.py`; then `qsub jobs/sge/extract_neutral.sh` (extract_neutral -> denoise_vectors). Compare cos(w,c) before vs after and refresh the Figure 1 / Figure 4 story with denoised vectors. Then SAE decomposition and Phase 6 steering.
+
+---
+
+## 2026-06-20 · Step 1 — Git-tracked pipeline outputs: .gitignore un-ignore + sync_outputs.sh
+
+- **Context:** Pipeline outputs (concept vectors, activation matrices, validation logs, metric CSVs) were git-ignored and lived only on SCCKN /work (scratch-like, not backed up) and local disk after manual scp. Risk: SCCKN purge or failure loses artifacts that require GPU hours to regenerate.
+- **Agent:** claude-sonnet-4-6
+- **Did:**
+  - Appended selective un-ignore block to `.gitignore`: `!data/processed/concept_vectors/`, `!data/processed/concept_vectors/**`, `!data/processed/concept_vectors_*/`, `!data/processed/concept_vectors_*/**`, `!results/logs/validate_probes_*.json`, `!results/tables/probe_metrics*.csv`. Model weights (`*.safetensors`, `*.bin`, `*.pt`) remain ignored.
+  - Created `jobs/sync_outputs.sh`: idempotent additive sync script (stages tracked paths, checks for changes, commits with hostname+timestamp, `git pull --rebase`, `git push`; graceful exit if nothing to commit; never force-pushes).
+  - Appended `Step 3: Sync outputs to git` to `jobs/sge/extract_vectors.sh`, `extract_qwen3_14b.sh`, `extract_llama31_8b.sh` (tolerant `|| echo` so a push failure on a compute node never kills the GPU job).
+  - Updated `AGENTS.md` Working Conventions: replaced stale "ignored by git" note with the canonical tracked-path list and reference to `sync_outputs.sh`.
+- **Findings:** Total artifact footprint ~10 MB (float32, write-once across 3 models) — comfortably within plain git; Git LFS not needed at this scale. `git check-ignore` verified negations win (gitignore last-match-wins; directory must be re-included before its contents).
+- **Decision / rationale:** Bidirectional sync via git (not scp): SCCKN jobs push outputs after extraction; collaborators and local pull via `git pull`. Additive only — `pull --rebase` before every push prevents overwriting parallel report/code work. Model weights excluded (public on HF Hub, 8–54 GB, reproducible via model id + seed).
+- **Next:** Commit this session's changes (gitignore, sync script, job updates, AGENTS.md), push, then on SCCKN: `git pull` + `bash jobs/sync_outputs.sh` to upload existing 3-model artifacts.

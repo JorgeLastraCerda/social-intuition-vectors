@@ -51,4 +51,8 @@ python src/validate_probes.py \
     --vectors-subdir concept_vectors_llama31_8b \
     --label llama31_8b
 
+echo "[job] Step 3: Sync outputs to git (additive — never force-pushes)"
+bash jobs/sync_outputs.sh /work/emrecan.ulu/normalcy-axis \
+  || echo "[job] WARNING: push failed (credentials?) — run jobs/sync_outputs.sh from the login node"
+
 echo "[job] Done."

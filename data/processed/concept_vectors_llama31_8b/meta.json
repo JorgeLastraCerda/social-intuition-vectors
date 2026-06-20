@@ -1,0 +1,18 @@
+{
+  "model": "meta-llama/Llama-3.1-8B-Instruct",
+  "probe_layer": 20,
+  "n_layers": 32,
+  "d_model": 4096,
+  "hook": "blocks.20.hook_resid_post",
+  "start_token": 50,
+  "seed": 20260527,
+  "timestamp": 1781881641,
+  "n_per_condition": {
+    "high_warmth": 50,
+    "low_warmth": 50,
+    "high_competence": 50,
+    "low_competence": 50
+  },
+  "warmth_vec_norm": 2.885782,
+  "competence_vec_norm": 3.349797
+}
