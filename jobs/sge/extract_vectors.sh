@@ -44,4 +44,8 @@ python src/extract_vectors.py --config config/config.yaml
 echo "[job] Step 2: Validate probes (CPU-only — vectors already on disk)"
 python src/validate_probes.py --config config/config.yaml
 
+echo "[job] Step 3: Sync outputs to git (additive — never force-pushes)"
+bash jobs/sync_outputs.sh /work/emrecan.ulu/normalcy-axis \
+  || echo "[job] WARNING: push failed (credentials?) — run jobs/sync_outputs.sh from the login node"
+
 echo "[job] Done."

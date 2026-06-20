@@ -80,3 +80,14 @@ checkpoints/
 !data/processed/.gitkeep
 !results/logs/.gitkeep
 project_personal_plan.md
+
+# --- Tracked pipeline outputs (small, write-once; weights/models stay ignored above) ---
+# Concept vectors + activations + meta per model
+# Re-include the directory first, then its contents (gitignore last-match-wins).
+!data/processed/concept_vectors/
+!data/processed/concept_vectors/**
+!data/processed/concept_vectors_*/
+!data/processed/concept_vectors_*/**
+# Validation logs (timestamped JSON) and metric tables (CSV)
+!results/logs/validate_probes_*.json
+!results/tables/probe_metrics*.csv
