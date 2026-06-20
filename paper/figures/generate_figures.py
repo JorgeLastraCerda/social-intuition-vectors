@@ -895,10 +895,16 @@ def fig10_gemma_scope_steering(
         sharex=True,
     )
     axes = np.asarray(axes).reshape(2, len(causality_paths))
-    for model_i, (path, model_label) in enumerate(
-        zip(causality_paths, model_labels)
+    datasets = [_read_csv(path) for path in causality_paths]
+    max_strength = max(
+        abs(float(row["strength"]))
+        for rows in datasets
+        for row in rows
+        if row["mode"] == "steering"
+    )
+    for model_i, (rows, model_label) in enumerate(
+        zip(datasets, model_labels)
     ):
-        rows = _read_csv(path)
         for axis_i, axis_name in enumerate(("warmth", "competence")):
             ax = axes[axis_i, model_i]
             for direction in directions:
@@ -931,8 +937,9 @@ def fig10_gemma_scope_steering(
             ax.set_xlabel("Steering strength × mean residual norm")
             ax.grid(axis="y", alpha=0.2)
     axes[0, 0].legend(fontsize=8, framealpha=0.9)
+    regime = "Local-regime " if max_strength <= 0.1 else ""
     fig.suptitle(
-        "Held-out concept judgements under residual-stream steering",
+        f"{regime}held-out concept judgements under residual-stream steering",
         fontsize=12,
     )
     fig.tight_layout()
@@ -1067,12 +1074,8 @@ def fig12_gemma_scope_feature_matching(
     ax.set_xticks(np.arange(1, len(labels) + 1), labels, rotation=18)
     ax.set_ylabel("Centered story-profile correlation")
     ax.set_title(
-        "One-to-one 12B↔27B feature matches among top 65k concept features"
-    )
-    ax.legend(
-        loc="lower center",
-        bbox_to_anchor=(0.5, 1.01),
-        framealpha=0.9,
+        "One-to-one 12B↔27B feature matches exceed the permutation null\n"
+        "(orange diamonds: null matched mean and 95% interval)"
     )
     ax.grid(axis="y", alpha=0.2)
     fig.tight_layout()

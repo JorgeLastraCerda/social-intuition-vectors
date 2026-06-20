@@ -1,0 +1,13 @@
+{
+  "left_label": "gemma3_12b",
+  "right_label": "gemma3_27b",
+  "left_subdir": "gemma_scope_gemma3_12b",
+  "right_subdir": "gemma_scope_gemma3_27b",
+  "width": "65k",
+  "top_k_per_vector": 250,
+  "n_permutations": 500,
+  "seed": 20260527,
+  "matching": "One-to-one Hungarian matching that maximizes centered cosine similarity of each feature's activation profile over the same stories.",
+  "output": "results\\tables\\gemma_scope_feature_matches_12b_27b.csv",
+  "null_output": "results\\tables\\gemma_scope_feature_match_null_12b_27b.csv"
+}
