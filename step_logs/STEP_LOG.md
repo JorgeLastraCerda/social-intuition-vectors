@@ -540,3 +540,13 @@
 - **Findings:** Unscaled logistic regression produced spurious 0.50 Gemma results under scikit-learn 1.9.0. Corrected W→C/C→W CV: Gemma-12B 0.87/0.82, Gemma-27B 0.90/0.86, Qwen 1.00/1.00, Llama 0.99/1.00. All 5 tests pass; all 14 report PNGs are referenced.
 - **Decision / rationale:** Withdraw the cross-axis paradox claim. Retain the supported finding that Gemma's elevated cos(W,C) depth profile persists from 12B to 27B.
 - **Next:** Push the correction, remove untracked validation/smoke artifacts on SCCKN, and fast-forward the cluster checkout.
+
+---
+
+## 2026-06-20 · Step 8 — SCCKN artifact cleanup and repository sync
+
+- **Context:** Finalise the validation-output cleanup on the SCCKN checkout.
+- **Agent:** gpt-5-codex
+- **Did:** Deleted 12 unused validation PNGs under the legacy results figure path and 8 Qwen/Llama smoke-test artifacts while preserving both smoke-test `.gitkeep` files; fast-forwarded SCCKN to correction commit `d5f4721`.
+- **Findings:** SCCKN had no remaining result-figure files or untracked smoke outputs; its working tree was clean and matched `origin/main`.
+- **Decision / rationale:** Keep only report figures under `paper/figures/`; retain smoke-test scripts and empty result directories for future compatibility checks.
