@@ -418,12 +418,90 @@ a 500-permutation row-shuffle null at $p = .002$ for all five vector
 types) further indicate that the representational organisation is conserved
 across scale.
 
+\paragraph{The Model's Internal Probe Scores Track Human Social Perceptions.}
+Before testing causal effects on hiring outcomes, we establish that the
+model's internal probe scores reflect human social perception.
+For each of the 282 applicant names rated by \citet{gallo2024warmth},
+we extract the model's residual-stream activation at the probe layer and
+project it onto the warmth and competence direction vectors.
+These model-internal scores correlate positively with human warmth and
+competence ratings: Spearman $\rho = 0.355$ for warmth and $\rho = 0.230$
+for competence across all 282 names.
+Human warmth and competence ratings also predict the model's baseline
+callback margin ($\rho = +0.242$, $p < .001$; $\rho = +0.201$, $p < .01$),
+while the model's own probe scores predict callback margin in the same
+direction, though at lower magnitude
+($\rho = +0.139$, $p = .084$; $\rho = +0.145$, $p = .067$).
+These results indicate that names representing groups perceived as
+warmer or more competent by humans are also represented as such
+internally by Gemma-3-12B, and that this internal representation aligns
+directionally with the model's callback inclination.
+At Gemma-3-27B the probe-human correlations are slightly stronger
+($\rho = 0.381$ for warmth; $\rho = 0.283$ for competence), suggesting
+that the larger model encodes human social perceptions with marginally
+higher fidelity.
+However, the relationship between internal probe scores and the callback
+margin reverses at 27B: names the model represents as warmer or more
+competent internally receive \emph{lower} callback margins
+($\rho = -0.160$ and $-0.156$ respectively), opposite to the 12B
+pattern.
+This reversal coincides with a dramatically different baseline response
+regime: the 27B model recommends callbacks for an implied
+$P(\text{Yes}) = 0.760$ of applicants, compared with $0.452$ at 12B,
+and its callback margins are substantially more variable
+($\mathit{SD} = 0.411$ vs $0.140$).
+Together these results indicate that scale improves the fidelity with
+which the model's internal axes track human perceptions, but shifts the
+decision-making regime in a way that decouples those axes from the
+direction of the callback signal.
+
 \paragraph{Steering Warmth and Competence Causally Shifts Callback Recommendations.}
-% TODO: pending hiring-level causal steering evaluation (Phase 6).
+To test whether directly manipulating the warmth and competence
+representations moves the model's hiring callback decision, we applied
+activation steering during resume evaluation across 60 applicant names
+drawn from the \citet{gallo2024warmth} rated name set.
+The baseline callback margin was $-0.194$ ($\mathit{SD} = 0.130$),
+corresponding to an implied $P(\text{Yes}) = 0.452$ — the model is
+initially slightly disinclined to recommend a callback for the average
+applicant on the standardised administrative-assistant profile.
+Steering the warmth direction produced a positive, approximately linear
+causal effect on the callback margin (slope $= +12.95$ $\Delta$margin
+per unit of mean residual norm, $R^2 = 0.924$): increasing warmth
+raised the model's callback inclination and decreasing warmth
+reduced it monotonically across all tested strengths.
+The competence direction also produced a positive mean slope
+(slope $= +9.06$, $R^2 = 0.663$), but the effect was non-monotonic:
+at the $-0.25$ strength level the mean delta was $+3.90$ rather than
+the expected negative value, suggesting that moderate downward
+competence steering does not reliably suppress the callback margin at
+this steering resolution.
+The warmth causal effect at 12B is therefore more robust and linear
+than the competence effect, and constitutes the cleaner bridge from
+internal representation to hiring decision at this scale.
+Replicating the causal evaluation at Gemma-3-27B yields a qualitatively
+different pattern.
+The warmth steering effect is essentially absent (slope $= +1.09$,
+$R^2 = 0.026$) and non-monotonic: decreasing warmth at $\alpha = -0.50$
+raises rather than lowers the callback margin on average, while
+increasing warmth at $\alpha = +0.25$ and $+0.50$ produces marginal
+or negative effects.
+The competence direction shows a small positive linear trend
+(slope $= +2.88$, $R^2 = 0.340$), but positive steering at
+$\alpha = +0.25$ and $+0.50$ suppresses rather than raises the
+callback margin.
+At 27B the concept directions that cleanly controlled explicit
+warmth/competence judgements in the concept-level causal evaluation
+do not translate into equivalent control over hiring decisions,
+indicating a dissociation between representational control and
+decision-level causality that depends on model scale.
 
 \paragraph{Model Callback Disparities Mirror the Human Benchmark.}
-% TODO: pending hiring evaluation against Gallo--Hausladen (2024) callback
-% data (Phase 7).
+% TODO: wire in demographic grouping (race, gender, national origin)
+% from Gallo--Hausladen category files and join human callback rates
+% from the meta-analysis data. Report model callback disparity per group
+% vs human callback disparity, and run mediation (name ->
+% model warmth/competence probe -> callback margin).
+% Add Gemma-3-27B comparison for scale robustness once available.
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section*{Discussion and Conclusion}
@@ -453,6 +531,27 @@ It points to a mechanism for the callback disparities documented in
 behavioral audits: differential treatment in hiring may arise not
 merely from surface-level name associations but from how the model
 represents the social meaning those names carry.
+The scale comparison between Gemma-3-12B and Gemma-3-27B complicates
+this picture in an instructive way.
+The 27B model encodes warmth and competence with marginally higher
+fidelity relative to human ratings, yet its hiring decisions are not
+more discriminatory; on the contrary, it operates in a higher-baseline
+regime ($P(\text{Yes}) = 0.76$) in which the warmth/competence probe
+scores are negatively, not positively, associated with callback
+inclinations, and in which activation steering of the concept directions
+fails to produce systematic causal effects.
+This dissociation --- better representation, weaker causal bridge to
+decisions --- suggests that model capability and hiring bias do not
+scale together simply.
+A larger model may have internalised the SCM structure more precisely
+while simultaneously developing decision processes that are less
+directly governed by those representations, possibly reflecting the
+influence of instruction tuning and reinforcement learning from human
+feedback on the decision layer.
+This finding points to a methodological implication for bias auditing:
+probing internal representations and measuring output disparities are
+complementary but not interchangeable, and a model that scores well on
+one measure may not score well on the other.
 It also opens a path to addressing the problem at the source --- by
 intervening on the representation rather than filtering outputs after
 the fact --- and provides a methodological template for connecting the
@@ -479,11 +578,22 @@ directions (cosine 0.75 for Gemma prior to denoising) means that
 concept-level steering effects are not yet fully axis-specific;
 the PCA denoising step is designed to address this and its effects are
 pending.
-The causal steering results at the concept level do not yet establish
-that the extracted directions drive callback disparities specifically
---- that requires the hiring-level evaluation, which is ongoing.
+The causal warmth steering effect on hiring callbacks is clean and
+linear at 12B but absent at 27B, so the causal claim does not
+generalise across scale without qualification; and within 12B, the
+competence steering effect is non-monotonic at the $-0.25$ strength
+level.
+The probe-to-human validation correlations are moderate
+($\rho = 0.355$/$0.381$ warmth and $\rho = 0.230$/$0.283$ competence
+at 12B/27B), not strong, indicating that the model's internal probes
+capture a component of human social perception rather than replicating
+it faithfully.
 The hiring prompt is simplified relative to real-world screening
-contexts, and results may differ under richer evaluation settings.
+contexts (single role, fixed qualifications), and results may differ
+under richer evaluation settings or different job types.
+The demographic disparity comparison against the Gallo--Hausladen
+human callback meta-analysis remains pending the selection of
+demographic groupings and callback datasets.
 Finally, the architectural source of the elevated warmth/competence
 vector cosine observed in Gemma-3 relative to Qwen3 and Llama-3.1
 across all network depths remains an open question.

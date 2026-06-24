@@ -575,6 +575,23 @@
 
 ---
 
+## 2026-06-24 · Step 13 — Hiring callback causality at 27B (Phase 6 + 7 replication)
+
+- **Context:** Scale replication of the hiring-callback causality experiment at Gemma-3-27B.
+- **Agent:** claude-sonnet-4-6 (Cowork) + Jorge (ran notebooks on H100)
+- **Did:** Reran `notebooks/06_hiring_steering_causality.ipynb` and `notebooks/07_hiring_audit.ipynb` with `VECTORS_SUBDIR = "concept_vectors_gemma3_27b"`. Results saved to `results/tables/hiring_steering_raw_concept_vectors_gemma3_27b.csv` and `results/tables/hiring_audit_concept_vectors_gemma3_27b.csv`. Findings written to `paper/2026-06-24_1300_hiring_causality_27b_results.md`.
+- **Findings:**
+  - Baseline: P(Yes)=0.767, every name positive (vs 12B P(Yes)=0.451). 27B is much more generous overall.
+  - **Warmth causal effect: absent** (slope=+1.09, R²=0.026 vs 12B R²=0.924). Warmth steering direction is inconsistent and non-monotone.
+  - **Competence causal effect: uniformly negative** (slope=+2.88, R²=0.340). Both increasing and decreasing competence reduces callbacks. Role-fit non-linearity from 12B does not replicate.
+  - **Probe-vs-human: stronger at 27B** — Warmth ρ=0.381 (vs 0.355), Competence ρ=0.283 (vs 0.230). The 27B encodes social stereotypes more faithfully despite weaker causal effect.
+  - **Reversed baseline association**: model warmth/competence probe scores negatively predict callback (ρ=−0.17/−0.16, p<0.01). Names perceived as warmer get fewer callbacks at 27B.
+  - Demographic pattern: highest callbacks for Donnell/Lakeisha/Terrell/Darnell; lowest for Dong Liu/Na Li/Fang Wang. Different from 12B.
+- **Decision / rationale:** Scale does not eliminate stereotype encoding — it strengthens it. But the causal pathway from representation to hiring decision is disrupted at 27B, and a different bias pattern emerges. Both the layer-sweep and the demographic disparity analysis are priority follow-ups. Research decisions D-Phase7-A and D-Phase7-B still pending.
+- **Next:** Resolve D-Phase7-A/B, complete demographic disparity analysis for both models.
+
+---
+
 ## 2026-06-24 · Step 12 — Hiring callback causality (Phase 6 + 7)
 
 - **Context:** First run of the hiring-callback causality notebooks on the JupyterHub H100.
