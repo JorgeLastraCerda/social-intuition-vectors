@@ -5,7 +5,7 @@ def apply() -> None:
     mpl.style.use(["seaborn-v0_8-paper", "seaborn-v0_8-ticks"])
     mpl.rcParams.update({
         "font.family": "sans-serif",
-        "font.sans-serif": ["Helvetica", "Arial", "DejaVu Sans"],
+        "font.sans-serif": ["Helvetica Neue", "Helvetica", "Arial", "DejaVu Sans"],
         "font.size": 11,
         "axes.labelsize": 12,
         "axes.titlesize": 12,
@@ -34,3 +34,8 @@ LABELS = {
     "high_competence": "High competence",
     "low_competence":  "Low competence",
 }
+
+# Colours and style constants for paper-draft figures (paper_figure1–3)
+ARROW_WARMTH     = "#1A5276"  # deep blue — warmth direction arrow
+ARROW_COMPETENCE = "#7D6608"  # deep gold — competence direction arrow
+CONTROL_ALPHA    = 0.45       # opacity for control / non-dense steering lines

@@ -616,3 +616,178 @@
 - **Findings:** Reconstruction cosine was 0.995–0.998. Cross-scale feature-profile means were 0.490–0.655 and exceeded all permutation nulls (p=0.002). Dense target steering was positive and locally linear in all four model×axis cases (R²=0.915–0.990). SAE causal preservation held in 3/4 cases and failed for 27B warmth. In 27B, shared-feature ablation reduced warmth and competence gaps by -0.725 and -0.319; 12B did not replicate this necessity pattern.
 - **Decision / rationale:** Claim dense concept-level causality and cross-scale feature conservation, but not clean axis-specific sparse localization or hiring causality. Retain the broad steering run as a saturation diagnostic and use the ±0.10 local run for causal slopes.
 - **Next:** Implement the hiring callback evaluation before extending the causal claim to employment decisions.
+
+---
+
+## 2026-06-24 · Step 1 — Paper-draft figures for supervisor presentation
+
+- **Context:** Pre-Phase-6 paper draft; three final-quality figures to communicate Geometry → Universality → Causality narrative.
+- **Agent:** claude-sonnet-4-6
+- **Did:** Added `paper_figure1_axis_arrows`, `paper_figure2_universal_representation`, and `paper_figure3_causal_steering` functions to `paper/figures/generate_figures.py`; added `--steering-slopes` CLI arg and `p1/p2/p3` dispatch tokens; updated `paper/figures/style.py` with arrow-colour constants; updated `paper/README.md` figures inventory.
+- **Findings:** All six files produced successfully: `paper_figure1_axis_arrows.{png,pdf}` (529 KB / 44 KB), `paper_figure2_universal_representation.{png,pdf}` (906 KB / 211 KB), `paper_figure3_causal_steering.{png,pdf}` (313 KB / 22 KB). RuntimeWarning about float32 overflow in numpy norm is cosmetic — output is correct (float64 arithmetic used throughout).
+- **Decision / rationale:** paper_figure* prefix keeps draft figures distinct from report figures fig1–fig12 in the same directory. Oblique-basis rendering in paper_figure1 encodes the true inter-axis angle (Gemma ~41–45°, Qwen/Llama ~57–59°) so arrow geometry is scientifically honest. paper_figure3 draws only Gemma-family (concept steering data available); Qwen/Llama steering flagged as future work in caption.
+- **Next:** Visual QC of the three PNGs; paper draft writing using figures as section anchors; Phase 6 hiring callback evaluation.
+
+---
+
+## 2026-06-24 · Step 2 — Replace paper_figure2 with layer-emergence figure
+
+- **Context:** paper_figure2_universal_representation (2×2 KDE clouds) was judged redundant with paper_figure1 (same geometric message); replaced with a single-panel depth-emergence figure.
+- **Agent:** claude-sonnet-4-6
+- **Did:** Added `paper_figure2_layer_emergence(sweep_csv_paths, model_labels)` to `paper/figures/generate_figures.py`; retains dead-code stub of the old function with a `NotImplementedError` guard; refactored `main()` p2 dispatch to use `--sweep-csvs` instead of `--metrics` and moved `--vec-dirs` validation to p1 only; deleted `paper_figure2_universal_representation.{png,pdf}`; updated `paper/README.md` inventory row.
+- **Findings:** `paper_figure2_layer_emergence.{png,pdf}` produced successfully (4 models × 2 axes = 8 curves; probe-layer frac=0.66 marker and d=0.80 reference line present). p1 and p3 dispatch smoke-tested; no regressions.
+- **Decision / rationale:** New figure adds the **depth** dimension (Ne → Nerede/ne kadar derin → Ne işe yarıyor narrative arc); eliminates redundancy with Fig1.
+- **Next:** Visual QC of new PNG; commit all three paper figures for supervisor presentation.
+
+---
+
+## 2026-06-24 · Step 3 — Split paper_figure2 into two panels (warmth | competence)
+
+- **Context:** Single-panel fig2 had 8 overlapping curves (4 models × 2 axes) that were hard to read; user requested two side-by-side panels.
+- **Agent:** claude-opus-4-8
+- **Did:** Rewrote `paper_figure2_layer_emergence` in `paper/figures/generate_figures.py` — changed from `plt.subplots(figsize=(7,4.5))` to `plt.subplots(1, 2, figsize=(11,4.5), sharey=True)`; left panel = warmth only, right panel = competence only; shared y-axis upper bound from global max; legend only on left panel; panel titles "Warmth" / "Competence"; suptitle updated to drop "solid=warmth, dotted=comp" line. File name unchanged.
+- **Findings:** `paper_figure2_layer_emergence.{png,pdf}` regenerated successfully. Each panel shows 4 clean model curves; Llama/Qwen higher plateau clearly visible vs Gemma's lower but rising profile; probe-layer and d=0.80 reference lines present in both panels.
+- **Decision / rationale:** Separating axes into panels reduces each panel from 8 to 4 curves, making model-level comparisons immediate. Shared y-axis preserves cross-panel comparability (warmth vs competence magnitudes directly comparable).
+- **Next:** Commit all three paper figures for supervisor presentation.
+
+---
+
+## 2026-06-24 · Step 4 — Add direction arrows, remove large-effect line, inline probe-layer label
+
+- **Context:** paper_figure2 polish: direction arrows on curves, remove axhline(d=0.80), move probe-layer label off legend onto figure.
+- **Agent:** claude-opus-4-8
+- **Did:** Rewrote `paper_figure2_layer_emergence` in `generate_figures.py`: (1) removed `axhline(0.8)` entirely; (2) `axvline(0.66)` no longer carries a legend label — replaced with `ax.text` annotation at the line using a blended transform; (3) added `_add_direction_arrows` inner helper that smooths each curve, finds steepest rise and (if substantial) steepest fall, then places `-|>` arrowheads offset `y_max * 0.048` above the curve in the parallel direction of the local tangent; legend now shows only 4 model labels.
+- **Findings:** `paper_figure2_layer_emergence.{png,pdf}` regenerated; arrows visible and above curves; Llama/Qwen show rise+fall pair; Gemma shows rise only (no substantial descent detected).
+- **Decision / rationale:** Arrows parallel to local tangent + vertical offset avoids overlap with curve lines. `annotation_clip=True` prevents out-of-bounds arrows.
+- **Next:** Commit figures for supervisor presentation.
+
+---
+
+## 2026-06-24 · Step 5 — Curated free-space arrow placement for paper_figure2
+
+- **Context:** REV5: automatic curve-hugging arrows tangled with lines; replaced with hand-placed arrows in visually empty bands.
+- **Agent:** claude-opus-4-8
+- **Did:** Removed `_add_direction_arrows` inner function from `paper_figure2_layer_emergence`; replaced with two explicit curated lists `ARROWS_WARMTH` and `ARROWS_COMP` (6 arrows each: 2×Llama rise+fall, 2×Qwen rise+fall, 1×Gemma-12B rise, 1×Gemma-27B rise). Arrow coordinates derived from frac-grid d-value analysis to place each arrowhead in the gap between curve clusters. Regenerated figure.
+- **Findings:** `paper_figure2_layer_emergence.png` — all 12 arrows visible in clear empty bands; no arrows cross any curve; each arrow color matches its model.
+- **Decision / rationale:** Curated positions trade automation for visual cleanliness; approach is maintainable because arrow count is fixed (4 models × fixed rise/fall pattern) and grid data makes gap selection straightforward.
+- **Next:** Commit all three paper figures.
+
+---
+
+## 2026-06-24 · Step 6 — Remove arrows; add line-end layer+d_model labels to paper_figure2
+
+- **Context:** Arrows removed per user request; replaced with informative end-of-line labels showing total layer count and residual-stream width (d_model).
+- **Agent:** claude-opus-4-8
+- **Did:** Replaced all arrow code (ARROWS_WARMTH, ARROWS_COMP, _ap, annotate loops) in `paper_figure2_layer_emergence` with a `_draw_end_labels` helper; added `D_MODEL` dict (Gemma-12B: 3840, Gemma-27B: 5376, Qwen: 5120, Llama: 4096); labels formatted as `"{n}L · d{dim}"`; vertical de-cluttering nudges overlapping labels apart by `y_max*0.045`; set `y_max*1.05` headroom; added `wspace=0.26` to open inter-panel channel for left-panel labels.
+- **Findings:** Clean two-panel figure, no arrows, 4 colour-matched end labels per panel with correct values. Qwen/Llama and Gemma label pairs separated cleanly by de-clutter.
+- **Decision / rationale:** End-of-line labels deliver the layer/d_model context directly adjacent to the curve they annotate, without adding marks that cross the plot area.
+- **Next:** Commit all three paper figures for supervisor presentation.
+
+---
+
+## 2026-06-24 · Step 7 — Redesign paper_figure3 as causal steering schematic
+
+- **Context:** Supervisor-presentation Figure 3 polish after the line-chart version was judged visually too generic.
+- **Agent:** gpt-5-codex
+- **Did:** Rewrote `paper_figure3_causal_steering` in `paper/figures/generate_figures.py` as a two-panel prompt → residual-stream direction intervention → No/Yes judgement-shift schematic; updated `paper/README.md`; regenerated `paper/figures/paper_figure3_causal_steering.{png,pdf}` with `python3 paper/figures/generate_figures.py --fig p3 --steering-slopes results/tables/gemma_scope_local_steering_slopes.csv`.
+- **Findings:** Figure regenerated successfully. Warmth panel endpoints: Gemma-3-12B ±2.78 (R2=0.956), Gemma-3-27B ±1.29 (R2=0.990). Competence panel endpoints: Gemma-3-12B ±1.51 (R2=0.915), Gemma-3-27B ±0.89 (R2=0.826).
+- **Decision / rationale:** Keep the causal claim visually focused on dense concept directions and direct concept prompts; random/other-axis controls remain in Figure 10/report text rather than the presentation schematic.
+- **Next:** Commit the three presentation figures and documentation updates after final visual QC.
+
+---
+
+## 2026-06-24 · Step 8 — Compress paper_figure3 into one-way steering schematic
+
+- **Context:** User requested a smaller single-figure version of paper_figure3 with one-way arrows and a visual style closer to paper_figure1/2.
+- **Agent:** gpt-5-codex
+- **Did:** Reworked `paper_figure3_causal_steering` from the two-panel bidirectional schematic into one compact prompt → residual-stream intervention → shared No/Yes axis figure; updated `paper/README.md`; regenerated `paper/figures/paper_figure3_causal_steering.{png,pdf}` with `python3 paper/figures/generate_figures.py --fig p3 --steering-slopes results/tables/gemma_scope_local_steering_slopes.csv`.
+- **Findings:** Figure regenerated successfully with one-way +0.10 mean-residual-norm arrows. Endpoints: warmth 12B +2.78 (R2=0.956), competence 12B +1.51 (R2=0.915), warmth 27B +1.29 (R2=0.990), competence 27B +0.89 (R2=0.826).
+- **Decision / rationale:** Show only positive direction addition in the presentation figure; leave negative steering symmetry and random/other-axis controls in Figure 10/report text.
+- **Next:** Final visual QC and commit presentation figures.
+
+---
+
+## 2026-06-24 · Step 9 — Redraw paper_figure3 in compact blueprint style
+
+- **Context:** User provided a reference mockup and requested a much smaller figure with the same structural layout, while retaining the paper color palette.
+- **Agent:** gpt-5-codex
+- **Did:** Reimplemented `paper_figure3_causal_steering` as a fixed-coordinate blueprint-style schematic with an outer frame, monospaced prompt text, intervention connector/callout, and compact bidirectional local-response bars; updated `paper/README.md`; regenerated `paper/figures/paper_figure3_causal_steering.{png,pdf}`.
+- **Findings:** Figure regenerated successfully at `figsize=(4.9, 3.35)`. Bars use raw-dense local effects at ±0.10 mean residual norm: warmth 12B ±2.78, competence 12B ±1.51, warmth 27B ±1.29, competence 27B ±0.89.
+- **Decision / rationale:** Preserve the mockup's local bidirectional-response grammar, but render warmth/competence in the established paper colors rather than the black-background terminal palette.
+- **Next:** Commit presentation figures after final QC.
+
+---
+
+## 2026-06-24 · Step 10 — Align paper_figure3 typography and prompt wording
+
+- **Context:** User requested paper_figure3 polish: add a short title, use the same typeface as paper_figure1/2, remove the long in-frame title text, align the No marker with -3, replace "Read the story below", and shrink the figure.
+- **Agent:** gpt-5-codex
+- **Did:** Updated `paper_figure3_causal_steering` to use the shared sans-serif style, added title "Concept vectors shift social judgement", replaced the prompt text with a long-story input placeholder, aligned `<- No` to the -3 tick, reduced figure size to `figsize=(4.35, 2.95)`, and regenerated `paper/figures/paper_figure3_causal_steering.{png,pdf}`.
+- **Findings:** Figure regenerated successfully with the same raw-dense local effects: warmth 12B ±2.78, competence 12B ±1.51, warmth 27B ±1.29, competence 27B ±0.89.
+- **Decision / rationale:** Use ASCII arrow labels (`<-`, `->`) to avoid Helvetica missing-glyph warnings while preserving the intended direction labels.
+- **Next:** Commit presentation figures after final QC.
+
+---
+
+## 2026-06-24 · Step 11 — Further shrink paper_figure3
+
+- **Context:** User requested that paper_figure3 be made much smaller.
+- **Agent:** gpt-5-codex
+- **Did:** Reduced `paper_figure3_causal_steering` from `figsize=(4.35, 2.95)` to `figsize=(3.0, 2.05)`, scaled down labels, strokes, markers, and replaced `||resid||` with `mean resid norm` for legibility; regenerated `paper/figures/paper_figure3_causal_steering.{png,pdf}`.
+- **Findings:** Figure regenerated successfully and remains readable with the same local-response values: warmth 12B ±2.78, competence 12B ±1.51, warmth 27B ±1.29, competence 27B ±0.89.
+- **Decision / rationale:** Preserve the compact schematic while reducing physical figure footprint and avoiding ambiguous vertical-bar glyphs at small size.
+- **Next:** Commit presentation figures after final QC.
+
+---
+
+## 2026-06-24 · Step 12 — Narrow paper_figure3 horizontally
+
+- **Context:** User requested that paper_figure3 be narrowed horizontally while keeping the vertical length unchanged.
+- **Agent:** gpt-5-codex
+- **Did:** Changed `paper_figure3_causal_steering` from `figsize=(3.0, 2.05)` to `figsize=(2.35, 2.05)`; shortened and wrapped title, prompt, intervention label, and x-axis label to prevent `bbox=tight` from expanding the saved output; regenerated `paper/figures/paper_figure3_causal_steering.{png,pdf}`.
+- **Findings:** Figure regenerated successfully with the same local-response values: warmth 12B ±2.78, competence 12B ±1.51, warmth 27B ±1.29, competence 27B ±0.89.
+- **Decision / rationale:** Reduce horizontal footprint without reducing vertical height or changing causal data.
+- **Next:** Commit presentation figures after final QC.
+
+---
+
+## 2026-06-24 · Step 13 — Rework paper_figure3 as card-style steering schematic
+
+- **Context:** User provided an Anthropic-style reference figure and requested paper_figure3 be made visually similar.
+- **Agent:** gpt-5-codex
+- **Did:** Reworked `paper_figure3_causal_steering` into a rounded card layout with a light prompt box, dashed intervention arrow, explanatory caption, and zero-origin response arrows; updated `paper/README.md`; regenerated `paper/figures/paper_figure3_causal_steering.{png,pdf}`.
+- **Findings:** Figure regenerated successfully with raw-dense +0.10 local effects: warmth 12B +2.78, competence 12B +1.51, warmth 27B +1.29, competence 27B +0.89.
+- **Decision / rationale:** Use the reference figure's preference-arrow grammar while retaining project colors and direct concept-judgement wording.
+- **Next:** Commit presentation figures after final QC.
+
+---
+
+## 2026-06-24 · Step 14 — Remove paper_figure3 generation path
+
+- **Context:** User deleted the Figure 3 output files and requested removal of only the Figure 3 creation code, while preserving other figures and all results.
+- **Agent:** gpt-5-codex
+- **Did:** Removed `paper_figure3_causal_steering`, removed the `--steering-slopes` CLI argument and p3 dispatch, made unsupported `--fig p3` fail explicitly, and removed the `paper_figure3_causal_steering.{png,pdf}` inventory row from `paper/README.md`.
+- **Findings:** No data, results, reports, Figure 1 code, Figure 2 code, or other generated outputs were deleted by this step.
+- **Decision / rationale:** Keep the presentation figure generator limited to p1 and p2 until Figure 3 is redesigned from scratch.
+
+---
+
+## 2026-06-24 · Step 15 — Redesign paper_figure3 as Anthropic-style diverging dot-arrow plot
+
+- **Context:** User approved a new design for paper_figure3 inspired by the Anthropic "Emotion Concepts" paper figure showing steering-induced preference shifts.
+- **Agent:** claude-opus-4-8
+- **Did:** Added `paper_figure3_diverging_steering(slopes_csv)` to `paper/figures/generate_figures.py`; re-enabled `--fig p3` dispatch and added `--steering-slopes` CLI argument; updated `paper/README.md` inventory. Produced `paper/figures/paper_figure3_diverging_steering.{png,pdf}`.
+- **Findings:** Figure has three blocks: (1) prompt box with real judgement prompt and `high_warmth` story excerpt, "warmth" highlighted in blue; (2) dashed-arrow annotation "We add the warmth / competence direction to the residual stream (±0.10 × mean residual norm)"; (3) diverging dot-arrow chart — 4 rows (12B warmth ±2.78, 12B competence ±1.51, 27B warmth ±1.29, 27B competence ±0.89), warmth=deep blue, competence=deep gold, baseline dot at 0, symmetric arrows left (No) and right (Yes).
+- **Decision / rationale:** Anthropic-style grammar (dot-at-baseline + diverging arrows) communicates bidirectional causal control more intuitively than line+slope plots; values from raw_dense direction, slope×0.10 (R²≥0.83 for all rows).
+- **Next:** Commit all three paper figures for supervisor presentation.
+
+---
+
+## 2026-06-24 · Step 16 — Rework paper_figure3 as position+boundary chart (first-class redesign)
+
+- **Context:** User audit + design review identified REV7 figure as weak: oversized prompt box, symmetric arrows carrying no independent information, excess axis decoration, too wide.
+- **Agent:** claude-opus-4-8
+- **Did:** Rewrote `paper_figure3_diverging_steering` in `paper/figures/generate_figures.py`. Key changes: (1) figsize 8×6.5 -> 5.2×5.6; (2) GridSpec height_ratios [0.28,0.10,0.62] -> [0.16,0.10,0.74]; (3) x-axis reframed from symmetric change to absolute Yes/No logit margin (x=0 = decision boundary); (4) each row shows baseline dot (intercept) + steerable range line with arrow at +0.10 end — asymmetric, information-dense; (5) "warmth" inline-bold-blue via HPacker/AnnotationBbox offsetbox (no fragile x-offset); (6) stripped x ticks/bottom spine; (7) Yes-half soft shade; (8) bull's-eye dot (filled outer, white inner). Updated `paper/README.md` figure description.
+- **Findings:** All four rows cross x=0 — ±0.10 steering is sufficient to flip Yes/No in every case. 12B·Warmth range: −2.21 to +3.34; 27B·Competence range: −1.23 to +0.54. Baseline positions reveal 12B starts Yes-leaning (+0.56), 27B·Comp starts No-leaning (−0.34).
+- **Decision / rationale:** Reframing from "change" to "position + boundary" makes the causal claim concrete and the asymmetry (warmth > competence, 12B > 27B) visually legible. Symmetric papyon design carried zero extra information.
+- **Next:** Commit all three paper figures for supervisor presentation.
