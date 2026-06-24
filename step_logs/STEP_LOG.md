@@ -575,6 +575,22 @@
 
 ---
 
+## 2026-06-24 · Step 12 — Hiring callback causality (Phase 6 + 7)
+
+- **Context:** First run of the hiring-callback causality notebooks on the JupyterHub H100.
+- **Agent:** claude-sonnet-4-6 (Cowork) + Jorge (ran notebooks on H100)
+- **Did:** Built and ran `notebooks/06_hiring_steering_causality.ipynb` (causal steering sweep) and `notebooks/07_hiring_audit.ipynb` (probe-vs-human validation and baseline). Results saved to `results/tables/hiring_steering_raw_concept_vectors.csv` and `results/tables/hiring_audit_concept_vectors.csv`. Findings written to `paper/2026-06-24_1136_hiring_causality_results.md`.
+- **Findings:**
+  - Baseline callback margin: mean=−0.195 (SD=0.140), P(Yes)≈0.451 across 282 names.
+  - **Warmth causal effect:** slope=+12.954 margin per unit steering strength, R²=0.924 (60 names × 5 strengths). Clean monotone linear effect.
+  - **Competence causal effect:** slope=+9.061, R²=0.663. Non-monotonic: strength=−0.25 produces a positive delta (mean +3.90) for every name, reversing at −0.50 (mean −4.61). Interpreted as role-fit (overqualification penalty) for Administrative Assistant.
+  - **Probe-vs-human validation (N=282):** Warmth Spearman ρ=0.355 (p=8×10⁻¹⁰); Competence ρ=0.230 (p=9.7×10⁻⁵). Model internal directions align with human ratings at a moderate but highly significant level.
+  - **Baseline predictability:** Model probe scores do not significantly predict callback at rest (ρ≈+0.10, p>0.06). Human ratings do (ρ=+0.17 to +0.21, p<0.005). Gap interpreted as latent bias present in the representation but not always expressed in the output.
+- **Decision / rationale:** Causal chain (name → internal warmth → callback) is now empirically supported. Demographic-grouped disparity (the fairness-specific comparison) requires research decisions D-Phase7-A (human callback dataset) and D-Phase7-B (demographic grouping) from Jorge before it can be computed.
+- **Next:** Resolve D-Phase7-A and D-Phase7-B, wire in real demographic groupings in notebook 07 cell 11, run mediation test.
+
+---
+
 ## 2026-06-20 · Step 11 — Gemma Scope 2 cross-scale and causal results
 
 - **Context:** Execute and report the Gemma Scope 2 analysis for Gemma-3-12B and 27B.
