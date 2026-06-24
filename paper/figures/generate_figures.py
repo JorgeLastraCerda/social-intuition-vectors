@@ -1083,6 +1083,572 @@ def fig12_gemma_scope_feature_matching(
 
 
 # ---------------------------------------------------------------------------
+# paper_figure1 — Warmth–Competence space with oblique-basis direction arrows
+# ---------------------------------------------------------------------------
+
+def paper_figure1_axis_arrows(vec_dirs: list[Path], model_labels: list[str]) -> None:
+    """2×2 panels: warmth–competence story cloud + real-angle direction arrows.
+
+    For each model the story activations are projected onto both axes and then
+    displayed in an *oblique* coordinate system whose horizontal axis is the
+    warmth direction and whose second axis is the competence direction, drawn at
+    the true inter-axis angle theta = arccos(cos(W,C)).  This preserves the
+    geometric relationship discovered in the analysis: Gemma models have an
+    elevated cos(W,C) (~0.71-0.75, i.e. ~41-45°) while Qwen/Llama are closer to
+    orthogonal (~0.51-0.54, i.e. ~57-59°).
+
+    Coordinate transform (oblique basis):
+        x_plot = z_w + z_c * cos(theta)
+        y_plot = z_c * sin(theta)
+    where z_w and z_c are model-internal z-scores of the projections.
+    """
+    _style.apply()
+
+    n_models = len(vec_dirs)
+    fig, axes = plt.subplots(2, 2, figsize=(6.75, 5.25))
+    axes_flat = axes.flatten()
+
+    # Color per condition (from PALETTE) + arrow colours
+    ARROW_W_COLOR = "#1A5276"   # deep blue — warmth
+    ARROW_C_COLOR = "#7D6608"   # deep gold — competence
+    SCATTER_ALPHA = 0.55
+    SCATTER_SIZE  = 18
+
+    for i_m, (vd, label) in enumerate(zip(vec_dirs, model_labels)):
+        ax = axes_flat[i_m]
+
+        # Load vectors
+        wv = unit(np.load(vd / "warmth_vec.npy").astype(np.float64))
+        cv = unit(np.load(vd / "competence_vec.npy").astype(np.float64))
+        axis_cosine = float(np.dot(wv, cv))
+        theta = float(np.arccos(np.clip(axis_cosine, -1.0, 1.0)))
+        theta_deg = np.degrees(theta)
+
+        # Collect projections for all 200 stories
+        all_proj_w, all_proj_c = [], []
+        cond_projs: dict[str, tuple[np.ndarray, np.ndarray]] = {}
+        for cond in CONDITIONS:
+            X = np.load(vd / f"X_{cond}.npy").astype(np.float64)
+            pw = X @ wv
+            pc = X @ cv
+            all_proj_w.append(pw)
+            all_proj_c.append(pc)
+            cond_projs[cond] = (pw, pc)
+
+        all_w = np.concatenate(all_proj_w)
+        all_c = np.concatenate(all_proj_c)
+        mu_w, sig_w = all_w.mean(), all_w.std() + 1e-12
+        mu_c, sig_c = all_c.mean(), all_c.std() + 1e-12
+
+        # Compute oblique-basis coordinates for all stories (to determine axis limits)
+        all_xp, all_yp = [], []
+        for cond in CONDITIONS:
+            pw, pc = cond_projs[cond]
+            zw = (pw - mu_w) / sig_w
+            zc = (pc - mu_c) / sig_c
+            all_xp.append(zw + zc * np.cos(theta))
+            all_yp.append(zc * np.sin(theta))
+        all_xp_arr = np.concatenate(all_xp)
+        all_yp_arr = np.concatenate(all_yp)
+
+        # Plot story clouds in oblique coordinates
+        for cond in CONDITIONS:
+            pw, pc = cond_projs[cond]
+            zw = (pw - mu_w) / sig_w
+            zc = (pc - mu_c) / sig_c
+            xp = zw + zc * np.cos(theta)
+            yp = zc * np.sin(theta)
+            ax.scatter(
+                xp, yp,
+                c=_style.PALETTE[cond],
+                s=SCATTER_SIZE,
+                alpha=SCATTER_ALPHA,
+                linewidths=0,
+                label=_style.LABELS[cond],
+            )
+
+        # Direction arrows (unit length in z-score units, scaled visually)
+        ARROW_LEN = 2.0
+        cx_end = ARROW_LEN * np.cos(theta)
+        cy_end = ARROW_LEN * np.sin(theta)
+
+        # FIX: set axis limits BEFORE drawing arrows so the arrows are
+        # guaranteed visible even when cy_end > scatter y-range.
+        # Include arrow endpoints + label clearance (0.4 units top/right).
+        x_lo = float(all_xp_arr.min()) - 0.3
+        x_hi = max(float(all_xp_arr.max()), ARROW_LEN) + 0.6
+        y_lo = float(all_yp_arr.min()) - 0.3
+        y_hi = max(float(all_yp_arr.max()), cy_end) + 0.55  # room for "Competence +"
+        ax.set_xlim(x_lo, x_hi)
+        ax.set_ylim(y_lo, y_hi)
+
+        # Warmth arrow: along horizontal axis in oblique basis
+        ax.annotate(
+            "", xy=(ARROW_LEN, 0), xytext=(0, 0),
+            arrowprops=dict(
+                arrowstyle="-|>",
+                color=ARROW_W_COLOR,
+                lw=2.4,
+                mutation_scale=18,
+            ),
+            annotation_clip=False,   # FIX: never clip arrows at axes boundary
+            zorder=5,
+        )
+        ax.text(ARROW_LEN + 0.12, 0.05, "Warmth +",
+                color=ARROW_W_COLOR, fontsize=9, fontweight="bold",
+                clip_on=False)
+
+        # Competence arrow: drawn at oblique angle
+        ax.annotate(
+            "", xy=(cx_end, cy_end), xytext=(0, 0),
+            arrowprops=dict(
+                arrowstyle="-|>",
+                color=ARROW_C_COLOR,
+                lw=2.4,
+                mutation_scale=18,
+            ),
+            annotation_clip=False,   # FIX: never clip arrows at axes boundary
+            zorder=5,
+        )
+        ax.text(cx_end + 0.08, cy_end + 0.12, "Competence +",
+                color=ARROW_C_COLOR, fontsize=9, fontweight="bold",
+                clip_on=False)
+
+        # Arc showing angle between directions
+        arc_r = 0.55
+        n_arc = 60
+        arc_angles = np.linspace(0, theta, n_arc)
+        arc_x = arc_r * np.cos(arc_angles)
+        arc_y = arc_r * np.sin(arc_angles)
+        ax.plot(arc_x, arc_y, color="#555555", linewidth=1.0, linestyle="--")
+        mid_angle = theta / 2
+        ax.text(
+            (arc_r + 0.18) * np.cos(mid_angle) + (0.32 if i_m in {0, 1} else 0.20),
+            (arc_r + 0.18) * np.sin(mid_angle),
+            f"{theta_deg:.0f}°",
+            ha="center", va="center", fontsize=9, color="#333333",
+            bbox=dict(boxstyle="round,pad=0.15", fc="white", ec="none", alpha=0.85),
+        )
+
+        # Origin crosshairs
+        ax.axhline(0, color="lightgray", linewidth=0.6, zorder=0)
+        ax.axvline(0, color="lightgray", linewidth=0.6, zorder=0)
+
+        # Annotation box: cos and angle
+        ax.text(
+            0.03, 0.97,
+            f"cos(W,C) = {axis_cosine:.3f}\nθ = {theta_deg:.1f}°",
+            transform=ax.transAxes,
+            va="top", ha="left",
+            fontsize=8.5,
+            bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="#CCCCCC", alpha=0.85),
+        )
+
+        ax.set_title(label, fontsize=11, fontweight="bold")
+
+        # FIX: x-label only on bottom row (i_m 2,3); y-label only on left column (i_m 0,2)
+        ax.set_xlabel("Warmth axis (z-score)" if i_m in {2, 3} else "", fontsize=9)
+        ax.set_ylabel("Competence axis (z-score, oblique)" if i_m in {0, 2} else "",
+                      fontsize=9)
+
+        # FIX: legend only on bottom-right panel (Llama, i_m == 3)
+        if i_m == 3:
+            ax.legend(loc="lower right", fontsize=6, framealpha=0.92,
+                      markerscale=1.2, handletextpad=0.3)
+
+    fig.suptitle(
+        "Warmth and competence axes in representation space\n"
+        "Arrow angle = true geometric angle between direction vectors",
+        fontsize=12, fontweight="bold", y=1.01,
+    )
+    fig.tight_layout()
+    save("paper_figure1_axis_arrows")
+
+
+# ---------------------------------------------------------------------------
+# paper_figure2 — Layer emergence: Cohen's d vs depth, 4 models (single panel)
+# ---------------------------------------------------------------------------
+
+def paper_figure2_layer_emergence(
+    sweep_csv_paths: list[Path],
+    model_labels: list[str],
+) -> None:
+    """Two side-by-side panels: warmth (left) and competence (right) emergence.
+
+    Cohen's d (y) vs layer fraction (x) for all four models in each panel.
+    Each curve ends with a colour-matched label showing total layer count and
+    residual-stream dimension: e.g. "48L · d3840".  This contextualises the
+    normalised x-axis: models with more layers spread the same frac range
+    over more discrete steps.
+
+    Note: the number of activation vectors extracted per layer is constant at
+    200 (4 conditions × 50 stories) for every model and every layer.  Only
+    d_model (the vector dimension) varies across models and is shown in the label.
+
+    Probe layer at frac=0.66 is labelled directly on the figure (not in legend).
+    No large-effect threshold line.
+
+    CSV columns expected (from src/layer_sweep.py):
+        frac, warmth_cohens_d, comp_cohens_d, cos_wc
+    """
+    import csv as _csv
+    import matplotlib.transforms as _mtrans
+
+    _style.apply()
+
+    model_colors = ["#1b7837", "#006d6d", "#762a83", "#d6604d"]
+    model_ls     = ["-", (0, (3, 1, 1, 1)), "--", "-."]
+
+    # d_model per label (residual-stream width; verified from X_*.npy shapes).
+    D_MODEL: dict[str, int] = {
+        "Gemma-3-12B":  3840,
+        "Gemma-3-27B":  5376,
+        "Qwen3-14B":    5120,
+        "Llama-3.1-8B": 4096,
+    }
+
+    sweeps: list[dict[str, list]] = []
+    for path in sweep_csv_paths:
+        rows: dict[str, list] = {"frac": [], "warmth_d": [], "comp_d": []}
+        with path.open(newline="", encoding="utf-8") as f:
+            reader = _csv.DictReader(f)
+            for row in reader:
+                rows["frac"].append(float(row["frac"]))
+                rows["warmth_d"].append(float(row["warmth_cohens_d"]))
+                rows["comp_d"].append(float(row["comp_cohens_d"]))
+        sweeps.append(rows)
+        print(f"  [paper_fig2] {path.name}: {len(rows['frac'])} layers")
+
+    all_d = [v for sw in sweeps for k in ("warmth_d", "comp_d") for v in sw[k]]
+    y_max = max(all_d) * 1.05
+
+    fig, (axL, axR) = plt.subplots(1, 2, figsize=(8.25, 3.4), sharey=True)
+
+    for ax in (axL, axR):
+        ax.set_xlim(0, 1)
+        ax.set_ylim(0, y_max)
+
+    # Collect terminal (y, text, color) per panel for de-cluttered end labels.
+    end_labels_W: list[tuple[float, str, str]] = []
+    end_labels_C: list[tuple[float, str, str]] = []
+
+    for i_m, (sweep, label) in enumerate(zip(sweeps, model_labels)):
+        c        = model_colors[i_m % len(model_colors)]
+        ls       = model_ls[i_m % len(model_ls)]
+        n_layers = len(sweep["frac"])
+        dm       = D_MODEL.get(label, None)
+        tag      = f"{n_layers}L · d{dm}" if dm else f"{n_layers}L"
+
+        axL.plot(sweep["frac"], sweep["warmth_d"], color=c, linestyle=ls,
+                 linewidth=2.0, label=label, zorder=3)
+        axR.plot(sweep["frac"], sweep["comp_d"],   color=c, linestyle=ls,
+                 linewidth=2.0, zorder=3)
+
+        end_labels_W.append((sweep["warmth_d"][-1], tag, c))
+        end_labels_C.append((sweep["comp_d"][-1],   tag, c))
+
+    def _draw_end_labels(ax, labels: list[tuple[float, str, str]]) -> None:
+        """Render colour-matched line-end labels with vertical de-cluttering."""
+        min_gap = y_max * 0.045
+        # Sort by y ascending, then nudge upward any pair that overlaps.
+        items = sorted(labels, key=lambda t: t[0])
+        y_adj = [t[0] for t in items]
+        for i in range(1, len(y_adj)):
+            if y_adj[i] - y_adj[i - 1] < min_gap:
+                y_adj[i] = y_adj[i - 1] + min_gap
+        for (_, text, color), y in zip(items, y_adj):
+            ax.text(1.012, y, text, color=color,
+                    fontsize=7, ha="left", va="center",
+                    clip_on=False, zorder=6)
+
+    _draw_end_labels(axR, end_labels_C)
+
+    # Probe-layer vertical line — labelled on figure, not in legend.
+    for ax in (axL, axR):
+        ax.axvline(0.66, color="gray", linestyle=":", linewidth=1.2, zorder=1)
+        trans = _mtrans.blended_transform_factory(ax.transData, ax.transAxes)
+        ax.text(0.67, 0.97, "probe layer\nfrac = 0.66",
+                transform=trans, fontsize=7.5, color="gray",
+                va="top", ha="left", zorder=2)
+        ax.set_xlabel("Layer fraction (layer index / n_layers)", fontsize=11)
+
+    axL.set_ylabel("Cohen's d", fontsize=11)
+    axL.set_title("Warmth",     fontsize=12, fontweight="bold")
+    axR.set_title("Competence", fontsize=12, fontweight="bold")
+    axL.legend(fontsize=5.5, loc="upper left", ncol=1, framealpha=0.92)
+
+    fig.suptitle(
+        "Warmth and competence representations emerge with depth\n"
+        "(topic-holdout CV = 1.00 at every layer; four open-weights models)",
+        fontsize=10, y=1.02,
+    )
+    fig.tight_layout()
+    fig.subplots_adjust(wspace=0.12)
+    save("paper_figure2_layer_emergence")
+
+
+# ---------------------------------------------------------------------------
+# paper_figure3_diverging_steering
+# ---------------------------------------------------------------------------
+
+def paper_figure3_diverging_steering(slopes_csv: Path) -> None:
+    """Position + boundary chart showing causal steering of Yes/No social judgement.
+
+    x-axis = absolute Yes/No logit margin; x=0 = decision boundary.
+    Each row: bull’s-eye dot = baseline (no steering); line+arrow = steerable range
+    at ±0.10 × mean residual norm. Every row crosses the boundary.
+
+    Note: concept judgement only, NOT hiring callbacks.
+    Gemma 12B & 27B; raw_dense direction; local steering regime.
+    """
+    import csv as _csv
+    import matplotlib.transforms as _mt
+
+    # ------------------------------------------------------------------
+    # 1. Load data
+    # ------------------------------------------------------------------
+    rows: list[dict] = []
+    with slopes_csv.open(newline="") as f:
+        reader = _csv.DictReader(f)
+        for row in reader:
+            if row["direction"] == "raw_dense":
+                rows.append(row)
+
+    ORDER = [
+        ("gemma3_12b", "warmth"),
+        ("gemma3_12b", "competence"),
+        ("gemma3_27b", "warmth"),
+        ("gemma3_27b", "competence"),
+    ]
+    DISPLAY_LABELS = {
+        ("gemma3_12b", "warmth"):      "Gemma-3-12B  ·  Warmth",
+        ("gemma3_12b", "competence"):  "Gemma-3-12B  ·  Competence",
+        ("gemma3_27b", "warmth"):      "Gemma-3-27B  ·  Warmth",
+        ("gemma3_27b", "competence"):  "Gemma-3-27B  ·  Competence",
+    }
+    # Vivid, distinct colour pair: coral-red for warmth, teal for competence
+    AXIS_COLOR = {
+        "warmth":     "#C0392B",   # bold coral-red
+        "competence": "#117A65",   # deep teal
+    }
+
+    data_map: dict[tuple, tuple[float, float]] = {}
+    for row in rows:
+        key = (row["label"], row["axis"])
+        data_map[key] = (float(row["local_slope"]), float(row["intercept"]))
+
+    STRENGTH = 0.10
+    entries: list[tuple] = []
+    for key in ORDER:
+        slope, intercept = data_map[key]
+        entries.append((key, intercept,
+                        intercept - slope * STRENGTH,
+                        intercept + slope * STRENGTH))
+
+    # ------------------------------------------------------------------
+    # 2. Single-axes figure — compact and wide-enough for labels
+    # ------------------------------------------------------------------
+    fig, axMain = plt.subplots(figsize=(3.9, 1.95))
+    fig.subplots_adjust(left=0.30, right=0.88, top=0.84, bottom=0.20)
+
+    n = len(entries)
+    y_positions = list(range(n - 1, -1, -1))
+
+    all_vals = [v for (_, ic, mm, mp) in entries for v in (ic, mm, mp)]
+    xpad = (max(all_vals) - min(all_vals)) * 0.20
+    x_lo = min(all_vals) - xpad
+    x_hi = max(all_vals) + xpad
+
+    axMain.set_xlim(x_lo, x_hi)
+    axMain.set_ylim(-0.65, n - 0.35)
+
+    # Decision boundary
+    axMain.axvline(0, color="#333333", linestyle="--", linewidth=1.0, zorder=2)
+
+    # Yes-side very subtle shade
+    axMain.axvspan(0, x_hi + 1, alpha=0.04, color="#444444", zorder=0)
+
+    # "No" / "Yes" column headers above chart
+    trans_blend = _mt.blended_transform_factory(axMain.transData, axMain.transAxes)
+    axMain.text(0.01, 1.04, "No",
+                transform=axMain.transAxes, fontsize=9, ha="left", va="bottom",
+                color="#333333", fontstyle="italic")
+    axMain.text(0.99, 1.04, "Yes",
+                transform=axMain.transAxes, fontsize=9, ha="right", va="bottom",
+                color="#333333", fontstyle="italic")
+
+    # Draw rows
+    lpad = (x_hi - x_lo) * 0.025
+    for i, ((key, intercept, m_minus, m_plus), y) in enumerate(
+            zip(entries, y_positions)):
+        color = AXIS_COLOR[key[1]]
+
+        # Group separator between 12B and 27B
+        if i == 2:
+            axMain.axhline(y + 0.5, color="#E8E8E8", linewidth=0.7, zorder=0)
+
+        # Steering range line
+        axMain.plot([m_minus, m_plus], [y, y],
+                    color=color, lw=2.2, zorder=3, solid_capstyle="butt",
+                    alpha=0.85)
+
+        # Arrowhead at +steering end
+        tail_x = m_minus + (m_plus - m_minus) * 0.80
+        axMain.annotate(
+            "",
+            xy=(m_plus, y), xytext=(tail_x, y),
+            arrowprops=dict(arrowstyle="-|>", color=color,
+                            lw=2.2, mutation_scale=12),
+            zorder=4,
+        )
+
+        # Baseline dot: filled outer, white inner
+        axMain.plot(intercept, y, "o", color=color, markersize=10,
+                    zorder=5, markeredgewidth=0)
+        axMain.plot(intercept, y, "o", color="white", markersize=5,
+                    zorder=6, markeredgewidth=0)
+
+        # End-value labels
+        axMain.text(m_minus - lpad, y, f"{m_minus:.2f}",
+                    color=color, fontsize=7.5, va="center", ha="right",
+                    alpha=0.80)
+        axMain.text(m_plus + lpad, y, f"+{m_plus:.2f}",
+                    color=color, fontsize=7.5, va="center", ha="left",
+                    alpha=0.80)
+
+    # y-tick labels
+    axMain.set_yticks(y_positions)
+    axMain.set_yticklabels(
+        [DISPLAY_LABELS[k] for (k, *_) in entries], fontsize=8.5,
+    )
+    axMain.tick_params(axis="y", length=0)
+
+    # Strip x-axis decoration
+    axMain.set_xticks([])
+    for sp in ("top", "right", "bottom"):
+        axMain.spines[sp].set_visible(False)
+    axMain.spines["left"].set_color("#333333")
+
+    axMain.set_xlabel(
+        "Yes/No logit margin   (0 = decision boundary)",
+        fontsize=8.5, labelpad=4, color="#555555",
+    )
+
+    save("paper_figure3_diverging_steering")
+
+
+# ---------------------------------------------------------------------------
+# (removed) paper_figure2_universal_representation — replaced by layer_emergence
+# ---------------------------------------------------------------------------
+
+def _paper_figure2_universal_representation_REMOVED(
+    vec_dirs: list[Path],
+    model_labels: list[str],
+    metrics_paths: list[Path],
+) -> None:  # pragma: no cover
+    """Dead code — replaced by paper_figure2_layer_emergence (2026-06-24).
+
+    The 2×2 KDE small-multiples overlapped with paper_figure1_axis_arrows
+    (same story clouds, same geometric message).  The layer-emergence figure
+    adds the depth dimension instead.
+    """
+    raise NotImplementedError("This function has been superseded.")
+
+    _style.apply()
+
+    def _read_metrics(path: Path) -> dict[str, float]:
+        out: dict[str, float] = {}
+        with path.open(newline="") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                ax_name = row["axis"]
+                out[f"cohens_d_{ax_name}"] = float(row["cohens_d"])
+                out[f"cv_{ax_name}"] = float(row["cv_mean"])
+        return out
+
+    fig, axes = plt.subplots(2, 2, figsize=(11, 9))
+    axes_flat = axes.flatten()
+
+    for i_m, (vd, label, mpath) in enumerate(zip(vec_dirs, model_labels, metrics_paths)):
+        ax = axes_flat[i_m]
+        wv = unit(np.load(vd / "warmth_vec.npy").astype(np.float64))
+        cv = unit(np.load(vd / "competence_vec.npy").astype(np.float64))
+
+        all_w_proj: list[np.ndarray] = []
+        all_c_proj: list[np.ndarray] = []
+        cond_projs: dict[str, tuple[np.ndarray, np.ndarray]] = {}
+        for cond in CONDITIONS:
+            X = np.load(vd / f"X_{cond}.npy").astype(np.float64)
+            pw = X @ wv
+            pc = X @ cv
+            all_w_proj.append(pw)
+            all_c_proj.append(pc)
+            cond_projs[cond] = (pw, pc)
+
+        all_w = np.concatenate(all_w_proj)
+        all_c = np.concatenate(all_c_proj)
+        mu_w, sig_w = all_w.mean(), all_w.std() + 1e-12
+        mu_c, sig_c = all_c.mean(), all_c.std() + 1e-12
+
+        for cond in CONDITIONS:
+            pw, pc = cond_projs[cond]
+            zw = (pw - mu_w) / sig_w
+            zc = (pc - mu_c) / sig_c
+            try:
+                sns.kdeplot(
+                    x=zw, y=zc,
+                    ax=ax,
+                    color=_style.PALETTE[cond],
+                    levels=5,
+                    linewidths=1.6,
+                    label=_style.LABELS[cond],
+                )
+            except Exception:
+                # KDE can fail with tiny variance; fall back to scatter
+                ax.scatter(zw, zc, color=_style.PALETTE[cond], s=10, alpha=0.4,
+                           label=_style.LABELS[cond])
+
+        ax.axhline(0, color="gray", linewidth=0.5, linestyle="--", alpha=0.4)
+        ax.axvline(0, color="gray", linewidth=0.5, linestyle="--", alpha=0.4)
+
+        # Metrics badge
+        m = _read_metrics(mpath)
+        dw = m.get("cohens_d_warmth", float("nan"))
+        dc = m.get("cohens_d_competence", float("nan"))
+        cvw = m.get("cv_warmth", float("nan"))
+        badge = (
+            f"d(W) = {dw:.2f}  d(C) = {dc:.2f}\n"
+            f"CV = {cvw:.2f}"
+        )
+        ax.text(
+            0.03, 0.97, badge,
+            transform=ax.transAxes,
+            va="top", ha="left",
+            fontsize=8,
+            bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="#CCCCCC", alpha=0.88),
+        )
+
+        ax.set_title(label, fontsize=11, fontweight="bold")
+        ax.set_xlabel("Warmth projection (z-score)", fontsize=9)
+        ax.set_ylabel("Competence projection (z-score)", fontsize=9)
+
+        if i_m == 0:
+            from matplotlib.lines import Line2D as _L2D
+            handles = [_L2D([0], [0], color=_style.PALETTE[c], lw=2,
+                            label=_style.LABELS[c]) for c in CONDITIONS]
+            ax.legend(handles=handles, loc="lower right", fontsize=7.5,
+                      framealpha=0.92)
+
+    fig.suptitle(
+        "Warmth and competence representations across four language models\n"
+        "All panels z-scored within model; d = Cohen's d, CV = 5-fold accuracy",
+        fontsize=12, fontweight="bold", y=1.01,
+    )
+    fig.tight_layout()
+    save("paper_figure2_universal_representation")
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -1166,6 +1732,11 @@ def main() -> None:
         default=None,
         help="Permutation-null summary CSV (required for --fig 12).",
     )
+    parser.add_argument(
+        "--steering-slopes",
+        default=None,
+        help="Path to gemma_scope_local_steering_slopes.csv (required for --fig p3).",
+    )
     args = parser.parse_args()
 
     # Resolve runtime dirs
@@ -1176,10 +1747,21 @@ def main() -> None:
 
     _style.apply()
 
+    # Parse --fig: supports integers (1-12) and paper-figure tokens p1/p2/p3.
+    paper_selected: set[int] = set()
     if args.fig == "all":
         selected = {1, 2, 3, 4}
     else:
-        selected = {int(x.strip()) for x in args.fig.split(",")}
+        selected = set()
+        for tok in args.fig.split(","):
+            tok = tok.strip()
+            if tok.lower().startswith("p"):
+                paper_fig = int(tok[1:])
+                if paper_fig not in {1, 2, 3}:
+                    parser.error(f"Unknown paper figure token '{tok}'; supported: p1, p2, p3")
+                paper_selected.add(paper_fig)
+            else:
+                selected.add(int(tok))
 
     # Parse shared multi-model args once.
     model_labels: list[str] = [lb.strip() for lb in args.labels.split(",")] if args.labels else []
@@ -1284,6 +1866,36 @@ def main() -> None:
             Path(args.feature_matches),
             Path(args.feature_match_null),
         )
+
+    # ------------------------------------------------------------------
+    # Paper-draft figures (p1, p2, p3)
+    # p1 → --vec-dirs + --labels
+    # p2 → --sweep-csvs + --labels  (layer emergence; does NOT need --vec-dirs)
+    # p3 → --steering-slopes        (diverging dot-arrow; no vec-dirs needed)
+    # ------------------------------------------------------------------
+    if 1 in paper_selected:
+        print("paper_figure1: axis arrows …")
+        if not args.vec_dirs or not model_labels:
+            parser.error("--fig p1 requires --vec-dirs and --labels")
+        paper_vec_dirs = [Path(p.strip()) for p in args.vec_dirs.split(",")]
+        if len(paper_vec_dirs) != len(model_labels):
+            parser.error("--vec-dirs and --labels must have the same number of entries")
+        paper_figure1_axis_arrows(paper_vec_dirs, model_labels)
+
+    if 2 in paper_selected:
+        print("paper_figure2: layer emergence …")
+        if not args.sweep_csvs or not model_labels:
+            parser.error("--fig p2 requires --sweep-csvs and --labels")
+        pf2_sweeps = [Path(p.strip()) for p in args.sweep_csvs.split(",")]
+        if len(pf2_sweeps) != len(model_labels):
+            parser.error("--sweep-csvs and --labels must have the same number of entries")
+        paper_figure2_layer_emergence(pf2_sweeps, model_labels)
+
+    if 3 in paper_selected:
+        print("paper_figure3: diverging steering …")
+        if not args.steering_slopes:
+            parser.error("--fig p3 requires --steering-slopes")
+        paper_figure3_diverging_steering(Path(args.steering_slopes))
 
     print("Done.")
 
