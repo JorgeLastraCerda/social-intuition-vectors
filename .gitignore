@@ -95,3 +95,5 @@ project_personal_plan.md
 !results/tables/layer_sweep*.csv
 !results/tables/layer_sweep*.meta.json
 !results/tables/gemma_scope_*.csv
+!results/tables/hiring_audit_*.csv
+!results/tables/hiring_steering_raw_*.csv
