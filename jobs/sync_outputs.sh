@@ -9,6 +9,14 @@
 #   data/processed/gemma_scope_*/   (sparse activations and derived vectors)
 #   results/logs/gemma_scope_*.json
 #   results/tables/gemma_scope_*.csv
+#   results/tables/steering_dense_*.csv       (dense steering summaries + raw)
+#   results/logs/steering_dense_*.json        (dense steering provenance)
+#   results/tables/hiring_audit_*.csv         (Phase 7 probe-vs-human)
+#   results/tables/hiring_steering_raw_*.csv  (Phase 7 causal sweep)
+#   results/tables/hiring_disparity_*.csv     (Phase 7 disparity + mediation)
+#   results/logs/hiring_steering_*.json       (Phase 7 causal sweep provenance)
+#   results/logs/hiring_probe_vs_human_*.json (Phase 7 probe-vs-human provenance)
+#   results/logs/hiring_mediation_*.json      (Phase 7 mediation provenance)
 #
 # NOT committed: model weights (*.safetensors, *.bin, *.pt), SGE logs (*.out, *.err),
 #               HF cache (/work/.../hf_cache).
@@ -43,6 +51,14 @@ git add \
     results/tables/layer_sweep*.csv \
     results/tables/layer_sweep*.meta.json \
     results/tables/gemma_scope_*.csv \
+    results/tables/steering_dense_*.csv \
+    results/logs/steering_dense_*.json \
+    results/tables/hiring_audit_*.csv \
+    results/tables/hiring_steering_raw_*.csv \
+    results/tables/hiring_disparity_*.csv \
+    results/logs/hiring_steering_*.json \
+    results/logs/hiring_probe_vs_human_*.json \
+    results/logs/hiring_mediation_*.json \
     2>/dev/null || true   # tolerate missing globs (e.g. first run before extraction)
 
 if git diff --cached --quiet; then

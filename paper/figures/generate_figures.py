@@ -1083,6 +1083,207 @@ def fig12_gemma_scope_feature_matching(
 
 
 # ---------------------------------------------------------------------------
+# Figure 13 — Dense steering: per-model dose-response (2 rows × N models)
+# ---------------------------------------------------------------------------
+
+def fig13_dense_steering_doseresponse(
+    dense_paths: list[Path],
+    model_labels: list[str],
+) -> None:
+    """2-row × N-model grid showing dose-response for raw_dense and random directions.
+
+    Y-axis is free per panel because raw logit effects differ by ~100× across models
+    (mean_resid_norm spans ~4 orders of magnitude).
+    """
+    color_dense = "#1b7837"
+    color_random = "#777777"
+    n_models = len(dense_paths)
+    fig, axes = plt.subplots(
+        2,
+        n_models,
+        figsize=(5.0 * n_models, 8),
+        sharey=False,
+        sharex=True,
+    )
+    axes = np.asarray(axes).reshape(2, n_models)
+    datasets = [_read_csv(path) for path in dense_paths]
+    for model_i, (rows, model_label) in enumerate(zip(datasets, model_labels)):
+        for axis_i, axis_name in enumerate(("warmth", "competence")):
+            ax = axes[axis_i, model_i]
+            for direction, color, ls, lbl in [
+                ("raw_dense", color_dense, "-", "Dense direction"),
+                ("random", color_random, "--", "Random direction"),
+            ]:
+                selected = sorted(
+                    (
+                        row
+                        for row in rows
+                        if row["mode"] == "steering"
+                        and row["axis"] == axis_name
+                        and row["direction"] == direction
+                    ),
+                    key=lambda r: float(r["strength"]),
+                )
+                if not selected:
+                    continue
+                x = np.array([float(r["strength"]) for r in selected])
+                y = np.array([float(r["effect"]) for r in selected])
+                low = np.array([float(r["ci_low"]) for r in selected])
+                high = np.array([float(r["ci_high"]) for r in selected])
+                ax.plot(x, y, marker="o", color=color, linestyle=ls, label=lbl)
+                ax.fill_between(x, low, high, color=color, alpha=0.10)
+            ax.axhline(0, color="black", linewidth=0.8)
+            ax.axvline(0, color="gray", linewidth=0.8, linestyle=":")
+            ax.set_title(f"{model_label} — {axis_name.capitalize()}")
+            ax.set_ylabel("Change in Yes-vs-No logit margin")
+            ax.set_xlabel("Steering strength × mean residual norm")
+            ax.grid(axis="y", alpha=0.2)
+    axes[0, 0].legend(fontsize=8, framealpha=0.9)
+    fig.suptitle(
+        "Dense (SAE-free) residual-stream steering: per-model dose-response",
+        fontsize=12,
+    )
+    fig.tight_layout()
+    save("fig13_dense_steering_doseresponse")
+
+
+# ---------------------------------------------------------------------------
+# Figure 14 — Dense steering: normalized cross-model steerability
+# ---------------------------------------------------------------------------
+
+def fig14_dense_steering_normalized(
+    dense_paths: list[Path],
+    model_labels: list[str],
+) -> None:
+    """1×2 (warmth | competence): effect / baseline_gap per model, shared y-axis.
+
+    Normalizing by the baseline high_low_margin_gap makes raw logit effects
+    comparable across models despite their very different mean_resid_norm scales.
+    """
+    colors_models = ["#1b7837", "#762a83", "#4575b4", "#d6604d"]
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4.5), sharey=True)
+    for axis_i, axis_name in enumerate(("warmth", "competence")):
+        ax = axes[axis_i]
+        for model_i, (path, model_label) in enumerate(zip(dense_paths, model_labels)):
+            rows = _read_csv(path)
+            # Baseline gap for this model × axis
+            baseline_rows = [
+                r for r in rows
+                if r["mode"] == "baseline"
+                and r["axis"] == axis_name
+                and r["direction"] == "high_low_margin_gap"
+            ]
+            if not baseline_rows:
+                continue
+            baseline_gap = float(baseline_rows[0]["effect"])
+            if abs(baseline_gap) < 1e-9:
+                continue
+            steer_rows = sorted(
+                (
+                    r for r in rows
+                    if r["mode"] == "steering"
+                    and r["axis"] == axis_name
+                    and r["direction"] == "raw_dense"
+                ),
+                key=lambda r: float(r["strength"]),
+            )
+            if not steer_rows:
+                continue
+            x = np.array([float(r["strength"]) for r in steer_rows])
+            y = np.array([float(r["effect"]) for r in steer_rows]) / baseline_gap
+            color = colors_models[model_i % len(colors_models)]
+            ax.plot(x, y, marker="o", color=color, label=model_label)
+        ax.axhline(0, color="black", linewidth=0.8)
+        ax.axvline(0, color="gray", linewidth=0.8, linestyle=":")
+        ax.set_title(f"{axis_name.capitalize()} — normalized steerability")
+        ax.set_xlabel("Steering strength × mean residual norm")
+        ax.grid(axis="y", alpha=0.2)
+    axes[0].set_ylabel("Steering effect / baseline concept gap")
+    axes[0].legend(fontsize=9, framealpha=0.9)
+    fig.suptitle(
+        "Cross-model steerability (effect normalized by baseline concept separation)",
+        fontsize=12,
+    )
+    fig.tight_layout()
+    save("fig14_dense_steering_normalized")
+
+
+# ---------------------------------------------------------------------------
+# Figure 15 — Dense steering: signal vs. control at peak strength
+# ---------------------------------------------------------------------------
+
+def fig15_dense_steering_signal_vs_control(
+    dense_paths: list[Path],
+    model_labels: list[str],
+    peak_strength: float = 0.1,
+) -> None:
+    """1×2 (warmth | competence) grouped bars: raw_dense vs random at peak_strength.
+
+    Annotates panels where the random-control effect rivals the dense direction —
+    particularly Gemma-27B competence where random leakage dominates.
+    """
+    color_dense = "#1b7837"
+    color_random = "#777777"
+    n_models = len(dense_paths)
+    x_pos = np.arange(n_models)
+    bar_width = 0.35
+    fig, axes = plt.subplots(1, 2, figsize=(10, 4.5), sharey=False)
+    for axis_i, axis_name in enumerate(("warmth", "competence")):
+        ax = axes[axis_i]
+        dense_effects: list[float] = []
+        random_effects: list[float] = []
+        for path in dense_paths:
+            rows = _read_csv(path)
+            for direction_name, target in [
+                ("raw_dense", dense_effects),
+                ("random", random_effects),
+            ]:
+                candidates = [
+                    float(r["effect"])
+                    for r in rows
+                    if r["mode"] == "steering"
+                    and r["axis"] == axis_name
+                    and r["direction"] == direction_name
+                    and abs(float(r["strength"]) - peak_strength) < 1e-6
+                ]
+                target.append(candidates[0] if candidates else float("nan"))
+        dense_arr = np.array(dense_effects)
+        random_arr = np.array(random_effects)
+        ax.bar(x_pos - bar_width / 2, dense_arr, bar_width,
+               color=color_dense, alpha=0.85, label="Dense direction")
+        ax.bar(x_pos + bar_width / 2, random_arr, bar_width,
+               color=color_random, alpha=0.60, label="Random direction")
+        # Warn where |random| ≥ 80% of |dense| (non-specific leakage)
+        for i, (d, r) in enumerate(zip(dense_arr, random_arr)):
+            if not (np.isnan(d) or np.isnan(r)) and abs(d) > 1e-9 and abs(r) >= abs(d) * 0.8:
+                ax.annotate(
+                    "⚠",
+                    xy=(x_pos[i] + bar_width / 2, r),
+                    xytext=(0, 4),
+                    textcoords="offset points",
+                    ha="center",
+                    fontsize=10,
+                    color="#d6604d",
+                )
+        ax.axhline(0, color="black", linewidth=0.8)
+        ax.set_xticks(x_pos)
+        ax.set_xticklabels(model_labels, rotation=18, ha="right")
+        ax.set_title(
+            f"{axis_name.capitalize()} — signal vs. control (α = {peak_strength})"
+        )
+        ax.set_ylabel("Steering effect (Δlogit margin)")
+        ax.grid(axis="y", alpha=0.2)
+        ax.legend(fontsize=8, framealpha=0.9)
+    fig.suptitle(
+        f"Dense direction vs. random control at peak strength "
+        f"(α = {peak_strength} × mean_resid_norm)",
+        fontsize=11,
+    )
+    fig.tight_layout()
+    save("fig15_dense_steering_signal_vs_control")
+
+
+# ---------------------------------------------------------------------------
 # paper_figure1 — Warmth–Competence space with oblique-basis direction arrows
 # ---------------------------------------------------------------------------
 
@@ -1737,6 +1938,14 @@ def main() -> None:
         default=None,
         help="Path to gemma_scope_local_steering_slopes.csv (required for --fig p3).",
     )
+    parser.add_argument(
+        "--dense-csvs",
+        default=None,
+        help=(
+            "Comma-separated steering_dense_<label>.csv summary files, one per model "
+            "(required for --fig 13/14/15). Same order as --labels."
+        ),
+    )
     args = parser.parse_args()
 
     # Resolve runtime dirs
@@ -1896,6 +2105,24 @@ def main() -> None:
         if not args.steering_slopes:
             parser.error("--fig p3 requires --steering-slopes")
         paper_figure3_diverging_steering(Path(args.steering_slopes))
+
+    if selected & {13, 14, 15}:
+        if not args.dense_csvs or not model_labels:
+            parser.error("--fig 13/14/15 requires --dense-csvs and --labels")
+        dense_paths = [
+            Path(p.strip()) for p in args.dense_csvs.split(",")
+        ]
+        if len(dense_paths) != len(model_labels):
+            parser.error("--dense-csvs and --labels must have equal lengths")
+        if 13 in selected:
+            print("Figure 13: dense steering dose-response …")
+            fig13_dense_steering_doseresponse(dense_paths, model_labels)
+        if 14 in selected:
+            print("Figure 14: dense steering normalized cross-model …")
+            fig14_dense_steering_normalized(dense_paths, model_labels)
+        if 15 in selected:
+            print("Figure 15: dense steering signal vs. control …")
+            fig15_dense_steering_signal_vs_control(dense_paths, model_labels)
 
     print("Done.")
 
