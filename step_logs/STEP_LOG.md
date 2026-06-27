@@ -802,3 +802,14 @@
 - **Findings:** Syntax check passed. Script reads all model-specific parameters (model name, probe layer, d_model) from `meta.json`; `mean_resid_norm` from stored activations; identical `train_test_topics` split via `cfg.probing.seed=20260527` and `n_test_topics=10` ensures comparable steering curves across models.
 - **Decision / rationale:** Keep `gemma_scope_causality.py` untouched (Gemma SAE pipeline stays valid). Regression gate: Gemma-12B job must match existing `gemma_scope_causality_gemma3_12b_local.csv` raw_dense rows (warmth +0.1 → 3.88125, competence +0.1 → 2.00625) before submitting Llama/Qwen jobs.
 - **Next:** Commit + push → SCCKN `git pull` → `qsub steering_dense_gemma3_12b.sh` (regression gate) → on pass, `qsub` remaining three jobs → pull results → write 4-model dense steering findings report in `paper/`.
+
+---
+
+## 2026-06-27 · Step 2 — Phase 7: productionise hiring pipeline to src/, add 4-model SGE jobs
+
+- **Context:** Phase 7 (third headline output: model callback disparity vs. human disparity + mediation) previously lived only in notebooks 06/07, run only for Gemma-12B/27B. Decisions D-Phase7-A/B/C now locked with user.
+- **Agent:** claude-sonnet-4-6
+- **Did:** Created three model-agnostic src/ scripts: `src/hiring_steering.py` (causal sweep, GPU; replaces notebook 06), `src/hiring_audit.py` (probe-vs-human validation + baseline, GPU; replaces notebook 07), `src/hiring_disparity.py` (race/gender disparity table + bootstrap mediation, CPU-only). Updated `src/hiring_eval.py` stub to dispatcher pointing to the three new scripts. Created four SGE jobs: `jobs/sge/hiring_gemma3_12b.sh` (regression gate), `hiring_gemma3_27b.sh`, `hiring_llama31_8b.sh`, `hiring_qwen3_14b.sh`.
+- **Findings:** Syntax check passed for all three new scripts. Local dry-run of `hiring_disparity.py` against existing `hiring_audit_concept_vectors.csv` (Gemma-12B): 269/282 names joined to `published_data/df_all.csv`; race disparity — Black margin=−0.184 vs White=−0.200; human callback — Black=0.183 vs White=0.171; all mediation tests n.s. at 12B (consistent with existing report). Research decisions: D-Phase7-A = `published_data/df_all.csv` name-level; D-Phase7-B = race(Black/White) primary, gender(Female/Male) secondary, mirroring Gallo & Hausladen's `group_by(name, race, gender)` coding; D-Phase7-C = bootstrap mediation N=5000 seeded.
+- **Decision / rationale:** Isolated under new `hiring_*` labels (gemma3_12b etc.) so legacy Gemma outputs (prefix `concept_vectors`) are never overwritten. Gemma-12B job is regression gate: warmth Δmargin at +0.25/+0.50 ≈ +7.125/+8.404; probe-vs-human rho ≈ 0.355/0.230.
+- **Next:** Commit + push → SCCKN `git pull` → `qsub hiring_gemma3_12b.sh` (gate) → on pass `qsub` remaining three → pull results → write 4-model Phase 7 findings report in `paper/`.
