@@ -845,3 +845,13 @@
 - **Did:** Added three sections to `paper/2026-06-27_1541_hiring_phase7_4model.md`: (1) `## Experimental design` block before Summary — three-measurement structure: (a) hiring prompt with exact template from `src/hiring_audit.py`, callback margin sign convention, explicit note that race/gender is never given to the model; (b) probe measurement from neutral name sentence; (c) disparity+mediation combination. (2) Plain-language callback-margin sign explanation + "labels come from the benchmark, not the model" note before §3.1. (3) New `§3.3 Is there bias?` subsection with bias verdict (yes, differential treatment), direction note (reverse of classic discrimination, likely RLHF over-correction), and inconsistency-as-finding summary; renumbered old §3.3 to §3.4.
 - **Findings / Decision:** No numbers changed. All additions are interpretive framing, not new results. Bias framing: differential treatment confirmed; direction opposite to classical discrimination in 3/4 models; main finding is model-to-model inconsistency rather than a stable discriminatory pattern.
 - **Next:** Commit + push.
+
+---
+
+## 2026-06-27 · Step 6 — Expand dense steering report: mechanism detail and ±0.10 range discussion
+
+- **Context:** User asked how the steering push works mechanically and whether ±0.10 is necessary/sufficient. Full answer added to the report so any future reader has it in context.
+- **Agent:** claude-opus-4-8
+- **Did:** Expanded `paper/2026-06-27_1446_dense_steering_4model.md` Method and Caveats sections: (1) Added "Steering mechanism — what 'pushing' means in practice" paragraph with explicit additive formula, code reference to `make_steering_hook`, absolute magnitude examples (Gemma-12B ~7.97 vs Llama ~1.14 per unit strength), and explanation of random control construction. (2) Added new Caveat 5 "Strength range ±0.10: sufficient for causal proof, insufficient for full characterisation" covering saturation, decision-flip threshold, underestimation for weaker models, asymmetry with Phase-7 hiring sweep (±0.50), and recommended future extension via `--strengths`. (3) Updated "Bridge to Phase 7" to point to completed report and summarise the steerability paradox finding.
+- **Findings / Decision:** No new numbers. All additions are methodological framing and future-work notes derived from comparing Phase-6 and Phase-7 design choices.
+- **Next:** Commit + push.
