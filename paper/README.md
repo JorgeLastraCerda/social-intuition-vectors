@@ -16,6 +16,27 @@ was not recorded explicitly, use the report's earliest Git commit time. Keep the
 slug short and descriptive (e.g. `concept_stories_probe_findings`,
 `steering_callback_results`).
 
+## Artifacts block (mandatory)
+
+Every report must include an `## Artifacts` section immediately **after** the
+header metadata block (Produced/Model/Scope/Status) and **before** the first
+content section (Summary / Executive summary). It must list, by repo path, all
+scripts, inputs, outputs, and figures the result depends on. Omit a sub-bullet
+only when the category is genuinely empty.
+
+Template:
+
+```markdown
+## Artifacts
+
+- **Scripts:** `src/<file>.py` (and notebooks `notebooks/NN_*.ipynb` if used)
+- **Inputs:** `data/processed/<vectors_subdir>/`, `data/stimuli/<file>`
+- **Outputs:** `results/tables/<file>.csv`, `results/logs/<file>.json`
+- **Figures:** `paper/figures/<figN>.{png,pdf}` (and `results/figures/<file>` if applicable)
+```
+
+This rule is also stated in `AGENTS.md` → "Findings Reports".
+
 ## Relationship to the step log
 
 - `step_logs/STEP_LOG.md` is the **index and trail**: it records that a result was produced, which files were touched, and what decision was taken. Entries are concise.

@@ -3,7 +3,17 @@
 **Produced at:** 2026-06-20 13:03 Europe/Berlin
 **Models:** `google/gemma-3-12b-it`, `google/gemma-3-27b-it`
 **Phase:** B3 — within-family scale comparison
-**Figure:** `paper/figures/fig8_layer_emergence.{png,pdf}`
+
+---
+
+## Artifacts
+
+- **Scripts:** `src/layer_sweep.py`, `src/validate_probes.py`
+- **Inputs:** `data/processed/concept_vectors/`, `data/processed/concept_vectors_gemma3_27b/`
+- **Outputs:** `results/tables/layer_sweep_gemma3_12b.csv`, `results/tables/layer_sweep_gemma3_27b.csv`; `results/logs/validate_probes_default.json`, `results/logs/validate_probes_gemma3_27b.json`
+- **Figures:** `paper/figures/fig8_layer_emergence.{png,pdf}`
+
+---
 
 > Correction: the original version of this report described chance-level cross-axis
 > CV in both Gemma models. That result was a numerical artefact from fitting
