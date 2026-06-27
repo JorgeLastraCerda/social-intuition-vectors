@@ -1,0 +1,23 @@
+{
+  "label": "gemma3_27b",
+  "model": "google/gemma-3-27b-it",
+  "vectors_subdir": "concept_vectors_gemma3_27b",
+  "probe_layer": 40,
+  "hook": "blocks.40.hook_resid_post",
+  "mean_resid_norm": 61575.796875,
+  "seed": 20260527,
+  "n_names_sampled": 60,
+  "n_names_total": 282,
+  "strengths": [
+    -0.5,
+    -0.25,
+    0.0,
+    0.25,
+    0.5
+  ],
+  "axes": [
+    "warmth",
+    "competence"
+  ],
+  "raw_output": "results/tables/hiring_steering_raw_gemma3_27b.csv"
+}
