@@ -1,0 +1,72 @@
+{
+  "label": "gemma3_12b",
+  "model": "google/gemma-3-12b-it",
+  "vectors_subdir": "concept_vectors",
+  "probe_layer": 31,
+  "hook": "blocks.31.hook_resid_post",
+  "seed": 20260527,
+  "n_names": 282,
+  "correlations": [
+    {
+      "pair": "warmth",
+      "col_x": "model_warmth",
+      "col_y": "human_warm",
+      "spearman_rho": 0.366,
+      "spearman_p": 2.2965280046627294e-10,
+      "pearson_r": 0.3171,
+      "pearson_p": 5.2382087349027566e-08,
+      "n": 282
+    },
+    {
+      "pair": "competence",
+      "col_x": "model_competence",
+      "col_y": "human_competent",
+      "spearman_rho": 0.239,
+      "spearman_p": 5.019889552645924e-05,
+      "pearson_r": 0.2188,
+      "pearson_p": 0.00021319297444048418,
+      "n": 282
+    },
+    {
+      "pair": "callback_vs_model_warmth",
+      "col_x": "callback_margin",
+      "col_y": "model_warmth",
+      "spearman_rho": 0.1501,
+      "spearman_p": 0.011599685410592848,
+      "pearson_r": 0.2591,
+      "pearson_p": 1.0480109994104567e-05,
+      "n": 282
+    },
+    {
+      "pair": "callback_vs_model_competence",
+      "col_x": "callback_margin",
+      "col_y": "model_competence",
+      "spearman_rho": 0.1488,
+      "spearman_p": 0.012387879430938654,
+      "pearson_r": 0.2624,
+      "pearson_p": 7.987239519939511e-06,
+      "n": 282
+    },
+    {
+      "pair": "callback_vs_human_warm",
+      "col_x": "callback_margin",
+      "col_y": "human_warm",
+      "spearman_rho": 0.2399,
+      "spearman_p": 4.685186353449282e-05,
+      "pearson_r": 0.2506,
+      "pearson_p": 2.064910113071941e-05,
+      "n": 282
+    },
+    {
+      "pair": "callback_vs_human_competent",
+      "col_x": "callback_margin",
+      "col_y": "human_competent",
+      "spearman_rho": 0.2399,
+      "spearman_p": 4.703222560266257e-05,
+      "pearson_r": 0.214,
+      "pearson_p": 0.000294823428764636,
+      "n": 282
+    }
+  ],
+  "output_table": "results/tables/hiring_audit_gemma3_12b.csv"
+}

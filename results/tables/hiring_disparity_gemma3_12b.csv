@@ -1,0 +1,5 @@
+axis,group,n,model_callback_margin,model_warmth,model_competence,human_callback
+race,Black,47,-0.2128,37605.3419,40319.838,0.183
+race,White,180,-0.1993,38362.8535,41133.7819,0.1712
+gender,Female,154,-0.1648,38071.0534,40816.6874,0.1454
+gender,Male,115,-0.2576,37949.4027,40692.7308,0.1815
