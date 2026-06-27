@@ -83,6 +83,10 @@ Cross-model figures:
 | `fig13_dense_steering_doseresponse.{png,pdf}` | 2-row × 4-col grid: raw_dense (solid) and random (dashed) dose-response for all four models; free per-panel y-axis (raw logit effects span ~100×) |
 | `fig14_dense_steering_normalized.{png,pdf}` | 1×2 (warmth \| competence): cross-model steerability normalized by baseline concept gap; 12B steepest, 27B flattest; shared y-axis |
 | `fig15_dense_steering_signal_vs_control.{png,pdf}` | 1×2 grouped bars at peak strength (α=+0.10): raw_dense vs random direction; ⚠ annotation where 27B competence random effect dominates signal |
+| `fig16_hiring_probe_vs_human.{png,pdf}` | Grouped bars of Spearman ρ (model probe score vs. human rating) for 4 models × {warmth, competence}; negative bars for Llama/Qwen warmth show anti-alignment |
+| `fig17_hiring_steering_callback.{png,pdf}` | 2 rows × 4 cols: mean Δcallback-margin over 60 names ± 95% CI for warmth and competence steering across all models |
+| `fig18_hiring_disparity.{png,pdf}` | Two-panel: (A) model race/gender gaps in within-model SD units + human reference; (B) direction-agreement grid vs. human benchmark |
+| `fig19_hiring_mediation_forest.{png,pdf}` | Forest plot of bootstrap indirect effects (name-group → probe → callback); significant rows filled, grouped by model |
 
 Paper-draft figures (prefixed `paper_figure*`; produced 2026-06-24 for supervisor presentation):
 
@@ -105,3 +109,4 @@ Paper-draft figures (prefixed `paper_figure*`; produced 2026-06-24 for superviso
 | `2026-06-24_1136_hiring_causality_results.md` | 2026-06-24 11:36 | Gemma-3-12B-it | Phase 6+7: hiring-callback causal sweep and probe-vs-human validation | Complete for 12B baseline |
 | `2026-06-24_1300_hiring_causality_27b_results.md` | 2026-06-24 13:00 | Gemma-3-27B-it | Phase 6+7 replication at 27B: steering inert for warmth, reversed baseline association, stronger probe-vs-human alignment | Complete; demographic disparity requires D-Phase7-A/B decisions |
 | `2026-06-27_1446_dense_steering_4model.md` | 2026-06-27 14:46 | Gemma-3-12B · Gemma-3-27B · Llama-3.1-8B · Qwen3-14B | Phase 6 extension: dense (SAE-free) steering replicated across all 4 models; normalized steerability, signal-vs-control, Gemma scale paradox | Complete |
+| `2026-06-27_1541_hiring_phase7_4model.md` | 2026-06-27 15:41 | Gemma-3-12B · Gemma-3-27B · Llama-3.1-8B · Qwen3-14B | Phase 7 consolidated: probe-vs-human alignment, steering→callback, demographic disparity, bootstrap mediation; steerability paradox | Complete |

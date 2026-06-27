@@ -20,13 +20,14 @@ from __future__ import annotations
 
 import argparse
 import csv
+import json
 import sys
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
-from scipy.stats import gaussian_kde
+from scipy.stats import gaussian_kde, spearmanr
 
 # Ensure repo root is on path when run from anywhere
 ROOT = Path(__file__).resolve().parents[2]
@@ -1284,6 +1285,356 @@ def fig15_dense_steering_signal_vs_control(
 
 
 # ---------------------------------------------------------------------------
+# Figure 16 — Hiring: probe-vs-human Spearman ρ (grouped bars, all 4 models)
+# ---------------------------------------------------------------------------
+
+def fig16_hiring_probe_vs_human(
+    audit_paths: list[Path],
+    model_labels: list[str],
+) -> None:
+    """Grouped bars of Spearman ρ (model probe score vs. human rating) for each
+    model × axis combination.  Negative bars (Llama/Qwen warmth) are shown in a
+    distinct colour so the anti-alignment result reads clearly.
+    """
+    color_pos = "#1b7837"   # positive ρ
+    color_neg = "#d6604d"   # negative ρ
+    color_ns  = "#aaaaaa"   # not significant (p ≥ 0.05)
+    axes_labels = ["warmth", "competence"]
+    n_models = len(audit_paths)
+    n_axes = 2
+    x_pos = np.arange(n_models)
+    bar_width = 0.35
+
+    rhos: dict[str, list[float]] = {ax: [] for ax in axes_labels}
+    pvals: dict[str, list[float]] = {ax: [] for ax in axes_labels}
+    for path in audit_paths:
+        rows = list(csv.DictReader(open(path)))
+        human_warm  = np.array([float(r["human_warm"])       for r in rows])
+        human_comp  = np.array([float(r["human_competent"])  for r in rows])
+        model_warm  = np.array([float(r["model_warmth"])     for r in rows])
+        model_comp  = np.array([float(r["model_competence"]) for r in rows])
+        rw, pw = spearmanr(model_warm,  human_warm)
+        rc, pc = spearmanr(model_comp,  human_comp)
+        rhos["warmth"].append(float(rw))
+        rhos["competence"].append(float(rc))
+        pvals["warmth"].append(float(pw))
+        pvals["competence"].append(float(pc))
+
+    fig, ax = plt.subplots(figsize=(10, 4.5))
+    offsets = {"warmth": -bar_width / 2, "competence": bar_width / 2}
+    labels_added: set[str] = set()
+    for ax_name in axes_labels:
+        for i, (rho, pval, model_label) in enumerate(
+            zip(rhos[ax_name], pvals[ax_name], model_labels)
+        ):
+            if pval >= 0.05:
+                clr = color_ns
+                lbl = "n.s. (p≥0.05)"
+            elif rho >= 0:
+                clr = color_pos
+                lbl = "ρ > 0"
+            else:
+                clr = color_neg
+                lbl = "ρ < 0"
+            legend_label = lbl if lbl not in labels_added else None
+            if legend_label:
+                labels_added.add(lbl)
+            ax.bar(
+                x_pos[i] + offsets[ax_name],
+                rho,
+                bar_width,
+                color=clr,
+                alpha=0.85,
+                label=legend_label,
+                hatch="//" if ax_name == "competence" else None,
+                edgecolor="white",
+            )
+            ax.annotate(
+                f"{rho:+.2f}",
+                xy=(x_pos[i] + offsets[ax_name], rho),
+                xytext=(0, 4 if rho >= 0 else -12),
+                textcoords="offset points",
+                ha="center",
+                fontsize=7,
+            )
+    ax.axhline(0, color="black", linewidth=0.8)
+    ax.set_xticks(x_pos)
+    ax.set_xticklabels(model_labels, rotation=15, ha="right")
+    ax.set_ylabel("Spearman ρ (model probe vs. human rating)")
+    ax.set_title(
+        "Probe-vs-human alignment: model warmth/competence scores vs. crowdsourced ratings\n"
+        "(solid = warmth, hatched = competence)"
+    )
+    ax.set_ylim(-0.6, 0.7)
+    ax.grid(axis="y", alpha=0.2)
+    ax.legend(fontsize=8, framealpha=0.9, loc="lower right")
+    fig.tight_layout()
+    save("fig16_hiring_probe_vs_human")
+
+
+# ---------------------------------------------------------------------------
+# Figure 17 — Hiring: steering → callback (2 axes × N models grid)
+# ---------------------------------------------------------------------------
+
+def fig17_hiring_steering_callback(
+    steering_paths: list[Path],
+    model_labels: list[str],
+) -> None:
+    """2 rows (warmth, competence) × N cols (models): mean Δcallback-margin over 60
+    names, with 95% CI (mean ± 1.96·SEM across names).  Free per-panel y-axis.
+    """
+    color_warm = "#d6604d"
+    color_comp = "#4575b4"
+    axes_names = ["warmth", "competence"]
+    axis_colors = {"warmth": color_warm, "competence": color_comp}
+    n_models = len(steering_paths)
+    fig, axes = plt.subplots(
+        2, n_models,
+        figsize=(5.0 * n_models, 8),
+        sharey=False,
+        sharex=True,
+    )
+    axes = np.asarray(axes).reshape(2, n_models)
+    for model_i, (path, model_label) in enumerate(zip(steering_paths, model_labels)):
+        rows = list(csv.DictReader(open(path)))
+        for axis_i, ax_name in enumerate(axes_names):
+            ax = axes[axis_i, model_i]
+            ax_rows = [r for r in rows if r["axis"] == ax_name]
+            strengths = sorted({float(r["strength"]) for r in ax_rows})
+            means, ci_lo, ci_hi = [], [], []
+            for s in strengths:
+                deltas = np.array([
+                    float(r["delta"]) for r in ax_rows
+                    if abs(float(r["strength"]) - s) < 1e-9
+                ])
+                m = float(np.mean(deltas))
+                sem = float(np.std(deltas, ddof=1) / np.sqrt(len(deltas)))
+                means.append(m)
+                ci_lo.append(m - 1.96 * sem)
+                ci_hi.append(m + 1.96 * sem)
+            x = np.array(strengths)
+            y = np.array(means)
+            lo = np.array(ci_lo)
+            hi = np.array(ci_hi)
+            color = axis_colors[ax_name]
+            ax.plot(x, y, marker="o", color=color)
+            ax.fill_between(x, lo, hi, color=color, alpha=0.15)
+            ax.axhline(0, color="black", linewidth=0.8)
+            ax.axvline(0, color="gray", linewidth=0.8, linestyle=":")
+            ax.set_title(f"{model_label} — {ax_name.capitalize()}")
+            ax.set_ylabel("Mean Δcallback margin (over 60 names)")
+            ax.set_xlabel("Steering strength (× mean_resid_norm)")
+            ax.grid(axis="y", alpha=0.2)
+    fig.suptitle(
+        "Steering → callback: mean Δmargin over 60 names ± 95% CI (name-level)",
+        fontsize=12,
+    )
+    fig.tight_layout()
+    save("fig17_hiring_steering_callback")
+
+
+# ---------------------------------------------------------------------------
+# Figure 18 — Hiring: disparity (two panels — magnitude + direction)
+# ---------------------------------------------------------------------------
+
+def fig18_hiring_disparity(
+    disparity_paths: list[Path],
+    audit_paths: list[Path],
+    model_labels: list[str],
+) -> None:
+    """Two panels.
+    Panel A: race and gender gaps (Black-White / Female-Male callback margin) in
+    within-model SD units; human gaps (from Gallo & Hausladen 2024) drawn as
+    horizontal reference lines.
+    Panel B: direction-agreement grid — does sign(model gap) match sign(human gap)?
+    """
+    # Human benchmark gaps (from Gallo & Hausladen 2024 name-level data):
+    #   race:   Black callback 0.183, White 0.171  → gap = +0.012 (positive)
+    #   gender: Female 0.1454, Male 0.1815          → gap = −0.037 (negative)
+    human_race_gap   = +0.012
+    human_gender_gap = -0.037
+
+    colors_gap = {"race": "#1b7837", "gender": "#762a83"}
+    n_models = len(disparity_paths)
+    x_pos = np.arange(n_models)
+    bar_width = 0.35
+
+    # Collect per-model within-SD-normalised gaps
+    race_gaps_sd:   list[float] = []
+    gender_gaps_sd: list[float] = []
+    for disp_path, audit_path in zip(disparity_paths, audit_paths):
+        disp_rows  = list(csv.DictReader(open(disp_path)))
+        audit_rows = list(csv.DictReader(open(audit_path)))
+        # Within-model SD of callback_margin across all names
+        cb_margins = np.array([float(r["callback_margin"]) for r in audit_rows])
+        sigma = float(np.std(cb_margins, ddof=1))
+        if sigma < 1e-9:
+            race_gaps_sd.append(float("nan"))
+            gender_gaps_sd.append(float("nan"))
+            continue
+        # Race gap: Black − White
+        race_rows = {r["group"]: float(r["model_callback_margin"])
+                     for r in disp_rows if r["axis"] == "race"}
+        race_gap = (race_rows.get("Black", float("nan"))
+                    - race_rows.get("White", float("nan"))) / sigma
+        race_gaps_sd.append(race_gap)
+        # Gender gap: Female − Male
+        gender_rows = {r["group"]: float(r["model_callback_margin"])
+                       for r in disp_rows if r["axis"] == "gender"}
+        gender_gap = (gender_rows.get("Female", float("nan"))
+                      - gender_rows.get("Male", float("nan"))) / sigma
+        gender_gaps_sd.append(gender_gap)
+
+    # Human gaps in the same SD units requires a cross-model SD reference, which
+    # we don't have.  We show them as %-point bars separately in the legend.
+    race_arr   = np.array(race_gaps_sd)
+    gender_arr = np.array(gender_gaps_sd)
+
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+
+    # --- Panel A: magnitudes ---
+    ax = axes[0]
+    ax.bar(x_pos - bar_width / 2, race_arr,   bar_width,
+           color=colors_gap["race"],   alpha=0.85, label="Race gap (Black−White)")
+    ax.bar(x_pos + bar_width / 2, gender_arr, bar_width,
+           color=colors_gap["gender"], alpha=0.85, label="Gender gap (Female−Male)")
+    ax.axhline(0, color="black", linewidth=0.8)
+    # Human reference as dashed lines; note these are in %-point not SD units
+    ax.axhline(human_race_gap,   color=colors_gap["race"],   linestyle="--",
+               linewidth=1.2, label=f"Human race gap ({human_race_gap:+.3f} pp)", alpha=0.6)
+    ax.axhline(human_gender_gap, color=colors_gap["gender"], linestyle="--",
+               linewidth=1.2, label=f"Human gender gap ({human_gender_gap:+.3f} pp)", alpha=0.6)
+    ax.set_xticks(x_pos)
+    ax.set_xticklabels(model_labels, rotation=15, ha="right")
+    ax.set_ylabel("Gap in within-model SD units  (model) / %-points (human ref.)")
+    ax.set_title("(A) Disparity magnitude — model gaps in within-model SD units")
+    ax.grid(axis="y", alpha=0.2)
+    ax.legend(fontsize=8, framealpha=0.9)
+
+    # --- Panel B: direction agreement ---
+    ax2 = axes[1]
+    ax2.set_xlim(-0.5, n_models - 0.5)
+    ax2.set_ylim(-0.5, 1.5)
+    ax2.set_xticks(x_pos)
+    ax2.set_xticklabels(model_labels, rotation=15, ha="right")
+    ax2.set_yticks([0, 1])
+    ax2.set_yticklabels(["Gender gap\n(human −)", "Race gap\n(human +)"])
+    ax2.set_title("(B) Direction agreement with human benchmark")
+    ax2.grid(False)
+    ax2.set_facecolor("#f7f7f7")
+    agree_color = "#1b7837"
+    disagree_color = "#d6604d"
+    for i, (rg, gg) in enumerate(zip(race_arr, gender_arr)):
+        # Race: human gap positive (+0.012); model agrees if rg > 0
+        race_agree = (not np.isnan(rg)) and (rg > 0)
+        ax2.scatter(i, 1, s=300,
+                    color=agree_color if race_agree else disagree_color,
+                    zorder=3)
+        ax2.text(i, 1.25, "✓" if race_agree else "✗",
+                 ha="center", va="center", fontsize=14,
+                 color=agree_color if race_agree else disagree_color)
+        # Gender: human gap negative (−0.037); model agrees if gg < 0
+        gender_agree = (not np.isnan(gg)) and (gg < 0)
+        ax2.scatter(i, 0, s=300,
+                    color=agree_color if gender_agree else disagree_color,
+                    zorder=3)
+        ax2.text(i, -0.25, "✓" if gender_agree else "✗",
+                 ha="center", va="center", fontsize=14,
+                 color=agree_color if gender_agree else disagree_color)
+    # legend patches
+    from matplotlib.patches import Patch
+    legend_els = [
+        Patch(color=agree_color,    label="Direction matches human"),
+        Patch(color=disagree_color, label="Direction opposes human"),
+    ]
+    ax2.legend(handles=legend_els, fontsize=8, framealpha=0.9, loc="upper right")
+
+    fig.suptitle(
+        "Model callback disparity vs. human benchmark (Gallo & Hausladen, 2024)",
+        fontsize=12,
+    )
+    fig.tight_layout()
+    save("fig18_hiring_disparity")
+
+
+# ---------------------------------------------------------------------------
+# Figure 19 — Hiring: mediation forest plot (indirect effects + 95% CI)
+# ---------------------------------------------------------------------------
+
+def fig19_hiring_mediation_forest(
+    mediation_paths: list[Path],
+    model_labels: list[str],
+) -> None:
+    """Forest plot of bootstrap indirect effects (probe mediating name-group → callback).
+    One row per (model, grouping, probe).  Significant rows are filled; null rows are open.
+    Grouped by model, with a horizontal separator between models.
+    """
+    color_sig    = "#762a83"
+    color_nonsig = "#aaaaaa"
+
+    # Collect rows in display order
+    entries: list[dict] = []
+    for path, model_label in zip(mediation_paths, model_labels):
+        med = json.load(open(path))
+        for m in med["mediation"]:
+            entries.append({
+                "model":     model_label,
+                "grouping":  m["grouping"],
+                "probe":     m["probe"],
+                "effect":    float(m["indirect_effect"]),
+                "lo":        float(m["ci_95_lo"]),
+                "hi":        float(m["ci_95_hi"]),
+                "sig":       bool(m["significant_95"]),
+            })
+
+    n = len(entries)
+    fig, ax = plt.subplots(figsize=(9, max(5, 0.55 * n)))
+    y_pos = np.arange(n)
+
+    model_seen: set[str] = set()
+    separator_ys: list[float] = []
+    current_model = ""
+    for i, e in enumerate(entries):
+        if e["model"] != current_model:
+            if current_model:
+                separator_ys.append(i - 0.5)
+            current_model = e["model"]
+
+    for i, e in enumerate(entries):
+        color = color_sig if e["sig"] else color_nonsig
+        marker = "D" if e["sig"] else "o"
+        mfc    = color if e["sig"] else "white"
+        ax.plot([e["lo"], e["hi"]], [i, i], color=color, linewidth=1.2)
+        ax.scatter(e["effect"], i, color=color, marker=marker,
+                   facecolors=mfc, s=55, zorder=3, linewidths=1.2)
+        label = f"{e['model']} | {e['grouping']} | {e['probe']}"
+        ax.text(-0.23, i, label, va="center", ha="right", fontsize=7)
+
+    for y in separator_ys:
+        ax.axhline(y, color="#cccccc", linewidth=0.8, linestyle="--")
+    ax.axvline(0, color="black", linewidth=0.9)
+    ax.set_yticks([])
+    ax.set_xlabel("Bootstrap indirect effect (95% CI)")
+    ax.set_title(
+        "Mediation: name group → probe activation → callback margin\n"
+        "(filled = significant @95%; open = n.s.)"
+    )
+    ax.grid(axis="x", alpha=0.2)
+    # Legend
+    from matplotlib.lines import Line2D
+    legend_els = [
+        Line2D([0], [0], marker="D", color=color_sig,    markerfacecolor=color_sig,
+               markersize=7, linestyle="-", label="Significant (95% CI ∉ 0)"),
+        Line2D([0], [0], marker="o", color=color_nonsig, markerfacecolor="white",
+               markersize=7, linestyle="-", label="Non-significant"),
+    ]
+    ax.legend(handles=legend_els, fontsize=8, framealpha=0.9, loc="lower right")
+    ax.set_xlim(left=ax.get_xlim()[0] - 0.05)
+    fig.tight_layout()
+    save("fig19_hiring_mediation_forest")
+
+
+# ---------------------------------------------------------------------------
 # paper_figure1 — Warmth–Competence space with oblique-basis direction arrows
 # ---------------------------------------------------------------------------
 
@@ -1946,6 +2297,38 @@ def main() -> None:
             "(required for --fig 13/14/15). Same order as --labels."
         ),
     )
+    parser.add_argument(
+        "--hiring-audit-csvs",
+        default=None,
+        help=(
+            "Comma-separated hiring_audit_<label>.csv files, one per model "
+            "(required for --fig 16/18). Same order as --labels."
+        ),
+    )
+    parser.add_argument(
+        "--hiring-steering-csvs",
+        default=None,
+        help=(
+            "Comma-separated hiring_steering_raw_<label>.csv files, one per model "
+            "(required for --fig 17). Same order as --labels."
+        ),
+    )
+    parser.add_argument(
+        "--hiring-disparity-csvs",
+        default=None,
+        help=(
+            "Comma-separated hiring_disparity_<label>.csv files, one per model "
+            "(required for --fig 18). Same order as --labels."
+        ),
+    )
+    parser.add_argument(
+        "--hiring-mediation-jsons",
+        default=None,
+        help=(
+            "Comma-separated hiring_mediation_<label>.json files, one per model "
+            "(required for --fig 19). Same order as --labels."
+        ),
+    )
     args = parser.parse_args()
 
     # Resolve runtime dirs
@@ -2123,6 +2506,55 @@ def main() -> None:
         if 15 in selected:
             print("Figure 15: dense steering signal vs. control …")
             fig15_dense_steering_signal_vs_control(dense_paths, model_labels)
+
+    if selected & {16, 17, 18, 19}:
+        if not model_labels:
+            parser.error("--fig 16/17/18/19 requires --labels")
+        # Resolve hiring audit paths (needed for 16 and 18)
+        audit_paths: list[Path] | None = None
+        if args.hiring_audit_csvs:
+            audit_paths = [Path(p.strip()) for p in args.hiring_audit_csvs.split(",")]
+            if len(audit_paths) != len(model_labels):
+                parser.error("--hiring-audit-csvs and --labels must have equal lengths")
+        # Resolve steering paths (needed for 17)
+        steering_h_paths: list[Path] | None = None
+        if args.hiring_steering_csvs:
+            steering_h_paths = [Path(p.strip()) for p in args.hiring_steering_csvs.split(",")]
+            if len(steering_h_paths) != len(model_labels):
+                parser.error("--hiring-steering-csvs and --labels must have equal lengths")
+        # Resolve disparity paths (needed for 18)
+        disparity_paths: list[Path] | None = None
+        if args.hiring_disparity_csvs:
+            disparity_paths = [Path(p.strip()) for p in args.hiring_disparity_csvs.split(",")]
+            if len(disparity_paths) != len(model_labels):
+                parser.error("--hiring-disparity-csvs and --labels must have equal lengths")
+        # Resolve mediation paths (needed for 19)
+        mediation_paths: list[Path] | None = None
+        if args.hiring_mediation_jsons:
+            mediation_paths = [Path(p.strip()) for p in args.hiring_mediation_jsons.split(",")]
+            if len(mediation_paths) != len(model_labels):
+                parser.error("--hiring-mediation-jsons and --labels must have equal lengths")
+
+        if 16 in selected:
+            if not audit_paths:
+                parser.error("--fig 16 requires --hiring-audit-csvs")
+            print("Figure 16: hiring probe-vs-human alignment …")
+            fig16_hiring_probe_vs_human(audit_paths, model_labels)
+        if 17 in selected:
+            if not steering_h_paths:
+                parser.error("--fig 17 requires --hiring-steering-csvs")
+            print("Figure 17: hiring steering → callback …")
+            fig17_hiring_steering_callback(steering_h_paths, model_labels)
+        if 18 in selected:
+            if not disparity_paths or not audit_paths:
+                parser.error("--fig 18 requires --hiring-disparity-csvs and --hiring-audit-csvs")
+            print("Figure 18: hiring disparity …")
+            fig18_hiring_disparity(disparity_paths, audit_paths, model_labels)
+        if 19 in selected:
+            if not mediation_paths:
+                parser.error("--fig 19 requires --hiring-mediation-jsons")
+            print("Figure 19: hiring mediation forest …")
+            fig19_hiring_mediation_forest(mediation_paths, model_labels)
 
     print("Done.")
 
