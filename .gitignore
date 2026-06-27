@@ -97,3 +97,9 @@ project_personal_plan.md
 !results/tables/gemma_scope_*.csv
 !results/tables/hiring_audit_*.csv
 !results/tables/hiring_steering_raw_*.csv
+!results/tables/steering_dense_*.csv
+!results/tables/hiring_disparity_*.csv
+!results/logs/steering_dense_*.json
+!results/logs/hiring_steering_*.json
+!results/logs/hiring_probe_vs_human_*.json
+!results/logs/hiring_mediation_*.json
