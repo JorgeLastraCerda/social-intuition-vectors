@@ -2,9 +2,16 @@
 
 **Produced at:** 2026-06-20 11:37 Europe/Berlin  
 **Models:** Gemma-3-12B-Instruct, Qwen3-14B, Llama-3.1-8B-Instruct  
-**Phase:** B1 (topic-holdout cross-validation) + B2 (layer sweep)  
-**Figure:** `paper/figures/fig8_layer_emergence.{png,pdf}`  
-**Scripts:** `src/validate_probes.py` (B1), `src/layer_sweep.py` (B2)
+**Phase:** B1 (topic-holdout cross-validation) + B2 (layer sweep)
+
+---
+
+## Artifacts
+
+- **Scripts:** `src/validate_probes.py` (B1 topic-holdout), `src/layer_sweep.py` (B2 layer sweep)
+- **Inputs:** `data/processed/concept_vectors/`, `data/processed/concept_vectors_qwen3_14b/`, `data/processed/concept_vectors_llama31_8b/`
+- **Outputs:** `results/tables/layer_sweep_gemma3_12b.csv`, `results/tables/layer_sweep_qwen3_14b.csv`, `results/tables/layer_sweep_llama31_8b.csv` (+ `.meta.json` companions)
+- **Figures:** `paper/figures/fig8_layer_emergence.{png,pdf}`
 
 ---
 

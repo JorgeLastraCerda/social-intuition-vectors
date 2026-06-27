@@ -5,6 +5,17 @@
 **Scope:** Warmth/competence feature decomposition and concept-level causal tests  
 **Status:** Complete for direct concept judgements; hiring-callback causality remains future work
 
+---
+
+## Artifacts
+
+- **Scripts:** `src/gemma_scope_analysis.py`, `src/gemma_scope_causality.py`, `src/match_gemma_scope_features.py`, `src/summarize_gemma_scope_results.py`
+- **Inputs:** `data/processed/concept_vectors/`, `data/processed/concept_vectors_gemma3_27b/`, `data/processed/gemma_scope_gemma3_12b/`, `data/processed/gemma_scope_gemma3_27b/`
+- **Outputs:** `results/tables/gemma_scope_metrics_gemma3_{12b,27b}.csv`, `results/tables/gemma_scope_causality_gemma3_{12b,27b}_local.csv`, `results/tables/gemma_scope_causality_raw_gemma3_{12b,27b}_local.csv`, `results/tables/gemma_scope_feature_matches_12b_27b.csv`, `results/tables/gemma_scope_feature_match_null_12b_27b.csv`, `results/tables/gemma_scope_local_steering_slopes.csv`; `results/logs/gemma_scope_causality_gemma3_{12b,27b}_local.json`
+- **Figures:** `paper/figures/fig9_gemma_scope_decomposition.{png,pdf}`, `paper/figures/fig10_gemma_scope_steering.{png,pdf}`, `paper/figures/fig11_gemma_scope_ablation.{png,pdf}`, `paper/figures/fig12_gemma_scope_feature_matching.{png,pdf}`
+
+---
+
 ## Executive summary
 
 We used Google's Gemma Scope 2 sparse autoencoders (SAEs) as a second

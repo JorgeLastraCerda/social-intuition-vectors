@@ -2,9 +2,16 @@
 
 **Produced:** 2026-06-24 11:36 (Europe/Berlin)  
 **Model:** Gemma-3-12B-it  
-**Notebooks:** `notebooks/06_hiring_steering_causality.ipynb`, `notebooks/07_hiring_audit.ipynb`  
-**Output tables:** `results/tables/hiring_steering_raw_concept_vectors.csv` (600 rows), `results/tables/hiring_audit_concept_vectors.csv` (282 rows)  
 **Status:** Complete for 12B baseline; 27B replication and demographic-grouped disparity remain future work
+
+---
+
+## Artifacts
+
+- **Scripts:** `notebooks/06_hiring_steering_causality.ipynb`, `notebooks/07_hiring_audit.ipynb`; steering helpers from `src/gemma_scope_causality.py`
+- **Inputs:** `data/processed/concept_vectors/`, `data/raw/SocialPerceptions-Predict-Callback-main/0_data/ratings/names/df_all.csv`
+- **Outputs:** `results/tables/hiring_steering_raw_concept_vectors.csv` (600 rows), `results/tables/hiring_audit_concept_vectors.csv` (282 rows)
+- **Figures:** `results/figures/hiring_steering_concept_vectors.{png,pdf}`, `results/figures/hiring_probe_vs_human_concept_vectors.png`
 
 ---
 

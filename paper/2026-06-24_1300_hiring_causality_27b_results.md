@@ -2,10 +2,17 @@
 
 **Produced:** 2026-06-24 13:00 (Europe/Berlin)  
 **Model:** Gemma-3-27B-it  
-**Notebooks:** `notebooks/06_hiring_steering_causality.ipynb`, `notebooks/07_hiring_audit.ipynb` (VECTORS_SUBDIR = "concept_vectors_gemma3_27b")  
-**Output tables:** `results/tables/hiring_steering_raw_concept_vectors_gemma3_27b.csv` (600 rows), `results/tables/hiring_audit_concept_vectors_gemma3_27b.csv` (282 rows)  
 **Companion report:** `2026-06-24_1136_hiring_causality_results.md` (12B baseline)  
 **Status:** Complete for 27B baseline; demographic-grouped disparity requires same research decisions as 12B (D-Phase7-A, D-Phase7-B)
+
+---
+
+## Artifacts
+
+- **Scripts:** `notebooks/06_hiring_steering_causality.ipynb` (VECTORS_SUBDIR = `concept_vectors_gemma3_27b`), `notebooks/07_hiring_audit.ipynb`; steering helpers from `src/gemma_scope_causality.py`
+- **Inputs:** `data/processed/concept_vectors_gemma3_27b/`, `data/raw/SocialPerceptions-Predict-Callback-main/0_data/ratings/names/df_all.csv`
+- **Outputs:** `results/tables/hiring_steering_raw_concept_vectors_gemma3_27b.csv` (600 rows), `results/tables/hiring_audit_concept_vectors_gemma3_27b.csv` (282 rows)
+- **Figures:** `results/figures/hiring_steering_concept_vectors_gemma3_27b.{png,pdf}`, `results/figures/hiring_probe_vs_human_concept_vectors_gemma3_27b.png`
 
 ---
 
