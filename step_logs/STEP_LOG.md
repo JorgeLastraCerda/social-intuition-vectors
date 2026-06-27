@@ -835,3 +835,13 @@
 - **Findings:** fig16: Gemma warmth ρ= +0.366/+0.396 (positive); Llama −0.300, Qwen −0.193 (anti-aligned). fig17: 12B warmth Δ@+0.50 = +8.35 (strong); 27B −0.23 (inert); Llama +3.17 (moderate); Qwen +0.60 (weak). fig18: Gemma-27B race gap +1.255 SD (largest); gender direction opposed by 12B/Llama/Qwen. fig19: 5 significant mediation entries — Llama race×warmth IE=+0.190 [+0.111,+0.292] (largest); 12B and 27B null; Qwen race×competence −0.132 (reversed sign). Steerability paradox: most steerable model (12B) shows null mediation; least steerable (Llama) shows strongest mediation.
 - **Decision / rationale:** Input-data provenance added to both reports per user request; exact row/column/label counts verified from source files before writing. Raw signs retained for warmth anti-alignment (user decision; discussed as genuine finding, not sign error).
 - **Next:** Commit + push all changes (generate_figures.py, dense report update, Phase-7 report, figures 13–19, README, STEP_LOG).
+
+---
+
+## 2026-06-27 · Step 5 — Add plain-language experimental design and bias interpretation to Phase-7 report
+
+- **Context:** User asked for a plain-language description of what the pipeline actually does and whether the model is being "racist", so both clarifications are now embedded in the report for any future reader.
+- **Agent:** claude-opus-4-8
+- **Did:** Added three sections to `paper/2026-06-27_1541_hiring_phase7_4model.md`: (1) `## Experimental design` block before Summary — three-measurement structure: (a) hiring prompt with exact template from `src/hiring_audit.py`, callback margin sign convention, explicit note that race/gender is never given to the model; (b) probe measurement from neutral name sentence; (c) disparity+mediation combination. (2) Plain-language callback-margin sign explanation + "labels come from the benchmark, not the model" note before §3.1. (3) New `§3.3 Is there bias?` subsection with bias verdict (yes, differential treatment), direction note (reverse of classic discrimination, likely RLHF over-correction), and inconsistency-as-finding summary; renumbered old §3.3 to §3.4.
+- **Findings / Decision:** No numbers changed. All additions are interpretive framing, not new results. Bias framing: differential treatment confirmed; direction opposite to classical discrimination in 3/4 models; main finding is model-to-model inconsistency rather than a stable discriminatory pattern.
+- **Next:** Commit + push.
