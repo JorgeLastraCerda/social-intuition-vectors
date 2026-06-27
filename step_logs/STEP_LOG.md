@@ -791,3 +791,14 @@
 - **Findings:** All four rows cross x=0 — ±0.10 steering is sufficient to flip Yes/No in every case. 12B·Warmth range: −2.21 to +3.34; 27B·Competence range: −1.23 to +0.54. Baseline positions reveal 12B starts Yes-leaning (+0.56), 27B·Comp starts No-leaning (−0.34).
 - **Decision / rationale:** Reframing from "change" to "position + boundary" makes the causal claim concrete and the asymmetry (warmth > competence, 12B > 27B) visually legible. Symmetric papyon design carried zero extra information.
 - **Next:** Commit all three paper figures for supervisor presentation.
+
+---
+
+## 2026-06-27 · Step 1 — Add dense (SAE-free) steering script and 4-model SGE jobs
+
+- **Context:** Equalizing Phase-6 concept steering across all four models (Gemma-3-12B/27B, Llama-3.1-8B, Qwen3-14B) before proceeding to Phase 7 hiring.
+- **Agent:** claude-sonnet-4-6
+- **Did:** Created `src/dense_steering.py` — reuses validated helpers from `src/gemma_scope_causality.py` (unit, yes_no_margin, make_steering_hook, train_test_topics, summarize_*) but drops all Gemma Scope / SAE dependencies. Directions: `raw_dense` (high−low concept vector, train-topic means) + orthogonalized `random` control. Created four SGE jobs: `jobs/sge/steering_dense_gemma3_12b.sh`, `steering_dense_gemma3_27b.sh`, `steering_dense_llama31_8b.sh`, `steering_dense_qwen3_14b.sh`.
+- **Findings:** Syntax check passed. Script reads all model-specific parameters (model name, probe layer, d_model) from `meta.json`; `mean_resid_norm` from stored activations; identical `train_test_topics` split via `cfg.probing.seed=20260527` and `n_test_topics=10` ensures comparable steering curves across models.
+- **Decision / rationale:** Keep `gemma_scope_causality.py` untouched (Gemma SAE pipeline stays valid). Regression gate: Gemma-12B job must match existing `gemma_scope_causality_gemma3_12b_local.csv` raw_dense rows (warmth +0.1 → 3.88125, competence +0.1 → 2.00625) before submitting Llama/Qwen jobs.
+- **Next:** Commit + push → SCCKN `git pull` → `qsub steering_dense_gemma3_12b.sh` (regression gate) → on pass, `qsub` remaining three jobs → pull results → write 4-model dense steering findings report in `paper/`.
