@@ -76,13 +76,29 @@ cross-model comparison, not raw effects.
 at the probe layer (`probe_layer_frac = 0.66`), computed separately for warmth and
 competence. The vector is unit-normalised before steering.
 
-**Steering:** `Δh ← alpha × unit(raw_dense) × mean_resid_norm` added to the residual
-stream at the probe layer via a TransformerLens hook. `mean_resid_norm` is the mean
-L2 norm of the residual stream at that layer, computed from the stored training
-activations.
+**Steering mechanism — what "pushing" means in practice:**  
+We know the exact direction vector. We do not perturb the model randomly; we add a
+scaled version of the known concept direction directly to the residual stream at the
+probe layer. The operation is additive (not multiplicative or projective):
 
-**Random control:** An orthogonalized random Gaussian vector with the same unit norm,
-serving as a non-specific perturbation of equal energy.
+```
+new_residual = residual + alpha × unit(raw_dense)
+```
+
+where `alpha = strength × mean_resid_norm` (implemented in
+`src/gemma_scope_causality.py:make_steering_hook`). `unit()` normalises the direction
+to unit length, so the *direction* carries the concept axis and `alpha` controls the
+*magnitude* of the push in the model's own internal scale units. At `strength = +0.10`,
+the absolute magnitude of the push is `0.10 × mean_resid_norm` — which equals
+~7.97 for Gemma-12B and ~1.14 for Llama, even though both models receive the same
+`strength` coefficient.
+
+**Random control:** A random Gaussian vector of the same unit norm, orthogonalised to
+the target axis (`random_vec -= unit(raw)·(random_vec·unit(raw))`), serving as a
+"same energy, wrong direction" baseline. This is not the same as random noise on the
+model weights or activations; it is a controlled perturbation specifically designed to
+be orthogonal to the concept axis so that any effect it produces reflects non-specific
+residual-stream sensitivity rather than concept-specific steering.
 
 **Evaluation:** Mean `Δ(Yes–No logit margin)` ("`delta_margin`") over 20 held-out test
 stories spanning 10 held-out test topics (10 topics × 2 conditions each), bootstrap
@@ -194,6 +210,38 @@ competence steering result at 27B should be interpreted with caution.
    Gemma-12B; for Qwen and Llama the peak is slightly earlier. Results are
    therefore lower bounds on peak steerability for those models.
 
+5. **Strength range ±0.10: sufficient for causal proof, insufficient for full
+   characterisation.** The {−0.10, …, +0.10} range is adequate for the purpose
+   stated here — demonstrating that a known-direction push produces a monotone,
+   direction-specific, dose-dependent causal effect (i.e., proving the concept
+   direction is causally active). It is deliberately conservative to stay within
+   the "local regime" where the model remains coherent.
+
+   However, this range does not let us observe the *full dose-response shape*:
+   - **Saturation / threshold** — at what strength does the effect plateau or the
+     model output become incoherent? Unknown.
+   - **Decision flip** — what minimal push is needed to reliably reverse a "No" to
+     "Yes" (or vice versa)? Not measured here (hiring sweep in Phase 7 at ±0.50
+     begins to address this, but for concept-story stimuli it remains open).
+   - **Underestimation for weaker models** — Gemma-27B and Llama show low
+     steerability at ±0.10, but the ±0.50 hiring sweep reveals moderate effects in
+     Llama. The steerability ranking (12B > Qwen > 27B ≈ Llama) is therefore a lower
+     bound for the two smaller models at this menzil; their true maximum effect may
+     be meaningfully higher.
+
+   **Asymmetry with Phase 7:** The hiring sweep (Phase 7, `fig17`) extends to ±0.50
+   in `mean_resid_norm` units. Using a wider range for hiring than for concept stories
+   is a deliberate design choice (the concept-story judgement prompt is more sensitive
+   to the manipulation than the hiring prompt), but it means the two sets of results
+   are not directly comparable at face value.
+
+   **Recommended extension (future work):** Run an extended sweep at
+   `alpha ∈ {±0.25, ±0.50, ±1.00}` on concept stories to (a) measure saturation,
+   (b) characterise coherence degradation via perplexity or log-prob on neutral text,
+   and (c) establish a per-model "effective steerability ceiling" that makes the
+   cross-model ranking more robust. The script supports this via `--strengths`; only
+   GPU time is needed.
+
 ## Bridge to Phase 7 (Hiring)
 
 The normalized steerability ranking (12B > Qwen > 27B ≈ Llama) predicts that
@@ -202,6 +250,9 @@ callback margins, with Qwen3-14B a distant second, and Gemma-27B / Llama near-nu
 This is qualitatively consistent with the hiring causal sweeps in the two existing
 Gemma reports (positive warmth effect at 12B; inert warmth at 27B).
 
-The Phase 7 4-model report (in progress) will directly quantify whether
-steerability predicts hiring causal movement, and whether model callback disparities
-align with the human correspondence-study benchmark (Gallo & Hausladen, 2024).
+The Phase 7 4-model report (`paper/2026-06-27_1541_hiring_phase7_4model.md`) directly
+quantifies whether steerability predicts hiring causal movement, and whether model
+callback disparities align with the human correspondence-study benchmark (Gallo &
+Hausladen, 2024). The steerability ranking (12B strongest, Llama weakest) broadly
+predicts hiring causal magnitude — but *inverts* when predicting mediation of name-group
+disparities (see the steerability paradox in that report).
