@@ -25,10 +25,11 @@ and bootstrap mediation for all four models; consolidated report with steerabili
   - `data/raw/SocialPerceptions-Predict-Callback-main/0_data/ratings/names/df_all.csv`
   - `data/raw/SocialPerceptions-Predict-Callback-main/0_data/published_data/df_all.csv`
   - `data/stimuli/name_roster.csv`
-- **Outputs (per model, 4 models = 12 files + 4 JSON):**
+- **Outputs (per model, 4 models = 12 CSV files + 8 JSON logs):**
   - `results/tables/hiring_audit_<label>.csv`
   - `results/tables/hiring_steering_raw_<label>.csv`
   - `results/tables/hiring_disparity_<label>.csv`
+  - `results/logs/hiring_probe_vs_human_<label>.json`
   - `results/logs/hiring_mediation_<label>.json`
 - **Figures:**
   - `paper/figures/fig16_hiring_probe_vs_human.{png,pdf}`
@@ -75,6 +76,24 @@ we read the model's internal warmth and competence activations by projecting the
 residual-stream representation onto the direction vectors we extracted earlier from
 concept stories (Phase 4–5). This gives us a **model_warmth** and **model_competence**
 score for each name, without involving the hiring decision at all.
+
+In plain terms, this test asks whether the model has name-level social associations
+that resemble human name perceptions. The model is not asked whether it would hire the
+person. Instead, each name is placed in a neutral name sentence, the model's internal
+activation is read, and we ask whether names that humans rate as warmer or more
+competent also receive higher warmth or competence probe scores inside the model.
+
+The comparison is done with Spearman ρ, a rank-correlation measure. A positive ρ means
+the model and human raters order names similarly on that trait. A near-zero ρ means the
+model's name ordering is mostly unrelated to the human ordering. A negative ρ means the
+model orders names in the opposite direction from the human ratings.
+
+The same audit file also records a **baseline callback association** check. Before any
+steering intervention, we ask whether the model's normal callback margin already moves
+with (a) the model's own warmth/competence probe scores or (b) the human
+warmth/competence ratings for the same names. This is correlational only: it tells us
+whether baseline callback preferences co-vary with warmth/competence scores, not
+whether those scores causally produce the callback decision.
 
 ### Measurement 3 — Combining the two: disparity and mediation
 
@@ -146,6 +165,24 @@ no probe-direction flipping is applied.
 
 ## 1 · Probe-vs-human alignment (fig16)
 
+This audit is the name-level validity check for the concept probes. For each of the
+282 names, `src/hiring_audit.py` combines two pieces of information:
+
+1. **Human side:** the Gallo & Hausladen et al. name-rating data
+   (`ratings/names/df_all.csv`), containing 24,220 rater rows over 282 names. These
+   ratings are aggregated per name into `human_warm` and `human_competent`.
+2. **Model side:** the model's warmth and competence probe scores for the same names,
+   computed from the previously extracted concept-vector directories
+   (`concept_vectors*/`). Each name is inserted into a neutral name sentence; the
+   residual-stream activation is projected onto the warmth and competence directions;
+   the resulting values are stored as model-level name scores.
+
+The output table `results/tables/hiring_audit_<label>.csv` has one row per name
+(282 rows, 8 columns). The summary log
+`results/logs/hiring_probe_vs_human_<label>.json` stores the Spearman correlations and
+associated significance tests. Figure 16 visualises these correlations for all four
+models.
+
 Spearman ρ between the model's probe score (projection of mean residual-stream
 activation onto the warmth/competence direction vector) and the crowdsourced human
 rating, across all 282 names:
@@ -156,6 +193,11 @@ rating, across all 282 names:
 | Gemma-3-27B-it | **+0.396** | **+0.272** | < 0.001 | < 0.001 |
 | Llama-3.1-8B-Instruct | **−0.300** | −0.063 | < 0.001 | n.s. |
 | Qwen3-14B | **−0.193** | **+0.465** | < 0.001 | < 0.001 |
+
+![Probe-vs-human alignment across four models](figures/fig16_hiring_probe_vs_human.png)
+
+**Figure 16.** Spearman correlations between model probe scores and human name
+ratings. Negative warmth bars for Llama and Qwen show anti-alignment at the name level.
 
 The Gemma models show clean positive alignment on both axes: names that humans rate
 warmer also activate more strongly in the warmth direction, and similarly for
@@ -176,6 +218,41 @@ axes follow different patterns in these smaller / differently-trained models. Fu
 work should examine whether this reflects probe-direction geometry, training-data
 differences, or name-to-concept generalisation failure.
 
+### Baseline callback correlations in the same audit
+
+The same `hiring_audit_<label>.csv` table also supports a baseline callback audit.
+Here no steering is applied. Each model receives the fixed hiring prompt with only the
+applicant name changed, and the resulting `callback_margin` is correlated with four
+name-level variables:
+
+1. `model_warmth` — whether names internally represented as warmer receive higher
+   baseline callback margins.
+2. `model_competence` — whether names internally represented as more competent receive
+   higher baseline callback margins.
+3. `human_warm` — whether names humans rate as warmer receive higher model callback
+   margins.
+4. `human_competent` — whether names humans rate as more competent receive higher
+   model callback margins.
+
+These four rows are stored in `results/logs/hiring_probe_vs_human_<label>.json` as
+`callback_vs_model_warmth`, `callback_vs_model_competence`,
+`callback_vs_human_warm`, and `callback_vs_human_competent`. They use the same 282
+names and the same eight-column audit table as the probe-vs-human alignment test.
+
+| Model | cb vs model_warmth | cb vs model_competence | cb vs human_warm | cb vs human_competent |
+|-------|-------------------:|-----------------------:|-----------------:|----------------------:|
+| Gemma-3-12B-it | +0.150 | +0.149 | +0.240 | +0.240 |
+| Gemma-3-27B-it | -0.160 | -0.156 | -0.101 | -0.212 |
+| Llama-3.1-8B-Instruct | +0.092 | +0.053 | +0.124 | -0.050 |
+| Qwen3-14B | +0.195 | +0.426 | +0.180 | +0.116 |
+
+Interpretation: Gemma-3-12B and Qwen show positive baseline associations between
+callback margin and warmth/competence scores, with Qwen's strongest association on
+model competence. Gemma-3-27B shows the opposite sign: higher warmth/competence scores
+are associated with lower baseline callback margins, especially for human competence.
+Llama's associations are weak. These are descriptive baseline correlations, not causal
+evidence; causal claims require the steering sweep in the next section.
+
 ## 2 · Steering → callback (fig17)
 
 Mean change in Yes-vs-No callback-recommendation logit margin (Δmargin) over 60 names
@@ -188,6 +265,12 @@ layer. Reported at key strengths:
 | Gemma-3-27B-it | −0.785 | −0.225 | −3.523 | −0.983 |
 | Llama-3.1-8B-Instruct | +1.376 | +3.171 | +1.006 | +2.170 |
 | Qwen3-14B | +0.792 | +0.600 | −0.044 | −0.383 |
+
+![Hiring callback response to warmth and competence steering](figures/fig17_hiring_steering_callback.png)
+
+**Figure 17.** Mean change in callback margin over the 60-name steering subset, with
+95% confidence intervals, after adding warmth or competence directions at the probe
+layer.
 
 **Gemma-3-12B** is the only model with a strong, monotone, positive dose-response on
 both axes. Warmth steering at +0.50 shifts the mean callback margin by more than 8
@@ -268,6 +351,12 @@ Model gaps standardized by within-model SD of callback_margin (across all 282 na
 | Llama-3.1-8B | 0.118 | +0.048 | **+0.401 SD** | +0.053 | **+0.449 SD** |
 | Qwen3-14B | 0.353 | +0.058 | **+0.164 SD** | +0.314 | **+0.887 SD** |
 
+![Model demographic callback disparities and direction agreement](figures/fig18_hiring_disparity.png)
+
+**Figure 18.** Model callback gaps in within-model SD units and direction agreement
+against the human benchmark. Positive race gaps mean Black-signalling names receive
+higher callback margins than White-signalling names.
+
 **Direction agreement with the human benchmark:**
 - **Race gap (human positive, +):** Gemma-12B opposes (−0.088 SD); Gemma-27B, Llama,
   Qwen all agree in sign.
@@ -332,6 +421,11 @@ seed=20260527, n_matched=269, race subset n=227):
 | Qwen3-14B | race (Black=1) | warmth | **+0.081** | [+0.014, +0.156] |
 | Qwen3-14B | race (Black=1) | competence | **−0.132** | [−0.217, −0.058] |
 | Qwen3-14B | gender (Female=1) | competence | **+0.076** | [+0.029, +0.141] |
+
+![Bootstrap mediation forest plot for name group, probe score, and callback margin](figures/fig19_hiring_mediation_forest.png)
+
+**Figure 19.** Bootstrap indirect effects for the pathway name group → probe score →
+callback margin. Filled markers indicate 95% confidence intervals that exclude zero.
 
 ### Non-significant (all entries)
 
