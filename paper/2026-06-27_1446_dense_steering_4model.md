@@ -118,6 +118,12 @@ match the regime validated in `paper_figure3`.
 
 ### 1. Per-model dose-response (fig13)
 
+![Dense steering dose-response across four models](figures/fig13_dense_steering_doseresponse.png)
+
+**Figure 13.** Dose-response curves for raw dense concept steering and orthogonalized
+random controls across all four models. Panels use free y-axes because raw logit
+effects are not comparable across model families.
+
 All four models produce monotone dose-response curves for `raw_dense`:
 
 | Model | Warmth Δmargin at +0.10 | Competence Δmargin at +0.10 | mean_resid_norm |
@@ -134,6 +140,12 @@ across models (Llama 11.4 → Gemma-12B 79722), the Llama and Gemma effects are
 not in the same units as Qwen's even though the `alpha` coefficient is identical.
 
 ### 2. Normalized steerability (fig14)
+
+![Cross-model normalized steerability by concept axis](figures/fig14_dense_steering_normalized.png)
+
+**Figure 14.** Peak steering effect normalized by each model's own baseline high-low
+concept gap. This is the primary cross-model comparison because it removes the raw
+residual-scale differences across architectures.
 
 **Normalized steerability** = `effect(raw_dense, +0.10) / baseline high_low_margin_gap`
 
@@ -163,6 +175,12 @@ baseline — consistent with representations that are deeply embedded and resist
 to low-rank linear interventions.
 
 ### 4. Signal vs. control (fig15)
+
+![Dense steering signal versus orthogonal random control](figures/fig15_dense_steering_signal_vs_control.png)
+
+**Figure 15.** Signal-vs-control comparison at peak strength. The warning mark flags
+Gemma-27B competence, where the random-control effect is larger than the target
+direction effect.
 
 At `alpha = +0.10 × mean_resid_norm`, the `raw_dense` effect (signal) vs.
 `random` effect (control) are:

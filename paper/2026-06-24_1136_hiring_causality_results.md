@@ -89,6 +89,11 @@ corresponding to P(Yes) ≈ 0.451. The model leans slightly toward "No" regardle
 
 ### Causal sweep (notebook 06)
 
+![Gemma-3-12B hiring callback response to warmth and competence steering](../results/figures/hiring_steering_concept_vectors.png)
+
+**Figure H1.** Steering sweep for Gemma-3-12B using the concept-vector directions.
+Positive values indicate increased Yes-vs-No callback margin relative to no steering.
+
 **Warmth** — clean, linear, robust:
 
 | Steering strength | Mean Δ callback margin | SE |
@@ -125,6 +130,11 @@ as "more is always better" — role appropriateness matters. We flag this for th
 rather than glossing over it.
 
 ### Probe-vs-human validation (notebook 07)
+
+![Gemma-3-12B probe-vs-human alignment for name ratings](../results/figures/hiring_probe_vs_human_concept_vectors.png)
+
+**Figure H2.** Name-level alignment between Gemma-3-12B probe scores and human
+warmth/competence ratings.
 
 | Dimension | Spearman ρ | Pearson r | p-value | N |
 |---|---|---|---|---|

@@ -77,6 +77,12 @@ near-ceiling P(Yes) limits the headroom available for positive causal interventi
 
 ### Causal sweep
 
+![Gemma-3-27B hiring callback response to warmth and competence steering](../results/figures/hiring_steering_concept_vectors_gemma3_27b.png)
+
+**Figure H3.** Steering sweep for Gemma-3-27B using the concept-vector directions.
+Compared with 12B, the 27B hiring response is inert or reversed rather than cleanly
+positive.
+
 **Warmth — no reliable causal effect:**
 
 | Strength | 12B Δ margin | 27B Δ margin |
@@ -109,6 +115,11 @@ zero. The weak positive slope (+2.880) reflects only that large reductions (−0
 slightly more than large increases (+0.50), not that increasing competence helps.
 
 ### Probe-vs-human validation
+
+![Gemma-3-27B probe-vs-human alignment for name ratings](../results/figures/hiring_probe_vs_human_concept_vectors_gemma3_27b.png)
+
+**Figure H4.** Name-level alignment between Gemma-3-27B probe scores and human
+warmth/competence ratings.
 
 | Dimension | 12B ρ | 27B ρ | 27B p-value |
 |---|---|---|---|
