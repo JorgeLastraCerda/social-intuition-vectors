@@ -8,6 +8,15 @@
 
 ---
 
+## Artifacts
+
+- **Scripts:** `src/extract_vectors.py`, `src/validate_probes.py`
+- **Inputs:** `data/processed/concept_vectors/` (`warmth_vec.npy`, `competence_vec.npy`, `X_*.npy`)
+- **Outputs:** `results/tables/probe_metrics.csv`, `results/logs/validate_probes_default.json`
+- **Figures:** `paper/figures/fig1_joint_density.{png,pdf}`, `paper/figures/fig2_random_baseline.{png,pdf}`, `paper/figures/fig3_lorenz_concentration.{png,pdf}`, `paper/figures/fig4_axis_geometry.{png,pdf}`
+
+---
+
 ## Summary of Findings
 
 1. We extracted the internal representations of 200 short stories from Gemma-3-12B-it and constructed linear direction vectors for warmth and competence.

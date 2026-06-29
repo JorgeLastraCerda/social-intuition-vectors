@@ -2,9 +2,16 @@
 
 **Produced:** 2026-06-24 11:36 (Europe/Berlin)  
 **Model:** Gemma-3-12B-it  
-**Notebooks:** `notebooks/06_hiring_steering_causality.ipynb`, `notebooks/07_hiring_audit.ipynb`  
-**Output tables:** `results/tables/hiring_steering_raw_concept_vectors.csv` (600 rows), `results/tables/hiring_audit_concept_vectors.csv` (282 rows)  
 **Status:** Complete for 12B baseline; 27B replication and demographic-grouped disparity remain future work
+
+---
+
+## Artifacts
+
+- **Scripts:** `notebooks/06_hiring_steering_causality.ipynb`, `notebooks/07_hiring_audit.ipynb`; steering helpers from `src/gemma_scope_causality.py`
+- **Inputs:** `data/processed/concept_vectors/`, `data/raw/SocialPerceptions-Predict-Callback-main/0_data/ratings/names/df_all.csv`
+- **Outputs:** `results/tables/hiring_steering_raw_concept_vectors.csv` (600 rows), `results/tables/hiring_audit_concept_vectors.csv` (282 rows)
+- **Figures:** `results/figures/hiring_steering_concept_vectors.{png,pdf}`, `results/figures/hiring_probe_vs_human_concept_vectors.png`
 
 ---
 
@@ -82,6 +89,11 @@ corresponding to P(Yes) ≈ 0.451. The model leans slightly toward "No" regardle
 
 ### Causal sweep (notebook 06)
 
+![Gemma-3-12B hiring callback response to warmth and competence steering](../results/figures/hiring_steering_concept_vectors.png)
+
+**Figure H1.** Steering sweep for Gemma-3-12B using the concept-vector directions.
+Positive values indicate increased Yes-vs-No callback margin relative to no steering.
+
 **Warmth** — clean, linear, robust:
 
 | Steering strength | Mean Δ callback margin | SE |
@@ -118,6 +130,11 @@ as "more is always better" — role appropriateness matters. We flag this for th
 rather than glossing over it.
 
 ### Probe-vs-human validation (notebook 07)
+
+![Gemma-3-12B probe-vs-human alignment for name ratings](../results/figures/hiring_probe_vs_human_concept_vectors.png)
+
+**Figure H2.** Name-level alignment between Gemma-3-12B probe scores and human
+warmth/competence ratings.
 
 | Dimension | Spearman ρ | Pearson r | p-value | N |
 |---|---|---|---|---|

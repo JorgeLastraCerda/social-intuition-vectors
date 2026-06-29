@@ -16,6 +16,27 @@ was not recorded explicitly, use the report's earliest Git commit time. Keep the
 slug short and descriptive (e.g. `concept_stories_probe_findings`,
 `steering_callback_results`).
 
+## Artifacts block (mandatory)
+
+Every report must include an `## Artifacts` section immediately **after** the
+header metadata block (Produced/Model/Scope/Status) and **before** the first
+content section (Summary / Executive summary). It must list, by repo path, all
+scripts, inputs, outputs, and figures the result depends on. Omit a sub-bullet
+only when the category is genuinely empty.
+
+Template:
+
+```markdown
+## Artifacts
+
+- **Scripts:** `src/<file>.py` (and notebooks `notebooks/NN_*.ipynb` if used)
+- **Inputs:** `data/processed/<vectors_subdir>/`, `data/stimuli/<file>`
+- **Outputs:** `results/tables/<file>.csv`, `results/logs/<file>.json`
+- **Figures:** `paper/figures/<figN>.{png,pdf}` (and `results/figures/<file>` if applicable)
+```
+
+This rule is also stated in `AGENTS.md` → "Findings Reports".
+
 ## Relationship to the step log
 
 - `step_logs/STEP_LOG.md` is the **index and trail**: it records that a result was produced, which files were touched, and what decision was taken. Entries are concise.
@@ -59,6 +80,21 @@ Cross-model figures:
 | `fig10_gemma_scope_steering.{png,pdf}` | Local-regime held-out concept steering for dense, SAE, shared, axis-specific, other-axis, and random directions |
 | `fig11_gemma_scope_ablation.{png,pdf}` | Error-preserving ablation of target, shared, other-axis, and random 65k feature sets |
 | `fig12_gemma_scope_feature_matching.{png,pdf}` | One-to-one 12B↔27B feature-profile matches compared with a 500-permutation row-shuffle null |
+| `fig13_dense_steering_doseresponse.{png,pdf}` | 2-row × 4-col grid: raw_dense (solid) and random (dashed) dose-response for all four models; free per-panel y-axis (raw logit effects span ~100×) |
+| `fig14_dense_steering_normalized.{png,pdf}` | 1×2 (warmth \| competence): cross-model steerability normalized by baseline concept gap; 12B steepest, 27B flattest; shared y-axis |
+| `fig15_dense_steering_signal_vs_control.{png,pdf}` | 1×2 grouped bars at peak strength (α=+0.10): raw_dense vs random direction; ⚠ annotation where 27B competence random effect dominates signal |
+| `fig16_hiring_probe_vs_human.{png,pdf}` | Grouped bars of Spearman ρ (model probe score vs. human rating) for 4 models × {warmth, competence}; negative bars for Llama/Qwen warmth show anti-alignment |
+| `fig17_hiring_steering_callback.{png,pdf}` | 2 rows × 4 cols: mean Δcallback-margin over 60 names ± 95% CI for warmth and competence steering across all models |
+| `fig18_hiring_disparity.{png,pdf}` | Two-panel: (A) model race/gender gaps in within-model SD units + human reference; (B) direction-agreement grid vs. human benchmark |
+| `fig19_hiring_mediation_forest.{png,pdf}` | Forest plot of bootstrap indirect effects (name-group → probe → callback); significant rows filled, grouped by model |
+
+Paper-draft figures (prefixed `paper_figure*`; produced 2026-06-24 for supervisor presentation):
+
+| File | Description |
+|------|-------------|
+| `paper_figure1_axis_arrows.{png,pdf}` | 2×2 panels: warmth/competence story clouds with real-angle direction arrows; oblique basis preserves true inter-axis angle per model (Gemma ~41–45°, Qwen/Llama ~57–59°) |
+| `paper_figure2_layer_emergence.{png,pdf}` | Single-panel layer sweep: Cohen's d vs layer fraction for warmth (solid) and competence (dotted) across all 4 models; probe-layer marker at frac=0.66; d=0.80 reference line |
+| `paper_figure3_diverging_steering.{png,pdf}` | Position + boundary chart: x = absolute Yes/No logit margin; x=0 = decision boundary; bull's-eye dot = baseline (no steering); line+arrow = steerable range at ±0.10 × mean residual norm; every row crosses the boundary (steering is sufficient to flip the answer); Gemma-3-12B & 27B, raw_dense direction |
 
 ## Current reports
 
@@ -72,3 +108,7 @@ Cross-model figures:
 | `2026-06-20_1451_gemma_scope2_feature_causality.md` | 2026-06-20 14:51 | Gemma-3-12B + Gemma-3-27B | Gemma Scope 2 sparse decomposition, cross-scale feature matching, concept steering, and feature ablation | Complete for direct concept causality; hiring evaluation remains future work |
 | `2026-06-24_1136_hiring_causality_results.md` | 2026-06-24 11:36 | Gemma-3-12B-it | Phase 6+7: hiring-callback causal sweep and probe-vs-human validation | Complete for 12B baseline |
 | `2026-06-24_1300_hiring_causality_27b_results.md` | 2026-06-24 13:00 | Gemma-3-27B-it | Phase 6+7 replication at 27B: steering inert for warmth, reversed baseline association, stronger probe-vs-human alignment | Complete; demographic disparity requires D-Phase7-A/B decisions |
+| `2026-06-27_1446_dense_steering_4model.md` | 2026-06-27 14:46 | Gemma-3-12B · Gemma-3-27B · Llama-3.1-8B · Qwen3-14B | Phase 6 extension: dense (SAE-free) steering replicated across all 4 models; normalized steerability, signal-vs-control, Gemma scale paradox | Complete |
+| `2026-06-27_1541_hiring_phase7_4model.md` | 2026-06-27 15:41 | Gemma-3-12B · Gemma-3-27B · Llama-3.1-8B · Qwen3-14B | Phase 7 consolidated: probe-vs-human alignment, steering→callback, demographic disparity, bootstrap mediation; steerability paradox | Complete |
+| `2026-06-27_1650_stimulus_quality_audit.md` | 2026-06-27 16:50 | claude-opus-4-8 (audit) | Full quality audit of the 200 concept stories: structural balance, leakage checks, narrative quality, scored rubric (8.5/10), paper implications | Complete; dataset accepted for current analyses |
+| `2026-06-27_1757_probe_human_data_audit.md` | 2026-06-27 17:57 | Gemma-3-12B · Gemma-3-27B · Llama-3.1-8B · Qwen3-14B | Data-quality audit for Test 2 probe-vs-human alignment: Gallo & Hausladen name ratings + model concept vectors; scored rubric (8.0/10), limitations, acceptance decision | Complete; data accepted for current analyses |

@@ -3,6 +3,16 @@
 **Produced at:** 2026-06-20 13:37 Europe/Berlin  
 **Scope:** Four-model probe validation and affected reports
 
+---
+
+## Artifacts
+
+- **Scripts:** `src/validate_probes.py`
+- **Inputs:** `data/processed/concept_vectors/`, `data/processed/concept_vectors_gemma3_27b/`, `data/processed/concept_vectors_qwen3_14b/`, `data/processed/concept_vectors_llama31_8b/`
+- **Outputs:** `results/tables/probe_metrics.csv`, `results/tables/probe_metrics_gemma3_27b.csv`, `results/tables/probe_metrics_qwen3_14b.csv`, `results/tables/probe_metrics_llama31_8b.csv`
+
+---
+
 ## Finding
 
 The previously reported chance-level cross-axis CV for Gemma-3-12B and Gemma-3-27B

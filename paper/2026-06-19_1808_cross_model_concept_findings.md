@@ -8,6 +8,15 @@
 
 ---
 
+## Artifacts
+
+- **Scripts:** `src/extract_vectors.py`, `src/validate_probes.py`, `paper/figures/generate_figures.py`
+- **Inputs:** `data/processed/concept_vectors/`, `data/processed/concept_vectors_qwen3_14b/`, `data/processed/concept_vectors_llama31_8b/`
+- **Outputs:** `results/tables/probe_metrics.csv`, `results/tables/probe_metrics_qwen3_14b.csv`, `results/tables/probe_metrics_llama31_8b.csv`; `results/logs/validate_probes_default.json`, `results/logs/validate_probes_qwen3_14b.json`, `results/logs/validate_probes_llama31_8b.json`
+- **Figures:** `paper/figures/fig5_cross_model.{png,pdf}`, `paper/figures/fig6_cross_model_story_agreement.{png,pdf}`, `paper/figures/fig7_same_story_demo.{png,pdf}`; `paper/figures/qwen3_14b/fig{1,2,3}_*.{png,pdf}`, `paper/figures/llama31_8b/fig{1,2,3}_*.{png,pdf}`
+
+---
+
 ## Summary of Findings
 
 1. Warmth and competence are linearly probeable from residual-stream activations in all three tested models — Google Gemma-3-12B-it, Alibaba Qwen3-14B, and Meta Llama-3.1-8B-Instruct — achieving 100% cross-validated accuracy on both dimensions simultaneously.

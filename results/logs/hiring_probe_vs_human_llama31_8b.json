@@ -1,0 +1,72 @@
+{
+  "label": "llama31_8b",
+  "model": "meta-llama/Llama-3.1-8B-Instruct",
+  "vectors_subdir": "concept_vectors_llama31_8b",
+  "probe_layer": 20,
+  "hook": "blocks.20.hook_resid_post",
+  "seed": 20260527,
+  "n_names": 282,
+  "correlations": [
+    {
+      "pair": "warmth",
+      "col_x": "model_warmth",
+      "col_y": "human_warm",
+      "spearman_rho": -0.3004,
+      "spearman_p": 2.722649704316864e-07,
+      "pearson_r": -0.2898,
+      "pearson_p": 7.35221025134827e-07,
+      "n": 282
+    },
+    {
+      "pair": "competence",
+      "col_x": "model_competence",
+      "col_y": "human_competent",
+      "spearman_rho": -0.0625,
+      "spearman_p": 0.295486246705525,
+      "pearson_r": -0.0702,
+      "pearson_p": 0.23975931484675397,
+      "n": 282
+    },
+    {
+      "pair": "callback_vs_model_warmth",
+      "col_x": "callback_margin",
+      "col_y": "model_warmth",
+      "spearman_rho": 0.0921,
+      "spearman_p": 0.12277618092520723,
+      "pearson_r": -0.1356,
+      "pearson_p": 0.022789943571857114,
+      "n": 282
+    },
+    {
+      "pair": "callback_vs_model_competence",
+      "col_x": "callback_margin",
+      "col_y": "model_competence",
+      "spearman_rho": 0.0526,
+      "spearman_p": 0.3789935128012952,
+      "pearson_r": 0.0383,
+      "pearson_p": 0.5214947823395926,
+      "n": 282
+    },
+    {
+      "pair": "callback_vs_human_warm",
+      "col_x": "callback_margin",
+      "col_y": "human_warm",
+      "spearman_rho": 0.1236,
+      "spearman_p": 0.03797642357462526,
+      "pearson_r": 0.1288,
+      "pearson_p": 0.030560209887634807,
+      "n": 282
+    },
+    {
+      "pair": "callback_vs_human_competent",
+      "col_x": "callback_margin",
+      "col_y": "human_competent",
+      "spearman_rho": -0.0497,
+      "spearman_p": 0.4058643708132293,
+      "pearson_r": -0.0545,
+      "pearson_p": 0.361507961276456,
+      "n": 282
+    }
+  ],
+  "output_table": "results/tables/hiring_audit_llama31_8b.csv"
+}

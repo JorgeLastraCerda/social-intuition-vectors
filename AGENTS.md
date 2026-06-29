@@ -86,6 +86,7 @@ Maintain an append-only research log at `step_logs/STEP_LOG.md`.
 Any meaningful new finding, result, or methodological approach must be written up as a new dated Markdown file in `paper/`:
 
 - Follow the timestamped report naming convention in `paper/README.md`.
+- **Every report must include an `## Artifacts` section** placed immediately after the header metadata block (Produced/Model/Scope/Status) and before the first content section. It must list, by repo path, all scripts (and notebooks), inputs, outputs (tables/logs), and figures the result depends on. See the template in `paper/README.md`. Omit a sub-bullet only when the category is genuinely empty.
 - Figures go under `paper/figures/`; update `paper/figures/generate_figures.py` and regenerate as needed.
 - The corresponding `step_logs/STEP_LOG.md` entry records *that* a report was created and links to it by path; the report carries the full detail (tables, figures, caveats, interpretation).
 - See `paper/README.md` for the current list of reports and the figures inventory.

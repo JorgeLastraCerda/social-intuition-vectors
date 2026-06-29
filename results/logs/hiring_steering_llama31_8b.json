@@ -1,0 +1,23 @@
+{
+  "label": "llama31_8b",
+  "model": "meta-llama/Llama-3.1-8B-Instruct",
+  "vectors_subdir": "concept_vectors_llama31_8b",
+  "probe_layer": 20,
+  "hook": "blocks.20.hook_resid_post",
+  "mean_resid_norm": 11.36507797241211,
+  "seed": 20260527,
+  "n_names_sampled": 60,
+  "n_names_total": 282,
+  "strengths": [
+    -0.5,
+    -0.25,
+    0.0,
+    0.25,
+    0.5
+  ],
+  "axes": [
+    "warmth",
+    "competence"
+  ],
+  "raw_output": "results/tables/hiring_steering_raw_llama31_8b.csv"
+}
