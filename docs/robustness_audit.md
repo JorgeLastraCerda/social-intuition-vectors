@@ -18,8 +18,22 @@ The concept-level causality work already found this range saturates and switched
 to `[-0.1 … +0.1]`. The 27B null/negative steering result is therefore confounded
 with steering in the saturation regime (27B baseline is already P(Yes)=0.76).
 **Fix:** re-run hiring steering at both scales in the local regime; only then
-interpret slopes. Until done, the 27B "scale dissociation" must be labelled
-*preliminary / pending robustness check* in the draft.
+interpret slopes.
+
+**Partially resolved (2026-06-30):** Notebook 06 STRENGTHS changed to
+`[-0.1, -0.05, 0, 0.05, 0.1]` (the local regime). Notebook 06 has been run for
+27B with `USE_DENOISED=False`. Key finding: **27B is non-monotone even in the
+local regime** — warmth steering gives Δ=+1.97 at +0.05 but collapses to Δ=−2.66
+at +0.10. This rules out simple saturation; 27B has a genuinely fragile, non-linear
+response to representation-level steering. The scale dissociation is **real** but
+its character is non-linearity, not a flat ceiling.
+
+**Still required:** the denoised run of notebook 06 overwrote the raw-run CSV
+(both saved to the same filename). Re-run with `USE_DENOISED=False` once more to
+recover the saved table. The notebook now saves to separate filenames
+(`_denoised` suffix), so this won't happen again.
+
+**Re-runs required — see `docs/rerun_checklist.md`.**
 
 ### A2. Single random-direction null — **[STRENGTHEN]**
 Steering uses one random orthogonal direction as control. One sample is not a
@@ -43,8 +57,26 @@ Both 12B and 27B callback margins fall on a 0.125 grid (e.g. −0.625, −0.500,
 landing on 1/8 steps indicates **bf16 precision loss** at the logit magnitudes
 involved. The demographic disparity signal R4 needs is *small*, and this
 quantisation can be as large as the effect we want to detect.
-**Fix:** recompute logits/margins in **float32** (cast the final logits before the
-subtraction). Re-verify margin variance increases and the grid disappears.
+
+**Root cause (confirmed 2026-06-30):** `src/gemma_scope_causality.py` line 78
+computed `next_token_logits = logits[0, -1]` while the model runs in bf16. The
+subtraction then happens in bf16, which can only represent differences in multiples
+of 0.125 at the relevant logit magnitudes. Verified across all outputs: every CSV
+that calls `yes_no_margin()` — both the notebook-generated
+`hiring_audit_concept_vectors.csv` and Emre's `hiring_audit_gemma3_12b.csv` etc. —
+has exactly 7–8 unique callback margin values. The disparity group means (e.g.
+Black−White gap = −0.013 SD) are below the quantisation step and therefore
+unreliable.
+
+**Fix applied (2026-06-30):** `src/gemma_scope_causality.py` now casts to float32
+before the subtraction:
+```python
+next_token_logits = logits[0, -1].float()   # B1 fix
+```
+Notebooks 06 and 07 also have the same inline fix applied to their local copies of
+`yes_no_margin`.
+
+**Re-runs required — see `docs/rerun_checklist.md` for exact commands.**
 
 ### B2. Compressed 12B callback variance — **[STRENGTHEN]**
 At 12B the callback margin has SD≈0.14 and range −0.625…+0.125: the model says
@@ -128,8 +160,10 @@ the lightweight multi-profession design.
 
 ## Quick action checklist
 
-- [ ] **B1** — recompute callback margins in float32 (do before R4).
-- [ ] **A1** — re-run hiring steering, local regime, both scales.
+- [x] **B1** — float32 fix applied to `src/gemma_scope_causality.py` (2026-06-30).
+      Cluster re-runs and notebook re-runs still required — see `docs/rerun_checklist.md`.
+- [x] **A1 (partial)** — local regime implemented; 27B raw local run done (non-monotone
+      finding confirmed); CSV overwrite fixed in notebook 06. Re-run still needed.
 - [ ] **A2** — random-direction ensemble null for steering.
 - [ ] **B3** — multi-template probe-score robustness.
 - [ ] **C1** — validate probes on arXiv:2601.06316 (external, human-authored).
