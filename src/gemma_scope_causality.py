@@ -75,7 +75,10 @@ def yes_no_margin(
         logits = model.run_with_hooks(prompt_tokens, **kwargs)
     yes_id = candidate_token_id(model, " Yes")
     no_id = candidate_token_id(model, " No")
-    next_token_logits = logits[0, -1]
+    # Cast to float32 before subtraction (B1 fix): bf16 quantises the result to
+    # a 0.125 grid (only ~8 unique values across 282 names), masking small
+    # group-level disparities. float32 gives ~7 decimal places of precision.
+    next_token_logits = logits[0, -1].float()
     return float((next_token_logits[yes_id] - next_token_logits[no_id]).item())
 
 

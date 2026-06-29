@@ -916,3 +916,36 @@
 - **Did:** Added inline PNG embeds and short captions to `paper/2026-06-27_1446_dense_steering_4model.md` (fig13–15), `paper/2026-06-27_1541_hiring_phase7_4model.md` (fig16–19), `paper/2026-06-24_1136_hiring_causality_results.md` (12B hiring figures), `paper/2026-06-24_1300_hiring_causality_27b_results.md` (27B hiring figures), and `paper/2026-06-27_1757_probe_human_data_audit.md` (fig16 reuse).
 - **Findings:** No figure files, result tables, logs, or empirical values changed. All embeds point to existing PNG files under `paper/figures/` or `results/figures/`.
 - **Decision / rationale:** Keep PDFs in artifact inventories for export/publication use while embedding PNGs for readable Markdown reports, matching older report style.
+
+---
+
+## 2026-06-30 · B1 Float32 Fix + Denoising Results
+
+- **Context:** Audit of callback margins revealed all values in every hiring CSV fall on a 0.125 grid (7–8 unique values across 282 names). Root cause: `src/gemma_scope_causality.py::yes_no_margin()` computed `logit(Yes) − logit(No)` while tensors were still in bf16. At the logit magnitudes used (~5–10), bf16 can only represent differences in steps of 0.125.
+
+- **Affected outputs (all must be regenerated):**
+  - `results/tables/hiring_audit_gemma3_{12b,27b,llama31_8b,qwen3_14b}.csv`
+  - `results/tables/hiring_steering_raw_gemma3_*.csv`
+  - `results/tables/hiring_disparity_gemma3_*.csv`
+  - `results/logs/hiring_mediation_*.json`
+  - `results/tables/hiring_audit_concept_vectors{,_gemma3_27b}.csv` (notebook outputs)
+
+- **Fix applied:**
+  - `src/gemma_scope_causality.py` line 78: `logits[0, -1]` → `logits[0, -1].float()`
+  - Same fix in inline copies in `notebooks/06_hiring_steering_causality.ipynb` and `notebooks/07_hiring_audit.ipynb`
+
+- **Denoising completed (notebook 08):**
+  - 12B: k=1 PCA component covers 56% neutral variance; cos(W,C) 0.749→0.530; d_warmth 2.67→8.45; leak 2.28→5.02
+  - 27B: k=43 components cover 50% neutral variance; cos(W,C) 0.708→0.487
+  - Interpretation: remaining cos≈0.53 reflects genuine SCM inter-axis correlation (not valence artefact) — consistent with human rating correlation ρ=0.61 in Gallo & Hausladen data.
+
+- **27B local-regime steering (notebook 06, USE_DENOISED=False):**
+  - Warmth: Δ=+1.97 at +0.05 strength, collapses to Δ=−2.66 at +0.10 (non-monotone)
+  - Competence: similar collapse
+  - Interpretation: scale dissociation is **real but not saturation** — 27B has a narrow controllable window; small perturbations outside it destabilise the response. This is a genuinely different finding from "27B is flat."
+
+- **Notebook 06 fix:** output CSV now saves to `_denoised` suffixed filename when `USE_DENOISED=True`, preventing overwrites.
+
+- **Re-run plan:** see `docs/rerun_checklist.md` for exact commands for Jorge (JupyterHub) and Emre (SCCKN cluster qsub jobs).
+
+- **What does NOT need re-running:** probe training, concept vectors, Gemma Scope SAE analysis, layer sweeps, denoising, Spearman correlations — none use logit subtraction.
