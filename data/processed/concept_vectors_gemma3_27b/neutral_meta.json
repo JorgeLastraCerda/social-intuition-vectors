@@ -1,0 +1,9 @@
+{
+  "n_neutral": 1500,
+  "probe_layer": 40,
+  "d_model": 5376,
+  "start_token": 50,
+  "corpus": "data/stimuli/neutral_corpus.jsonl",
+  "seed": 20260527,
+  "timestamp": 1782767313
+}
