@@ -73,22 +73,30 @@ Raw local-regime results confirmed: warmth Δ=+1.97 at +0.05, Δ=−2.66 at +0.1
 (non-monotone). Also ran 12B denoised steering as a nice-to-have (clean linear warmth
 response confirmed). CSVs committed.
 
-### 1D. Notebook 09 — R4 disparity figures
+### ✅ 1D. Notebook 09 — R4 disparity figures (DONE 2026-06-30)
 
-**Why:** Generates the model-vs-human disparity scatter and mediation regression
-for 27B (the model with reliable margin spread). The B1 diagnostic in notebook 09
-has been updated — it now distinguishes quantised-but-wide (27B: proceed) from
-quantised-and-narrow (12B: report as limitation). The red "QUANTISED" warning is
-replaced by a model-specific message.
+Run complete. Key findings:
 
-```
-Open: notebooks/09_hiring_disparity_R4.ipynb
-Run:  all cells
-Expected: 12B panel → orange "quantised but SD=0.41..." wait, no:
-  12B panel → red warning (SD=0.14, narrow spread, limitation)
-  27B panel → orange note (SD=0.41, detectable)
-Proceed with 27B figures for R4.
-```
+**Group-level disparity (149 matched names; Black n=9 per gender, White n=131):**
+
+| Gap | 12B | 27B | Human benchmark |
+|---|---|---|---|
+| Race (Black − White) | +0.06 SD *(noise)* | **+1.18 SD** | −0.085 (White > Black) |
+| Gender (Female − Male) | +0.77 SD *(unreliable)* | **−0.51 SD** | −0.037 (Male > Female) |
+
+- 27B race gap **opposes** the human benchmark: model massively favours Black names
+  (+1.18 SD) while humans show White names receive higher callback rates. Consistent
+  with RLHF over-correction.
+- 27B gender gap **matches** the human direction: model and human both give males
+  higher callback scores.
+- 12B results are quantisation-dominated (SD=0.14, 7 unique values) — not reportable.
+
+**Name-level OLS (exploratory, 149 names):**
+- 12B: model_warmth r=+0.376 → callback (expected direction), R²=0.150
+- 27B: model_warmth r=−0.266 → callback (reversed, consistent with steerability paradox), R²=0.088
+
+See `paper/2026-06-30_1251_r4_disparity_name_level.md` for full report.
+Outputs committed: `results/tables/r4_group_disparity.csv`, `results/figures/r4_model_vs_human_disparity.{png,svg}`.
 
 ---
 
@@ -165,20 +173,26 @@ Expected / acceptable results:
 
 ---
 
-## Part 3 — After Emre's cluster re-runs complete
+## Part 3 — Writing (Jorge side, unblocked for 27B)
 
-1. Run notebook 09 (`notebooks/09_hiring_disparity_R4.ipynb`) with Emre's new CSVs
-   to regenerate R4 disparity scatter and mediation forest plot.
-2. Update `docs/overleaf/Ulu_Lastra.tex` with:
-   - Corrected disparity/mediation numbers for all 4 models.
-   - 27B steering paragraph: replace "warmth inert" with "warmth non-monotone/fragile"
-     (local-regime result: Δ=+1.97 at +0.05, −2.66 at +0.10).
-   - Steerability paradox section (12B most steerable → null mediation; Llama least
-     steerable → strongest mediation).
-3. Write the R4 results paragraph (currently `% TODO` in `Ulu_Lastra.tex`).
-   Primary model for R4 disparity: 27B (and whichever of Llama/Qwen have SD > 0.30).
-   Note 12B as limited by bf16 quantisation in Limitations.
-4. Write the Abstract (last piece — blocked on R4).
+Jorge can now write R4 for 27B. Llama and Qwen numbers pending Emre's re-runs.
+
+### ✅ Jorge can start now:
+1. Fill in the R4 `% TODO` paragraph in `docs/overleaf/Ulu_Lastra.tex` using 27B
+   numbers from `paper/2026-06-30_1251_r4_disparity_name_level.md`:
+   - Lead with 27B: race gap +1.18 SD (Black > White, **opposes** human direction),
+     gender gap −0.51 SD (Female < Male, **matches** human direction).
+   - Note 12B as quantisation-limited (limitation, not a finding).
+   - Exploratory OLS: 12B warmth r=+0.376, R²=0.150; 27B warmth r=−0.266, R²=0.088.
+2. Update 27B steering paragraph: replace "warmth inert" with "warmth non-monotone/
+   fragile" (local-regime: Δ=+1.97 at +0.05, collapses to −2.66 at +0.10).
+3. Add steerability paradox section (12B most steerable → null mediation; Llama
+   least steerable → strongest mediation IE=+0.190).
+
+### After Emre's cluster re-runs:
+4. Re-run notebook 09 with Emre's 4-model CSVs to extend R4 to Llama and Qwen.
+5. Add Llama/Qwen disparity and mediation numbers to R4 paragraph.
+6. Write Abstract (last piece — was blocked on R4, now unblocked for 27B draft).
 
 ---
 
