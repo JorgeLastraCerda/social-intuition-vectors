@@ -76,6 +76,22 @@ next_token_logits = logits[0, -1].float()   # B1 fix
 Notebooks 06 and 07 also have the same inline fix applied to their local copies of
 `yes_no_margin`.
 
+**Deeper cause identified (2026-06-30, after re-runs):** After re-running notebook 07
+with the float32 fix, margins are **still 100% on the 0.125 grid** for both models
+(12B: 7 unique values SD=0.14; 27B: 18 unique values SD=0.41). The float32 subtraction
+fix eliminates one rounding step but the root cause is that the model's output logits
+are bf16-quantized before any subtraction. At these logit magnitudes, Yes-logit and
+No-logit for this model systematically differ by multiples of 0.125 — a property of the
+model weights, not the subtraction code. A complete fix requires float32 or float16
+inference (higher memory cost).
+
+**Practical implication for R4:**
+- 27B: SD=0.41, 18 unique values, range 2.25 units → group gaps of ~0.5 SD ≈ 0.20
+  raw units = 1.6 grid steps. Detectable. R4 analysis proceeds with this model. ✓
+- 12B: SD=0.14, 7 unique values, range 0.75 units → group gaps ~0.09 SD ≈ 0.012 raw
+  units = 0.1 grid steps. Below detection threshold. Disclose in B2 Limitations;
+  do not report 12B R4 disparity numbers as reliable.
+
 **Re-runs required — see `docs/rerun_checklist.md` for exact commands.**
 
 ### B2. Compressed 12B callback variance — **[STRENGTHEN]**
