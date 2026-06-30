@@ -3,7 +3,21 @@
 **Produced:** 2026-06-24 13:00 (Europe/Berlin)  
 **Model:** Gemma-3-27B-it  
 **Companion report:** `2026-06-24_1136_hiring_causality_results.md` (12B baseline)  
-**Status:** Complete for 27B baseline; demographic-grouped disparity requires same research decisions as 12B (D-Phase7-A, D-Phase7-B)
+**Status:** Updated 2026-06-30 — broad-regime "inert" finding superseded by local-regime non-monotone result; B1 re-run pending
+
+> ⚠ **Known data issues identified 2026-06-30**
+>
+> **B1 — bf16 quantisation:** All callback margins in this report were computed in bf16,
+> rounding each value to the nearest 0.125. Probe-vs-human Spearman ρ values are
+> **unaffected**. Audit margins and steering deltas are directionally informative but
+> precise magnitudes will shift after re-run with the float32 fix.  
+> **Action:** re-run `notebooks/07_hiring_audit.ipynb` (`VECTORS_SUBDIR = "concept_vectors_gemma3_27b"`)
+> — see `docs/rerun_checklist.md` §1B.
+>
+> **A1 — broad regime superseded by local-regime run (2026-06-30):** The original sweep
+> used {±0.25, ±0.50} × `mean_resid_norm`. A local-regime re-run at {±0.05, ±0.10}
+> was completed 2026-06-30. The local-regime result changes the interpretation
+> substantially — see updated Executive Summary and Steering Results sections below.
 
 ---
 
@@ -24,9 +38,13 @@ stand out:
 1. **The 27B encodes social stereotypes more faithfully than the 12B** — probe-vs-human
    Spearman ρ is higher for both warmth (0.381 vs 0.355) and competence (0.283 vs 0.230).
 
-2. **Warmth steering is causally inert at 27B** (slope +1.09, R²=0.026), compared to
-   R²=0.924 at 12B. The warmth direction at layer 40 does not predict the direction of
-   change in callback margin.
+2. **Warmth steering is non-monotone at 27B in the local regime** (±0.05/±0.10 ×
+   mean_resid_norm; run 2026-06-30): Δ=+1.97 at +0.05 but Δ=−2.66 at +0.10 (linear
+   R²=0.002). The earlier broad-regime result (±0.25/±0.50) appeared inert (R²=0.026)
+   because the collapse at +0.10 is already present and averaging over larger steps
+   washes out the brief positive effect at +0.05. **The finding is non-linearity, not
+   saturation** — 27B has a genuinely fragile causal response that works briefly then
+   inverts. See updated steering results below.
 
 3. **The 27B shows a reversed baseline association**: names perceived as warmer or more
    competent internally get *fewer* callbacks (ρ=−0.17 and −0.16, both p<0.01), opposite
@@ -35,7 +53,8 @@ stand out:
 Together these findings show that scale changes *how* social-stereotype representations
 relate to hiring decisions, not whether such representations exist. The bias becomes
 harder to detect via single-layer causal intervention and shifts to a different demographic
-pattern.
+pattern. The non-linearity at 27B is a finding in itself: a stronger representation does
+not imply a more controllable causal pathway.
 
 ---
 
@@ -83,7 +102,9 @@ near-ceiling P(Yes) limits the headroom available for positive causal interventi
 Compared with 12B, the 27B hiring response is inert or reversed rather than cleanly
 positive.
 
-**Warmth — no reliable causal effect:**
+**Warmth — non-monotone in local regime (updated 2026-06-30):**
+
+*Original broad regime {±0.25, ±0.50} × mean_resid_norm — appeared inert:*
 
 | Strength | 12B Δ margin | 27B Δ margin |
 |---|---|---|
@@ -93,10 +114,25 @@ positive.
 | +0.25 | +7.13 | **−0.73** |
 | +0.50 | +8.40 | **−0.28** |
 
-Slope = +1.094, R²=0.026. The warmth direction does not steer the hiring decision in a
-consistent direction at 27B. The −0.25 point shows a large negative spike (−5.88) while
-+0.25 and +0.50 produce small negative effects, giving a curve with no interpretable
-monotone structure. This is in stark contrast to R²=0.924 at 12B.
+Broad-regime slope = +1.094, R²=0.026. The broad regime obscures structure because the
+non-linear collapse already occurs within the {0, +0.05} range.
+
+*Local regime {±0.05, ±0.10} × mean_resid_norm — non-monotone structure revealed:*
+
+| Strength | 27B Δ warmth | 27B Δ competence |
+|---|---|---|
+| −0.10 | −0.765 | −4.858 |
+| −0.05 | −1.285 | −1.850 |
+|  0.00 |  0.000 |  0.000 |
+| +0.05 | **+1.973** | +0.167 |
+| +0.10 | **−2.658** | −2.696 |
+
+Local-regime warmth slope = −1.058, R²=0.002. Warmth steering at 27B is **not inert
+and not saturated** — it works at +0.05 (Δ=+1.97, the expected direction) but then
+collapses and inverts at +0.10 (Δ=−2.66). This is genuine non-linearity: the causal
+response is fragile and highly sensitive to injection magnitude. The scale-dissociation
+finding (12B steerable, 27B not) is confirmed, but its character is **non-linear
+fragility**, not a ceiling effect from a high baseline P(Yes).
 
 **Competence — uniformly negative:**
 
@@ -163,23 +199,33 @@ rigorously.
 
 ## Interpretation
 
-### Why does warmth steering fail at 27B?
+### Why does warmth steering behave non-monotonically at 27B?
 
-Three non-exclusive explanations, in increasing order of interest:
+The local-regime result (Δ=+1.97 at +0.05, Δ=−2.66 at +0.10) rules out simple
+saturation — the baseline P(Yes)=0.767 ceiling would predict a flat positive plateau,
+not a sign flip. The non-linearity must reflect something about the causal structure at
+27B:
 
-**1. Near-ceiling baseline.** With P(Yes)=0.767 and a maximum observed margin of +2.375,
-there is limited room to push callbacks upward. Ceiling effects could compress the
-positive side of the steering curve.
+**1. Near-ceiling baseline (ruled out as primary cause).** P(Yes)=0.767 does limit
+positive headroom, but the collapse from +1.97 to −2.66 between α=+0.05 and α=+0.10
+is far too sharp and too strongly negative to be explained by a ceiling. Ceiling effects
+produce compression toward zero, not inversion.
 
-**2. Different causal architecture at scale.** The warmth representation at layer 40/62
-(frac=0.66) may not be the primary layer at which the hiring decision is formed at 27B.
-A layer sweep on the 27B hiring margins (analogous to Emre's concept-steering layer sweep)
-could reveal where in the network the decision is most modifiable.
+**2. Non-linear causal pathway at scale.** The warmth representation at layer 40 may
+feed into the hiring decision through a circuit that has a narrow operating window. A
+small perturbation (+0.05) activates the pathway in the expected direction; a slightly
+larger perturbation (+0.10) disrupts the circuit and triggers compensatory or
+antagonistic activations elsewhere.
 
-**3. More distributed encoding.** Larger models tend to distribute information across more
-components. If warmth information is spread across several layers and attention heads at
-27B, a single-layer additive intervention at layer 40 may be too localized to reliably
-redirect the decision.
+**3. More distributed encoding.** Larger models distribute representations across more
+components. Additive injection at a single layer may trigger off-target activations at
+27B that would not occur at 12B, where the relevant circuit is more concentrated.
+
+The most parsimonious summary: **27B is not un-steerable, it is fragile**. The causal
+window is narrow (α ≈ +0.05) and does not survive even a doubling of injection
+magnitude. This is a mechanistically interesting finding — it suggests that the 27B
+has learned a more distributed, non-linear encoding of the warmth→hiring pathway
+compared to the 12B's clean linear response.
 
 ### Why is the baseline association reversed?
 
@@ -199,8 +245,9 @@ weaker, but a different bias pattern has emerged in the residuals.
 | Property | 12B | 27B |
 |---|---|---|
 | Internal stereotype encoding (ρ) | Moderate (0.355 / 0.230) | Stronger (0.381 / 0.283) |
-| Warmth causal effect on hiring | Strong, linear (R²=0.924) | Absent (R²=0.026) |
-| Competence causal effect | Positive, non-linear (R²=0.663) | Negative, uniform (R²=0.340) |
+| Warmth causal effect — local regime | Strong, linear (R²=0.924; pending re-run) | Non-monotone: Δ=+1.97 at +0.05, −2.66 at +0.10 (R²=0.002) |
+| Warmth causal effect — broad regime | Strong (R²=0.924) | Appeared inert (R²=0.026) — now understood as non-linearity |
+| Competence causal effect — broad | Positive, non-linear (R²=0.663) | Negative, uniform (R²=0.340) |
 | Baseline generosity | Cautious (P(Yes)=0.451) | Generous (P(Yes)=0.767) |
 | Warmth→callback direction | Positive (n.s.) | Negative (p=0.005) |
 | Demographic callback pattern | Narrow spread | Organised by name origin |

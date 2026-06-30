@@ -2,7 +2,25 @@
 
 **Produced:** 2026-06-24 11:36 (Europe/Berlin)  
 **Model:** Gemma-3-12B-it  
-**Status:** Complete for 12B baseline; 27B replication and demographic-grouped disparity remain future work
+**Status:** Complete for 12B baseline; re-runs required for B1 fix and local-regime steering (see below)
+
+> ⚠ **Known data issues identified 2026-06-30**
+>
+> **B1 — bf16 quantisation:** `yes_no_margin()` computed the logit difference in bf16,
+> rounding every callback margin to the nearest 0.125. This affects all callback margin
+> values, steering deltas, and audit baselines in this report. Probe-vs-human Spearman ρ
+> values are **unaffected** (residual projections, not logit differences).
+> Steering slopes are directionally correct but exact magnitudes will shift after re-run.
+> Fix already applied to `src/gemma_scope_causality.py`.  
+> **Action:** re-run `notebooks/07_hiring_audit.ipynb` (`VECTORS_SUBDIR = "concept_vectors"`)
+> — see `docs/rerun_checklist.md` §1A.
+>
+> **A1 — broad steering regime:** The sweep used {±0.25, ±0.50} × `mean_resid_norm`.
+> Notebook 06 has since been updated to the local regime {±0.05, ±0.10} (consistent
+> with the concept-steering experiments). The 12B local-regime re-run is pending.
+> Given the clean linearity (R²=0.924), the directional finding is expected to be robust.  
+> **Action:** re-run `notebooks/06_hiring_steering_causality.ipynb`
+> (`VECTORS_SUBDIR = "concept_vectors"`, `USE_DENOISED = False`).
 
 ---
 
