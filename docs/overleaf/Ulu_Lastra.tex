@@ -8,7 +8,7 @@
 \usepackage{amssymb}
 \usepackage{booktabs}
 \usepackage[authoryear,round]{natbib}
-\usepackage{appendix}
+% appendix package replaced with standard LaTeX
 
 
 % Page geometry
@@ -27,8 +27,7 @@
             footskip=25pt,
             marginparwidth=38pt]{geometry}
 
-% Authors and affiliations
-\usepackage{authblk}
+% Authors and affiliations (authblk replaced with standard)
 
 % Float control
 \renewcommand{\topfraction}{0.9}
@@ -57,9 +56,6 @@
 \usepackage{caption}
 \captionsetup{labelfont=bf, font=small}
 
-% Author/affiliation fonts
-\renewcommand\Authfont{\large}
-\renewcommand\Affilfont{\normalsize}
 
 % Autoref customization
 \renewcommand{\tableautorefname}{Tab.}
@@ -69,10 +65,8 @@
 
 \title{\LARGE Probing Warmth and Competence Representations in LLM Hiring Decisions}
 \date{\today}
-\author[1]{Emrecan Ulu}
-\author[2]{Jorge Lastra Cerda}
-\affil[1]{University of Konstanz}
-\affil[2]{University of Konstanz}
+\author{Emrecan Ulu \and Jorge Lastra Cerda \\[0.3em]
+  \normalsize University of Konstanz}
 
 \begin{document}
 \twocolumn[
@@ -925,12 +919,12 @@ step for applied work.
 
 
 \clearpage
-\begin{appendices}
 \onecolumn
 \setcounter{figure}{0}
 \setcounter{table}{0}
-\renewcommand{\thesection}{\Alph{section}}%
-\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+\renewcommand\appendix{\par
+  \setcounter{section}{0}%
+  \renewcommand{\thesection}{\Alph{section}}}
 \renewcommand\thefigure{S.\arabic{figure}}
 \renewcommand\thetable{S.\arabic{table}}
 \begin{center}
@@ -946,6 +940,4 @@ step for applied work.
 \label{apx:methods}
 
 \section*{Additional Results}
-
-\end{appendices}
 \end{document}
