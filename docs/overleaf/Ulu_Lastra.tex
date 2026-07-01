@@ -627,10 +627,10 @@ The warmth representation in Gemma-3-27B therefore has a narrow window
 within which causal steering produces the expected effect; beyond that
 window, the representational intervention disrupts the decision process
 in a non-linear way.
-The full four-model dose-response curves and signal-vs-control comparisons
-across all six steering directions are shown in
-\autoref{fig:fig17_hiring_steering_callback} and
-\autoref{fig:fig13_dense_steering_doseresponse}.
+The full four-model dose-response curves are shown in
+\autoref{fig:fig13_dense_steering_doseresponse} and the diverging
+scale-dependent response is illustrated in
+\autoref{fig:paper_figure3_diverging_steering}.
 
 \begin{figure*}[t]
   \centering
@@ -651,20 +651,18 @@ across all six steering directions are shown in
 
 \begin{figure*}[t]
   \centering
-  \includegraphics[width=\linewidth]{fig17_hiring_steering_callback}
-  \caption{\textbf{Hiring-level callback margin shift under warmth and
-    competence steering.}
-    Mean shift in callback logit margin at $\alpha \in
-    \{-0.10,\,-0.05,\,0,\,+0.05,\,+0.10\}$ for six steering directions
-    (dense target, Gemma Scope~2 SAE direction, axis-specific component,
-    shared component, opposing concept axis, random orthogonal control) in
-    Gemma-3-12B (top) and Gemma-3-27B (bottom).
-    At 12B the warmth direction produces large, approximately linear positive
-    effects (up to $+2.37$ logit units at $\alpha = +0.10$); at 27B the
-    warmth direction shows a non-monotone response that reverses sign between
-    $\alpha = +0.05$ ($+1.97$) and $\alpha = +0.10$ ($-2.66$).
+  \includegraphics[width=\linewidth]{paper_figure3_diverging_steering}
+  \caption{\textbf{Diverging hiring-level steering response across model
+    scale.}
+    Mean callback logit-margin shift as a function of warmth steering
+    strength $\alpha$ for Gemma-3-12B (left) and Gemma-3-27B (right).
+    At 12B the response is large and approximately linear (up to $+2.37$
+    logit units at $\alpha = +0.10$); at 27B the response reverses sign
+    between $\alpha = +0.05$ ($+1.97$) and $\alpha = +0.10$ ($-2.66$),
+    ruling out ceiling saturation as an explanation given the 27B
+    baseline rate of $P(\text{Yes}) = 0.760$.
     Error bars are 95\% bootstrap confidence intervals.}
-  \label{fig:fig17_hiring_steering_callback}
+  \label{fig:paper_figure3_diverging_steering}
 \end{figure*}
 
 \paragraph{Model Callback Disparities Versus the Human Benchmark.}
@@ -680,7 +678,7 @@ rates than female names (gender gap $= -0.037$ in favour of Male).
 At Gemma-3-27B the race gap is reversed relative to the human benchmark
 and large in magnitude: Black-signalling names receive callback margins
 $+0.486$ raw logit units above White-signalling names, equal to
-$+1.18$ within-model standard deviations (\autoref{fig:fig18_hiring_disparity}).
+$+1.18$ within-model standard deviations.
 The gender gap at 27B is $-0.211$ raw logit units ($-0.51$ SD), reproducing
 the human direction (Female $<$ Male) though at greater magnitude than the
 human reference.
@@ -704,41 +702,6 @@ at 12B (Pearson $r = +0.376$, $p < .001$) and reversed at 27B
 baseline association documented above.
 Disparity results for Llama-3.1-8B and Qwen3-14B await completion of
 cluster re-runs and are not reported here.
-
-\begin{figure*}[t]
-  \centering
-  \includegraphics[width=\linewidth]{fig18_hiring_disparity}
-  \caption{\textbf{Model callback disparities versus the human benchmark.}
-    Left: race gap (Black$-$White) and gender gap (Female$-$Male) in mean
-    callback margin for Gemma-3-12B and Gemma-3-27B, compared to the
-    human benchmark from \citet{gallo2024warmth} (dashed lines).
-    Right: per-name callback margin at Gemma-3-27B by demographic group
-    (9 Black Female, 9 Black Male, 84 White Female, 47 White Male names
-    matched to the human benchmark).
-    The 27B model strongly reverses the human race gap ($+0.486$ logit
-    units, $+1.18$ SD in favour of Black-signalling names), while the
-    human benchmark shows a $-0.085$ rate gap in favour of White names.
-    The gender gap direction is preserved at larger magnitude.
-    Error bars are $\pm 1$ SE of the group mean; human reference values
-    are proportional callback rates converted to comparable units.}
-  \label{fig:fig18_hiring_disparity}
-\end{figure*}
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\linewidth]{fig19_hiring_mediation_forest}
-  \caption{\textbf{Mediation forest plot: indirect effect of warmth and
-    competence on callback via internal probe scores.}
-    Bootstrap indirect effects (IE, 5{,}000 resamples) for each
-    model-by-axis combination, with 95\% confidence intervals.
-    A positive IE means that names associated with higher internal
-    probe scores receive higher callback margins through the mediation
-    path.
-    Only Llama-3.1-8B (warmth) shows an IE with a confidence interval
-    excluding zero (IE $= +0.190$), despite being the least concept-steerable
-    model, illustrating the steerability paradox.}
-  \label{fig:fig19_hiring_mediation_forest}
-\end{figure}
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section*{Discussion and Conclusion}
