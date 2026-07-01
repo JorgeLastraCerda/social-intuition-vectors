@@ -3,6 +3,7 @@
 % Essential packages
 \usepackage{hyperref}
 \usepackage{graphicx}
+\graphicspath{{figures/}}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{booktabs}
@@ -385,6 +386,18 @@ component, a shared component, the opposing concept axis, and a random
 orthogonal control.
 Uncertainty is estimated via paired topic bootstrap resampling.
 
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{paper_figure1_axis_arrows}
+  \caption{\textbf{Conceptual overview.} The two dimensions of the Stereotype
+    Content Model (warmth, competence) as encoded in the residual stream of
+    the probed language models. Direction vectors are constructed as
+    mean-difference contrasts between high- and low-condition activations;
+    arrows indicate the positive pole of each axis in the model's internal
+    representation space.}
+  \label{fig:paper_figure1_axis_arrows}
+\end{figure}
+
 \paragraph{Benchmark.}
 We compare model callback disparities against the warmth and competence
 ratings and callback rates from \citet{gallo2024warmth}, which provides
@@ -438,6 +451,24 @@ After PCA denoising, the Gemma inter-axis cosine drops to 0.530 (12B)
 and 0.487 (27B), while the post-denoising residual remains consistent
 with the genuine warmth-competence correlation reported in human
 perception studies ($r \approx 0.61$).
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\linewidth]{paper_figure2_layer_emergence}
+  \caption{\textbf{Layer-sweep emergence of warmth and competence separation.}
+    Cohen's~$d$ between high- and low-condition residual-stream projections
+    as a function of layer depth across all four models, for warmth (left)
+    and competence (right).
+    A vertical dashed line marks the selected probe layer at approximately
+    65 per cent of network depth, where both Gemma models reach peak
+    separation.
+    Grey shading shows the 5th--95th percentile of the null distribution
+    (1{,}000 random unit vectors), illustrating that the target directions
+    exceed chance at all layers past the first few.
+    The rapid emergence and sustained plateau indicate a stable,
+    architecture-general encoding rather than a layer-specific artefact.}
+  \label{fig:paper_figure2_layer_emergence}
+\end{figure*}
 
 \paragraph{Warmth and Competence Directions Are Causally Functional.}
 To move beyond representational description, we applied activation steering
@@ -496,6 +527,19 @@ representations via linear activation addition does not map monotonically
 onto the causal role those representations play in downstream hiring
 decisions.
 
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{fig14_dense_steering_normalized}
+  \caption{\textbf{Normalised concept steerability across four models.}
+    Peak causal effect at $\alpha = +0.10$ divided by each model's
+    baseline high–low logit gap, for warmth (dark) and competence (light).
+    Gemma-3-12B is the most steerable model; Llama-3.1-8B and Gemma-3-27B
+    show much lower normalised steerability despite perfect probe accuracy,
+    indicating that linear mean-difference directions do not equally
+    access causally functional representations across architectures.}
+  \label{fig:fig14_dense_steering_normalized}
+\end{figure}
+
 \paragraph{The Model's Internal Probe Scores Track Human Social Perceptions
 Unevenly Across Architectures.}
 Before testing causal effects on hiring outcomes, we establish the degree
@@ -541,6 +585,24 @@ This reversal at 27B coincides with a markedly different baseline
 response regime: the 27B model recommends callbacks at an implied
 $P(\text{Yes}) = 0.760$ versus $0.452$ at 12B.
 
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\linewidth]{fig16_hiring_probe_vs_human}
+  \caption{\textbf{Model probe scores versus human warmth and competence
+    ratings (\autoref{fig:paper_figure2_layer_emergence}).}
+    Each point is one of the 282 applicant names from
+    \citet{gallo2024warmth}; the $x$-axis shows the human warmth (left panels)
+    or competence (right panels) rating; the $y$-axis shows the name's
+    residual-stream projection onto the corresponding model direction vector.
+    The Gemma family (top) shows positive Spearman correlation with human
+    ratings ($\rho = +0.37$/$+0.40$ for warmth, $+0.24$/$+0.27$ for
+    competence at 12B/27B), while Llama-3.1-8B (bottom left) anti-aligns
+    on warmth ($\rho = -0.30$) and Qwen3-14B (bottom right) anti-aligns
+    on warmth while aligning on competence ($\rho = -0.19$/+$0.47$).
+    Lines show OLS fits; shaded bands are 95\% confidence intervals.}
+  \label{fig:fig16_hiring_probe_vs_human}
+\end{figure*}
+
 \paragraph{Steering Warmth and Competence Causally Shifts Callback Recommendations.}
 To test whether directly manipulating warmth and competence
 representations moves the model's hiring-callback decision, we applied
@@ -575,6 +637,41 @@ The full four-model dose-response curves and signal-vs-control comparisons
 across all six steering directions are shown in
 \autoref{fig:fig17_hiring_steering_callback} and
 \autoref{fig:fig13_dense_steering_doseresponse}.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\linewidth]{fig13_dense_steering_doseresponse}
+  \caption{\textbf{Concept-level steering dose-response curves.}
+    Mean logit-margin shift (Yes$-$No on warmth/competence judgements)
+    as a function of steering strength $\alpha$ (expressed as a fraction
+    of the mean residual-stream norm) for the dense target direction
+    across all four models.
+    Positive slopes confirm that all models respond causally to the
+    extracted direction vectors; the substantially higher slope at
+    Gemma-3-12B (warmth slope $= 27.79$, $R^2 = 0.956$) compared to
+    Gemma-3-27B (slope $= 12.89$, $R^2 = 0.990$) illustrates the
+    steerability difference despite identical probe accuracy.
+    Error bars are bootstrapped 95\% confidence intervals over held-out topics.}
+  \label{fig:fig13_dense_steering_doseresponse}
+\end{figure*}
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\linewidth]{fig17_hiring_steering_callback}
+  \caption{\textbf{Hiring-level callback margin shift under warmth and
+    competence steering.}
+    Mean shift in callback logit margin at $\alpha \in
+    \{-0.10,\,-0.05,\,0,\,+0.05,\,+0.10\}$ for six steering directions
+    (dense target, Gemma Scope~2 SAE direction, axis-specific component,
+    shared component, opposing concept axis, random orthogonal control) in
+    Gemma-3-12B (top) and Gemma-3-27B (bottom).
+    At 12B the warmth direction produces large, approximately linear positive
+    effects (up to $+2.37$ logit units at $\alpha = +0.10$); at 27B the
+    warmth direction shows a non-monotone response that reverses sign between
+    $\alpha = +0.05$ ($+1.97$) and $\alpha = +0.10$ ($-2.66$).
+    Error bars are 95\% bootstrap confidence intervals.}
+  \label{fig:fig17_hiring_steering_callback}
+\end{figure*}
 
 \paragraph{Model Callback Disparities Versus the Human Benchmark.}
 To assess demographic parity in model hiring recommendations relative to
@@ -613,6 +710,41 @@ at 12B (Pearson $r = +0.376$, $p < .001$) and reversed at 27B
 baseline association documented above.
 Disparity results for Llama-3.1-8B and Qwen3-14B await completion of
 cluster re-runs and are not reported here.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\linewidth]{fig18_hiring_disparity}
+  \caption{\textbf{Model callback disparities versus the human benchmark.}
+    Left: race gap (Black$-$White) and gender gap (Female$-$Male) in mean
+    callback margin for Gemma-3-12B and Gemma-3-27B, compared to the
+    human benchmark from \citet{gallo2024warmth} (dashed lines).
+    Right: per-name callback margin at Gemma-3-27B by demographic group
+    (9 Black Female, 9 Black Male, 84 White Female, 47 White Male names
+    matched to the human benchmark).
+    The 27B model strongly reverses the human race gap ($+0.486$ logit
+    units, $+1.18$ SD in favour of Black-signalling names), while the
+    human benchmark shows a $-0.085$ rate gap in favour of White names.
+    The gender gap direction is preserved at larger magnitude.
+    Error bars are $\pm 1$ SE of the group mean; human reference values
+    are proportional callback rates converted to comparable units.}
+  \label{fig:fig18_hiring_disparity}
+\end{figure*}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{fig19_hiring_mediation_forest}
+  \caption{\textbf{Mediation forest plot: indirect effect of warmth and
+    competence on callback via internal probe scores.}
+    Bootstrap indirect effects (IE, 5{,}000 resamples) for each
+    model-by-axis combination, with 95\% confidence intervals.
+    A positive IE means that names associated with higher internal
+    probe scores receive higher callback margins through the mediation
+    path.
+    Only Llama-3.1-8B (warmth) shows an IE with a confidence interval
+    excluding zero (IE $= +0.190$), despite being the least concept-steerable
+    model, illustrating the steerability paradox.}
+  \label{fig:fig19_hiring_mediation_forest}
+\end{figure}
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section*{Discussion and Conclusion}
