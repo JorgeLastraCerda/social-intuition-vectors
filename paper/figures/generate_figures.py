@@ -28,6 +28,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 from scipy.stats import gaussian_kde, spearmanr
+from sklearn.decomposition import PCA
 
 # Ensure repo root is on path when run from anywhere
 ROOT = Path(__file__).resolve().parents[2]
@@ -1635,6 +1636,166 @@ def fig19_hiring_mediation_forest(
 
 
 # ---------------------------------------------------------------------------
+# Figure 20 — PCA denoising of neutral-variance directions
+# ---------------------------------------------------------------------------
+
+def fig20_pca_denoising(vec_dirs: list[Path], model_labels: list[str]) -> None:
+    """Summarise PCA denoising against a neutral Wikipedia corpus.
+
+    The denoising step fits PCA on neutral residual activations, removes enough
+    top PCs to explain >=50% neutral variance, and compares raw vs denoised
+    concept geometry and concept discriminability.
+    """
+    rows: list[dict] = []
+    curves: list[tuple[str, np.ndarray, int]] = []
+
+    def project(x: np.ndarray, v: np.ndarray) -> np.ndarray:
+        return np.einsum("ij,j->i", x, v, optimize=False)
+
+    for vec_dir, label in zip(vec_dirs, model_labels):
+        summary = json.load(open(vec_dir / "denoise_summary.json"))
+        z = np.load(vec_dir / "concept_vectors_denoised.npz")
+        neutral = np.load(vec_dir / "X_neutral.npy").astype(np.float64)
+
+        pca = PCA().fit(neutral)
+        cum = np.cumsum(pca.explained_variance_ratio_)
+        k = int(summary["k"])
+        curves.append((label, cum, k))
+
+        raw_w = np.load(vec_dir / "warmth_vec.npy").astype(np.float64)
+        raw_c = np.load(vec_dir / "competence_vec.npy").astype(np.float64)
+        den_w = z["warmth"].astype(np.float64)
+        den_c = z["competence"].astype(np.float64)
+
+        hw = np.load(vec_dir / "X_high_warmth.npy").astype(np.float64)
+        lw = np.load(vec_dir / "X_low_warmth.npy").astype(np.float64)
+        hc = np.load(vec_dir / "X_high_competence.npy").astype(np.float64)
+        lc = np.load(vec_dir / "X_low_competence.npy").astype(np.float64)
+
+        rows.append({
+            "model": label,
+            "k": k,
+            "variance": float(summary["variance_kept"]),
+            "cos_raw": float(summary["cosine_before"]),
+            "cos_denoised": float(summary["cosine_after"]),
+            "d_warm_raw": cohens_d(project(hw, raw_w), project(lw, raw_w)),
+            "d_warm_denoised": cohens_d(project(hw, den_w), project(lw, den_w)),
+            "d_comp_raw": cohens_d(project(hc, raw_c), project(lc, raw_c)),
+            "d_comp_denoised": cohens_d(project(hc, den_c), project(lc, den_c)),
+            "n_neutral": neutral.shape[0],
+            "d_model": neutral.shape[1],
+        })
+
+    colors = ["#2E86AB", "#7D6608", "#6B7280", "#A23B72"]
+    fig = plt.figure(figsize=(9.0, 6.2))
+    gs = fig.add_gridspec(2, 2, height_ratios=[1.0, 0.95], hspace=0.36, wspace=0.28)
+    ax_var = fig.add_subplot(gs[0, 0])
+    ax_cos = fig.add_subplot(gs[0, 1])
+    ax_d = fig.add_subplot(gs[1, 0])
+    ax_text = fig.add_subplot(gs[1, 1])
+
+    # Panel A: cumulative neutral PCA variance.
+    for i, (label, cum, k) in enumerate(curves):
+        x = np.arange(1, min(len(cum), 120) + 1)
+        y = cum[:len(x)]
+        color = colors[i % len(colors)]
+        ax_var.plot(x, y, color=color, lw=1.8, label=label)
+        ax_var.scatter([k], [cum[k - 1]], color=color, s=36, zorder=3)
+        ax_var.annotate(
+            f"k={k}",
+            xy=(k, cum[k - 1]),
+            xytext=(6, 8 if i == 0 else -18),
+            textcoords="offset points",
+            fontsize=8,
+            color=color,
+            arrowprops=dict(arrowstyle="-", color=color, lw=0.8),
+        )
+    ax_var.axhline(0.50, color="#444444", lw=0.9, ls="--")
+    ax_var.set_ylim(0, 1.02)
+    ax_var.set_xlim(0, 120)
+    ax_var.set_xlabel("Neutral PCA component")
+    ax_var.set_ylabel("Cumulative variance explained")
+    ax_var.set_title("A. Neutral variance removed")
+    ax_var.legend(framealpha=0.9, fontsize=8, loc="lower right")
+    ax_var.grid(axis="y", alpha=0.18)
+
+    # Panel B: before/after axis cosine.
+    x = np.arange(len(rows))
+    width = 0.34
+    raw_vals = [r["cos_raw"] for r in rows]
+    den_vals = [r["cos_denoised"] for r in rows]
+    ax_cos.bar(x - width / 2, raw_vals, width, color="#9CA3AF", label="Raw")
+    ax_cos.bar(x + width / 2, den_vals, width, color="#2E86AB", label="Denoised")
+    for xi, raw, den in zip(x, raw_vals, den_vals):
+        ax_cos.plot([xi - width / 2, xi + width / 2], [raw, den], color="#444444", lw=0.9)
+        ax_cos.text(xi, max(raw, den) + 0.025, f"{raw:.2f}->{den:.2f}",
+                    ha="center", va="bottom", fontsize=8)
+    ax_cos.set_xticks(x)
+    ax_cos.set_xticklabels([r["model"] for r in rows], rotation=0)
+    ax_cos.set_ylim(0, max(raw_vals) * 1.22)
+    ax_cos.set_ylabel("cos(warmth, competence)")
+    ax_cos.set_title("B. Shared axis geometry reduced")
+    ax_cos.legend(framealpha=0.9, fontsize=8)
+    ax_cos.grid(axis="y", alpha=0.18)
+
+    # Panel C: discriminability before/after.
+    labels = []
+    raw_d = []
+    den_d = []
+    for r in rows:
+        short = r["model"].replace("Gemma-3-", "")
+        labels.extend([f"{short}\nWarmth", f"{short}\nCompetence"])
+        raw_d.extend([r["d_warm_raw"], r["d_comp_raw"]])
+        den_d.extend([r["d_warm_denoised"], r["d_comp_denoised"]])
+    xd = np.arange(len(labels))
+    ax_d.bar(xd - width / 2, raw_d, width, color="#9CA3AF", label="Raw")
+    ax_d.bar(xd + width / 2, den_d, width, color="#F18F01", label="Denoised")
+    ax_d.axhline(0, color="#333333", lw=0.8)
+    ax_d.set_xticks(xd)
+    ax_d.set_xticklabels(labels)
+    ax_d.set_ylabel("Concept separation (Cohen's d)")
+    ax_d.set_title("C. Concept signal after removing neutral PCs")
+    ax_d.legend(framealpha=0.9, fontsize=8)
+    ax_d.grid(axis="y", alpha=0.18)
+
+    # Panel D: concise method/result card.
+    ax_text.axis("off")
+    lines = [
+        "D. What the PCA step does",
+        "",
+        "Fit PCA on neutral Wikipedia residual activations",
+        "and project the top neutral-variance directions",
+        "out of warmth and competence vectors.",
+        "",
+    ]
+    for r in rows:
+        lines.append(
+            f"{r['model']}: {r['n_neutral']:,} neutral texts, d={r['d_model']:,}, "
+            f"k={r['k']} PCs ({r['variance']:.1%} variance)"
+        )
+    lines.extend([
+        "",
+        "Interpretation: denoising reduces shared neutral",
+        "geometry, but the remaining warmth/competence",
+        "cosine is not forced to zero; SCM predicts",
+        "substantive correlation between the axes.",
+    ])
+    ax_text.text(
+        0.02, 0.98, "\n".join(lines),
+        ha="left", va="top", fontsize=9.2, linespacing=1.35,
+        bbox=dict(boxstyle="round,pad=0.55", fc="#F8FAFC", ec="#CBD5E1", lw=1.0),
+        transform=ax_text.transAxes,
+    )
+
+    fig.suptitle(
+        "PCA denoising removes dominant neutral-variance directions from concept vectors",
+        fontsize=13, fontweight="bold", y=0.995,
+    )
+    fig.subplots_adjust(left=0.08, right=0.98, bottom=0.08, top=0.88, hspace=0.42, wspace=0.28)
+    save("fig20_pca_denoising")
+
+
+# ---------------------------------------------------------------------------
 # paper_figure1 — Warmth–Competence space with oblique-basis direction arrows
 # ---------------------------------------------------------------------------
 
@@ -2210,7 +2371,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Generate presentation figures.")
     parser.add_argument(
         "--fig", default="all",
-        help="Figure(s) to generate: 1-12, comma-separated, or 'all' (runs 1-4 only).",
+        help="Figure(s) to generate: 1-20, comma-separated, or 'all' (runs 1-4 only).",
     )
     parser.add_argument(
         "--vec-dir",
@@ -2245,7 +2406,7 @@ def main() -> None:
         "--vec-dirs",
         default=None,
         help="Comma-separated concept_vectors directories, one per model "
-             "(required for --fig 6/7). E.g. "
+             "(required for --fig 6/7/20). E.g. "
              "data/processed/concept_vectors,"
              "data/processed/concept_vectors_qwen3_14b,"
              "data/processed/concept_vectors_llama31_8b",
@@ -2339,7 +2500,7 @@ def main() -> None:
 
     _style.apply()
 
-    # Parse --fig: supports integers (1-12) and paper-figure tokens p1/p2/p3.
+    # Parse --fig: supports integers (1-20) and paper-figure tokens p1/p2/p3.
     paper_selected: set[int] = set()
     if args.fig == "all":
         selected = {1, 2, 3, 4}
@@ -2555,6 +2716,15 @@ def main() -> None:
                 parser.error("--fig 19 requires --hiring-mediation-jsons")
             print("Figure 19: hiring mediation forest …")
             fig19_hiring_mediation_forest(mediation_paths, model_labels)
+
+    if 20 in selected:
+        print("Figure 20: PCA denoising summary …")
+        if not args.vec_dirs or not model_labels:
+            parser.error("--fig 20 requires --vec-dirs and --labels")
+        vec_dirs = [Path(p.strip()) for p in args.vec_dirs.split(",")]
+        if len(vec_dirs) != len(model_labels):
+            parser.error("--vec-dirs and --labels must have the same number of entries")
+        fig20_pca_denoising(vec_dirs, model_labels)
 
     print("Done.")
 
