@@ -949,3 +949,14 @@
 - **Re-run plan:** see `docs/rerun_checklist.md` for exact commands for Jorge (JupyterHub) and Emre (SCCKN cluster qsub jobs).
 
 - **What does NOT need re-running:** probe training, concept vectors, Gemma Scope SAE analysis, layer sweeps, denoising, Spearman correlations — none use logit subtraction.
+
+---
+
+## 2026-07-02 · Step 1 — Document bf16 quantisation limitation as important paper caveat
+
+- **Context:** Session review of Bug B1 (float32 fix committed by Jorge 2026-06-30); user requested the limitation be formally documented in the paper directory.
+- **Agent:** claude-sonnet-4-6
+- **Did:** Created `paper/2026-07-02_1000_bf16_quantisation_limitation.md` covering root cause, partial fix (`.float()` cast at `src/gemma_scope_causality.py:81`), why margins remain on 0.125 grid even after fix (bf16 inference inherent), model-by-model impact table (12B unreliable; 27B/Llama/Qwen usable), affected/unaffected results, re-run requirements, post-run diagnostic snippet, and mandatory paper disclosure language. Added row to `paper/README.md`.
+- **Findings:** Fix is in the codebase and all pipeline scripts inherit it via import. 12B (SD=0.14, 7 unique values) cannot produce reliable disparity findings without float32 inference. 27B SD=0.41 is sufficient. Cluster re-runs for all 4 models still pending.
+- **Decision / rationale:** Separate standalone report chosen over inline note so it is findable as a first-class limitation, not buried in a results file.
+- **Next:** Emre submits 4 SGE jobs (`qsub jobs/sge/hiring_gemma3_*.sh`); re-runs notebook 09 with new CSVs; verifies SD per model with diagnostic snippet.
