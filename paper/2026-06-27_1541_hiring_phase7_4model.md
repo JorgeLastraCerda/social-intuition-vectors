@@ -4,29 +4,15 @@
 **Model(s):** Gemma-3-12B-it · Gemma-3-27B-it · Llama-3.1-8B-Instruct · Qwen3-14B
 **Scope:** Phase 7 — probe-vs-human validation, causal steering sweep, demographic disparity,
 and bootstrap mediation for all four models; consolidated report with steerability-paradox analysis
-**Status:** Provisional — B1 re-runs required; 27B steering interpretation updated 2026-06-30
+**Status:** Complete — B1 caveat documented; SCCKN hiring re-runs completed 2026-07-02 with no content changes; 27B steering interpretation updated 2026-06-30
 
-> ⚠ **Known data issues identified 2026-06-30 — treat all callback-margin numbers as provisional**
->
-> **B1 — bf16 quantisation (affects Sections 2, 3, 4):** `yes_no_margin()` in
-> `src/gemma_scope_causality.py` computed `logit(Yes) − logit(No)` in bf16, rounding
-> every margin to the nearest 0.125. At the logit scales used (~5–10), only 7–8 discrete
-> values appear across all 282 names. Consequences:
-> - **Section 2 (steering Δ values):** directionally correct, but magnitudes will shift
->   after re-run. The clean 12B linear story and the 27B non-monotone result are robust
->   to this; small-effect results (Qwen warmth) are less certain.
-> - **Section 3 (disparity gaps):** gaps expressed in within-model SD units depend on
->   the raw margins. The Gemma-12B race gap (−0.088 SD) is below one quantisation step
->   and is **unreliable** until re-run. The large Gemma-27B race gap (+1.255 SD) and
->   Qwen gender gap (+0.887 SD) are large enough to likely survive correction.
-> - **Section 4 (mediation IEs):** the Llama race×warmth IE (+0.190, CI [+0.111, +0.292])
->   is large enough to likely survive. Smaller significant entries (Qwen race×warmth +0.081,
->   Llama race×competence +0.040) should be treated as directionally suggestive until
->   re-confirmed.
-> - **Probe-vs-human Spearman ρ values (Section 1) are unaffected.**
->
-> Fix applied to `src/gemma_scope_causality.py`. **Emre: `git pull` then re-submit the
-> 4 SGE hiring jobs** — see `docs/rerun_checklist.md` §2.
+> **B1 caveat:** Callback margins are still subject to bf16 logit quantisation. The
+> `.float()` subtraction fix is applied in `src/gemma_scope_causality.py`, but the
+> individual Yes/No logits are produced by bf16 inference before subtraction. SCCKN
+> hiring re-runs on 2026-07-02 rewrote the expected outputs but produced byte-identical
+> CSV/JSON files, so the values below remain the current source of truth. Interpret
+> narrow-margin 12B disparity estimates as quantisation-limited; probe-vs-human
+> Spearman ρ values are unaffected because they use residual projections, not logits.
 >
 > **A1 — 27B broad-regime steering superseded (Section 2):** The 27B steering values at
 > {±0.25, ±0.50} showed warmth "inert" (slope +1.094, R²=0.026). A local-regime re-run

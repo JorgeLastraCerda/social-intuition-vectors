@@ -1,14 +1,14 @@
 **Produced:** 2026-07-02  
 **Model:** claude-sonnet-4-6 (documentation)  
 **Scope:** All four models — hiring callback margins throughout Phase 6 and Phase 7  
-**Status:** Active limitation — Emre cluster re-runs pending; paper caveat required
+**Status:** Active limitation — SCCKN hiring re-runs completed 2026-07-02 with no content changes; paper caveat required
 
 ## Artifacts
 
 - **Scripts:** `src/gemma_scope_causality.py` (fix at line 81), `src/hiring_audit.py`, `src/hiring_steering.py`, `src/hiring_disparity.py`, `src/dense_steering.py`
-- **Inputs:** `results/tables/hiring_audit_gemma3_{12b,27b,llama31_8b,qwen3_14b}.csv` (to be regenerated)
-- **Outputs:** All `results/tables/hiring_*.csv`, `results/logs/hiring_mediation_*.json` (to be regenerated)
-- **Figures:** `paper/figures/fig17_hiring_steering_callback.{png,pdf}`, `fig18_hiring_disparity.{png,pdf}`, `fig19_hiring_mediation_forest.{png,pdf}` (to be regenerated)
+- **Inputs:** `results/tables/hiring_audit_gemma3_{12b,27b,llama31_8b,qwen3_14b}.csv`
+- **Outputs:** All `results/tables/hiring_*.csv`, `results/logs/hiring_mediation_*.json`
+- **Figures:** `paper/figures/fig17_hiring_steering_callback.{png,pdf}`, `fig18_hiring_disparity.{png,pdf}`, `fig19_hiring_mediation_forest.{png,pdf}`
 
 ---
 
@@ -49,8 +49,8 @@ After applying the fix and re-running notebooks 06 and 07, **margins are still o
 |---|---|---|---|
 | **Gemma-3-12B** | 0.14 | 7 | **R4 disparity unreliable.** Group gaps of ~0.5 SD ≈ 0.07 raw units are below one grid step (0.125). Cannot distinguish real group differences from quantisation noise. |
 | **Gemma-3-27B** | 0.41 | 18 | **R4 disparity usable.** Group gaps of ~0.5 SD ≈ 0.20 units = 1.6 grid steps are detectable. |
-| **Llama-3.1-8B** | expected > 0.30 | TBD | Likely usable — confirm SD after re-runs. |
-| **Qwen3-14B** | expected > 0.30 | TBD | Likely usable — confirm SD after re-runs. |
+| **Llama-3.1-8B** | 0.12 | 12 | Narrow margin spread; interpret group gaps cautiously. |
+| **Qwen3-14B** | 0.35 | 17 | **R4 disparity usable.** Group gaps are large enough to be detectable despite the grid. |
 
 ## Which results are affected
 
@@ -75,33 +75,11 @@ After applying the fix and re-running notebooks 06 and 07, **margins are still o
 - Layer sweep results
 - PCA valence denoising (notebook 08)
 
-## Re-runs required
+## Re-run outcome
 
 Jorge's JupyterHub re-runs (notebooks 06 and 07) are **complete** as of 2026-06-30 — see `docs/rerun_checklist.md` Part 1.
 
-Emre's cluster re-runs (**Part 2**) are **pending**. After pulling the repo, submit:
-
-```bash
-qsub jobs/sge/hiring_gemma3_12b.sh
-qsub jobs/sge/hiring_gemma3_27b.sh
-qsub jobs/sge/hiring_llama31_8b.sh
-qsub jobs/sge/hiring_qwen3_14b.sh
-```
-
-Then re-run `notebooks/09_hiring_disparity_R4.ipynb` with the updated CSVs to regenerate R4 figures and mediation results.
-
-**After each re-run, verify:**
-
-```python
-import pandas as pd
-for model in ["gemma3_12b", "gemma3_27b", "llama31_8b", "qwen3_14b"]:
-    df = pd.read_csv(f"results/tables/hiring_audit_{model}.csv")
-    vals = df["callback_margin"].dropna()
-    on_grid = ((vals * 8).round() / 8 == vals.round(3)).mean()
-    print(f"{model}: unique={vals.nunique()}, SD={vals.std():.3f}, on_grid={on_grid:.0%}")
-```
-
-Expected: SD > 0.30 for 27B, Llama, Qwen. SD for 12B expected to remain ≈ 0.14 (inherent to bf16 inference at 12B's logit scale).
+Emre's SCCKN hiring jobs also re-ran on 2026-07-02 and rewrote the expected `hiring_audit_*`, `hiring_steering_raw_*`, `hiring_disparity_*`, and `hiring_mediation_*` outputs. SHA-256 checks showed the rewritten files were byte-identical to the local/git versions, and `git diff` was empty for those paths. Therefore no new hiring values were produced or committed; the current git-tracked outputs remain the source of truth.
 
 ## Required paper disclosures
 

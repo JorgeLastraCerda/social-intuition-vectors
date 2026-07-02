@@ -971,3 +971,23 @@
 - **Findings:** Pre-existing inconsistency: the original fig13/fig15 tables had cited numbers inconsistent with committed CSVs and the actual figures (e.g. Qwen warmth "+25.74" vs CSV effect 1.20). Both tables now match the `effect` column of `results/tables/steering_dense_*.csv`. B1 re-run delta was small: Qwen normalized warmth 0.125→0.122, 27B rows shifted ~0.01. No qualitative findings changed: steerability ranking 12B > Qwen > 27B ≈ Llama holds; Gemma scale paradox unchanged; 27B competence leakage (random −3.36 >> signal +0.21) unchanged.
 - **Decision / rationale:** Full reconcile to committed CSV source-of-truth chosen (user confirmed) over minimal-update option, so reports agree with figures already in the repo.
 - **Next:** Commit and push the 2 reports + STEP_LOG.
+
+---
+
+## 2026-07-02 · Step 3 — Verify SCCKN hiring rerun outputs against git
+
+- **Context:** User asked whether post-B1 hiring/callback outputs existed on SCCKN and, if so, to push them and pull locally.
+- **Agent:** gpt-5-codex
+- **Did:** SSH-inspected `/work/emrecan.ulu/normalcy-axis` on SCCKN; checked git status, output mtimes, SHA-256 hashes, job tails, and local/remote ahead-behind state for `hiring_audit_*`, `hiring_steering_raw_*`, `hiring_disparity_*`, and `hiring_mediation_*`.
+- **Findings:** SCCKN hiring jobs reran on 2026-07-02 and rewrote the expected files, but their SHA-256 hashes exactly match local/git versions; `git diff` on SCCKN for those paths is empty. First three job sync attempts failed because SCCKN lacked git author identity, while the Qwen job reported `[sync] nothing to commit`. Local `main` is 0 ahead / 0 behind `origin/main`. SCCKN repo was fast-forwarded from `6a476d3` to `e0b19a6` and is now 0 ahead / 0 behind `origin/main`.
+- **Decision / rationale:** No hiring output push or local pull was needed because there were no content changes to transfer; the apparent rerun existed only as newer mtimes, not new values.
+
+---
+
+## 2026-07-02 · Step 4 — Remove stale rerun and next-step wording from reports
+
+- **Context:** User confirmed SCCKN hiring outputs are current and requested removal of obsolete rerun/plan wording from reports.
+- **Agent:** gpt-5-codex
+- **Did:** Cleaned stale `pending`, `re-run required`, `Action`, `Open decisions`, and `Next steps` language from `paper/2026-07-02_1000_bf16_quantisation_limitation.md`, `paper/2026-06-27_1541_hiring_phase7_4model.md`, `paper/2026-06-24_1136_hiring_causality_results.md`, `paper/2026-06-24_1300_hiring_causality_27b_results.md`, `paper/2026-06-30_1251_r4_disparity_name_level.md`, and `paper/README.md`.
+- **Findings:** No result tables, logs, figures, scripts, or artifact paths were changed. Reports now state that SCCKN hiring re-runs completed on 2026-07-02 and produced no content changes where relevant; the B1 impact table was completed from existing current audit outputs for Llama and Qwen.
+- **Decision / rationale:** Preserve historical single-model reports while marking them superseded for final interpretation by the consolidated four-model Phase 7 report.

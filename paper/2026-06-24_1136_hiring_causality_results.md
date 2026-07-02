@@ -2,25 +2,11 @@
 
 **Produced:** 2026-06-24 11:36 (Europe/Berlin)  
 **Model:** Gemma-3-12B-it  
-**Status:** Complete for 12B baseline; re-runs required for B1 fix and local-regime steering (see below)
+**Status:** Historical single-model report; superseded for final four-model interpretation by `2026-06-27_1541_hiring_phase7_4model.md`
 
-> ⚠ **Known data issues identified 2026-06-30**
->
-> **B1 — bf16 quantisation:** `yes_no_margin()` computed the logit difference in bf16,
-> rounding every callback margin to the nearest 0.125. This affects all callback margin
-> values, steering deltas, and audit baselines in this report. Probe-vs-human Spearman ρ
-> values are **unaffected** (residual projections, not logit differences).
-> Steering slopes are directionally correct but exact magnitudes will shift after re-run.
-> Fix already applied to `src/gemma_scope_causality.py`.  
-> **Action:** re-run `notebooks/07_hiring_audit.ipynb` (`VECTORS_SUBDIR = "concept_vectors"`)
-> — see `docs/rerun_checklist.md` §1A.
->
-> **A1 — broad steering regime:** The sweep used {±0.25, ±0.50} × `mean_resid_norm`.
-> Notebook 06 has since been updated to the local regime {±0.05, ±0.10} (consistent
-> with the concept-steering experiments). The 12B local-regime re-run is pending.
-> Given the clean linearity (R²=0.924), the directional finding is expected to be robust.  
-> **Action:** re-run `notebooks/06_hiring_steering_causality.ipynb`
-> (`VECTORS_SUBDIR = "concept_vectors"`, `USE_DENOISED = False`).
+> **Later update:** The B1 callback-margin quantisation limitation is documented in
+> `2026-07-02_1000_bf16_quantisation_limitation.md`. Subsequent re-runs did not change
+> the current git-tracked hiring values.
 
 ---
 
@@ -190,37 +176,5 @@ bias that activation-level analysis is suited to detect.
   (last token only, multiple layers) would yield different magnitudes but likely the same
   direction.
 - One fixed CV and one role (Administrative Assistant). Role-appropriateness clearly
-  interacts with the competence effect; robustness across roles is a priority follow-up.
+  interacts with the competence effect.
 - 60-name sample for the causal sweep; full 282-name sweep is straightforward to run.
-- Demographic-grouped disparity (the fairness-specific claim) is scaffolded in notebook 07
-  but not yet computed — requires a research decision on grouping and human callback dataset.
-  See the scaffold in `notebooks/07_hiring_audit.ipynb` cell 11 and the flagged decisions below.
-
----
-
-## Open decisions (flagged to Jorge)
-
-**D-Phase7-A: Human callback dataset.** `df_all.csv` contains warmth/competence *ratings*,
-not real-world callback rates. The actual callback outcome data are in
-`data/raw/SocialPerceptions-Predict-Callback-main/0_data/extracted_data/` and
-`0_data/published_data/`. Which study's callback rates to use as the human benchmark is a
-research decision.
-
-**D-Phase7-B: Demographic grouping.** Disparity needs a label per name (e.g., race,
-gender, national origin). The category files are in `0_data/ratings/categories/`. Which
-grouping to use and how to handle names that appear in multiple studies are design choices
-that affect the fairness claim.
-
-**D-Phase7-C: Mediation.** The full causal chain claim (name → probe score → callback)
-requires a mediation test. A simple approach: Sobel test or bootstrap on
-(name group → model warmth) × (model warmth → callback margin). This can be run on the
-existing `hiring_audit_concept_vectors.csv` once the grouping is settled.
-
----
-
-## Next steps
-
-1. Run notebook 07 at 27B (`VECTORS_SUBDIR = "concept_vectors_gemma3_27b"`) for scale replication.
-2. Wire in real demographic groupings and human callback rates — requires decisions D-Phase7-A and D-Phase7-B.
-3. Run the full 282-name causal sweep in notebook 06 (`N_NAMES = None`) for a more complete picture.
-4. Add the role-fit competence non-linearity as a finding, not just a caveat, in the paper draft.

@@ -4,8 +4,7 @@
 **Model(s):** Gemma-3-12B-it · Gemma-3-27B-it (Jorge notebook run)
 **Scope:** Notebook 09 — group-level and name-level disparity analysis joining model
 callback margins with the Gallo & Hausladen published callback benchmark
-**Status:** Complete for 12B and 27B (Jorge side). Llama and Qwen R4 pending Emre's
-cluster re-runs with float32 fix.
+**Status:** Complete for 12B and 27B (Jorge side); four-model Phase 7 outputs verified separately with no post-rerun content changes.
 
 ---
 
@@ -175,9 +174,9 @@ empirical findings. Disclose this in the paper Limitations. The 27B results (SD=
 
 ---
 
-## Open questions / decisions
+## Reporting decisions
 
-These are flagged in notebook 09 cell 14:
+These decisions govern how this R4 analysis should be interpreted:
 
 - **D2 (grouping):** Race × gender gives n=9 per Black group. Adding national origin
   from `categories.csv` could increase coverage. *Recommendation: keep race × gender
@@ -189,13 +188,3 @@ These are flagged in notebook 09 cell 14:
   name-level OLS (Section 4) as exploratory.
 - **Multiple comparisons:** The group-level Pearson is the one confirmatory test.
   Section 4 OLS betas are exploratory — label clearly in paper.
-
----
-
-## Next steps
-
-1. Fill in the R4 `% TODO` paragraph in `docs/overleaf/Ulu_Lastra.tex` using the
-   numbers above. Lead with 27B (reliable), note 12B limitation.
-2. Wait for Emre's 4-model re-runs to extend R4 to Llama and Qwen. Expect the same
-   diagnostic check (SD > 0.30 → proceed; SD < 0.20 → limitation).
-3. Write Abstract once R4 is complete in the LaTeX.
