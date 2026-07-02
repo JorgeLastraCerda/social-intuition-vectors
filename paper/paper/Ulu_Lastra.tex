@@ -3,13 +3,11 @@
 % Essential packages
 \usepackage{hyperref}
 \usepackage{graphicx}
-\graphicspath{{figures/}}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{booktabs}
-\usepackage[style=authoryear,natbib=true,backend=bibtex]{biblatex}
-\addbibresource{references.bib}
-% appendix package replaced with standard LaTeX
+\usepackage[authoryear,round]{natbib}
+\usepackage{appendix}
 
 
 % Page geometry
@@ -28,7 +26,8 @@
             footskip=25pt,
             marginparwidth=38pt]{geometry}
 
-% Authors and affiliations (authblk replaced with standard)
+% Authors and affiliations
+\usepackage{authblk}
 
 % Float control
 \renewcommand{\topfraction}{0.9}
@@ -42,7 +41,7 @@
 \DeclareMathOperator*{\AbsDiff}{AbsDiff}
 
 % Bibliography settings
-\setlength{\bibitemsep}{0pt plus 0.3ex}
+\setlength{\bibsep}{0pt plus 0.3ex}
 
 % First page footer
 \usepackage{fancyhdr}
@@ -57,6 +56,9 @@
 \usepackage{caption}
 \captionsetup{labelfont=bf, font=small}
 
+% Author/affiliation fonts
+\renewcommand\Authfont{\large}
+\renewcommand\Affilfont{\normalsize}
 
 % Autoref customization
 \renewcommand{\tableautorefname}{Tab.}
@@ -66,8 +68,10 @@
 
 \title{\LARGE Probing Warmth and Competence Representations in LLM Hiring Decisions}
 \date{\today}
-\author{Emrecan Ulu \and Jorge Lastra Cerda \\[0.3em]
-  \normalsize University of Konstanz}
+\author[1]{Emrecan Ulu}
+\author[2]{Jorge Lastra Cerda}
+\affil[1]{University of Konstanz}
+\affil[2]{University of Konstanz}
 
 \begin{document}
 \twocolumn[
@@ -299,7 +303,7 @@ cross-architecture comparison.
   comparisons uninformative without normalisation.
 }
 \label{tab:models}
-\begin{tabular}{lccc}
+\begin{tabular}{lcccc}
 \toprule
 Model & $d_\mathrm{model}$ & Probe layer & $\bar{\|h\|}$ \\
 \midrule
@@ -381,18 +385,6 @@ component, a shared component, the opposing concept axis, and a random
 orthogonal control.
 Uncertainty is estimated via paired topic bootstrap resampling.
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\linewidth]{paper_figure1_axis_arrows}
-  \caption{\textbf{Conceptual overview.} The two dimensions of the Stereotype
-    Content Model (warmth, competence) as encoded in the residual stream of
-    the probed language models. Direction vectors are constructed as
-    mean-difference contrasts between high- and low-condition activations;
-    arrows indicate the positive pole of each axis in the model's internal
-    representation space.}
-  \label{fig:paper_figure1_axis_arrows}
-\end{figure}
-
 \paragraph{Benchmark.}
 We compare model callback disparities against the warmth and competence
 ratings and callback rates from \citet{gallo2024warmth}, which provides
@@ -446,24 +438,6 @@ After PCA denoising, the Gemma inter-axis cosine drops to 0.530 (12B)
 and 0.487 (27B), while the post-denoising residual remains consistent
 with the genuine warmth-competence correlation reported in human
 perception studies ($r \approx 0.61$).
-
-\begin{figure*}[t]
-  \centering
-  \includegraphics[width=\linewidth]{paper_figure2_layer_emergence}
-  \caption{\textbf{Layer-sweep emergence of warmth and competence separation.}
-    Cohen's~$d$ between high- and low-condition residual-stream projections
-    as a function of layer depth across all four models, for warmth (left)
-    and competence (right).
-    A vertical dashed line marks the selected probe layer at approximately
-    65 per cent of network depth, where both Gemma models reach peak
-    separation.
-    Grey shading shows the 5th--95th percentile of the null distribution
-    (1{,}000 random unit vectors), illustrating that the target directions
-    exceed chance at all layers past the first few.
-    The rapid emergence and sustained plateau indicate a stable,
-    architecture-general encoding rather than a layer-specific artefact.}
-  \label{fig:paper_figure2_layer_emergence}
-\end{figure*}
 
 \paragraph{Warmth and Competence Directions Are Causally Functional.}
 To move beyond representational description, we applied activation steering
@@ -522,19 +496,6 @@ representations via linear activation addition does not map monotonically
 onto the causal role those representations play in downstream hiring
 decisions.
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\linewidth]{fig14_dense_steering_normalized}
-  \caption{\textbf{Normalised concept steerability across four models.}
-    Peak causal effect at $\alpha = +0.10$ divided by each model's
-    baseline high–low logit gap, for warmth (dark) and competence (light).
-    Gemma-3-12B is the most steerable model; Llama-3.1-8B and Gemma-3-27B
-    show much lower normalised steerability despite perfect probe accuracy,
-    indicating that linear mean-difference directions do not equally
-    access causally functional representations across architectures.}
-  \label{fig:fig14_dense_steering_normalized}
-\end{figure}
-
 \paragraph{The Model's Internal Probe Scores Track Human Social Perceptions
 Unevenly Across Architectures.}
 Before testing causal effects on hiring outcomes, we establish the degree
@@ -580,24 +541,6 @@ This reversal at 27B coincides with a markedly different baseline
 response regime: the 27B model recommends callbacks at an implied
 $P(\text{Yes}) = 0.760$ versus $0.452$ at 12B.
 
-\begin{figure*}[t]
-  \centering
-  \includegraphics[width=\linewidth]{fig16_hiring_probe_vs_human}
-  \caption{\textbf{Model probe scores versus human warmth and competence
-    ratings (\autoref{fig:paper_figure2_layer_emergence}).}
-    Each point is one of the 282 applicant names from
-    \citet{gallo2024warmth}; the $x$-axis shows the human warmth (left panels)
-    or competence (right panels) rating; the $y$-axis shows the name's
-    residual-stream projection onto the corresponding model direction vector.
-    The Gemma family (top) shows positive Spearman correlation with human
-    ratings ($\rho = +0.37$/$+0.40$ for warmth, $+0.24$/$+0.27$ for
-    competence at 12B/27B), while Llama-3.1-8B (bottom left) anti-aligns
-    on warmth ($\rho = -0.30$) and Qwen3-14B (bottom right) anti-aligns
-    on warmth while aligning on competence ($\rho = -0.19$/+$0.47$).
-    Lines show OLS fits; shaded bands are 95\% confidence intervals.}
-  \label{fig:fig16_hiring_probe_vs_human}
-\end{figure*}
-
 \paragraph{Steering Warmth and Competence Causally Shifts Callback Recommendations.}
 To test whether directly manipulating warmth and competence
 representations moves the model's hiring-callback decision, we applied
@@ -628,43 +571,10 @@ The warmth representation in Gemma-3-27B therefore has a narrow window
 within which causal steering produces the expected effect; beyond that
 window, the representational intervention disrupts the decision process
 in a non-linear way.
-The full four-model dose-response curves are shown in
-\autoref{fig:fig13_dense_steering_doseresponse} and the diverging
-scale-dependent response is illustrated in
-\autoref{fig:paper_figure3_diverging_steering}.
-
-\begin{figure*}[t]
-  \centering
-  \includegraphics[width=\linewidth]{fig13_dense_steering_doseresponse}
-  \caption{\textbf{Concept-level steering dose-response curves.}
-    Mean logit-margin shift (Yes$-$No on warmth/competence judgements)
-    as a function of steering strength $\alpha$ (expressed as a fraction
-    of the mean residual-stream norm) for the dense target direction
-    across all four models.
-    Positive slopes confirm that all models respond causally to the
-    extracted direction vectors; the substantially higher slope at
-    Gemma-3-12B (warmth slope $= 27.79$, $R^2 = 0.956$) compared to
-    Gemma-3-27B (slope $= 12.89$, $R^2 = 0.990$) illustrates the
-    steerability difference despite identical probe accuracy.
-    Error bars are bootstrapped 95\% confidence intervals over held-out topics.}
-  \label{fig:fig13_dense_steering_doseresponse}
-\end{figure*}
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\linewidth]{paper_figure3_diverging_steering}
-  \caption{\textbf{Diverging hiring-level steering response across model
-    scale.}
-    Mean callback logit-margin shift as a function of warmth steering
-    strength $\alpha$ for Gemma-3-12B (left) and Gemma-3-27B (right).
-    At 12B the response is large and approximately linear (up to $+2.37$
-    logit units at $\alpha = +0.10$); at 27B the response reverses sign
-    between $\alpha = +0.05$ ($+1.97$) and $\alpha = +0.10$ ($-2.66$),
-    ruling out ceiling saturation as an explanation given the 27B
-    baseline rate of $P(\text{Yes}) = 0.760$.
-    Error bars are 95\% bootstrap confidence intervals.}
-  \label{fig:paper_figure3_diverging_steering}
-\end{figure}
+The full four-model dose-response curves and signal-vs-control comparisons
+across all six steering directions are shown in
+\autoref{fig:fig17_hiring_steering_callback} and
+\autoref{fig:fig13_dense_steering_doseresponse}.
 
 \paragraph{Model Callback Disparities Versus the Human Benchmark.}
 To assess demographic parity in model hiring recommendations relative to
@@ -679,7 +589,7 @@ rates than female names (gender gap $= -0.037$ in favour of Male).
 At Gemma-3-27B the race gap is reversed relative to the human benchmark
 and large in magnitude: Black-signalling names receive callback margins
 $+0.486$ raw logit units above White-signalling names, equal to
-$+1.18$ within-model standard deviations.
+$+1.18$ within-model standard deviations (\autoref{fig:fig18_hiring_disparity}).
 The gender gap at 27B is $-0.211$ raw logit units ($-0.51$ SD), reproducing
 the human direction (Female $<$ Male) though at greater magnitude than the
 human reference.
@@ -876,18 +786,19 @@ step for applied work.
 \small
 
 \clearpage
-\printbibliography
+\bibliographystyle{apalike}
+\bibliography{references}
 }
 
 
 
 \clearpage
+\begin{appendices}
 \onecolumn
 \setcounter{figure}{0}
 \setcounter{table}{0}
-\renewcommand\appendix{\par
-  \setcounter{section}{0}%
-  \renewcommand{\thesection}{\Alph{section}}}
+\renewcommand{\thesection}{\Alph{section}}%
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
 \renewcommand\thefigure{S.\arabic{figure}}
 \renewcommand\thetable{S.\arabic{table}}
 \begin{center}
@@ -903,4 +814,6 @@ step for applied work.
 \label{apx:methods}
 
 \section*{Additional Results}
+
+\end{appendices}
 \end{document}

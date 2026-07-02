@@ -3,16 +3,11 @@
 **Produced:** 2026-06-24 13:00 (Europe/Berlin)  
 **Model:** Gemma-3-27B-it  
 **Companion report:** `2026-06-24_1136_hiring_causality_results.md` (12B baseline)  
-**Status:** Updated 2026-06-30 — broad-regime "inert" finding superseded by local-regime non-monotone result; B1 re-run pending
+**Status:** Historical single-model report; broad-regime "inert" finding superseded by local-regime non-monotone result; final four-model interpretation in `2026-06-27_1541_hiring_phase7_4model.md`
 
-> ⚠ **Known data issues identified 2026-06-30**
->
-> **B1 — bf16 quantisation:** All callback margins in this report were computed in bf16,
-> rounding each value to the nearest 0.125. Probe-vs-human Spearman ρ values are
-> **unaffected**. Audit margins and steering deltas are directionally informative but
-> precise magnitudes will shift after re-run with the float32 fix.  
-> **Action:** re-run `notebooks/07_hiring_audit.ipynb` (`VECTORS_SUBDIR = "concept_vectors_gemma3_27b"`)
-> — see `docs/rerun_checklist.md` §1B.
+> **Later update:** The B1 callback-margin quantisation limitation is documented in
+> `2026-07-02_1000_bf16_quantisation_limitation.md`. Subsequent re-runs did not change
+> the current git-tracked hiring values.
 >
 > **A1 — broad regime superseded by local-regime run (2026-06-30):** The original sweep
 > used {±0.25, ±0.50} × `mean_resid_norm`. A local-regime re-run at {±0.05, ±0.10}
@@ -245,7 +240,7 @@ weaker, but a different bias pattern has emerged in the residuals.
 | Property | 12B | 27B |
 |---|---|---|
 | Internal stereotype encoding (ρ) | Moderate (0.355 / 0.230) | Stronger (0.381 / 0.283) |
-| Warmth causal effect — local regime | Strong, linear (R²=0.924; pending re-run) | Non-monotone: Δ=+1.97 at +0.05, −2.66 at +0.10 (R²=0.002) |
+| Warmth causal effect — local regime | Strong positive response at small strengths | Non-monotone: Δ=+1.97 at +0.05, −2.66 at +0.10 (R²=0.002) |
 | Warmth causal effect — broad regime | Strong (R²=0.924) | Appeared inert (R²=0.026) — now understood as non-linearity |
 | Competence causal effect — broad | Positive, non-linear (R²=0.663) | Negative, uniform (R²=0.340) |
 | Baseline generosity | Cautious (P(Yes)=0.451) | Generous (P(Yes)=0.767) |
@@ -271,22 +266,3 @@ All caveats from the 12B report apply. Additional scale-specific caveats:
   causality at 27B is unknown.
 - The near-100% baseline Yes rate at 27B makes the callback margin a less sensitive
   measure of discrimination than at 12B.
-
----
-
-## Open decisions (same as 12B, flagged to Jorge)
-
-**D-Phase7-A:** Which human callback dataset to use as the comparison benchmark.  
-**D-Phase7-B:** Which demographic grouping to apply to the 282 names.  
-**D-Phase7-C:** Mediation test (name group → model probe → callback).
-
----
-
-## Next steps
-
-1. Decide D-Phase7-A and D-Phase7-B, then complete the demographic disparity analysis
-   for both 12B and 27B side-by-side in notebook 07.
-2. Run a layer sweep on the 27B hiring margins to find the layer where causal steering
-   is most effective (mirrors Emre's concept-steering layer sweep).
-3. Incorporate the scale comparison table into the paper as a dedicated results section.
-4. Update `paper/README.md` and `step_logs/STEP_LOG.md` with this report.
