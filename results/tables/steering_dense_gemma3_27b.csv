@@ -13,13 +13,13 @@ steering,competence,raw_dense,-0.05,-0.5875,-0.74375,-0.43125,20,10
 steering,competence,raw_dense,0.0,0.0,0.0,0.0,20,10
 steering,competence,raw_dense,0.05,0.25,0.0625,0.475,20,10
 steering,competence,raw_dense,0.1,0.2125,-0.075,0.525,20,10
-steering,warmth,random,-0.1,-0.34375,-0.7750781249999998,0.084375,20,10
-steering,warmth,random,-0.05,-1.43125,-1.7625,-1.109375,20,10
+steering,warmth,random,-0.1,-0.353125,-0.7844531249999999,0.06875,20,10
+steering,warmth,random,-0.05,-1.434375,-1.76875,-1.1124218750000006,20,10
 steering,warmth,random,0.0,0.0,0.0,0.0,20,10
 steering,warmth,random,0.05,-0.025,-0.190625,0.15945312499999956,20,10
 steering,warmth,random,0.1,0.60625,0.315625,0.8938281249999996,20,10
-steering,warmth,raw_dense,-0.1,-1.51875,-1.725,-1.31875,20,10
-steering,warmth,raw_dense,-0.05,-0.84375,-0.990625,-0.725,20,10
+steering,warmth,raw_dense,-0.1,-1.509375,-1.7157031249999999,-1.30625,20,10
+steering,warmth,raw_dense,-0.05,-0.85,-1.003125,-0.728125,20,10
 steering,warmth,raw_dense,0.0,0.0,0.0,0.0,20,10
 steering,warmth,raw_dense,0.05,0.5125,0.45625,0.559375,20,10
 steering,warmth,raw_dense,0.1,1.025,0.7625,1.278125,20,10
