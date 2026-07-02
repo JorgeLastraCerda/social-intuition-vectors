@@ -1011,3 +1011,80 @@
 - **Did:** Read current step-log/report state, fetched `origin`, and fast-forwarded local `main` from `9b7d014` to `8cf7a1b`.
 - **Findings:** Pull brought in 147 changed files, including hiring/steering outputs, Figure 20 PCA denoising assets, updated reports, notebooks, SGE scripts, and paper draft files. After pull, local `main` matched `origin/main` with a clean worktree before this log entry.
 - **Decision / rationale:** Recorded the sync as a repository state transition because it changed the local empirical/reporting baseline.
+
+---
+
+## 2026-07-02 · Step 7 — Compile current paper draft PDF
+
+- **Context:** User requested a PDF from the current paper draft and indicated that the early draft should now become the full paper draft.
+- **Agent:** gpt-5-codex
+- **Did:** Installed missing TinyTeX packages (`appendix`, `preprint`, `fancyhdr`, `caption`), added the paper figure graphics path and five referenced figure environments to `paper/paper/Ulu_Lastra.tex`, added six missing bibliography entries to `paper/paper/references.bib`, and compiled `paper/paper/Ulu_Lastra.pdf`.
+- **Findings:** PDF compilation succeeds at 11 pages with no undefined references or citations. Remaining LaTeX messages are only layout/font warnings. Output path: `paper/paper/Ulu_Lastra.pdf`.
+- **Next:** Expand and update the paper text from the current reports, especially stale early-draft claims and the completed four-model hiring/disparity results.
+
+---
+
+## 2026-07-02 · Step 8 — Add active manuscript writing rules
+
+- **Context:** User provided paper-writing rules from another repository and selected which ones to adapt into this repository's `AGENTS.md`.
+- **Agent:** gpt-5-codex
+- **Did:** Added active manuscript, prose style, anti-formulaic writing, user-decision, idea-note, and paper-figure rules to `AGENTS.md`, adapted to this repository's existing paths.
+- **Findings:** Active manuscript source is now documented as `paper/paper/Ulu_Lastra.tex`; paper figures remain under `paper/figures/`; idea notes are assigned to `paper/idea-notes/`; step logging remains `step_logs/STEP_LOG.md`.
+- **Decision / rationale:** Preserved the repository's existing layout instead of importing incompatible paths such as `ai-usage/`, `figures/script_figures/`, or a dated active paper edition folder.
+- **Next:** Use these rules for future active manuscript writing. Anti-formulaic manuscript self-check was not run because no manuscript prose was edited in this step.
+
+---
+
+## 2026-07-02 · Step 9 — Rewrite Introduction; remove standalone Literature section
+
+- **Context:** Paper writing session — replacing the early-draft Introduction + Literature with a single flowing Introduction following the agreed PAPER_STRUCTURE.md blueprint.
+- **Agent:** claude-opus-4-8
+- **Did:** (1) Verified bibliographic details for three new sources via WebFetch/WebSearch: Wilson & Caliskan AIES 2024, Chaturvedi & Chaturvedi arXiv 2025, SHRM 2025 Talent Trends. (2) Appended three entries to `paper/paper/references.bib` (keys: `shrm2025talent`, `wilson2024gender`, `chaturvedi2025callback`). (3) Replaced `\section*{Introduction}` (3 paragraphs) and the entire `\section*{Literature}` section (5 subsections) in `paper/paper/Ulu_Lastra.tex` with a single 4-paragraph Introduction following the agreed arc: adoption+stakes → bias real+LLMs reproduce it (black-box) → interpretability door (Anthropic) → warmth/competence tease + contribution. All cites from the deleted Literature section (SCM, correspondence studies, interpretability, audit papers) fold into the new Introduction.
+- **Findings:** New Introduction cites: `shrm2025talent`, `bertrand2004emily`, `oreopoulos2011why`, `neumark2019older`, `correll2007getting`, `tilcsik2011pride`, `ameri2018disability`, `wilson2024gender`, `chaturvedi2025callback`, `an2024llm`, `an_measuring_2025`, `gaebler2024auditing`, `mikolov2013word2vec`, `park2024linear`, `zou2023repeng`, `turner2023activation`, `olah2020zoom`, `sofroniew2026emotion`, `fiske2002model`, `gallo2024warmth`. No orphaned cites: all previously Literature-only keys now appear in the Introduction or remain in the bib for future §3 (fiske2007universal, cuddy2007biasmap, cuddy2008warmth, fiske2018stereotype). Methods, Results, Discussion, Limitations, Future Work unchanged. Note: both new audit papers (Wilson & Caliskan; Chaturvedi & Chaturvedi) point in the traditional-bias direction (favor White/men); they are NOT framed as matching our 27B overcorrection — the honest framing is that behavioral audits disagree on direction and none locate the internal mechanism.
+- **Decision / rationale:** Single flowing Introduction (no separate Literature section) per user decision; SCM/Gallo get a short tease in Intro Para 4 with full treatment deferred to §3.
+- **Anti-formulaic self-check:** Para openers: "AI-powered tools now..." / "That skew is not hypothetical." / "Mechanistic interpretability offers..." / "The construct is warmth and competence---". No two adjacent paragraphs share a syntactic frame. No signal-only transitions. Sentence length varied within each paragraph. No prohibited pattern appears three or more times. Self-check passed.
+- **Next:** Compile PDF to confirm no undefined-citation warnings; then draft §2 Background (pedagogy) and §3 Why Warmth & Competence (SCM + Gallo full treatment).
+
+---
+
+## 2026-07-02 · Step 10 — Draft §2 Background + schematic figure
+
+- **Context:** Paper writing session — adding the pedagogical Background section to `paper/paper/Ulu_Lastra.tex` following the agreed PAPER_STRUCTURE.md §2 blueprint.
+- **Agent:** claude-opus-4-8
+- **Did:** (1) Wrote `paper/figures/background_concept_geometry.py` (new hand-made schematic figure script, reusing `style.py` palette and `ARROW_WARMTH`); generated `.png` and `.pdf`. (2) Inserted `\section*{Background: Reading a Concept Out of a Language Model}` with four labeled subsections between Introduction and Methods in `paper/paper/Ulu_Lastra.tex`. (3) Full compile cycle (pdflatex → bibtex → pdflatex × 2); BibTeX zero warnings, final pass zero undefined-citation/reference warnings.
+- **Findings:** Section inserts cleanly. Figure `fig:concept_geometry` resolves. Cites: `olah2020zoom`, `mikolov2013word2vec`, `park2024linear`, `turner2023activation`, `zou2023repeng`, `sofroniew2026emotion` — all pre-existing, no new bib entries. Two displayed equations: eq:mean_diff ($v = \bar{h}_A - \bar{h}_B$) and eq:steering ($h' = h + \alpha\hat{v}$).
+- **Decision / rationale:** ML-literate register (not from-scratch pedagogy); labeled subsections (four beats: residual stream / concept-is-a-direction / steering / Anthropic template); schematic figure now rather than deferred. Warmth/competence vectors are NOT called "emotion vectors" anywhere.
+- **Anti-formulaic self-check:** Subsection openers vary: "Every forward pass…" / "The intuition that semantic content…" / "A direction extracted by the mean-difference method…" / "\citet{sofroniew2026emotion} applied this framework…". No two adjacent openers share a syntactic frame. No signal-only transitions. Sentence length varied. Self-check passed.
+- **Next:** Draft §3 "Why Warmth & Competence — Why Hiring — Which Data" (SCM + Gallo full treatment + story/name-set data description).
+
+---
+
+## 2026-07-02 · Step 11 — Refine background_concept_geometry figure
+
+- **Context:** User reviewed the v1 figure and requested: fix center crowding, shrink figure, 50 dots per cloud, move v label, legend top-left tight, academic polish.
+- **Agent:** claude-opus-4-8
+- **Did:** Rewrote `paper/figures/background_concept_geometry.py`: N=50 per cloud (real per-condition count), s=20 crisp markers, centroid × anchors at mu_high/mu_low, v label relocated to lower-right quadrant with white bbox, legend moved to upper-left with compact spacing (labelspacing=0.3, handletextpad=0.4), steering alpha reduced so h' star lands in clear space between boundary and cluster, h label moved left of src, decision boundary label tucked to upper-left corner, figsize=(3.3,2.7). Updated tex to `width=0.85\columnwidth`. Recompiled: BibTeX zero warnings, final pass zero undefined citations/refs.
+- **Findings:** Figure visually confirmed clean: no label overlaps on arrow/clusters, 50 dots confirmed, legend upper-left tight, v label lower-right, figure compact.
+- **Next:** Draft §3 "Why Warmth & Competence — Why Hiring — Which Data."
+
+---
+
+## 2026-07-02 · Step 12 — New Figure 1: emotion-vector concept schematic
+
+- **Context:** Paper writing session — user requested a pedagogical Figure 1 showing that LLM internal states move along emotion directions in activation space, preceding the warmth/competence geometry figure.
+- **Agent:** claude-sonnet-4-6
+- **Did:** (1) Created `paper/figures/background_emotion_vector.py` (new hand-made figure; three emotion arrows — joy/fear/sadness — radiating from a neutral origin *h*; fear highlighted in crimson with star and numeric bracket vector $\hat v_{\text{fear}} = [0.21, -0.52, 0.08, \ldots, 0.14] \in \mathbb{R}^d$; prompt cue entering from left; activation space label; receded joy/sadness in blue/grey). Generated `.png` + `.pdf`. (2) Inserted the new `\begin{figure}` float in `paper/paper/Ulu_Lastra.tex` immediately before `background_concept_geometry` float, labelled `fig:emotion_vector`; old geometry float becomes Figure 2. (3) Added one `\autoref{fig:emotion_vector}` sentence at the end of the "Emotion Vectors as the Template" subsection. (4) Full compile cycle (pdflatex → bibtex → pdflatex × 2): zero new errors or undefined-reference warnings.
+- **Findings:** Both `fig:emotion_vector` and `fig:concept_geometry` resolve; font-size substitution warnings are pre-existing and not new. Figure reads cleanly: three labeled directions, fear bold and highlighted, bracket vector visible, no label overlaps.
+- **Decision / rationale:** Three-emotion radial composition selected (communicates "each concept = a direction" most directly); numeric bracket vector included to convey high-dimensionality; crimson fear matches the red used in Figure 2 for visual continuity across the pair.
+- **Anti-formulaic self-check:** The added sentence ("\autoref{fig:emotion_vector} illustrates the core idea: each emotion occupies a distinct direction…") opens with a figure reference — different from all surrounding subsection openers. No signal-only transition. Check passed.
+- **Next:** Draft §3 "Why Warmth & Competence — Why Hiring — Which Data."
+
+---
+
+## 2026-07-02 · Step 13 — Refine background_emotion_vector figure
+
+- **Context:** User reviewed `background_emotion_vector.pdf` and requested a more professional paper-introduction schematic: remove left/bottom lines, shorten vectors, strengthen non-fear arrows, and add vector coordinates for all directions.
+- **Agent:** gpt-5-codex
+- **Did:** Edited `paper/figures/background_emotion_vector.py`, regenerated `paper/figures/background_emotion_vector.{png,pdf}`, visually inspected the PNG, and recompiled `paper/paper/Ulu_Lastra.tex`.
+- **Findings:** Figure now has no visible axis spines or residual-stream axis labels; joy and sadness arrows are stronger and shorter; joy, fear, and sadness all carry compact coordinate-vector labels. `pdflatex -interaction=nonstopmode Ulu_Lastra.tex` completed successfully and loaded the revised PDF figure; remaining messages are underfull/font warnings, not figure errors.
+- **Decision / rationale:** Kept the three-direction radial schematic and highlighted fear as the example direction, while removing plot-like scaffolding so the panel reads as a clean conceptual figure rather than a data axis.

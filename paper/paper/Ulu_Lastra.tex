@@ -3,6 +3,7 @@
 % Essential packages
 \usepackage{hyperref}
 \usepackage{graphicx}
+\graphicspath{{../figures/}}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{booktabs}
@@ -114,126 +115,169 @@ instruction-tuning overcorrection rather than inherited discrimination.
 \section*{Introduction}
 % ─────────────────────────────────────────────────────────────────────────────
 
-Discrimination in hiring is one of the most persistent and consequential
-forms of social inequality.
-Access to work is not a neutral outcome: it shapes social mobility,
-material security, and the possibilities available to people across their
-lives.
-One of the most cited field experiments documenting the scope of this
-problem is \citet{bertrand2004emily}, who sent nearly 5{,}000 matched
-resumes to employers in Boston and Chicago, varying only the perceived
-race of the applicant through the name on the resume.
-Resumes assigned White-sounding names received approximately 50~percent
-more callbacks than otherwise identical resumes assigned
-African-American-sounding names, a gap that held across industries,
-occupations, and firm sizes.
-Similar audits have since documented comparable patterns for gender, age,
-disability, religion, sexual orientation, and national origin,
-establishing that differential treatment in hiring is not an isolated
-phenomenon but a structural feature of labor markets in North America and
-beyond \citep{correll2007getting, neumark2019older, tilcsik2011pride}.
+AI-powered tools now screen resumes, rank candidates, and support
+callback decisions at every stage of the modern hiring funnel.
+According to SHRM's 2025 Talent Trends survey, half of U.S.\
+organizations use AI to support recruiting, and 44~percent deploy it
+specifically for resume screening \citep{shrm2025talent}.
+At that scale, any systematic skew in model recommendations translates
+directly into skewed access to work.
 
-Social psychology offers a theoretical framework for understanding why
-these disparities exist and what drives their magnitude.
-The Stereotype Content Model \citep[SCM;][]{fiske2002model} proposes that
-social perception is organized along two fundamental dimensions: warmth,
-which captures perceived intentions and trustworthiness, and competence,
-which captures perceived ability and effectiveness.
-Groups stereotyped as low on both dimensions elicit contempt and active
-harm, while groups stereotyped as high on both elicit admiration and
-active facilitation \citep{cuddy2007biasmap}.
-\citet{gallo2024warmth} tested this model directly against hiring outcomes.
-In a meta-analysis pooling callback data from over two decades of North
-American correspondence studies, they showed that human warmth and
-competence ratings of social signals predict callback disparities with
-substantial accuracy.
-The way people perceive the warmth and competence of a social group is
-not just a psychological description: it is a working predictor of
-whether members of that group get called back for a job interview.
+That skew is not hypothetical.
+Decades of human correspondence studies have established measurable
+hiring discrimination across race, national origin, age, disability,
+and gender \citep{bertrand2004emily, oreopoulos2011why, neumark2019older,
+correll2007getting, tilcsik2011pride, ameri2018disability}.
+Whether automating the hiring decision preserves or amplifies these
+patterns is now a live question.
+Several behavioral audits of large language models suggest it does:
+\citet{wilson2024gender} and \citet{chaturvedi2025callback} find that LLMs
+systematically favor some demographic groups over others in resume
+evaluation, while \citet{an2024llm}, \citet{an_measuring_2025}, and
+\citet{gaebler2024auditing} document persistent race and gender disparities
+in GPT-family callback recommendations.
+These studies agree that bias exists; they disagree on its direction and
+magnitude.
+None can locate the internal mechanism: they describe what the model
+decides, not how it arrives there.
 
-Large language models are now entering this picture.
-They are being used to screen resumes, rank candidates, and support or
-automate hiring decisions at scale.
-This raises an urgent question: do these systems reproduce the
-discriminatory patterns documented in human hiring, and if so, what is
-the underlying mechanism?
-Behavioral audit studies have already begun to answer the first part.
-\citet{an2024llm} found systematic disparities in GPT-3.5 callback
-recommendations across racial and ethnic groups.
-\citet{gaebler2024auditing} audited multiple large language models and found
-persistent race and gender disparities with potential legal implications
-under equal employment opportunity law.
-What these studies cannot tell us is where in the model this differential
-treatment originates, and how it could be addressed at the source rather
-than patched at the output.
-
-% ─────────────────────────────────────────────────────────────────────────────
-\section*{Literature}
-% ─────────────────────────────────────────────────────────────────────────────
-
-Four bodies of literature converge on the problem this paper addresses,
-and each leaves a specific gap.
-
-\subsection*{Correspondence Studies}
-
-Correspondence studies have proven that discrimination in hiring is real
-and measurable across race, gender, age, disability, and national origin.
-What they cannot tell us is why it happens at the level of cognitive
-mechanism: they describe the outcome but not the process that produces it.
-
-\subsection*{The Stereotype Content Model}
-
-The SCM answers that question for humans.
-Warmth and competence are the two dimensions through which social groups
-are perceived, and those perceptions predict who gets called back, as
-\citet{gallo2024warmth} demonstrated directly.
-But the SCM was built entirely within human psychology.
-Nobody has tested whether this same structure exists inside a machine.
-If a language model trained on human-generated text has internalized
-warmth and competence as internal representations, that would be a
-meaningful finding; if it has not, that is equally important to know.
-
-\subsection*{Behavioral Audits of Large Language Models}
-
-Behavioral audits of large language models have confirmed that AI systems
-also discriminate in hiring \citep{an2024llm, gaebler2024auditing}.
-But by treating the model as a black box, these studies can document that
-disparities exist without explaining where in the model they originate or
-what internal structure produces them.
-Knowing that a model recommends against an applicant with a Black-sounding
-name more often than an identical applicant with a White-sounding name is
-useful, but it does not tell us how to fix it or where the bias lives.
-
-\subsection*{Mechanistic Interpretability}
-
-Mechanistic interpretability gives us tools to open that box.
+Mechanistic interpretability offers a way in.
+Word embedding research established that semantic concepts cluster as
+linear directions in high-dimensional activation spaces
+\citep{mikolov2013word2vec}, and the linear representation hypothesis
+formalizes this for modern large models \citep{park2024linear}.
 Representation engineering \citep{zou2023repeng} and activation addition
-\citep{turner2023activation} have shown that high-level concepts are encoded as
-linear directions in large language model residual streams and can be
-causally manipulated.
-Most recently, \citet{sofroniew2026emotion} applied this framework to emotion
-concepts in Claude Sonnet, showing that internal emotion representations
-causally influence model behavior.
-But these tools have never been applied to warmth and competence as social
-stereotype dimensions, and never connected to hiring discrimination.
+\citep{turner2023activation} showed that steering a model along such a
+direction causally shifts its behavior, and circuit analyses have
+connected individual components to recognizable computations
+\citep{olah2020zoom}.
+Most recently, \citet{sofroniew2026emotion} demonstrated that emotion
+concepts in Claude Sonnet are encoded as linear residual-stream directions
+and causally regulate behavior under direct steering---evidence that the
+geometry of representation extends from symbolic word vectors to the
+internal activations of instruction-tuned models.
+We borrow this technique and apply it to a different construct entirely.
 
-\subsection*{This Paper}
+The construct is warmth and competence---the two axes through which social
+groups are perceived according to the Stereotype Content Model
+\citep{fiske2002model}.
+Warmth and competence ratings of social signals predict human callback
+rates across decades of North American correspondence studies
+\citep{gallo2024warmth}, making these axes a natural candidate mechanism
+for LLM hiring disparities.
+We ask whether four open-weights models have internalized warmth and
+competence as linearly decodable residual-stream directions, whether those
+directions are causally functional, and whether they mediate the
+name-driven callback disparities we observe against a matched human
+benchmark.
+That question connects mechanistic interpretability to the empirical
+tradition of correspondence studies in a domain where the stakes of
+getting it wrong are immediate and measurable.
 
-This paper sits at the intersection of all four gaps and makes a
-methodological contribution by connecting the tools of mechanistic
-interpretability to the empirical tradition of correspondence studies.
-We take the conceptual framework from the SCM, the empirical benchmark
-from correspondence studies, the motivating question from LLM bias audits,
-and the methodological tools from mechanistic interpretability.
-We extract and validate warmth and competence direction vectors from four
-open-weights models spanning three independent architectural lineages, test
-whether those representations are causally functional, and connect the
-resulting callback disparities to the human benchmark of
-\citet{gallo2024warmth}.
-Doing so allows us to move the study of LLM hiring bias from behavioral
-description to mechanistic account: not only documenting that the disparity
-exists, but locating where in the model it may originate and what
-representational structure underlies it.
+% ─────────────────────────────────────────────────────────────────────────────
+\section*{Background: Reading a Concept Out of a Language Model}
+% ─────────────────────────────────────────────────────────────────────────────
+
+\subsection*{Activations and the Residual Stream}
+
+Every forward pass through a transformer accumulates computation through
+additive residual connections: each layer~$\ell$ reads a
+$d_{\mathrm{model}}$-dimensional state $h_\ell \in
+\mathbb{R}^{d_{\mathrm{model}}}$ and writes back an updated version
+$h_{\ell+1} = h_\ell + f_\ell(h_\ell)$, where $f_\ell$ is the combined
+output of that layer's attention and MLP sub-blocks.
+Circuit-level analyses have shown that specific features---from low-level
+syntax to high-level semantic content---are localized within this stream as
+consistent geometric patterns across contexts \citep{olah2020zoom}.
+Rather than probing the full architecture, we extract the residual-stream
+state at a single chosen depth (approximately 65\% of network layers,
+selected by Cohen's~$d$ emergence curves) and treat that vector as the space
+in which warmth and competence reside as directions.
+
+\subsection*{A Concept Is a Direction}
+
+The intuition that semantic content is organized as linear directions dates
+to word-embedding analogies \citep{mikolov2013word2vec}; the \textit{linear
+representation hypothesis} \citep{park2024linear} formalizes it for large
+transformer models: high-level features correspond to directions in
+residual-stream space such that projecting a representation onto a direction
+yields a scalar measuring how strongly that feature is present.
+To extract such a direction for a target concept, we collect
+residual-stream activations from texts that express the concept
+(condition~$A$) and from matched texts that do not (condition~$B$), and form
+the mean-difference:
+\begin{equation}
+  v = \bar{h}_{A} - \bar{h}_{B}.
+  \label{eq:mean_diff}
+\end{equation}
+Normalizing to $\hat{v}$ gives a concept direction; the concept score of any
+new text is then $\hat{v}^{\!\top} h$.
+The key claim --- validated here by cross-validated classification and
+topic-holdout accuracy --- is that this direction generalizes beyond the
+specific texts used to construct it (\autoref{fig:concept_geometry}).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.85\columnwidth]{background_emotion_vector.pdf}
+\caption{\textbf{Emotion vectors as directions in activation space (schematic).}
+Each emotion corresponds to a unit direction radiating from a neutral model state~$h$.
+Feeding a prompt that evokes fear shifts the residual stream along~$\hat{v}_{\text{fear}}$,
+encoded here with its representative $d$-dimensional coordinates.
+After \citet{sofroniew2026emotion}; we reuse the geometry, not the construct.}
+\label{fig:emotion_vector}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.85\columnwidth]{background_concept_geometry.pdf}
+\caption{\textbf{Residual-stream concept geometry (schematic).}
+Two story clusters separated by the mean-difference direction
+$v = \bar{h}_{\mathrm{high}} - \bar{h}_{\mathrm{low}}$ (blue arrow).
+The red dashed arrow shows a single steering step
+$h' = h + \alpha\,\hat{v}$ that moves a marginal point across the decision
+boundary.
+Illustrative synthetic activations, not measured data.}
+\label{fig:concept_geometry}
+\end{figure}
+
+\subsection*{Steering a Concept}
+
+A direction extracted by the mean-difference method is initially
+correlational: it separates high- and low-condition activations but does not
+by itself demonstrate that the model uses the direction causally.
+To test causality, we intervene on the residual stream during inference: at
+the probe layer, we replace the model's internal state with
+\begin{equation}
+  h' = h + \alpha\,\hat{v},
+  \label{eq:steering}
+\end{equation}
+where $\alpha$ is a signed scalar controlling the magnitude and direction of
+the push.
+If the model's downstream behavior then shifts systematically with $\alpha$
+while an orthogonal control direction produces no comparable shift, the
+direction participates causally in the model's computations.
+Activation addition \citep{turner2023activation} and representation
+engineering \citep{zou2023repeng} establish this approach and give it
+empirical grounding across a range of models and target behaviors.
+
+\subsection*{Emotion Vectors as the Template}
+
+\citet{sofroniew2026emotion} applied this framework to emotion concepts in
+Claude Sonnet.
+Building contrastive text pairs for each emotion, they extracted mean-difference
+directions in the residual stream, steered the model along those directions,
+and observed systematic, interpretable shifts in behavior.
+Their study also introduced the neutral-corpus PCA denoising procedure that
+removes general evaluative valence from the direction vectors---a step we
+adopt verbatim to separate warmth and competence content from shared
+narrative polarity (described in Methods).
+We reuse the geometry and the method; the construct is different.
+Warmth and competence are social-perception dimensions from the Stereotype
+Content Model, not emotion states, and calling our direction vectors
+``emotion vectors'' would be a category error.
+\autoref{fig:emotion_vector} illustrates the core idea: each emotion occupies
+a distinct direction in residual-stream space, with a numeric representation
+that can be extracted, inspected, and used to steer the model.
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section*{Methods}
@@ -439,6 +483,15 @@ and 0.487 (27B), while the post-denoising residual remains consistent
 with the genuine warmth-competence correlation reported in human
 perception studies ($r \approx 0.61$).
 
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{paper_figure2_layer_emergence.pdf}
+\caption{\textbf{Warmth and competence directions emerge robustly across depth.}
+Layer-wise concept separation and warmth-competence geometry across the four
+open-weights models.}
+\label{fig:paper_figure2_layer_emergence}
+\end{figure*}
+
 \paragraph{Warmth and Competence Directions Are Causally Functional.}
 To move beyond representational description, we applied activation steering
 to the warmth and competence direction vectors in Gemma-3-12B and
@@ -495,6 +548,16 @@ This reversal indicates that the capacity to shift a model's concept
 representations via linear activation addition does not map monotonically
 onto the causal role those representations play in downstream hiring
 decisions.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{fig14_dense_steering_normalized.pdf}
+\caption{\textbf{Concept-level steerability differs across architectures.}
+Dense steering effects normalised by each model's baseline high--low concept
+gap, allowing steerability to be compared across models with different logit
+scales.}
+\label{fig:fig14_dense_steering_normalized}
+\end{figure*}
 
 \paragraph{The Model's Internal Probe Scores Track Human Social Perceptions
 Unevenly Across Architectures.}
@@ -576,6 +639,24 @@ across all six steering directions are shown in
 \autoref{fig:fig17_hiring_steering_callback} and
 \autoref{fig:fig13_dense_steering_doseresponse}.
 
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{fig17_hiring_steering_callback.pdf}
+\caption{\textbf{Activation steering shifts hiring callback recommendations.}
+Callback-margin responses to warmth and competence steering in the hiring
+evaluation setting.}
+\label{fig:fig17_hiring_steering_callback}
+\end{figure*}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{fig13_dense_steering_doseresponse.pdf}
+\caption{\textbf{Dense steering dose-response across models.}
+Concept-level dose-response curves for warmth and competence directions across
+the four open-weights models.}
+\label{fig:fig13_dense_steering_doseresponse}
+\end{figure*}
+
 \paragraph{Model Callback Disparities Versus the Human Benchmark.}
 To assess demographic parity in model hiring recommendations relative to
 human correspondence-study outcomes, we joined the 282-name stimulus set
@@ -613,6 +694,15 @@ at 12B (Pearson $r = +0.376$, $p < .001$) and reversed at 27B
 baseline association documented above.
 Disparity results for Llama-3.1-8B and Qwen3-14B await completion of
 cluster re-runs and are not reported here.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{fig18_hiring_disparity.pdf}
+\caption{\textbf{Model callback disparities relative to the human benchmark.}
+Race and gender callback-margin gaps for the model evaluations compared with
+the correspondence-study benchmark.}
+\label{fig:fig18_hiring_disparity}
+\end{figure*}
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section*{Discussion and Conclusion}
