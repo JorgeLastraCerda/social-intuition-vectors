@@ -536,7 +536,7 @@ normalized steerability rankings from concept-story experiments. Mapping to hiri
 | Model | Dense-warmth steerability | Hiring warmth Δ @+0.50 | Mediation (race×warmth) |
 |-------|--------------------------|----------------------|------------------------|
 | Gemma-3-12B | **0.236** (highest) | **+8.35** (strongest) | n.s. |
-| Qwen3-14B | 0.125 | +0.60 (weak) | sig. (+0.081) |
+| Qwen3-14B | 0.122 | +0.60 (weak) | sig. (+0.081) |
 | Gemma-3-27B | 0.040 | −0.23 (inert) | n.s. |
 | Llama-3.1-8B | 0.029 (lowest) | +3.17 (moderate) | **sig. (+0.190)** |
 

@@ -960,3 +960,14 @@
 - **Findings:** Fix is in the codebase and all pipeline scripts inherit it via import. 12B (SD=0.14, 7 unique values) cannot produce reliable disparity findings without float32 inference. 27B SD=0.41 is sufficient. Cluster re-runs for all 4 models still pending.
 - **Decision / rationale:** Separate standalone report chosen over inline note so it is findable as a first-class limitation, not buried in a results file.
 - **Next:** Emre submits 4 SGE jobs (`qsub jobs/sge/hiring_gemma3_*.sh`); re-runs notebook 09 with new CSVs; verifies SD per model with diagnostic snippet.
+
+---
+
+## 2026-07-02 · Step 2 — Reconcile dense-steering report tables to committed CSVs; incorporate B1 re-run
+
+- **Context:** B1 re-run (8 SGE jobs) completed; figures fig13/14/15 already regenerated (commit `01dd389`). User requested full report update: if findings changed, update them too.
+- **Agent:** claude-sonnet-4-6
+- **Did:** Edited `paper/2026-06-27_1446_dense_steering_4model.md` and `paper/2026-06-27_1541_hiring_phase7_4model.md`. Dense report: added correction note; updated fig13 raw-effect table (all 4 models), fig14 Qwen row (0.125→0.122 warmth, 0.103→0.104 competence), fig15 signal-vs-control table (all rows including precise random values), prose on 27B warmth non-specificity (+0.61 control), and caveat 2. Phase7 report: Qwen dense-warmth steerability 0.125→0.122 in the bridge table (§6).
+- **Findings:** Pre-existing inconsistency: the original fig13/fig15 tables had cited numbers inconsistent with committed CSVs and the actual figures (e.g. Qwen warmth "+25.74" vs CSV effect 1.20). Both tables now match the `effect` column of `results/tables/steering_dense_*.csv`. B1 re-run delta was small: Qwen normalized warmth 0.125→0.122, 27B rows shifted ~0.01. No qualitative findings changed: steerability ranking 12B > Qwen > 27B ≈ Llama holds; Gemma scale paradox unchanged; 27B competence leakage (random −3.36 >> signal +0.21) unchanged.
+- **Decision / rationale:** Full reconcile to committed CSV source-of-truth chosen (user confirmed) over minimal-update option, so reports agree with figures already in the repo.
+- **Next:** Commit and push the 2 reports + STEP_LOG.

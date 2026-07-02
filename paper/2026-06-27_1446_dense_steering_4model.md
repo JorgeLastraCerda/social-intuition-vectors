@@ -3,7 +3,14 @@
 **Produced:** 2026-06-27 14:46 (Europe/Berlin)
 **Model(s):** Gemma-3-12B-it · Gemma-3-27B-it · Llama-3.1-8B-Instruct · Qwen3-14B
 **Scope:** Phase 6 extension — SAE-free concept steering replicated across all four models; dose-response, cross-model steerability, and signal-vs-control analysis
-**Status:** Complete (jobs finished on SCCKN; no re-runs required)
+**Status:** Corrected 2026-07-02 — tables reconciled to committed CSVs; B1 float32 re-run incorporated.
+
+> **Correction (2026-07-02):** The fig13 and fig15 *raw-effect* tables in an earlier version of this
+> report printed values inconsistent with the committed `results/tables/steering_dense_*.csv` `effect`
+> column (and with fig14, which was correct). Both tables have been reconciled to the committed CSVs —
+> the same values the figures plot. Normalized steerability, the cross-model ranking, the Gemma scale
+> paradox, and the 27B-competence control-leakage finding are unchanged. Qwen and Gemma-27B values also
+> incorporate the B1 float32 re-run (2026-07-02), which shifted Qwen normalized warmth 0.125 → 0.122.
 
 ## Artifacts
 
@@ -128,16 +135,20 @@ All four models produce monotone dose-response curves for `raw_dense`:
 
 | Model | Warmth Δmargin at +0.10 | Competence Δmargin at +0.10 | mean_resid_norm |
 |-------|--------------------------|------------------------------|-----------------|
-| Gemma-3-12B-it | +3.88 | +2.01 | 79 722 |
-| Qwen3-14B | +25.74 | +21.21 | 206.6 |
-| Llama-3.1-8B-Instruct | +0.33 | +0.27 | 11.4 |
-| Gemma-3-27B-it | +2.47 | +0.55 | 61 576 |
+| Gemma-3-12B-it | +3.81 | +1.98 | 79 722 |
+| Qwen3-14B | +1.20 | +1.11 | 206.6 |
+| Llama-3.1-8B-Instruct | +0.26 | +0.18 | 11.4 |
+| Gemma-3-27B-it | +1.03 | +0.21 | 61 576 |
 
 **Raw effects are not comparable.** The raw Δmargin is the product of the
 normalized steering coefficient, `mean_resid_norm`, and the network's causal
 sensitivity. Because `mean_resid_norm` varies by nearly 4 orders of magnitude
-across models (Llama 11.4 → Gemma-12B 79722), the Llama and Gemma effects are
-not in the same units as Qwen's even though the `alpha` coefficient is identical.
+across models (Llama 11.4 → Gemma-12B 79 722), effects are not in the same units
+across architectures even though the `alpha` coefficient is identical. Raw
+Δmargin at +0.10 spans ~20× across the four models (0.18 → 3.81) — a much narrower
+apparent range than `mean_resid_norm` alone would suggest, reflecting large
+variation in per-network causal sensitivity that partially offsets the scale
+differences.
 
 ### 2. Normalized steerability (fig14)
 
@@ -156,7 +167,7 @@ between high-condition and low-condition stories at baseline*?
 | Model | Warmth normalized | Competence normalized |
 |-------|-------------------|-----------------------|
 | Gemma-3-12B-it | **0.236** | **0.140** |
-| Qwen3-14B | **0.125** | **0.103** |
+| Qwen3-14B | **0.122** | **0.104** |
 | Gemma-3-27B-it | **0.040** | **0.009** |
 | Llama-3.1-8B-Instruct | **0.029** | **0.024** |
 
@@ -187,27 +198,33 @@ At `alpha = +0.10 × mean_resid_norm`, the `raw_dense` effect (signal) vs.
 
 | Model | Axis | raw_dense effect | random effect | Signal:control ratio |
 |-------|------|-----------------|---------------|----------------------|
-| Gemma-3-12B-it | warmth | +3.88 | ≈ +0.00 | clean |
-| Gemma-3-12B-it | competence | +2.01 | ≈ 0.00 | clean |
-| Qwen3-14B | warmth | +25.74 | ≈ +0.00 | clean |
-| Qwen3-14B | competence | +21.21 | ≈ 0.00 | clean |
-| Llama-3.1-8B-Instruct | warmth | +0.33 | ≈ 0.00 | clean |
-| Llama-3.1-8B-Instruct | competence | +0.27 | ≈ 0.00 | clean |
-| Gemma-3-27B-it | warmth | +2.47 | ≈ +0.00 | clean |
-| Gemma-3-27B-it | competence | +0.55 | **−3.36** | ⚠ leakage |
+| Gemma-3-12B-it | warmth | +3.81 | +0.10 | clean |
+| Gemma-3-12B-it | competence | +1.98 | +0.30 | clean |
+| Qwen3-14B | warmth | +1.20 | −0.02 | clean |
+| Qwen3-14B | competence | +1.11 | +0.23 | clean |
+| Llama-3.1-8B-Instruct | warmth | +0.26 | +0.06 | clean |
+| Llama-3.1-8B-Instruct | competence | +0.18 | −0.12 | clean |
+| Gemma-3-27B-it | warmth | +1.03 | +0.61 | partial (~1.7×) |
+| Gemma-3-27B-it | competence | +0.21 | **−3.36** | ⚠ leakage |
 
 For Gemma-3-27B competence, the orthogonalized random direction produces a larger
-absolute effect (−3.36) than the dense direction itself (+0.55). This indicates
+absolute effect (−3.36) than the dense direction itself (+0.21). This indicates
 that at this model's scale, even a unit-norm vector orthogonal to the competence
 axis causes a substantial non-specific perturbation of the residual stream —
-enough to dominate the target signal.
+enough to dominate the target signal and flip its sign.
+
+For Gemma-3-27B warmth, the random control is also non-trivial (+0.61 vs signal
++1.03, ~1.7× margin), meaning the warmth result at 27B exceeds control but is not
+as clean as at the smaller models.
 
 **Interpretation:** At Gemma-12B and the two smaller models, the linear
-interventions are sufficiently specific. At Gemma-27B competence, the
-residual-stream geometry means that any linear push of equivalent energy produces
-non-trivial effects, regardless of direction. This does not invalidate the warmth
-result at 27B (where the signal:control ratio is clean), but it does mean the
-competence steering result at 27B should be interpreted with caution.
+interventions are sufficiently specific (random controls range from −0.12 to +0.30,
+well below the target signal). At Gemma-27B, the residual-stream geometry means
+that any linear push of equivalent energy produces non-trivial non-specific
+effects for both axes — catastrophic for competence (control dominates signal),
+moderate for warmth (signal still leads ~1.7×). The 27B competence steering result
+should be interpreted with caution; the 27B warmth result is directionally valid
+but partially confounded by non-specific sensitivity.
 
 ## Caveats
 
@@ -215,9 +232,11 @@ competence steering result at 27B should be interpreted with caution.
    fundamentally different numerical scales across architectures. Always use
    normalized steerability for cross-model claims.
 
-2. **Random-direction leakage at Gemma scale** is real and large for competence at
-   27B. The normalized steerability table correctly reflects this (27B competence
-   = 0.009), but the fig15 signal:control bars make the non-specificity visible.
+2. **Random-direction leakage at Gemma scale** is substantial for 27B competence
+   (control effect −3.36 dominates target signal +0.21) and non-trivial for 27B
+   warmth (control +0.61 vs signal +1.03, ~1.7× margin). The normalized steerability
+   table reflects this (27B competence = 0.009; warmth = 0.040). The fig15 bars
+   visualize the non-specificity directly.
 
 3. **10 held-out test topics** gives adequate power for detecting large monotone
    effects but the confidence intervals are wide. The CI bands in fig13 reflect
