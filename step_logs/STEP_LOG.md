@@ -1001,3 +1001,13 @@
 - **Did:** Added Figure 20 generation to `paper/figures/generate_figures.py`, regenerated `paper/figures/fig20_pca_denoising.{png,pdf}`, created `paper/2026-07-02_1921_pca_denoising_results.md`, and updated the figure/report inventory in `paper/README.md`.
 - **Findings:** No PCA-specific figure existed previously. Existing denoising artifacts show Gemma-3-12B removes k=1 PC covering 56.1% neutral variance and reduces cos(W,C) 0.749→0.530; Gemma-3-27B removes k=43 PCs covering 50.2% neutral variance and reduces cos(W,C) 0.708→0.487.
 - **Decision / rationale:** Use the existing neutral-corpus PCA artifacts directly and frame the result as a neutral-variance control, not as proof that warmth and competence are orthogonal pure axes.
+
+---
+
+## 2026-07-02 · Step 6 — Local repository fast-forward sync
+
+- **Context:** User requested a git sync from the local Windows checkout.
+- **Agent:** gpt-5-codex
+- **Did:** Read current step-log/report state, fetched `origin`, and fast-forwarded local `main` from `9b7d014` to `8cf7a1b`.
+- **Findings:** Pull brought in 147 changed files, including hiring/steering outputs, Figure 20 PCA denoising assets, updated reports, notebooks, SGE scripts, and paper draft files. After pull, local `main` matched `origin/main` with a clean worktree before this log entry.
+- **Decision / rationale:** Recorded the sync as a repository state transition because it changed the local empirical/reporting baseline.
