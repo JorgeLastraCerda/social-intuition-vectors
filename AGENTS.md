@@ -91,6 +91,70 @@ Any meaningful new finding, result, or methodological approach must be written u
 - The corresponding `step_logs/STEP_LOG.md` entry records *that* a report was created and links to it by path; the report carries the full detail (tables, figures, caveats, interpretation).
 - See `paper/README.md` for the current list of reports and the figures inventory.
 
+## Active Manuscript Writing
+
+The active manuscript working folder is `paper/paper/`, and the current manuscript source is `paper/paper/Ulu_Lastra.tex`.
+Timestamped Markdown files under `paper/*.md` are findings reports and evidence archives, not the active manuscript prose.
+Use those reports as source material when writing the manuscript, but put manuscript prose edits in `paper/paper/`.
+
+Active manuscript prose must use clear B2-C1 academic English, American spelling, and direct, precise, readable sentences.
+This style rule applies only to active manuscript prose, not to findings reports, docs, code comments, or step logs.
+
+### Active Manuscript Prose: Avoid Formulaic Patterns
+
+For active manuscript prose only:
+
+- Do not open consecutive paragraphs or list items with the same syntactic frame.
+- Do not reuse one subject-verb frame as a crutch more than once in a passage.
+- Do not chain "Because X, it Y" causal templates across adjacent sentences.
+- Do not spread one idea across several mechanical sentences when one precise sentence would do.
+- Do not use signal-only transitions that add no information, such as "This directly connects to..." or "These findings lead directly to...".
+
+Positive requirements:
+
+- Vary sentence openings and sentence length across each passage.
+- Make every transition sentence carry new content rather than merely announcing a link.
+- Prefer one claim per sentence, and collapse restatements of the same point.
+- Preserve a deliberate, lively explanatory voice; this rule targets repetition, not personality.
+- Deliberately parallel, labeled structures are allowed when they improve clarity.
+
+Before marking any active manuscript writing unit done, re-read the edited passage.
+If a prohibited pattern recurs three or more times, rewrite until it does not.
+Confirm that no two adjacent paragraphs or list items share an opener frame and that no signal-only transition remains.
+Mention this anti-formulaic self-check in the corresponding `step_logs/STEP_LOG.md` entry.
+
+### Paper Decisions
+
+When planning or writing the paper, ask the user before locking critical choices that are not already fixed by repository state.
+Critical choices include paper scope, argument framing, citation/source choices, examples or analogies, methodology framing, output locations, and figure/story selection.
+Do not use auto-resolution timers for these decisions; wait for an explicit answer unless the user has already authorized a default.
+
+### Paper Idea Capture
+
+Paper-related ideas that arise during discussion should be handled as user-approved idea notes.
+Do not write idea notes automatically.
+When a promising manuscript idea appears, briefly propose saving it and write the note only after explicit user approval.
+
+Approved idea notes go under `paper/idea-notes/`.
+Use filenames in the format `YYYY-MM-DD-HHMM-title-slug.md`, based on local time, with a lowercase ASCII slug.
+If a filename already exists, append `-2`, `-3`, and so on.
+Each note should contain: title, timestamp, context, idea, why it matters, and follow-up.
+Keep idea notes concise and useful for later paper writing.
+
+### Paper Figures
+
+`paper/figures/` remains the canonical folder for paper figures.
+Do not introduce alternate active figure roots such as `figures/script_figures/` or `figures/notebook_figures/`.
+
+For future hand-made paper figures, keep a same-basename triplet side by side in `paper/figures/`:
+
+- `<name>.png`
+- `<name>.pdf`
+- `<name>.py` or the equivalent generating script
+
+Figures produced by the existing central `paper/figures/generate_figures.py` do not need per-figure scripts retroactively.
+Reference papers and downloaded PDFs remain under `literature/`.
+
 ## Working Conventions
 
 - Work phase by phase according to `PLAN.md`.
