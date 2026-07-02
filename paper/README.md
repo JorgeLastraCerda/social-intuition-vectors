@@ -87,6 +87,7 @@ Cross-model figures:
 | `fig17_hiring_steering_callback.{png,pdf}` | 2 rows × 4 cols: mean Δcallback-margin over 60 names ± 95% CI for warmth and competence steering across all models |
 | `fig18_hiring_disparity.{png,pdf}` | Two-panel: (A) model race/gender gaps in within-model SD units + human reference; (B) direction-agreement grid vs. human benchmark |
 | `fig19_hiring_mediation_forest.{png,pdf}` | Forest plot of bootstrap indirect effects (name-group → probe → callback); significant rows filled, grouped by model |
+| `fig20_pca_denoising.{png,pdf}` | PCA denoising summary for Gemma-3-12B and Gemma-3-27B: neutral cumulative variance, raw vs denoised warmth/competence cosine, and concept separation before/after denoising |
 
 Paper-draft figures (prefixed `paper_figure*`; produced 2026-06-24 for supervisor presentation):
 
@@ -114,3 +115,4 @@ Paper-draft figures (prefixed `paper_figure*`; produced 2026-06-24 for superviso
 | `2026-06-27_1757_probe_human_data_audit.md` | 2026-06-27 17:57 | Gemma-3-12B · Gemma-3-27B · Llama-3.1-8B · Qwen3-14B | Data-quality audit for Test 2 probe-vs-human alignment: Gallo & Hausladen name ratings + model concept vectors; scored rubric (8.0/10), limitations, acceptance decision | Complete; data accepted for current analyses |
 | `2026-06-30_1251_r4_disparity_name_level.md` | 2026-06-30 12:51 | Gemma-3-12B · Gemma-3-27B | R4 disparity: group-level (race × gender) and name-level OLS joining model callback margins with Gallo & Hausladen human callback benchmark; 149/282 names matched | Complete for 12B+27B. 27B: race gap +1.18 SD (Black > White, **opposes** human), gender gap −0.51 SD (matches human). 12B: quantisation-limited. |
 | `2026-07-02_1000_bf16_quantisation_limitation.md` | 2026-07-02 10:00 | All four models | **IMPORTANT LIMITATION:** bf16 quantisation of callback margins (Bug B1) — root cause, partial fix applied, model-by-model impact, rerun outcome, and mandatory paper disclosure language | Active limitation; SCCKN hiring re-runs completed with no content changes |
+| `2026-07-02_1921_pca_denoising_results.md` | 2026-07-02 19:21 | Gemma-3-12B · Gemma-3-27B | PCA denoising of warmth/competence vectors against neutral Wikipedia residual activations | Complete; denoising reduces but does not eliminate shared warmth/competence geometry |

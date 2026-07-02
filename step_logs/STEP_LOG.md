@@ -991,3 +991,13 @@
 - **Did:** Cleaned stale `pending`, `re-run required`, `Action`, `Open decisions`, and `Next steps` language from `paper/2026-07-02_1000_bf16_quantisation_limitation.md`, `paper/2026-06-27_1541_hiring_phase7_4model.md`, `paper/2026-06-24_1136_hiring_causality_results.md`, `paper/2026-06-24_1300_hiring_causality_27b_results.md`, `paper/2026-06-30_1251_r4_disparity_name_level.md`, and `paper/README.md`.
 - **Findings:** No result tables, logs, figures, scripts, or artifact paths were changed. Reports now state that SCCKN hiring re-runs completed on 2026-07-02 and produced no content changes where relevant; the B1 impact table was completed from existing current audit outputs for Llama and Qwen.
 - **Decision / rationale:** Preserve historical single-model reports while marking them superseded for final interpretation by the consolidated four-model Phase 7 report.
+
+---
+
+## 2026-07-02 · Step 5 — Add PCA denoising figure and report
+
+- **Context:** User requested a paper-ready PCA figure for the existing denoising outputs.
+- **Agent:** gpt-5-codex
+- **Did:** Added Figure 20 generation to `paper/figures/generate_figures.py`, regenerated `paper/figures/fig20_pca_denoising.{png,pdf}`, created `paper/2026-07-02_1921_pca_denoising_results.md`, and updated the figure/report inventory in `paper/README.md`.
+- **Findings:** No PCA-specific figure existed previously. Existing denoising artifacts show Gemma-3-12B removes k=1 PC covering 56.1% neutral variance and reduces cos(W,C) 0.749→0.530; Gemma-3-27B removes k=43 PCs covering 50.2% neutral variance and reduces cos(W,C) 0.708→0.487.
+- **Decision / rationale:** Use the existing neutral-corpus PCA artifacts directly and frame the result as a neutral-variance control, not as proof that warmth and competence are orthogonal pure axes.
