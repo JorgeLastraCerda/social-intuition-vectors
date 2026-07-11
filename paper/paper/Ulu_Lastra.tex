@@ -1,13 +1,15 @@
 \documentclass[twocolumn]{article}
+% Manuscript source — compiled with pdflatex + bibtex (apalike)
 
 % Essential packages
 \usepackage{hyperref}
 \usepackage{graphicx}
-\graphicspath{{../figures/}}
+\graphicspath{{figures/}{../figures/}}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{booktabs}
-\usepackage[authoryear,round]{natbib}
+\usepackage[backend=bibtex,style=authoryear,natbib=true,maxcitenames=2]{biblatex}
+\addbibresource{references.bib}
 \usepackage{appendix}
 
 
@@ -42,7 +44,7 @@
 \DeclareMathOperator*{\AbsDiff}{AbsDiff}
 
 % Bibliography settings
-\setlength{\bibsep}{0pt plus 0.3ex}
+\setlength{\bibitemsep}{0pt plus 0.3ex}
 
 % First page footer
 \usepackage{fancyhdr}
@@ -107,7 +109,7 @@ instruction-tuning overcorrection rather than inherited discrimination.
 
 
 \renewcommand{\thefootnote}{\fnsymbol{footnote}}
-\footnotetext[0]{Corresponding author: TODO@uni-konstanz.de}
+\footnotetext[0]{Corresponding authors: emrecan.ulu@uni-konstanz.de; jorge.lastra-cerda@uni-konstanz.de}
 \renewcommand{\thefootnote}{\arabic{footnote}}
 \setcounter{footnote}{0}
 
@@ -178,8 +180,7 @@ getting it wrong are immediate and measurable.
 \section*{Background: Reading a Concept Out of a Language Model}
 % ─────────────────────────────────────────────────────────────────────────────
 
-\subsection*{Activations and the Residual Stream}
-
+\paragraph{Activations and the Residual Stream.}
 Every forward pass through a transformer accumulates computation through
 additive residual connections: each layer~$\ell$ reads a
 $d_{\mathrm{model}}$-dimensional state $h_\ell \in
@@ -194,8 +195,7 @@ state at a single chosen depth (approximately 65\% of network layers,
 selected by Cohen's~$d$ emergence curves) and treat that vector as the space
 in which warmth and competence reside as directions.
 
-\subsection*{A Concept Is a Direction}
-
+\paragraph{Concepts as Directions.}
 The intuition that semantic content is organized as linear directions dates
 to word-embedding analogies \citep{mikolov2013word2vec}; the \textit{linear
 representation hypothesis} \citep{park2024linear} formalizes it for large
@@ -240,8 +240,7 @@ Illustrative synthetic activations, not measured data.}
 \label{fig:concept_geometry}
 \end{figure}
 
-\subsection*{Steering a Concept}
-
+\paragraph{From Correlation to Causation.}
 A direction extracted by the mean-difference method is initially
 correlational: it separates high- and low-condition activations but does not
 by itself demonstrate that the model uses the direction causally.
@@ -260,8 +259,7 @@ Activation addition \citep{turner2023activation} and representation
 engineering \citep{zou2023repeng} establish this approach and give it
 empirical grounding across a range of models and target behaviors.
 
-\subsection*{Emotion Vectors as the Template}
-
+\paragraph{The Emotion-Vector Template.}
 \citet{sofroniew2026emotion} applied this framework to emotion concepts in
 Claude Sonnet.
 Building contrastive text pairs for each emotion, they extracted mean-difference
@@ -278,6 +276,56 @@ Content Model, not emotion states, and calling our direction vectors
 \autoref{fig:emotion_vector} illustrates the core idea: each emotion occupies
 a distinct direction in residual-stream space, with a numeric representation
 that can be extracted, inspected, and used to steer the model.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\section*{Why Warmth and Competence, Why Hiring, and Which Data}
+% ─────────────────────────────────────────────────────────────────────────────
+
+\paragraph{The Construct.}
+The Stereotype Content Model \citep{fiske2002model} proposes that social
+perception organises along two fundamental axes: warmth, capturing perceived
+intentions and trustworthiness, and competence, capturing perceived ability
+and effectiveness.
+Together, these two dimensions account for a substantial share of variance in
+how people evaluate social groups and individuals \citep{fiske2007universal}.
+
+\paragraph{The Link to Hiring.}
+\citet{gallo2024warmth} provide the critical empirical bridge.
+Aggregating 24,220 warmth and competence ratings of 282 applicant first names
+from 787 raters across ten published North American correspondence studies,
+they show that perceived warmth and competence reliably predict the callback
+rates those names receive in real hiring experiments.
+The human benchmark therefore offers something rare: a direct quantitative
+connection between the social-perception dimensions we probe and actual labor
+market outcomes.
+Behavioral audits of LLMs have documented name-driven hiring disparities
+\citep{an2024llm, an_measuring_2025, gaebler2024auditing}, but none has
+tested whether warmth and competence representations inside the model carry
+that signal.
+We use the Gallo and Hausladen dataset as both an external validity check for
+our probes and a reference against which to compare model-level disparities.
+
+\paragraph{Why These Data.}
+Probing warmth and competence from hiring prompts directly would confound the
+social-perception dimensions with the hiring decision itself.
+To isolate the representations, we need texts that express warmth and
+competence without introducing demographic identity cues that could be
+mistaken for the target construct.
+Pilot work showed that LLM-generated concept stories without this constraint
+systematically assigned male, Anglo-named protagonists to low-warmth and
+low-competence conditions, which would have embedded demographic expectations
+into the direction vectors before any hiring evaluation began.
+For this reason, all 200 concept stories feature a nameless, gender-neutral
+protagonist: the vectors are built from depicted behaviour alone.
+The hiring evaluation then uses a separate stimulus set: the 282 applicant
+names from \citet{gallo2024warmth}, each paired with an identical fixed
+application, so that the name is the only varying signal.
+Of the 282 names, 149 also appear in the published per-name callback dataset
+from the same source and carry US race and gender labels; these 149 form the
+benchmark comparison for demographic disparity.
+The full 282 are used for the probe-versus-human warmth and competence rating
+alignment, since every name has crowdsourced perception ratings even when
+published callback data are unavailable.
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section*{Methods}
@@ -413,31 +461,55 @@ rather than merely correlating with it, we apply activation steering
 Steering strength is expressed relative to the mean residual-stream norm at
 that layer, ensuring comparability across models whose activation scales
 differ by orders of magnitude (see $\bar{\|h\|}$ in \autoref{tab:models}).
-We use a local regime of $\alpha \in \{-0.10,\,-0.05,\,0,\,+0.05,\,+0.10\}$
-times the mean norm; a broader range is used as a saturation diagnostic.
 For \textit{concept-level} evaluation, the model answers ``Is the protagonist
 high in warmth/competence? Answer only Yes or No'' on held-out topics (40
-training / 10 test, determined by topic index).
+training / 10 test, determined by topic index), using a local regime of
+$\alpha \in \{-0.10,\,-0.05,\,0,\,+0.05,\,+0.10\}$ times the mean norm.
 The outcome is the next-token logit margin $\Delta = \mathrm{logit}(\text{Yes}) -
 \mathrm{logit}(\text{No})$.
-For \textit{hiring-level} evaluation, the steering hooks are applied while
-the model processes resume-evaluation prompts, and the outcome is the
-callback logit margin.
+For \textit{hiring-level} evaluation, the same hooks are applied while the
+model processes resume-evaluation prompts over a 60-name subset of the
+applicant roster, with a broad sweep at $\alpha \in \{\pm 0.25,\,\pm 0.50\}$
+and a local-regime follow-up at $\{\pm 0.05,\,\pm 0.10\}$ for the two Gemma
+models; the outcome is the callback logit margin.
 We test six directions: the dense target direction, a decoded
 Gemma Scope~2 SAE direction \citep{deepmind2025gemmascope2}, an axis-specific
 component, a shared component, the opposing concept axis, and a random
 orthogonal control.
 Uncertainty is estimated via paired topic bootstrap resampling.
 
-\paragraph{Benchmark.}
-We compare model callback disparities against the warmth and competence
-ratings and callback rates from \citet{gallo2024warmth}, which provides
-empirical grounding in human correspondence studies.
+\paragraph{Hiring Evaluation.}
+Hiring stimuli combine the 282 applicant first names from
+\citet{gallo2024warmth} with a fixed administrative-assistant application
+(identical education, experience, and skills across all trials), so that the
+name is the only signal that varies.
+The model answers ``would you recommend calling this candidate back for an
+interview? Answer with a single word: Yes or No''; the outcome is the
+\textit{callback margin}, the next-token logit difference
+$\mathrm{logit}(\text{Yes}) - \mathrm{logit}(\text{No})$.
+Race and gender labels are never shown to the model: they are assigned post
+hoc from the \citet{gallo2024warmth} coding, mirroring the design of human
+correspondence studies \citep{bertrand2004emily}.
+Independently of the hiring prompt, each name is embedded in a neutral
+carrier sentence and its residual-stream activation is projected onto the
+warmth and competence directions, yielding per-name probe scores that we
+compare against the aggregated human ratings (24{,}220 rater judgements from
+787 raters across ten source studies) via Spearman rank correlation.
 
-\paragraph{Data.}
-Hiring stimuli are built around the 282 applicant names and category-level
-signals from \citet{gallo2024warmth}, paired with a fixed administrative
-assistant resume template to isolate the effect of the social signal.
+\paragraph{Disparity and Mediation.}
+Group-level disparities are differences in mean callback margin between name
+groups (race: 47 Black-signalling vs.\ 180 White-signalling names; gender:
+154 female vs.\ 115 male), standardised by the within-model standard
+deviation of the callback margin to allow comparison across models with
+different logit scales.
+Human reference gaps come from the published per-name callback rates,
+aggregated over the 149 names that match the benchmark on first name.
+Whether the internal warmth and competence representations carry the
+name-group signal into the callback decision is tested by bootstrap
+mediation along the path name group $\to$ probe score $\to$ callback margin
+(5{,}000 resamples, seed 20260527, $n = 269$ names with complete data, race
+subset $n = 227$); we report indirect effects with 95\% confidence intervals
+for all sixteen model-by-grouping-by-probe combinations.
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section*{Results}
@@ -529,25 +601,24 @@ concept judgement tasks, normalising each model's peak effect
 differing baseline discrimination strengths.
 The resulting ranking (\autoref{fig:fig14_dense_steering_normalized})
 shows Gemma-3-12B as the most steerable model (warmth $= 0.236$,
-competence $= 0.140$), followed by Qwen3-14B (warmth $= 0.125$,
-competence $= 0.103$), Gemma-3-27B (warmth $= 0.040$, competence $=
+competence $= 0.140$), followed by Qwen3-14B (warmth $= 0.122$,
+competence $= 0.104$), Gemma-3-27B (warmth $= 0.040$, competence $=
 0.009$), and Llama-3.1-8B (warmth $= 0.029$, competence $= 0.024$).
 The substantially lower normalised steerability of Gemma-3-27B and
 Llama-3.1-8B relative to their probe accuracy indicates that these models
 organise the warmth/competence concept in a form less directly accessible
 to the mean-difference direction vector, despite the fact that the
 direction still perfectly separates high from low stories.
-This steerability ordering acquires an unexpected character when connected
-to the hiring-level mediation results described below: the most
-concept-steerable model (Gemma-3-12B, warmth steerability $= 0.236$)
-shows no statistically significant indirect effect in the hiring-outcome
-mediation, while the model with the lowest warmth steerability
-(Llama-3.1-8B, $0.029$) shows the strongest bootstrap mediation indirect
-effect (IE $= +0.190$, 95\% CI excluding zero).
-This reversal indicates that the capacity to shift a model's concept
-representations via linear activation addition does not map monotonically
-onto the causal role those representations play in downstream hiring
-decisions.
+The random orthogonal control confirms that these effects are
+concept-specific in six of the eight model-by-axis cells, with control
+effects between $-0.12$ and $+0.30$, well below the target signal.
+Gemma-3-27B is the exception: for warmth the target effect exceeds the
+control by only a factor of about 1.7 ($+1.03$ vs.\ $+0.61$), and for
+competence the control effect ($-3.36$) dominates the signal ($+0.21$)
+outright, so 27B competence steering cannot be interpreted as
+concept-specific at all.
+At this model's scale, any unit-norm linear push of equivalent energy
+perturbs the residual stream enough to swamp the target direction.
 
 \begin{figure*}[t]
 \centering
@@ -634,6 +705,13 @@ The warmth representation in Gemma-3-27B therefore has a narrow window
 within which causal steering produces the expected effect; beyond that
 window, the representational intervention disrupts the decision process
 in a non-linear way.
+The two cross-architecture models, evaluated in the broad regime, fall
+between these extremes: Llama-3.1-8B responds moderately and monotonically
+on both axes (warmth $\Delta = +3.17$, competence $\Delta = +2.17$ at
+$\alpha = +0.50$) despite having the lowest concept-level steerability in
+the suite, while Qwen3-14B shows weak warmth effects that attenuate with
+strength ($+0.79$ at $+0.25$, $+0.60$ at $+0.50$) and near-zero competence
+effects.
 The full four-model dose-response curves and signal-vs-control comparisons
 across all six steering directions are shown in
 \autoref{fig:fig17_hiring_steering_callback} and
@@ -692,8 +770,15 @@ predicting callback margin from the model's own probe scores
 at 12B (Pearson $r = +0.376$, $p < .001$) and reversed at 27B
 ($r = -0.266$, $p = .001$; $R^2 = 0.088$), consistent with the reversed
 baseline association documented above.
-Disparity results for Llama-3.1-8B and Qwen3-14B await completion of
-cluster re-runs and are not reported here.
+Llama-3.1-8B and Qwen3-14B also favour Black-signalling names, though far
+more mildly (race gaps of $+0.40$ and $+0.16$ within-model SD), and both
+give female names higher margins than male names ($+0.45$ and $+0.89$ SD),
+against the human gender direction.
+Across the three models with reliable margin variance, every one treats
+names differently by implied race and gender, none reproduces the human
+race direction, and only Gemma-3-27B reproduces the human gender
+direction: the disparity pattern is not a stable inherited bias but an
+architecture- and scale-dependent reorganisation of one.
 
 \begin{figure*}[t]
 \centering
@@ -702,6 +787,47 @@ cluster re-runs and are not reported here.
 Race and gender callback-margin gaps for the model evaluations compared with
 the correspondence-study benchmark.}
 \label{fig:fig18_hiring_disparity}
+\end{figure*}
+
+\paragraph{Representations Mediate Disparity Where Steering Is Weakest.}
+Bootstrap mediation along the path name group $\to$ probe score $\to$
+callback margin asks a different question from steering: not whether an
+external push moves the decision, but whether the model's spontaneous
+warmth or competence representation of a name carries the demographic
+signal into the callback outcome.
+Five of the sixteen indirect effects exclude zero at the 95\% level
+(\autoref{fig:fig19_hiring_mediation_forest}).
+In Llama-3.1-8B, the race disparity is mediated through warmth
+(IE $= +0.190$, 95\% CI $[+0.111, +0.292]$) and weakly through competence
+($+0.040$, $[+0.004, +0.090]$).
+In Qwen3-14B, race is mediated positively through warmth ($+0.081$) and
+negatively through competence ($-0.132$), and gender positively through
+competence ($+0.076$).
+All eight tests for the two Gemma models are non-significant.
+The sixteen tests are reported uncorrected; only the Llama race--warmth
+path survives a conservative Bonferroni threshold
+($\alpha = 0.05/16$), so the smaller significant effects should be read
+as suggestive.
+Set against the steerability ranking, these results form a
+\textit{steerability paradox}: Gemma-3-12B, the most concept-steerable
+model in the suite (normalised warmth steerability $0.236$), shows no
+significant mediation path, while Llama-3.1-8B, the least steerable
+($0.029$), shows the strongest one.
+The capacity to move a representation with an external push evidently
+does not predict whether that representation naturally governs the
+downstream decision: steering measures causal sensitivity to
+intervention, whereas mediation measures whether the natural activation
+propagates to the outcome, and the two dissociate across architectures.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{fig19_hiring_mediation_forest.pdf}
+\caption{\textbf{Bootstrap mediation of name-group callback disparities
+through warmth and competence probe scores.}
+Indirect effects with 95\% confidence intervals for the pathway name group
+$\to$ probe score $\to$ callback margin; filled markers indicate intervals
+that exclude zero.}
+\label{fig:fig19_hiring_mediation_forest}
 \end{figure*}
 
 % ─────────────────────────────────────────────────────────────────────────────
@@ -843,9 +969,10 @@ findings.
 At Gemma-3-27B the larger variance (SD $= 0.41$, 18 unique values)
 makes group gaps of approximately 0.5 SD detectable, but the grid
 structure introduces discrete steps in all reported gap magnitudes.
-Demographic disparity results for Llama-3.1-8B and Qwen3-14B are pending
-cluster re-runs with the corrected float32 subtraction and are not
-reported here.
+The sixteen mediation tests are presented uncorrected for multiple
+comparisons; only the Llama race--warmth indirect effect survives a
+Bonferroni-corrected threshold, and the smaller significant paths should
+be treated as suggestive rather than confirmed.
 The hiring prompt is simplified relative to real-world screening contexts
 (single role, fixed qualifications), and results may differ under richer
 evaluation settings or different job types.
@@ -854,10 +981,9 @@ vector cosine observed in Gemma-3 relative to Qwen3 and Llama-3.1
 across all network depths remains an open question.
 
 \paragraph{Future Work.}
-The immediate next steps are extending the R4 demographic disparity
-analysis to Llama-3.1-8B and Qwen3-14B once the cluster re-runs are
-complete, and expanding the hiring stimuli to additional job roles to
-test whether results generalise beyond administrative assistant.
+The immediate next step is expanding the hiring stimuli to additional
+job roles to test whether results generalise beyond administrative
+assistant.
 The SAE decomposition performed here on Gemma-3 can be extended to
 Llama-3.1 using the Llama Scope sparse autoencoders \citep{lindsey2025llama},
 enabling a model-family comparison at the feature level.
@@ -876,8 +1002,7 @@ step for applied work.
 \small
 
 \clearpage
-\bibliographystyle{apalike}
-\bibliography{references}
+\printbibliography
 }
 
 
