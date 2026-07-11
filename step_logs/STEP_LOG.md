@@ -1088,3 +1088,38 @@
 - **Did:** Edited `paper/figures/background_emotion_vector.py`, regenerated `paper/figures/background_emotion_vector.{png,pdf}`, visually inspected the PNG, and recompiled `paper/paper/Ulu_Lastra.tex`.
 - **Findings:** Figure now has no visible axis spines or residual-stream axis labels; joy and sadness arrows are stronger and shorter; joy, fear, and sadness all carry compact coordinate-vector labels. `pdflatex -interaction=nonstopmode Ulu_Lastra.tex` completed successfully and loaded the revised PDF figure; remaining messages are underfull/font warnings, not figure errors.
 - **Decision / rationale:** Kept the three-direction radial schematic and highlighted fear as the example direction, while removing plot-like scaffolding so the panel reads as a clean conceptual figure rather than a data axis.
+
+---
+
+## 2026-07-07 · Step 1 — Update Methods/Results to current findings; Background subsections -> paragraphs
+
+- **Context:** Jorge requested (1) converting the Background section's \subsection* headings to \paragraph with non-redundant openers, and (2) rewriting Methods and Results to match the current reconciled findings reports.
+- **Agent:** claude-fable-5
+- **Did:** Edited `paper/paper/Ulu_Lastra.tex`. Background: four \subsection* -> \paragraph, headings renamed to avoid repeated "concept/vector" framing (Activations and the Residual Stream / Concepts as Directions / From Correlation to Causation / The Emotion-Vector Template). Methods: split hiring protocol out of thin Benchmark/Data paragraphs into "Hiring Evaluation" (prompt, callback margin, post-hoc demographic coding, probe-vs-human Spearman, 24,220 ratings/787 raters) and "Disparity and Mediation" (group ns, within-model SD standardisation, 149-name benchmark join, bootstrap mediation n_boot=5000 seed 20260527 n=269/race 227); Causal Steering now states both regimes (concept-level local ±0.05/±0.10; hiring 60-name broad ±0.25/±0.50 + Gemma local follow-up). Results: Qwen normalized steerability 0.125/0.103 -> 0.122/0.104 (B1 float32 reconcile); replaced forward-reference paradox tail of the steerability paragraph with signal-vs-control results (27B warmth ratio ~1.7x; 27B competence control −3.36 dominates signal +0.21); added Llama/Qwen hiring-steering results (broad regime); replaced stale "Llama/Qwen disparity awaits re-runs" with their SD-unit gaps (race +0.40/+0.16, gender +0.45/+0.89) and the four-model direction summary; added a dedicated mediation paragraph with fig19 (fig19_hiring_mediation_forest, previously absent from the manuscript), five significant IEs, Bonferroni note, and the steerability paradox. Limitations: replaced the stale pending-reruns sentence with the multiple-comparisons caveat; Future Work: removed the completed R4-extension item. Compiled full cycle (pdflatex/bibtex): 14 pages, zero errors, zero undefined citations/references.
+- **Findings:** All values sourced from `paper/2026-06-27_1541_hiring_phase7_4model.md`, `paper/2026-06-27_1446_dense_steering_4model.md`, and `paper/2026-06-30_1251_r4_disparity_name_level.md`. Note for authors: the human race-gap reference (−0.085) comes from the R4 149-name matched join, while the Llama/Qwen SD-unit gaps come from the phase-7 282-name analysis; the mixed sourcing follows PAPER_STRUCTURE.md but may deserve harmonisation before submission.
+- **Anti-formulaic self-check:** New paragraph openers vary ("Hiring stimuli combine..." / "Group-level disparities are differences..." / "Bootstrap mediation along the path... asks a different question" / "The two cross-architecture models, evaluated in the broad regime, fall between these extremes"). No repeated opener frames in adjacent passages, no signal-only transitions, no pattern recurring three or more times. Check passed.
+- **Next:** Draft §3 "Why Warmth & Competence — Why Hiring — Which Data" between Background and Methods; decide on harmonising the disparity benchmark join.
+
+---
+
+## 2026-07-08 · Step 2 — Add §3 "Why Warmth and Competence, Why Hiring, and Which Data"
+
+- **Context:** Paper writing session — inserting the missing motivation/theory section between Background and Methods.
+- **Agent:** claude-fable-5
+- **Did:** Inserted `\section*{Why Warmth and Competence, Why Hiring, and Which Data}` with three paragraphs ("The Construct", "The Link to Hiring", "Why These Data") in `paper/paper/Ulu_Lastra.tex` between Background and Methods. Also fixed `\graphicspath` to include both `figures/` and `../figures/` so the file compiles both locally and in Overleaf. Updated `.gitignore` to exclude LaTeX build artifacts (aux, bbl, blg, etc). Updated corresponding author line from TODO to both emails.
+- **Findings:** Compiles cleanly to 14 pages, zero errors, zero undefined citations. New section cites `fiske2002model`, `fiske2007universal`, `gallo2024warmth`, `an2024llm`, `an_measuring_2025`, `gaebler2024auditing` — all pre-existing bib entries.
+- **Decision / rationale:** SCM background kept to 2 sentences (brief, per Jorge); story data introduced with motivation (why name-free protagonist). The 149 vs 282 name distinction is explained explicitly in the section — 282 for probe-vs-human alignment, 149 for callback benchmark comparison.
+- **Anti-formulaic self-check:** Paragraph openers vary ("The Stereotype Content Model proposes..." / "Citet{gallo2024warmth} provide the critical empirical bridge." / "Probing warmth and competence from hiring prompts directly would confound..."). No repeated frames, no em dashes, no signal-only transitions. Check passed.
+- **Next:** LinkedIn post draft for course social media communication task.
+
+---
+
+## 2026-07-08 · Step 1 — Draft §3 "Why Warmth and Competence, Why Hiring, and Which Data"
+
+- **Context:** Paper writing session — inserting the missing motivation/theory section between Background and Methods per the agreed PAPER_STRUCTURE.md blueprint.
+- **Agent:** claude-fable-5
+- **Did:** Inserted `\section*{Why Warmth and Competence, Why Hiring, and Which Data}` with three paragraphs: (1) The Construct — SCM in 2 sentences (Fiske 2002/2007); (2) The Link to Hiring — Gallo & Hausladen 2024 as empirical bridge, gap vs. existing behavioral audits; (3) Why These Data — motivation for name-free stories (pilot showed demographic skew without neutralisation), and explicit resolution of the 149 vs. 282 name distinction (149 have published US callback rates for disparity comparison; all 282 have perception ratings for probe alignment). Fixed `\graphicspath` to `{figures/}{../figures/}` so the tex file compiles both in Overleaf (`figures/`) and locally (`../figures/`). Updated footnote from TODO to both author emails. Added LaTeX build artifacts to `.gitignore` and removed tracked `.aux/.bbl/.blg` from git index. Full compile cycle: 14 pages, zero errors, zero undefined citations/references.
+- **Findings:** Section resolves the 149 vs. 282 ambiguity that was implicit in the Results; no new citations needed beyond already-committed bib entries.
+- **Decision / rationale:** SCM treatment kept to 2 sentences per Jorge's preference; stories introduced with motivation (why name-free) rather than just description.
+- **Anti-formulaic self-check:** Paragraph openers: "The Stereotype Content Model proposes..." / "\citet{gallo2024warmth} provide the critical empirical bridge." / "Probing warmth and competence from hiring prompts directly would confound...". No shared opener frames, no em dashes, no signal-only transitions. Check passed.
+- **Next:** LinkedIn science communication post draft; then Discussion/Limitations rewrite.
