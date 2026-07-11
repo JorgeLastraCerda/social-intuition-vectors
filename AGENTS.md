@@ -104,6 +104,7 @@ This style rule applies only to active manuscript prose, not to findings reports
 
 For active manuscript prose only:
 
+- **Do not use em-dashes (`---`) or standalone dashes as punctuation anywhere in manuscript prose.** Use commas, colons, semicolons, or parentheses instead. Hyphens in compound adjectives (e.g., "cross-validated") are fine.
 - Do not open consecutive paragraphs or list items with the same syntactic frame.
 - Do not reuse one subject-verb frame as a crutch more than once in a passage.
 - Do not chain "Because X, it Y" causal templates across adjacent sentences.
