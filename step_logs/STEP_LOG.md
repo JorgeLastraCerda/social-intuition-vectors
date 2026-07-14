@@ -1123,3 +1123,14 @@
 - **Decision / rationale:** SCM treatment kept to 2 sentences per Jorge's preference; stories introduced with motivation (why name-free) rather than just description.
 - **Anti-formulaic self-check:** Paragraph openers: "The Stereotype Content Model proposes..." / "\citet{gallo2024warmth} provide the critical empirical bridge." / "Probing warmth and competence from hiring prompts directly would confound...". No shared opener frames, no em dashes, no signal-only transitions. Check passed.
 - **Next:** LinkedIn science communication post draft; then Discussion/Limitations rewrite.
+
+---
+
+## 2026-07-14 · Step 1 — Pull presentation update and reconcile ignore rules
+
+- **Context:** User requested the current Git status and a pull if the configured upstream contained new work.
+- **Agent:** gpt-5-codex
+- **Did:** Fetched `origin`, fast-forwarded local `main` from `e5cc890` to `b7f8cf2`, validated `presentation/Ulu_Lastra_slides_v3.pptx` as a readable PowerPoint archive, and combined the incoming LaTeX/presentation exclusions with the repository's existing `.gitignore` protections.
+- **Findings:** The pull added three commits and one 885,122-byte presentation. The incoming `.gitignore` replacement had exposed 19 local `.DS_Store` and Python bytecode files as untracked; restoring the prior rules removed them from Git status while retaining all four new exclusions.
+- **Decision / rationale:** Preserve the new presentation and intended export exclusions without dropping protections for secrets, caches, model artifacts, cluster outputs, and tracked pipeline-output exceptions.
+- **Next:** Commit and push the safe `.gitignore` reconciliation and this step-log entry, then verify `0 ahead / 0 behind`.
