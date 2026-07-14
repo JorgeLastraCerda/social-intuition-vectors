@@ -12,6 +12,7 @@ class ModelConfig:
     name: str
     dtype: str
     device: str
+    backend: str = "transformer-bridge"
 
 
 @dataclass(frozen=True)

@@ -17,6 +17,8 @@
 #   results/logs/hiring_steering_*.json       (Phase 7 causal sweep provenance)
 #   results/logs/hiring_probe_vs_human_*.json (Phase 7 probe-vs-human provenance)
 #   results/logs/hiring_mediation_*.json      (Phase 7 mediation provenance)
+#   results/tables/hiring_{group_r4,name_level}_*.csv (R4 outputs)
+#   results/logs/{hiring_r4,smoke_gemma4}_*.json      (R4/smoke provenance)
 #
 # NOT committed: model weights (*.safetensors, *.bin, *.pt), SGE logs (*.out, *.err),
 #               HF cache (/work/.../hf_cache).
@@ -42,24 +44,32 @@ set -euo pipefail
 REPO="${1:-/work/emrecan.ulu/normalcy-axis}"  # ADJUST: SCCKN path if different
 cd "$REPO"
 
-git add \
-    data/processed/concept_vectors*/ \
-    data/processed/gemma_scope_*/ \
-    results/logs/validate_probes_*.json \
-    results/logs/gemma_scope_*.json \
-    results/tables/probe_metrics*.csv \
-    results/tables/layer_sweep*.csv \
-    results/tables/layer_sweep*.meta.json \
-    results/tables/gemma_scope_*.csv \
-    results/tables/steering_dense_*.csv \
-    results/logs/steering_dense_*.json \
-    results/tables/hiring_audit_*.csv \
-    results/tables/hiring_steering_raw_*.csv \
-    results/tables/hiring_disparity_*.csv \
-    results/logs/hiring_steering_*.json \
-    results/logs/hiring_probe_vs_human_*.json \
-    results/logs/hiring_mediation_*.json \
-    2>/dev/null || true   # tolerate missing globs (e.g. first run before extraction)
+shopt -s nullglob
+output_paths=(
+    data/processed/concept_vectors*/
+    data/processed/gemma_scope_*/
+    results/logs/validate_probes_*.json
+    results/logs/gemma_scope_*.json
+    results/tables/probe_metrics*.csv
+    results/tables/layer_sweep*.csv
+    results/tables/layer_sweep*.meta.json
+    results/tables/gemma_scope_*.csv
+    results/tables/steering_dense_*.csv
+    results/logs/steering_dense_*.json
+    results/tables/hiring_audit_*.csv
+    results/tables/hiring_steering_raw_*.csv
+    results/tables/hiring_disparity_*.csv
+    results/tables/hiring_group_r4_*.csv
+    results/tables/hiring_name_level_*.csv
+    results/logs/hiring_steering_*.json
+    results/logs/hiring_probe_vs_human_*.json
+    results/logs/hiring_mediation_*.json
+    results/logs/hiring_r4_*.json
+    results/logs/smoke_gemma4_*.json
+)
+if ((${#output_paths[@]})); then
+    git add "${output_paths[@]}"
+fi
 
 if git diff --cached --quiet; then
     echo "[sync] nothing to commit — outputs already up to date"

@@ -40,7 +40,7 @@ def select_k(explained_variance_ratio: np.ndarray, threshold: float) -> int:
 def main() -> None:
     args = parse_args()
     cfg = load_config(args.config)
-    vdir = Path(cfg.paths.processed) / "concept_vectors"
+    vdir = Path(cfg.paths.processed) / args.vectors_subdir
 
     Xn = np.load(vdir / "X_neutral.npy")
     warm = np.load(vdir / "warmth_vec.npy")
@@ -88,6 +88,11 @@ def main() -> None:
 def parse_args() -> argparse.Namespace:
     ap = argparse.ArgumentParser(description="PCA valence-denoising of warmth/competence vectors.")
     ap.add_argument("--config", default="config/config.yaml")
+    ap.add_argument(
+        "--vectors-subdir",
+        default="concept_vectors",
+        help="Model-specific vector directory under cfg.paths.processed.",
+    )
     return ap.parse_args()
 
 

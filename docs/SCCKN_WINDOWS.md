@@ -129,7 +129,8 @@ deep-learning packages. We maintain two project-specific environments:
 | Environment | Packages                         | Used for                    |
 |-------------|----------------------------------|-----------------------------|
 | `wc-tl`     | transformer-lens, sae-lens, torch | Gemma 3 + GemmaScope 2 tests |
-| `wc-nn`     | nnsight, nnterp, torch           | Gemma 4 tests               |
+| `wc-nn`     | nnsight, nnterp, torch           | Historical Gemma 4 tests    |
+| `wc-tl-g4`  | TransformerLens 3.5.1, Transformers 5.13 | Gemma 4 production runs |
 
 Create them on the cluster:
 
@@ -211,7 +212,8 @@ with `qconf` or ask Stefan):
 #$ -M emrecan.ulu@uni-konstanz.de
 
 module load conda
-conda activate wc-tl               # or wc-nn for Gemma 4
+conda activate wc-tl               # Gemma 3 / existing models
+conda activate wc-tl-g4            # Gemma 4 TransformerBridge production runs
 export HF_HOME=/work/emrecan.ulu/hf_cache
 
 cd /work/emrecan.ulu/normalcy-axis

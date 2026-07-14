@@ -30,7 +30,6 @@ import numpy as np
 
 # -- reuse validated helpers from the Gemma Scope causality script (no SAE) --
 from src.gemma_scope_causality import (
-    candidate_token_id,
     judgement_prompt,
     make_steering_hook,
     rows_for_topics,
@@ -48,7 +47,8 @@ from src.gemma_scope_utils import (
 )
 from src.utils.config import load_config
 from src.utils.hooks import residual_hook_name
-from src.utils.model_loader import load_hooked_model
+from src.utils.model_loader import load_hooked_model, model_runtime_metadata
+from src.utils.prompting import decision_token_ids, encode_decision_prompt
 
 AXES = ("warmth", "competence")
 DEFAULT_STRENGTHS = "-0.1,-0.05,0,0.05,0.1"
@@ -119,8 +119,9 @@ def main() -> None:
     hook_name = residual_hook_name(layer)
 
     # fail-fast tokenization check — cheap, catches Llama/Qwen surprises
-    yes_id = candidate_token_id(model, " Yes")
-    no_id = candidate_token_id(model, " No")
+    check_prompt = judgement_prompt("A person completed a routine task.", "warmth")
+    rendered, _ = encode_decision_prompt(model, check_prompt, args.prompt_format)
+    yes_id, no_id = decision_token_ids(model, rendered, args.prompt_format)
     print(
         f"[tokens] ' Yes'={yes_id}  ' No'={no_id}  "
         f"(single-token check passed, hook={hook_name})",
@@ -154,7 +155,9 @@ def main() -> None:
         baseline_margins: dict[str, float] = {}
         for idx, (record, label) in enumerate(test_records, start=1):
             prompt = judgement_prompt(record["text"], axis)
-            margin = yes_no_margin(model, prompt, hook_name)
+            margin = yes_no_margin(
+                model, prompt, hook_name, prompt_format=args.prompt_format
+            )
             baseline_margins[record["id"]] = margin
             raw_rows.append(
                 {
@@ -197,7 +200,13 @@ def main() -> None:
                 hook = make_steering_hook(vector, strength * mean_resid_norm)
                 for record, label in test_records:
                     prompt = judgement_prompt(record["text"], axis)
-                    margin = yes_no_margin(model, prompt, hook_name, hook)
+                    margin = yes_no_margin(
+                        model,
+                        prompt,
+                        hook_name,
+                        hook,
+                        prompt_format=args.prompt_format,
+                    )
                     raw_rows.append(
                         {
                             "mode": "steering",
@@ -246,6 +255,9 @@ def main() -> None:
         "mean_resid_norm": mean_resid_norm,
         "strengths": list(strengths),
         "n_test_topics": args.n_test_topics,
+        "prompt_format": args.prompt_format,
+        "rendered_prompt_example": rendered,
+        "runtime": model_runtime_metadata(model),
         "raw_output": str(raw_path),
         "summary_output": str(summary_path),
     }
@@ -279,6 +291,12 @@ def parse_args() -> argparse.Namespace:
         "--strengths",
         default=DEFAULT_STRENGTHS,
         help="Comma-separated steering strengths in units of mean_resid_norm; must include 0.",
+    )
+    parser.add_argument(
+        "--prompt-format",
+        choices=("raw", "native-chat"),
+        default="raw",
+        help="Decision-prompt rendering mode (Gemma 4 jobs use native-chat).",
     )
     parser.add_argument(
         "--n-test-topics",

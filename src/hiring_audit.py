@@ -39,13 +39,13 @@ import pandas as pd
 from scipy.stats import pearsonr, spearmanr
 
 from src.gemma_scope_causality import (
-    candidate_token_id,
     unit,
     yes_no_margin,
 )
 from src.utils.config import load_config
 from src.utils.hooks import residual_hook_name
-from src.utils.model_loader import load_hooked_model
+from src.utils.model_loader import load_hooked_model, model_runtime_metadata
+from src.utils.prompting import decision_token_ids, encode_decision_prompt, encode_passage
 
 HIRING_PROMPT_TEMPLATE = (
     "You are a hiring manager reviewing job applications. "
@@ -69,10 +69,10 @@ def name_activation(model, name: str, hook_name: str, start: int = 1) -> np.ndar
     """Mean-pool non-BOS residual activations for a name in a neutral sentence."""
     import torch
     prompt = f"The job applicant's name is {name.title()}."
-    tokens = model.to_tokens(prompt, prepend_bos=True)
+    tokens = encode_passage(model, prompt)
     with torch.no_grad():
         _, cache = model.run_with_cache(
-            tokens, names_filter=lambda n: n == hook_name, return_type=None
+            tokens, names_filter=hook_name, return_type=None
         )
     acts = cache[hook_name][0]  # (seq_len, d_model)
     return acts[start:].mean(0).float().cpu().numpy()
@@ -133,9 +133,11 @@ def main() -> None:
     model.eval()
 
     # fail-fast single-token check
-    yes_id = candidate_token_id(model, " Yes")
-    no_id = candidate_token_id(model, " No")
-    print(f"[tokens] ' Yes'={yes_id}  ' No'={no_id}  (single-token check passed)", flush=True)
+    rendered, _ = encode_decision_prompt(
+        model, hiring_prompt(str(name_ratings.iloc[0]["name"])), args.prompt_format
+    )
+    yes_id, no_id = decision_token_ids(model, rendered, args.prompt_format)
+    print(f"[tokens] Yes={yes_id}  No={no_id}  (continuation check passed)", flush=True)
 
     # --- score every name ---
     model_warmth_list: list[float] = []
@@ -146,7 +148,9 @@ def main() -> None:
         acts = name_activation(model, name, hook_name)
         model_warmth_list.append(float(acts @ uw))
         model_competence_list.append(float(acts @ uc))
-        margin = yes_no_margin(model, hiring_prompt(name), hook_name)
+        margin = yes_no_margin(
+            model, hiring_prompt(name), hook_name, prompt_format=args.prompt_format
+        )
         callback_margin_list.append(margin)
         if i % 20 == 0 or i == len(name_ratings):
             print(f"[audit] {i}/{len(name_ratings)}", flush=True)
@@ -202,6 +206,9 @@ def main() -> None:
         "hook": hook_name,
         "seed": cfg.probing.seed,
         "n_names": len(work),
+        "prompt_format": args.prompt_format,
+        "rendered_prompt_example": rendered,
+        "runtime": model_runtime_metadata(model),
         "correlations": corr_results,
         "output_table": str(out_csv),
     }
@@ -218,6 +225,12 @@ def parse_args() -> argparse.Namespace:
         )
     )
     parser.add_argument("--config", default="config/config.yaml")
+    parser.add_argument(
+        "--prompt-format",
+        choices=("raw", "native-chat"),
+        default="raw",
+        help="Decision-prompt rendering mode (Gemma 4 jobs use native-chat).",
+    )
     parser.add_argument(
         "--vectors-subdir",
         required=True,

@@ -162,6 +162,7 @@ compares three model + tooling combinations on identical stimuli:
 | `smoke_tests/qwen_transformerlens/` | Qwen2.5-1.5B-Instruct | TransformerLens | Baseline (original pilot) |
 | `smoke_tests/gemma3_transformerlens/` | **Gemma 3 12B-IT** | TransformerLens + GemmaScope 2 | SAE warmth-vs-tone decomposition |
 | `smoke_tests/gemma4_nnsight/` | **Gemma 4 12B-IT** | nnsight | Exploratory; no SAE tooling yet |
+| `smoke_tests/gemma4_transformerlens/` | **Gemma 4 31B / 26B-A4B** | TransformerLens 3 Bridge | Current production path; dense and MoE residual-stream support |
 
 All three tests use the same 100 sentences (`smoke_tests/stimuli.py`) and report
 a `warmth_random_ratio` computed with **equal-magnitude** random and warmth vectors
@@ -218,6 +219,26 @@ resolve the processor (`Gemma4Processor`/`Gemma4UnifiedProcessor` import fails).
 Root cause: nnsight 0.6 (released Feb 2026) predates Gemma 4 (Apr 2026). No results were
 obtained from either Gemma 4 run. Gemma 4 is dropped from the pipeline until nnsight adds
 native support.
+
+**Current Gemma 4 path (2026-07-15).** The nnsight result above is retained as historical
+context, but it no longer blocks the project. TransformerLens 3.5.1 provides a
+`TransformerBridge` adapter for Gemma 4, including the 31B dense and 26B-A4B MoE models.
+The production pipeline uses raw Hugging Face weights, native Gemma 4 chat templates for
+Yes/No decisions, and `blocks.<layer>.hook_resid_post` aliases for residual-stream access.
+It does not enable legacy weight folding or collect MoE router/expert activations.
+
+Prepare and submit the gated SCCKN runs from the repository root:
+
+```bash
+bash jobs/setup_gemma4_env.sh
+bash jobs/sge/submit_gemma4.sh --smoke
+# Review results/logs/smoke_gemma4_{31b,26b_a4b}.json, then:
+bash jobs/sge/submit_gemma4.sh --full
+```
+
+The full chain reproduces extraction, probe validation, layer sweep, neutral-corpus PCA,
+dense steering, broad/local/denoised hiring steering, the 282-name audit, disparity,
+mediation, and the 149-name R4 analysis. SAE and MoE-specific analyses are excluded.
 
 #### Audit (Gemma 3 12B smoke)
 

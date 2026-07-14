@@ -25,6 +25,12 @@ from src.gemma_scope_utils import (
 from src.utils.config import load_config
 from src.utils.hooks import residual_hook_name
 from src.utils.model_loader import load_hooked_model
+from src.utils.prompting import (
+    PromptFormat,
+    candidate_token_id,
+    decision_token_ids,
+    encode_decision_prompt,
+)
 
 
 AXES = ("warmth", "competence")
@@ -48,33 +54,22 @@ def judgement_prompt(text: str, axis: str) -> str:
     )
 
 
-def candidate_token_id(
-    model,
-    candidate: str,
-) -> int:
-    candidate_tokens = model.to_tokens(candidate, prepend_bos=False)
-    if candidate_tokens.numel() != 1:
-        raise ValueError(
-            f"Candidate {candidate!r} must tokenize to exactly one token; "
-            f"got shape {tuple(candidate_tokens.shape)}."
-        )
-    return int(candidate_tokens.item())
-
-
 def yes_no_margin(
     model,
     prompt: str,
     hook_name: str,
     hook_fn: Callable | None = None,
+    prompt_format: PromptFormat = "raw",
 ) -> float:
-    prompt_tokens = model.to_tokens(prompt, prepend_bos=True)
+    rendered_prompt, prompt_tokens = encode_decision_prompt(
+        model, prompt, prompt_format
+    )
     kwargs = {}
     if hook_fn is not None:
         kwargs["fwd_hooks"] = [(hook_name, hook_fn)]
     with torch.no_grad():
         logits = model.run_with_hooks(prompt_tokens, **kwargs)
-    yes_id = candidate_token_id(model, " Yes")
-    no_id = candidate_token_id(model, " No")
+    yes_id, no_id = decision_token_ids(model, rendered_prompt, prompt_format)
     # Cast to float32 before subtraction (B1 fix): bf16 quantises the result to
     # a 0.125 grid (only ~8 unique values across 282 names), masking small
     # group-level disparities. float32 gives ~7 decimal places of precision.

@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import time
+from dataclasses import replace
 from pathlib import Path
 
 import numpy as np
@@ -10,7 +11,7 @@ import torch
 
 from src.utils.config import load_config
 from src.utils.hooks import layer_from_fraction, residual_hook_name
-from src.utils.model_loader import load_hooked_model
+from src.utils.model_loader import load_hooked_model, model_runtime_metadata
 from src.extract_vectors import extract_activations  # reuse identical extraction loop
 
 
@@ -28,6 +29,8 @@ def load_neutral(path: Path) -> list[str]:
 def main() -> None:
     args = parse_args()
     cfg = load_config(args.config)
+    if args.model is not None:
+        cfg = replace(cfg, model=replace(cfg.model, name=args.model))
     corpus = Path(cfg.neutral.corpus_path)
 
     if args.dry_run:
@@ -48,7 +51,7 @@ def main() -> None:
           f"probe_layer={layer} hook={hook} start_token={cfg.probing.start_token}")
 
     texts = load_neutral(corpus)
-    out_dir = Path(cfg.paths.processed) / "concept_vectors"
+    out_dir = Path(cfg.paths.processed) / args.vectors_subdir
     out_dir.mkdir(parents=True, exist_ok=True)
 
     with torch.no_grad():
@@ -63,6 +66,10 @@ def main() -> None:
         "corpus": str(corpus),
         "seed": cfg.probing.seed,
         "timestamp": int(time.time()),
+        "model": cfg.model.name,
+        "hook": hook,
+        "input_format": "raw-passage",
+        "runtime": model_runtime_metadata(model),
     }
     (out_dir / "neutral_meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
     print(f"[DONE] saved X_neutral.npy shape={tuple(X.shape)} -> {out_dir}")
@@ -72,6 +79,12 @@ def parse_args() -> argparse.Namespace:
     ap = argparse.ArgumentParser(description="Extract residual-stream activations for the neutral corpus.")
     ap.add_argument("--config", default="config/config.yaml")
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--model", default=None, help="Override cfg.model.name.")
+    ap.add_argument(
+        "--vectors-subdir",
+        default="concept_vectors",
+        help="Model-specific output directory under cfg.paths.processed.",
+    )
     return ap.parse_args()
 
 
