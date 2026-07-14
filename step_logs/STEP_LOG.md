@@ -1154,3 +1154,13 @@
 - **Findings:** `pip check` reported the exact conflict: `torch 2.12.0 has requirement setuptools<82, but you have setuptools 82.0.1`. No model was loaded and no GPU job was submitted before this gate passed.
 - **Decision / rationale:** Preserve SCCKN's working `torch 2.12.0` CUDA build and constrain setuptools instead of replacing PyTorch.
 - **Next:** Reinstall the pinned requirements, require a clean `pip check`, print runtime versions, and submit the two sequential smoke jobs.
+
+---
+
+## 2026-07-15 · Step 3 — Submit gated Gemma 4 smoke jobs on SCCKN
+- **Context:** Validate TransformerLens Bridge support and memory feasibility before any full Gemma 4 experiment.
+- **Agent:** gpt-5-codex
+- **Did:** Verified `wc-tl-g4` with `pip check` and runtime versions (`torch 2.12.0+cu130`, CUDA 13.0, Transformers 5.13.0, TransformerLens 3.5.1), then submitted sequential Grid Engine smoke jobs for 31B dense and 26B-A4B MoE.
+- **Findings:** Job `1141608` (`gemma4_31b`) entered the queue; dependent job `1141609` (`gemma4_26b_a4b`) entered held-queue state. The SCCKN repository was clean at commit `9156171` before submission.
+- **Decision / rationale:** Keep the full production chains unsubmitted until both smoke JSON files confirm hooks, native-chat tokens, Bridge/HF parity, finite margins, steering response, and VRAM feasibility.
+- **Next:** Monitor jobs `1141608` and `1141609`; inspect exact `.out`, `.err`, and JSON results before releasing the full pipeline.
