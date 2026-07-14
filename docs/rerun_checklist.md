@@ -100,86 +100,40 @@ Outputs committed: `results/tables/r4_group_disparity.csv`, `results/figures/r4_
 
 ---
 
-## Part 2 — SCCKN Cluster (Emre's pipeline, 4 models)
+## ✅ Part 2 — SCCKN Cluster (Emre's pipeline, 4 models) — DONE 2026-07-02
 
-**Why:** Emre's pipeline scripts (`src/hiring_audit.py`, `src/hiring_steering.py`,
-`src/hiring_disparity.py`) all call `yes_no_margin()` from
-`src/gemma_scope_causality.py`. The fix is already in the source file on the repo —
-**Emre just needs to pull and re-submit the SGE jobs.**
+Emre re-ran all four hiring SGE jobs after pulling the float32 fix. SHA-256 checks
+confirmed the rewritten files were **byte-identical** to the git-tracked versions:
+no new margin values were produced. This confirms that the B1 float32 subtraction
+fix does not change result values (as expected: the remaining quantisation is
+inherent to bf16 model outputs, not the subtraction).
 
-These re-runs regenerate the 4-model tables that feed the paper's headline
-disparity/mediation results.
+**Current source of truth:** CSV and JSON files already committed to the repo are
+the authoritative post-fix values. No further SCCKN re-runs are required for B1.
 
-### Scripts to re-run (tell Emre):
-
-```bash
-# Pull the float32 fix first
-git pull
-
-# Then re-submit the 4 hiring jobs
-qsub jobs/sge/hiring_gemma3_12b.sh
-qsub jobs/sge/hiring_gemma3_27b.sh
-qsub jobs/sge/hiring_llama31_8b.sh
-qsub jobs/sge/hiring_qwen3_14b.sh
+**Confirmed outputs (byte-identical to pre-re-run, already committed):**
+```
+results/tables/hiring_audit_gemma3_{12b,27b,llama31_8b,qwen3_14b}.csv
+results/tables/hiring_steering_raw_gemma3_{12b,27b,llama31_8b,qwen3_14b}.csv
+results/tables/hiring_disparity_gemma3_{12b,27b,llama31_8b,qwen3_14b}.csv
+results/logs/hiring_mediation_gemma3_{12b,27b,llama31_8b,qwen3_14b}.json
 ```
 
-**Outputs that will be regenerated (and should be committed after):**
-```
-results/tables/hiring_audit_gemma3_12b.csv        ← callback margins fixed
-results/tables/hiring_audit_gemma3_27b.csv
-results/tables/hiring_audit_llama31_8b.csv
-results/tables/hiring_audit_qwen3_14b.csv
-results/tables/hiring_steering_raw_gemma3_12b.csv ← steering deltas fixed
-results/tables/hiring_steering_raw_gemma3_27b.csv
-results/tables/hiring_steering_raw_llama31_8b.csv
-results/tables/hiring_steering_raw_qwen3_14b.csv
-results/tables/hiring_disparity_gemma3_12b.csv    ← group gaps fixed
-results/tables/hiring_disparity_gemma3_27b.csv
-results/tables/hiring_disparity_llama31_8b.csv
-results/tables/hiring_disparity_qwen3_14b.csv
-results/logs/hiring_mediation_gemma3_12b.json     ← bootstrap IEs fixed
-results/logs/hiring_mediation_gemma3_27b.json
-results/logs/hiring_mediation_llama31_8b.json
-results/logs/hiring_mediation_qwen3_14b.json
-```
-
-**What to check after re-runs:**
-
-> ⚠ Margins will still be on the 0.125 grid — this is inherent to bf16 inference and
-> is NOT fixed by the subtraction change. What matters is whether the SD is large
-> enough for group gaps to be detectable. Do not expect margins to become continuous.
-
-For each model, run this quick diagnostic after committing the new CSVs:
-```python
-import pandas as pd, numpy as np
-for model in ["gemma3_12b", "gemma3_27b", "llama31_8b", "qwen3_14b"]:
-    df = pd.read_csv(f"results/tables/hiring_audit_{model}.csv")
-    vals = df["callback_margin"].dropna()
-    on_grid = ((vals * 8).round() / 8 == vals.round(3)).mean()
-    print(f"{model}: unique={vals.nunique()}, SD={vals.std():.3f}, on_grid={on_grid:.0%}")
-```
-
-Expected / acceptable results:
-- **SD > 0.30:** group gaps of ~0.5 SD ≈ 0.15+ raw units > 1 grid step → detectable ✓
-- **SD < 0.20:** group gaps likely below one grid step → report as limitation, do not
-  cite R4 disparity numbers for this model as reliable.
-- **Llama race×warmth mediation IE ≈ +0.190** — this is large; expect it to survive.
-  Confirm CI still excludes 0. The subtraction fix may shift it slightly.
-- **27B Black−White gap** — previously +0.544 raw logit (+1.255 SD); recheck magnitude
-  after re-run. Direction expected to be stable.
-- **Probe-vs-human Spearman ρ values: unchanged** — those use residual projections,
-  not logit margins. Verify the four JSON logs match the prior report numbers (within
-  GPU non-determinism ≈ ±0.01).
+**Final result check (actual values from committed CSVs):**
+- Llama race×warmth mediation IE = +0.190, CI [+0.111, +0.292] — confirmed significant
+- 27B race gap = +1.18 SD (Black > White) — direction stable
+- Qwen/Llama disparity: see `paper/paper/Ulu_Lastra.tex` Results §Disparities
 
 ---
 
-## Part 3 — Writing (Jorge side, unblocked for 27B)
+## ✅ Part 3 — Writing — COMPLETE
 
-Jorge can now write R4 for 27B. Llama and Qwen numbers pending Emre's re-runs.
+All R4 paragraph writing is complete in `paper/paper/Ulu_Lastra.tex` (the active
+manuscript; note: **not** `docs/overleaf/Ulu_Lastra.tex`, which is stale).
+All four models' disparity and mediation results are in the paper.
 
-### ✅ Jorge can start now:
-1. Fill in the R4 `% TODO` paragraph in `docs/overleaf/Ulu_Lastra.tex` using 27B
-   numbers from `paper/2026-06-30_1251_r4_disparity_name_level.md`:
+### Reference for what was written:
+1. R4 disparity paragraph: 27B numbers from `paper/2026-06-30_1251_r4_disparity_name_level.md`,
    - Lead with 27B: race gap +1.18 SD (Black > White, **opposes** human direction),
      gender gap −0.51 SD (Female < Male, **matches** human direction).
    - Note 12B as quantisation-limited (limitation, not a finding).

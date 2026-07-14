@@ -155,12 +155,12 @@ connected individual components to recognizable computations
 \citep{olah2020zoom}.
 Most recently, \citet{sofroniew2026emotion} demonstrated that emotion
 concepts in Claude Sonnet are encoded as linear residual-stream directions
-and causally regulate behavior under direct steering---evidence that the
+and causally regulate behavior under direct steering: evidence that the
 geometry of representation extends from symbolic word vectors to the
 internal activations of instruction-tuned models.
 We borrow this technique and apply it to a different construct entirely.
 
-The construct is warmth and competence---the two axes through which social
+The construct is warmth and competence, the two axes through which social
 groups are perceived according to the Stereotype Content Model
 \citep{fiske2002model}.
 Warmth and competence ratings of social signals predict human callback
@@ -187,8 +187,8 @@ $d_{\mathrm{model}}$-dimensional state $h_\ell \in
 \mathbb{R}^{d_{\mathrm{model}}}$ and writes back an updated version
 $h_{\ell+1} = h_\ell + f_\ell(h_\ell)$, where $f_\ell$ is the combined
 output of that layer's attention and MLP sub-blocks.
-Circuit-level analyses have shown that specific features---from low-level
-syntax to high-level semantic content---are localized within this stream as
+Circuit-level analyses have shown that specific features (from low-level
+syntax to high-level semantic content) are localized within this stream as
 consistent geometric patterns across contexts \citep{olah2020zoom}.
 Rather than probing the full architecture, we extract the residual-stream
 state at a single chosen depth (approximately 65\% of network layers,
@@ -212,8 +212,8 @@ the mean-difference:
 \end{equation}
 Normalizing to $\hat{v}$ gives a concept direction; the concept score of any
 new text is then $\hat{v}^{\!\top} h$.
-The key claim --- validated here by cross-validated classification and
-topic-holdout accuracy --- is that this direction generalizes beyond the
+The key claim, validated here by cross-validated classification and
+topic-holdout accuracy, is that this direction generalizes beyond the
 specific texts used to construct it (\autoref{fig:concept_geometry}).
 
 \begin{figure}[t]
@@ -266,7 +266,7 @@ Building contrastive text pairs for each emotion, they extracted mean-difference
 directions in the residual stream, steered the model along those directions,
 and observed systematic, interpretable shifts in behavior.
 Their study also introduced the neutral-corpus PCA denoising procedure that
-removes general evaluative valence from the direction vectors---a step we
+removes general evaluative valence from the direction vectors, a step we
 adopt verbatim to separate warmth and competence content from shared
 narrative polarity (described in Methods).
 We reuse the geometry and the method; the construct is different.
