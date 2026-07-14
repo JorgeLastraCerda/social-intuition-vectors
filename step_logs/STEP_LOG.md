@@ -1134,3 +1134,13 @@
 - **Findings:** The pull added three commits and one 885,122-byte presentation. The incoming `.gitignore` replacement had exposed 19 local `.DS_Store` and Python bytecode files as untracked; restoring the prior rules removed them from Git status while retaining all four new exclusions.
 - **Decision / rationale:** Preserve the new presentation and intended export exclusions without dropping protections for secrets, caches, model artifacts, cluster outputs, and tracked pipeline-output exceptions.
 - **Next:** Commit and push the safe `.gitignore` reconciliation and this step-log entry, then verify `0 ahead / 0 behind`.
+
+---
+
+## 2026-07-15 · Step 1 — Implement Gemma 4 TransformerLens replication pipeline
+- **Context:** Prepare exact-test replications for Gemma 4 31B dense and 26B-A4B MoE on SCCKN, excluding new MoE-specific and SAE tests.
+- **Agent:** gpt-5-codex
+- **Did:** Migrated model loading to TransformerLens 3 Bridge; added native-chat decision tokenization, model-specific PCA paths, raw/local/denoised hiring modes, a reproducible R4 CLI, structural result validation, dedicated Gemma 4 smoke tests, and gated Grid Engine jobs. Created `paper/2026-07-15_0035_gemma4_transformerlens_pipeline.md`.
+- **Findings:** TransformerLens callable cache filters do not resolve legacy hook aliases, so extraction filters were changed to alias-aware string/list forms. Local verification passed: 16 tests, Python compilation, shell syntax, two dry runs, and `git diff --check`. No Gemma 4 empirical results exist yet.
+- **Decision / rationale:** Use raw-weight `TransformerBridge` without compatibility-mode weight folding; apply native chat templates only to Yes/No decisions; retain raw text for passive activation extraction. Run 31B before 26B-A4B and stop on smoke failures without quantization or model substitution.
+- **Next:** Install `wc-tl-g4` on SCCKN, submit both smoke jobs, inspect their JSON/VRAM results, then submit the full dependency chain.

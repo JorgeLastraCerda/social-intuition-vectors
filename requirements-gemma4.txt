@@ -1,0 +1,10 @@
+# Dedicated SCCKN TransformerLens Bridge environment. Install a CUDA-compatible
+# torch>=2.6 build separately using the cluster's supported PyTorch index/module.
+transformer-lens==3.5.1
+transformers==5.13.0
+accelerate
+numpy
+pandas
+scikit-learn
+scipy
+pyyaml

@@ -7,11 +7,12 @@ torch
 transformers
 accelerate
 
-# TransformerLens path (Gemma 3, Qwen — conda env: wc-tl)
+# Legacy mixed environment. Gemma 4 production uses requirements-gemma4.txt
+# in the dedicated wc-tl-g4 environment.
 transformer-lens
 sae-lens           # GemmaScope 2 SAE decomposition
 
-# nnsight path (Gemma 4 — conda env: wc-nn)
+# Retained for archived/alternative nnsight experiments; not used for Gemma 4 runs.
 nnsight
 nnterp
 

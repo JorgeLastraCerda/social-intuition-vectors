@@ -11,7 +11,8 @@ import torch
 
 from src.utils.config import load_config
 from src.utils.hooks import layer_from_fraction, mean_activation_after_token, residual_hook_name
-from src.utils.model_loader import load_hooked_model
+from src.utils.model_loader import load_hooked_model, model_runtime_metadata
+from src.utils.prompting import encode_passage
 
 EXPECTED_CONDITIONS = ("high_warmth", "low_warmth", "high_competence", "low_competence")
 
@@ -41,7 +42,7 @@ def extract_activations(
 ) -> torch.Tensor:
     vecs = []
     for i, text in enumerate(texts):
-        tokens = model.to_tokens(text, prepend_bos=True)
+        tokens = encode_passage(model, text)
         seq_len = tokens.shape[1]
         if seq_len <= start_token:
             print(
@@ -50,7 +51,7 @@ def extract_activations(
                 flush=True,
             )
         _, cache = model.run_with_cache(
-            tokens, names_filter=lambda n: n == hook_name, return_type=None
+            tokens, names_filter=hook_name, return_type=None
         )
         acts = cache[hook_name]  # [1, seq, d_model]
         vec = mean_activation_after_token(acts, start_token).squeeze(0)  # [d_model]
@@ -124,6 +125,8 @@ def main() -> None:
         "n_per_condition": {c: len(buckets[c]) for c in EXPECTED_CONDITIONS},
         "warmth_vec_norm": round(float(warmth_vec.norm()), 6),
         "competence_vec_norm": round(float(competence_vec.norm()), 6),
+        "input_format": "raw-passage",
+        "runtime": model_runtime_metadata(model),
     }
     (out_dir / "meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
     print(f"\n[DONE] Outputs in {out_dir}")

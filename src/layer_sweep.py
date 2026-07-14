@@ -29,7 +29,8 @@ import torch
 
 from src.utils.config import load_config
 from src.utils.hooks import layer_from_fraction, mean_activation_after_token
-from src.utils.model_loader import load_hooked_model
+from src.utils.model_loader import load_hooked_model, model_runtime_metadata
+from src.utils.prompting import encode_passage
 
 # Import helpers from validate_probes (topic-holdout) and extract_vectors (story loader).
 from src.validate_probes import load_topic_groups, topic_holdout_cv
@@ -57,13 +58,16 @@ def extract_all_layers(
     """
     d_model = model.cfg.d_model
     acts = np.zeros((n_layers, len(texts), d_model), dtype=np.float32)
+    residual_hooks = [
+        f"blocks.{layer_idx}.hook_resid_post" for layer_idx in range(n_layers)
+    ]
 
     for story_idx, text in enumerate(texts):
-        tokens = model.to_tokens(text, prepend_bos=True)
+        tokens = encode_passage(model, text)
         with torch.no_grad():
             _, cache = model.run_with_cache(
                 tokens,
-                names_filter=lambda n: n.endswith("hook_resid_post"),
+                names_filter=residual_hooks,
                 return_type=None,
             )
         for layer_idx in range(n_layers):
@@ -195,6 +199,7 @@ def main() -> None:
     print(f"[model] loading {cfg.model.name} ...", flush=True)
     model = load_hooked_model(cfg)
     model.eval()
+    runtime = model_runtime_metadata(model)
 
     n_layers = model.cfg.n_layers
     d_model  = model.cfg.d_model
@@ -260,6 +265,8 @@ def main() -> None:
         "n_stories": n_all,
         "label": label,
         "timestamp": int(time.time()),
+        "input_format": "raw-passage",
+        "runtime": runtime,
     }, indent=2), encoding="utf-8")
     print(f"[DONE] meta: {meta_out}")
 

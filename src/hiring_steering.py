@@ -36,17 +36,17 @@ import numpy as np
 import pandas as pd
 
 from src.gemma_scope_causality import (
-    candidate_token_id,
     make_steering_hook,
     unit,
     yes_no_margin,
 )
 from src.utils.config import load_config
 from src.utils.hooks import residual_hook_name
-from src.utils.model_loader import load_hooked_model
+from src.utils.model_loader import load_hooked_model, model_runtime_metadata
+from src.utils.prompting import decision_token_ids, encode_decision_prompt
 
 AXES = ("warmth", "competence")
-STRENGTHS = (-0.5, -0.25, 0.0, 0.25, 0.5)
+DEFAULT_STRENGTHS = "-0.5,-0.25,0,0.25,0.5"
 
 HIRING_PROMPT_TEMPLATE = (
     "You are a hiring manager reviewing job applications. "
@@ -68,6 +68,11 @@ def hiring_prompt(name: str) -> str:
 
 def main() -> None:
     args = parse_args()
+    strengths = tuple(
+        float(value.strip()) for value in args.strengths.split(",") if value.strip()
+    )
+    if 0.0 not in strengths:
+        raise ValueError("--strengths must include 0.")
     cfg = load_config(args.config)
 
     table_dir = Path(cfg.paths.results) / "tables"
@@ -82,8 +87,15 @@ def main() -> None:
     layer = int(meta["probe_layer"])
     hook_name = residual_hook_name(layer)
 
-    warmth_vec = np.load(vectors_dir / "warmth_vec.npy").astype(np.float32)
-    competence_vec = np.load(vectors_dir / "competence_vec.npy").astype(np.float32)
+    if args.vector_kind == "denoised":
+        denoised = np.load(vectors_dir / "concept_vectors_denoised.npz")
+        warmth_vec = denoised["warmth"].astype(np.float32)
+        competence_vec = denoised["competence"].astype(np.float32)
+        vector_source = vectors_dir / "concept_vectors_denoised.npz"
+    else:
+        warmth_vec = np.load(vectors_dir / "warmth_vec.npy").astype(np.float32)
+        competence_vec = np.load(vectors_dir / "competence_vec.npy").astype(np.float32)
+        vector_source = vectors_dir
 
     # mean_resid_norm from all condition activations (mirrors notebook 06 cell ea4021af)
     all_X = np.concatenate(
@@ -138,16 +150,20 @@ def main() -> None:
     model.eval()
 
     # fail-fast single-token check
-    yes_id = candidate_token_id(model, " Yes")
-    no_id = candidate_token_id(model, " No")
-    print(f"[tokens] ' Yes'={yes_id}  ' No'={no_id}  (single-token check passed)", flush=True)
+    rendered, _ = encode_decision_prompt(
+        model, hiring_prompt(str(sample.iloc[0]["name"])), args.prompt_format
+    )
+    yes_id, no_id = decision_token_ids(model, rendered, args.prompt_format)
+    print(f"[tokens] Yes={yes_id}  No={no_id}  (continuation check passed)", flush=True)
 
     axis_vectors = {"warmth": warmth_vec, "competence": competence_vec}
 
     # --- baseline ---
     baseline_margins: dict[str, float] = {}
     for i, name in enumerate(sample["name"], start=1):
-        m = yes_no_margin(model, hiring_prompt(name), hook_name)
+        m = yes_no_margin(
+            model, hiring_prompt(name), hook_name, prompt_format=args.prompt_format
+        )
         baseline_margins[name] = m
         if i % 20 == 0 or i == len(sample):
             print(f"[baseline] {i}/{len(sample)}", flush=True)
@@ -157,7 +173,7 @@ def main() -> None:
 
     for axis in AXES:
         vec = axis_vectors[axis]
-        for strength in STRENGTHS:
+        for strength in strengths:
             hook = (
                 None
                 if strength == 0.0
@@ -167,7 +183,13 @@ def main() -> None:
                 if strength == 0.0:
                     margin = baseline_margins[name]
                 else:
-                    margin = yes_no_margin(model, hiring_prompt(name), hook_name, hook)
+                    margin = yes_no_margin(
+                        model,
+                        hiring_prompt(name),
+                        hook_name,
+                        hook,
+                        prompt_format=args.prompt_format,
+                    )
                 rows.append(
                     {
                         "axis": axis,
@@ -198,7 +220,12 @@ def main() -> None:
         "seed": cfg.probing.seed,
         "n_names_sampled": len(sample),
         "n_names_total": n_total,
-        "strengths": list(STRENGTHS),
+        "strengths": list(strengths),
+        "vector_kind": args.vector_kind,
+        "vector_source": str(vector_source),
+        "prompt_format": args.prompt_format,
+        "rendered_prompt_example": rendered,
+        "runtime": model_runtime_metadata(model),
         "axes": list(AXES),
         "raw_output": str(raw_path),
     }
@@ -224,6 +251,23 @@ def parse_args() -> argparse.Namespace:
         "--label",
         required=True,
         help="Short identifier used in output filenames (e.g. gemma3_12b).",
+    )
+    parser.add_argument(
+        "--strengths",
+        default=DEFAULT_STRENGTHS,
+        help="Comma-separated strengths in units of mean residual norm; include 0.",
+    )
+    parser.add_argument(
+        "--vector-kind",
+        choices=("raw", "denoised"),
+        default="raw",
+        help="Use raw concept vectors or PCA-denoised vectors.",
+    )
+    parser.add_argument(
+        "--prompt-format",
+        choices=("raw", "native-chat"),
+        default="raw",
+        help="Decision-prompt rendering mode (Gemma 4 jobs use native-chat).",
     )
     parser.add_argument(
         "--n-names",

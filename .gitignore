@@ -99,10 +99,14 @@ project_personal_plan.md
 !results/tables/hiring_steering_raw_*.csv
 !results/tables/steering_dense_*.csv
 !results/tables/hiring_disparity_*.csv
+!results/tables/hiring_group_r4_*.csv
+!results/tables/hiring_name_level_*.csv
 !results/logs/steering_dense_*.json
 !results/logs/hiring_steering_*.json
 !results/logs/hiring_probe_vs_human_*.json
 !results/logs/hiring_mediation_*.json
+!results/logs/hiring_r4_*.json
+!results/logs/smoke_gemma4_*.json
 
 # Local manuscript and presentation exports
 paper/paper/Ulu_Lastra.log
