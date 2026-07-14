@@ -1144,3 +1144,13 @@
 - **Findings:** TransformerLens callable cache filters do not resolve legacy hook aliases, so extraction filters were changed to alias-aware string/list forms. Local verification passed: 16 tests, Python compilation, shell syntax, two dry runs, and `git diff --check`. No Gemma 4 empirical results exist yet.
 - **Decision / rationale:** Use raw-weight `TransformerBridge` without compatibility-mode weight folding; apply native chat templates only to Yes/No decisions; retain raw text for passive activation extraction. Run 31B before 26B-A4B and stop on smoke failures without quantization or model substitution.
 - **Next:** Install `wc-tl-g4` on SCCKN, submit both smoke jobs, inspect their JSON/VRAM results, then submit the full dependency chain.
+
+---
+
+## 2026-07-15 · Step 2 — Resolve SCCKN Gemma 4 environment constraint
+- **Context:** Create the dedicated `wc-tl-g4` environment before Gemma 4 smoke submission.
+- **Agent:** gpt-5-codex
+- **Did:** Cloned the working CUDA/PyTorch environment and installed the Gemma 4 dependency set; added `setuptools<82` to `requirements-gemma4.txt` after the environment integrity gate failed.
+- **Findings:** `pip check` reported the exact conflict: `torch 2.12.0 has requirement setuptools<82, but you have setuptools 82.0.1`. No model was loaded and no GPU job was submitted before this gate passed.
+- **Decision / rationale:** Preserve SCCKN's working `torch 2.12.0` CUDA build and constrain setuptools instead of replacing PyTorch.
+- **Next:** Reinstall the pinned requirements, require a clean `pip check`, print runtime versions, and submit the two sequential smoke jobs.
