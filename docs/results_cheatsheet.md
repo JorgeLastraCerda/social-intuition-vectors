@@ -196,7 +196,7 @@ how much does our steering move the needle?"
 | Model | Steering effect | Baseline gap | Normalized steerability |
 |-------|----------------|--------------|------------------------|
 | Gemma-3-12B | +3.81 | 16.14 | **0.236** (strongest) |
-| Qwen3-14B | +1.24 | 9.91 | 0.125 |
+| Qwen3-14B | +1.24 | 9.91 | 0.122 |
 | Gemma-3-27B | +1.03 | 25.93 | 0.040 |
 | Llama-3.1-8B | +0.26 | 9.01 | **0.029** (weakest) |
 
@@ -205,7 +205,7 @@ For competence:
 | Model | Normalized steerability |
 |-------|------------------------|
 | Gemma-3-12B | 0.140 |
-| Qwen3-14B | 0.103 |
+| Qwen3-14B | 0.104 |
 | Llama-3.1-8B | 0.024 |
 | Gemma-3-27B | 0.009 |
 
@@ -231,10 +231,22 @@ warmth score also predicts the callback decision, then warmth mediates the
 effect of group membership on callbacks. The IE measures how large that
 mediated pathway is.
 
-**Our key value:**
-- Llama-3.1-8B race × warmth indirect effect: **IE = +0.190**, 95% CI
-  excludes zero. This is a large mediation effect: for Llama, the warmth
-  representation carries a significant causal share of the racial callback gap.
+**Our values (5 of 16 model × group × probe combinations are significant):**
+
+| Model | Path | IE | 95% CI | Significant? |
+|-------|------|-----|--------|--------------|
+| Llama-3.1-8B | race → warmth → callback | **+0.190** | [+0.111, +0.292] | YES (survives Bonferroni) |
+| Llama-3.1-8B | race → competence → callback | +0.040 | [+0.004, +0.090] | yes (suggestive) |
+| Qwen3-14B | race → warmth → callback | +0.081 | excludes 0 | yes (suggestive) |
+| Qwen3-14B | race → competence → callback | −0.132 | excludes 0 | yes (suggestive) |
+| Qwen3-14B | gender → competence → callback | +0.076 | excludes 0 | yes (suggestive) |
+| Gemma-3-12B | all 8 paths | — | includes 0 | no |
+| Gemma-3-27B | all 8 paths | — | includes 0 | no |
+
+Only the Llama race × warmth path (IE = +0.190) survives Bonferroni correction
+(threshold α/16 = 0.003). The other four significant paths are suggestive but not
+confirmed at a corrected threshold. The 16 total tests cover 4 models × 2 groups
+(race, gender) × 2 probes (warmth, competence).
 
 ---
 
@@ -304,12 +316,26 @@ what humans would call the LOW-warmth direction.
 
 ### R4 — Demographic Disparity
 
-**Group-level disparity (27B, 149 names matched):**
+**Group-level disparity (149 names for 27B benchmark comparison; 282 names for Llama/Qwen):**
 
-| Gap | 27B raw logit | 27B in SD units | Human benchmark |
-|-----|--------------|-----------------|----------------|
-| Race (Black minus White) | +0.486 | **+1.18 SD** | −0.085 (White > Black) |
-| Gender (Female minus Male) | −0.211 | **−0.51 SD** | −0.037 (Male > Male) |
+| Model | Race gap (Black − White) | Gender gap (Female − Male) | Human benchmark (race) | Human benchmark (gender) |
+|-------|--------------------------|---------------------------|------------------------|--------------------------|
+| Gemma-3-12B | +0.06 SD (noise) | +0.77 SD (unreliable) | −0.085 (White > Black) | −0.037 (Male > Female) |
+| Gemma-3-27B | **+1.18 SD** | **−0.51 SD** | −0.085 | −0.037 |
+| Llama-3.1-8B | **+0.40 SD** | **+0.45 SD** | −0.085 | −0.037 |
+| Qwen3-14B | **+0.16 SD** | **+0.89 SD** | −0.085 | −0.037 |
+
+Note: 12B values are unreliable (quantisation-dominated). Llama/Qwen values use
+the full 282-name set (slightly different from the 149-name 27B benchmark join).
+
+Key patterns across the three reliable models:
+- **Race direction**: ALL three models favour Black-signalling names over White. This
+  REVERSES the human benchmark (which shows White > Black). The reversal is largest
+  at 27B (+1.18 SD), moderate at Llama (+0.40 SD), small at Qwen (+0.16 SD).
+- **Gender direction**: Only 27B matches the human direction (Male > Female at −0.51 SD).
+  Llama and Qwen REVERSE it (Female > Male at +0.45 SD and +0.89 SD respectively).
+- **Conclusion**: No model simply inherits human-like hiring bias. All three show
+  reversed racial direction (RLHF overcorrection). Gender is more variable.
 
 **What these numbers mean in plain language:**
 
