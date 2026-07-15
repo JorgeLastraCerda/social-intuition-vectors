@@ -1269,3 +1269,13 @@
 - **Findings:** Local validation passed with 35 tests, Python compilation, shell syntax checks, and `git diff --check`. No multi-GPU empirical result exists yet. The audit will compare every residual layer on fixed passages and real 12B warmth/competence steering while keeping temporary tensor snapshots outside Git.
 - **Decision / rationale:** Use one first-fit two-GPU job on the scc192/scc213 L40 pool and a separate SCCKN clone so hardware is controlled within the three arms and concurrent Stage 1–3 output sync cannot race on the same Git index.
 - **Next:** Push the implementation, create and preflight the isolated SCCKN checkout, submit the parity job held, record its manifest, then release and monitor it.
+
+---
+
+## 2026-07-15 · Step 15 — Submit held Gemma 4 12B L40 parity job
+- **Context:** Launch the approved three-arm single-GPU/two-GPU audit without interfering with the active Gemma 4 Stage 1–3 chain.
+- **Agent:** gpt-5-codex
+- **Did:** Pushed the presentation and parity implementation, created the isolated SCCKN checkout at `/work/emrecan.ulu/normalcy-axis-parity`, ran environment/compilation/shell/dry-run preflights, fixed a submitter quoting error before any job was created, and submitted held job `1142148`; wrote `results/logs/gemma4_parity_submission_20260715T143120Z.json`.
+- **Findings:** SCCKN reports PyTorch `2.13.0+cu130`, Transformers `5.13.0`, TransformerLens `3.5.1`, and a clean `pip check`. The production environment does not contain pytest (`No module named pytest`), so cluster validation used Python compilation and shell checks after the 35-test local suite passed. Job `1142148` requests two GPUs from `gpu@scc192,gpu@scc213` and is still user-held; no empirical parity result exists yet.
+- **Decision / rationale:** Do not mutate the production environment solely to add pytest. Keep the job held until its manifest and this audit entry are committed, then release it from the isolated checkout.
+- **Next:** Pull this entry into the parity checkout, release `1142148`, and inspect scheduler state before monitoring the three capture arms.
