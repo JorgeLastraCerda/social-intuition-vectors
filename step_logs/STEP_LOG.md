@@ -1259,3 +1259,13 @@
 - **Did:** Created `presentation/Ulu_Lastra_slides_v8.pptx`; centered the inherited charts in the lower half of Slides 12 and 14, redistributed their inherited metrics and interpretation above the charts, and shortened one Slide 12 takeaway for fit without reducing font size.
 - **Findings:** Template fidelity passed with zero issues; slide-boundary checks passed; only Slides 12 and 14 differ visually from v7, while the other 14 slides render pixel-identically.
 - **Decision / rationale:** Make the evidence figure the primary visual anchor on all three finding slides while retaining each slide's existing claims, source attribution, and visual language.
+
+---
+
+## 2026-07-15 · Step 14 — Implement Gemma 4 12B multi-GPU parity audit
+- **Context:** Test whether TransformerLens Bridge layer dispatch across two L40 GPUs changes Gemma 4 12B activations, logits, or steering results.
+- **Agent:** gpt-5-codex
+- **Did:** Added a backward-compatible multi-device model-loading option, a three-process single-A/single-B/two-GPU parity runner, topology and numeric gates, isolated SCCKN Grid Engine job/submit scripts, tracked parity manifests/results, and unit tests; separately validated and committed the existing v8 presentation update.
+- **Findings:** Local validation passed with 35 tests, Python compilation, shell syntax checks, and `git diff --check`. No multi-GPU empirical result exists yet. The audit will compare every residual layer on fixed passages and real 12B warmth/competence steering while keeping temporary tensor snapshots outside Git.
+- **Decision / rationale:** Use one first-fit two-GPU job on the scc192/scc213 L40 pool and a separate SCCKN clone so hardware is controlled within the three arms and concurrent Stage 1–3 output sync cannot race on the same Git index.
+- **Next:** Push the implementation, create and preflight the isolated SCCKN checkout, submit the parity job held, record its manifest, then release and monitor it.
