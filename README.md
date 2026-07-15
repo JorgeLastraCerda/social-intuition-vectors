@@ -243,6 +243,18 @@ resubmitting the already validated 26B-A4B model:
 bash jobs/sge/submit_gemma4.sh --smoke-31b-12b
 ```
 
+Submit the write-once, fully serial Gemma 4 Stage 1--3 replication chain (12B,
+26B-A4B, and 31B within each stage):
+
+```bash
+bash jobs/sge/submit_gemma4_stages_1_3.sh --dry-run
+bash jobs/sge/submit_gemma4_stages_1_3.sh
+```
+
+The real submission leaves the first of nine jobs user-held until its manifest
+and step-log entry have been synchronized. Release the printed first job ID only
+after that synchronization; every stage refuses to overwrite canonical outputs.
+
 The full chain reproduces extraction, probe validation, layer sweep, neutral-corpus PCA,
 dense steering, broad/local/denoised hiring steering, the 282-name audit, disparity,
 mediation, and the 149-name R4 analysis. SAE and MoE-specific analyses are excluded.

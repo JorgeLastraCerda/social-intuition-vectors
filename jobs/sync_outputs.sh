@@ -19,6 +19,7 @@
 #   results/logs/hiring_mediation_*.json      (Phase 7 mediation provenance)
 #   results/tables/hiring_{group_r4,name_level}_*.csv (R4 outputs)
 #   results/logs/{hiring_r4,smoke_gemma4}_*.json      (R4/smoke provenance)
+#   results/logs/gemma4_stages_1_3_submission_*.json  (staged-run job manifest)
 #
 # NOT committed: model weights (*.safetensors, *.bin, *.pt), SGE logs (*.out, *.err),
 #               HF cache (/work/.../hf_cache).
@@ -66,6 +67,7 @@ output_paths=(
     results/logs/hiring_mediation_*.json
     results/logs/hiring_r4_*.json
     results/logs/smoke_gemma4_*.json
+    results/logs/gemma4_stages_1_3_submission_*.json
 )
 if ((${#output_paths[@]})); then
     git add "${output_paths[@]}"
