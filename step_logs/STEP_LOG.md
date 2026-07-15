@@ -1214,3 +1214,48 @@
 - **Findings:** The nine job IDs are `1141625`–`1141633`, ordered Stage 1 12B/26B-A4B/31B, Stage 2 12B/26B-A4B/31B, then Stage 3 12B/26B-A4B/31B. All nine initially entered held-queue state; the first job remained user-held while the manifest and this entry were synchronized. Preflight found no canonical output collision and `pip check` reported no broken requirements.
 - **Decision / rationale:** Release only job `1141625` after this audit trail is pushed; all successors remain scheduler-held and also require their predecessor's external success sentinel, so a technical failure cannot write later-stage results.
 - **Next:** Pull this entry on SCCKN, release job `1141625`, monitor scheduler accounting and write the consolidated findings report only after the chain reaches a terminal outcome.
+
+---
+
+## 2026-07-15 · Step 9 — Replace the presentation placeholder with an emotion-vector sequence
+- **Context:** User requested a conceptual redesign of Slide 3 that explains how a story becomes an internal activation and how emotion concepts can be represented as measurable directions.
+- **Agent:** gpt-5-codex
+- **Did:** Created `presentation/Ulu_Lastra_slides_v4.pptx` from v3, replaced the placeholder with two editable native-shape slides, added speaker notes and a Sofroniew, Lindsey et al. (2026) attribution, and rendered and inspected all 10 slides.
+- **Findings:** The placeholder is absent; Slides 3–4 contain the new story-to-activation and emotion-direction sequence with no new canvas overflow. Automated overflow checks reproduce only the inherited decorative bleed on source Slides 1 and 9, now output Slides 1 and 10. The template-fidelity checker flags the two new opaque activation-space panels because they intentionally replace the inherited placeholder region, as documented in the edit map and deviation log.
+- **Decision / rationale:** Use a static two-slide reveal so the audience first understands the hidden activation metaphor, then sees joy, fear, and sadness as directions before the deck bridges to warmth and competence.
+
+---
+
+## 2026-07-15 · Step 10 — Remove anatomy from the emotion-vector slides
+- **Context:** User requested a simpler, fully abstract treatment of Slides 3–4 without a human figure.
+- **Agent:** gpt-5-codex
+- **Did:** Created `presentation/Ulu_Lastra_slides_v5.pptx`, removed the character, footsteps, motion accents, and ground line from both concept slides, centered the story-to-LLM flow, enlarged the hidden activation space, repositioned the emotion vectors, and revised the Slide 3 speaker note.
+- **Findings:** The final PPTX contains no human-figure shape identifiers or unresolved placeholder copy. Slides 1–2 and 5–10 render identically to v4; Slides 3–4 have no new canvas overflow. Automated overflow checks reproduce only the inherited decorative bleed on Slides 1 and 10, while the template-fidelity checker repeats the documented placeholder-replacement warning for Slides 3–4.
+- **Decision / rationale:** Keep the story cue as textual context, but let the abstract activation space carry the metaphor without implying that the model experiences emotion as a person does.
+
+---
+
+## 2026-07-15 · Step 11 — Align result figures in the updated presentation
+- **Context:** User requested repositioning the figures on Slides 12 and 15 in the newly expanded 16-slide deck.
+- **Agent:** gpt-5-codex
+- **Did:** Created `presentation/Ulu_Lastra_slides_v6.pptx` from the user-updated v5 and moved only the inherited figure and caption objects on Slides 12 and 15 to align with the left content column at y = 100.8 pt.
+- **Findings:** Template fidelity passed with zero issues; exact target coordinates were verified; the other 14 slides render pixel-identically to v5. Overflow checks reproduce only inherited bleed on Slides 1, 2, and 16 in both v5 and v6.
+- **Decision / rationale:** Preserve figure size, crop, and caption gap while using a shared top alignment to remove the title collision on Slide 15 and improve consistency on Slide 12.
+
+---
+
+## 2026-07-15 · Step 12 — Reflow the Finding 2 steering slide
+- **Context:** Correct the prior figure-position edit after the user identified that the visible Finding 2 chart still remained in the right column.
+- **Agent:** gpt-5-codex
+- **Did:** Created `presentation/Ulu_Lastra_slides_v7.pptx`, moved and enlarged the inherited steering chart on Slide 13 into a centered lower-half evidence frame, and condensed the four inherited explanatory bullets into a two-by-two key above it.
+- **Findings:** Template fidelity passed with zero issues, the chart is no longer right-aligned, and Slides 1–12 and 14–16 render pixel-identically to v6. Overflow checks reproduce only inherited bleed on Slides 1, 2, and 16.
+- **Decision / rationale:** Use the chart as the visual anchor and place supporting interpretation above it so the slide reads vertically instead of as an unbalanced left-text/right-chart split.
+
+---
+
+## 2026-07-15 · Step 13 — Extend the centered-evidence layout to Findings 1 and 3
+- **Context:** User requested that Slides 12 and 14 follow the vertical, chart-centered composition established on Slide 13.
+- **Agent:** gpt-5-codex
+- **Did:** Created `presentation/Ulu_Lastra_slides_v8.pptx`; centered the inherited charts in the lower half of Slides 12 and 14, redistributed their inherited metrics and interpretation above the charts, and shortened one Slide 12 takeaway for fit without reducing font size.
+- **Findings:** Template fidelity passed with zero issues; slide-boundary checks passed; only Slides 12 and 14 differ visually from v7, while the other 14 slides render pixel-identically.
+- **Decision / rationale:** Make the evidence figure the primary visual anchor on all three finding slides while retaining each slide's existing claims, source attribution, and visual language.
