@@ -7,7 +7,11 @@ import torch
 from src.utils.config import ProjectConfig, require_model_name
 
 
-def load_hooked_model(config: ProjectConfig):
+def load_hooked_model(
+    config: ProjectConfig,
+    *,
+    n_devices: int | None = None,
+):
     """Load raw Hugging Face weights through TransformerLens 3 Bridge.
 
     Full compatibility mode is intentionally not enabled: Gemma 4's PLE/MoE
@@ -32,11 +36,18 @@ def load_hooked_model(config: ProjectConfig):
     dtype = getattr(torch, config.model.dtype, None)
     if not isinstance(dtype, torch.dtype):
         raise ValueError(f"Unknown torch dtype {config.model.dtype!r}.")
-    model = TransformerBridge.boot_transformers(
-        model_name,
-        device=config.model.device,
-        dtype=dtype,
-    )
+    if n_devices is not None and n_devices < 1:
+        raise ValueError("n_devices must be at least 1 when provided.")
+
+    load_kwargs: dict[str, object] = {"dtype": dtype}
+    if n_devices is not None and n_devices > 1:
+        # TransformerBridge resolves this to Accelerate's balanced device map.
+        # Do not also pass ``device``: dispatched models must retain their map.
+        load_kwargs["n_devices"] = n_devices
+    else:
+        load_kwargs["device"] = config.model.device
+
+    model = TransformerBridge.boot_transformers(model_name, **load_kwargs)
     if model_name.startswith("google/gemma-4-") and not hasattr(
         getattr(model, "processor", None), "apply_chat_template"
     ):
@@ -55,7 +66,7 @@ def load_hooked_model(config: ProjectConfig):
     return model
 
 
-def model_runtime_metadata(model) -> dict[str, str]:
+def model_runtime_metadata(model) -> dict[str, object]:
     """Return reproducibility metadata without importing optional packages."""
 
     def version(package: str) -> str:
@@ -68,10 +79,30 @@ def model_runtime_metadata(model) -> dict[str, str]:
     first_parameter = next(parameters, None)
     if first_parameter is None:
         first_parameter = next(model.original_model.parameters())
+    original_model = getattr(model, "original_model", model)
+    raw_device_map = getattr(original_model, "hf_device_map", None)
+    device_map = None
+    if raw_device_map:
+        device_map = {str(key): str(value) for key, value in raw_device_map.items()}
+
+    parameter_devices = sorted(
+        {str(parameter.device) for parameter in original_model.parameters()}
+    )
+    cuda_devices = []
+    if torch.cuda.is_available():
+        cuda_devices = [
+            {"index": index, "name": torch.cuda.get_device_name(index)}
+            for index in range(torch.cuda.device_count())
+        ]
+
     return {
         "backend": "transformer-bridge",
         "transformer_lens_version": version("transformer-lens"),
         "transformers_version": version("transformers"),
         "torch_version": torch.__version__,
         "dtype": str(first_parameter.dtype),
+        "execution_topology": "dispatched" if device_map else "single-device",
+        "parameter_devices": parameter_devices,
+        "hf_device_map": device_map,
+        "visible_cuda_devices": cuda_devices,
     }

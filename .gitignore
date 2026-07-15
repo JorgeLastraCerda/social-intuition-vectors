@@ -108,6 +108,7 @@ project_personal_plan.md
 !results/logs/hiring_r4_*.json
 !results/logs/smoke_gemma4_*.json
 !results/logs/gemma4_stages_1_3_submission_*.json
+!results/logs/gemma4_parity_*.json
 
 # Local manuscript and presentation exports
 paper/paper/Ulu_Lastra.log
