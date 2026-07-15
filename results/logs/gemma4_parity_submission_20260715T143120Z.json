@@ -1,0 +1,14 @@
+{
+  "run_id": "20260715T143120Z",
+  "submitted_at_utc": "2026-07-15T14:31:28.774312+00:00",
+  "status": "submitted-user-held",
+  "job_id": "1142148",
+  "model_source": "data/processed/concept_vectors_gemma4_12b/meta.json",
+  "queue": "gpu@scc192,gpu@scc213",
+  "gpu_request": 2,
+  "host_policy": "single-first-fit-job-on-one-L40-host",
+  "git_commit": "f711d41565e4b7e70d871f989a715a5cd00f7197",
+  "repo_path": "/data/scc/emrecan.ulu/normalcy-axis-parity",
+  "state_dir": "/work/emrecan.ulu/gemma4_parity/20260715T143120Z",
+  "result_json": "results/logs/gemma4_parity_12b_20260715T143120Z.json"
+}
