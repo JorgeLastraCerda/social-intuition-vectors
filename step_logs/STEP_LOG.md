@@ -1184,3 +1184,23 @@
 - **Findings:** The 12B smoke completed on an NVIDIA L40 in 152 seconds with `failed=0`, `exit_status=0`, exact Bridge/HF parity (`max_logit_diff=0.0`), a finite steering response (margin 17.5569 to 17.5745), and 22.5006 GiB peak allocated VRAM. The model exposed 48 layers with width 3,840 and used layer 31. The corrected 31B job remained queued for `gpu@scc214`; it had not failed or started. The 26B-A4B smoke was not rerun and no production chain was submitted.
 - **Decision / rationale:** Treat 12B as technically supported for the existing experiment suite, while withholding any 31B conclusion until job `1141614` runs and produces scheduler accounting plus a valid JSON artifact.
 - **Next:** Monitor job `1141614`; if it passes, record its VRAM and Bridge parity before deciding separately whether to submit any full replication.
+
+---
+
+## 2026-07-15 · Step 6 — Translate and compile Turkish manuscript
+- **Context:** User requested a complete Turkish edition of the current manuscript while retaining technical terminology in English.
+- **Agent:** gpt-5-codex
+- **Did:** Created `paper/paper/Ulu_Lastra-tr.tex`, preserved citations, equations, labels, tables, and the eight English-language figure assets, installed missing LaTeX dependencies in the user TeX tree, and compiled `paper/paper/Ulu_Lastra-tr.pdf`. Rendered and visually inspected every final PDF page.
+- **Findings:** The final PDF has 14 letter-size pages with no LaTeX errors, undefined citations/references, missing glyphs, overfull boxes, clipping, or overlaps. Structural parity checks matched 23 paragraph units, 8 figures, 1 table, 2 equations, 12 labels/autorefs, and all citation keys. The system TeX tree was not writable, so `biblatex`, `appendix`, `preprint`, `logreq`, and Turkish hyphenation resources were installed in user mode; pdfTeX still reports that Turkish patterns were not preloaded, but full-page visual inspection found acceptable line breaking.
+- **Decision / rationale:** Keep core field terms such as `warmth`, `competence`, `residual stream`, `probing`, `activation steering`, and `callback margin` in English, translate the surrounding academic prose, and leave in-figure labels in English as requested. The English manuscript and bibliography database were not modified.
+- **Anti-formulaic self-check:** Re-read the Turkish manuscript, confirmed varied paragraph openings, no repeated causal template across adjacent passages, no signal-only transitions, and no prohibited Unicode dash punctuation. Check passed.
+
+---
+
+## 2026-07-15 · Step 7 — Implement write-once Gemma 4 Stage 1–3 job chain
+- **Context:** Prepare nine SCCKN jobs covering activation extraction, fixed-layer probe validation, and layer sweep for Gemma 4 12B, 26B-A4B, and 31B.
+- **Agent:** gpt-5-codex
+- **Did:** Added a stage-aware technical validator, a single-stage Grid Engine executor, and a fully serial stage-major submission interface with external success sentinels, unique scheduler logs, a held-first-job workflow, and canonical-output collision gates.
+- **Findings:** No canonical Gemma 4 Stage 1–3 outputs existed locally or on SCCKN before implementation. The chain order is Stage 1 12B→26B-A4B→31B, then Stage 2 in the same order, then Stage 3 in the same order. Scientific threshold failures remain recorded findings; only structural, finite-value, environment, Git-sync, or predecessor failures stop progression.
+- **Decision / rationale:** Use a single serial chain to prevent GPU and Git push races, and fail rather than delete, archive, or overwrite any partial or completed scientific artifact.
+- **Next:** Validate locally, push the implementation, pull it on SCCKN, submit all nine jobs held behind the first, record their IDs, and release the first job.
