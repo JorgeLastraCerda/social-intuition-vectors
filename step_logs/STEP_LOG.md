@@ -1164,3 +1164,13 @@
 - **Findings:** Job `1141608` (`gemma4_31b`) entered the queue; dependent job `1141609` (`gemma4_26b_a4b`) entered held-queue state. The SCCKN repository was clean at commit `9156171` before submission.
 - **Decision / rationale:** Keep the full production chains unsubmitted until both smoke JSON files confirm hooks, native-chat tokens, Bridge/HF parity, finite margins, steering response, and VRAM feasibility.
 - **Next:** Monitor jobs `1141608` and `1141609`; inspect exact `.out`, `.err`, and JSON results before releasing the full pipeline.
+
+---
+
+## 2026-07-15 · Step 4 — Add corrected 31B retry and 12B Unified smoke path
+- **Context:** Follow up the failed 31B native-chat processor check and add a Gemma 4 12B smoke without rerunning the validated 26B-A4B MoE model.
+- **Agent:** gpt-5-codex
+- **Did:** Added an explicit `AutoProcessor` fallback with chained exception reporting for Gemma 4, added `--smoke-31b-12b` submission mode, configured distinct 31B retry and 12B output labels/queues, added environment and Git-identity preflight gates, and synchronized the existing successful 26B smoke JSON after setting repo-local SCCKN Git identity.
+- **Findings:** Gemma 4 12B is the supported `Gemma4UnifiedForConditionalGeneration` variant with 48 layers and residual width 3,840. Local verification passed: 20 tests, Python compilation, shell syntax, and `git diff --check`.
+- **Decision / rationale:** Preserve the original failed 31B logs under their existing names; write the retry as `gemma4_31b_retry1`; run 12B independently on the 48 GB/96 GB queue pool; do not resubmit 26B or any full pipeline.
+- **Next:** Push the implementation, run SCCKN preflight, submit the two independent smoke jobs, and inspect scheduler plus JSON outcomes.

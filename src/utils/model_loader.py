@@ -32,11 +32,27 @@ def load_hooked_model(config: ProjectConfig):
     dtype = getattr(torch, config.model.dtype, None)
     if not isinstance(dtype, torch.dtype):
         raise ValueError(f"Unknown torch dtype {config.model.dtype!r}.")
-    return TransformerBridge.boot_transformers(
+    model = TransformerBridge.boot_transformers(
         model_name,
         device=config.model.device,
         dtype=dtype,
     )
+    if model_name.startswith("google/gemma-4-") and not hasattr(
+        getattr(model, "processor", None), "apply_chat_template"
+    ):
+        try:
+            from transformers import AutoProcessor
+
+            model.processor = AutoProcessor.from_pretrained(model_name)
+        except Exception as exc:
+            raise RuntimeError(
+                f"Failed to load the required Gemma 4 processor for {model_name!r}."
+            ) from exc
+        if not hasattr(model.processor, "apply_chat_template"):
+            raise RuntimeError(
+                f"Processor for {model_name!r} has no apply_chat_template()."
+            )
+    return model
 
 
 def model_runtime_metadata(model) -> dict[str, str]:
