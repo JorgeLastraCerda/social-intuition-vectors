@@ -1204,3 +1204,13 @@
 - **Findings:** No canonical Gemma 4 Stage 1–3 outputs existed locally or on SCCKN before implementation. The chain order is Stage 1 12B→26B-A4B→31B, then Stage 2 in the same order, then Stage 3 in the same order. Scientific threshold failures remain recorded findings; only structural, finite-value, environment, Git-sync, or predecessor failures stop progression.
 - **Decision / rationale:** Use a single serial chain to prevent GPU and Git push races, and fail rather than delete, archive, or overwrite any partial or completed scientific artifact.
 - **Next:** Validate locally, push the implementation, pull it on SCCKN, submit all nine jobs held behind the first, record their IDs, and release the first job.
+
+---
+
+## 2026-07-15 · Step 8 — Submit nine serial Gemma 4 Stage 1–3 jobs
+- **Context:** Launch the approved Stage 1–3 replication order for Gemma 4 12B, 26B-A4B, and 31B while preserving all prior outputs.
+- **Agent:** gpt-5-codex
+- **Did:** Fast-forwarded SCCKN to implementation commit `ae559c6`, passed the clean-worktree and `wc-tl-g4` environment preflight, and submitted the fully serial chain recorded in `results/logs/gemma4_stages_1_3_submission_20260715T073515Z.json`.
+- **Findings:** The nine job IDs are `1141625`–`1141633`, ordered Stage 1 12B/26B-A4B/31B, Stage 2 12B/26B-A4B/31B, then Stage 3 12B/26B-A4B/31B. All nine initially entered held-queue state; the first job remained user-held while the manifest and this entry were synchronized. Preflight found no canonical output collision and `pip check` reported no broken requirements.
+- **Decision / rationale:** Release only job `1141625` after this audit trail is pushed; all successors remain scheduler-held and also require their predecessor's external success sentinel, so a technical failure cannot write later-stage results.
+- **Next:** Pull this entry on SCCKN, release job `1141625`, monitor scheduler accounting and write the consolidated findings report only after the chain reaches a terminal outcome.
