@@ -1,0 +1,27 @@
+{
+  "model": "google/gemma-4-31B-it",
+  "seed": 20260527,
+  "n_layers": 60,
+  "d_model": 5376,
+  "probe_layer": 39,
+  "hook": "blocks.39.hook_resid_post",
+  "activation_shape": [
+    1,
+    9,
+    5376
+  ],
+  "yes_token_id": 10784,
+  "no_token_id": 3771,
+  "bridge_hf_max_logit_diff": 0.0,
+  "baseline_margin": 25.75,
+  "steered_margin": 25.46875,
+  "peak_allocated_vram_gib": 58.50213813781738,
+  "prompt_format": "native-chat",
+  "runtime": {
+    "backend": "transformer-bridge",
+    "transformer_lens_version": "3.5.1",
+    "transformers_version": "5.13.0",
+    "torch_version": "2.13.0+cu130",
+    "dtype": "torch.bfloat16"
+  }
+}
