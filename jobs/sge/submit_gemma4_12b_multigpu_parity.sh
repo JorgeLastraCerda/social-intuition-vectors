@@ -31,7 +31,7 @@ fi
 
 conda run -n wc-tl-g4 python -m pip check
 conda run -n wc-tl-g4 python -c \
-  'from importlib.metadata import version; import torch, transformers; print(f"torch={torch.__version__} transformers={transformers.__version__} transformer-lens={version(\"transformer-lens\")}")'
+  'from importlib.metadata import version; import torch, transformers; print("torch={} transformers={} transformer-lens={}".format(torch.__version__, transformers.__version__, version("transformer-lens")))'
 
 if [[ "$MODE" == "--dry-run" ]]; then
   echo "run_id=$RUN_ID queue=$QUEUE gpu=2 held=yes repo=$REPO_PATH commit=$GIT_COMMIT"
