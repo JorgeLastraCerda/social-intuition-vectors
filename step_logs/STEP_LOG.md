@@ -1174,3 +1174,13 @@
 - **Findings:** Gemma 4 12B is the supported `Gemma4UnifiedForConditionalGeneration` variant with 48 layers and residual width 3,840. Local verification passed: 20 tests, Python compilation, shell syntax, and `git diff --check`.
 - **Decision / rationale:** Preserve the original failed 31B logs under their existing names; write the retry as `gemma4_31b_retry1`; run 12B independently on the 48 GB/96 GB queue pool; do not resubmit 26B or any full pipeline.
 - **Next:** Push the implementation, run SCCKN preflight, submit the two independent smoke jobs, and inspect scheduler plus JSON outcomes.
+
+---
+
+## 2026-07-15 · Step 5 — Validate Gemma 4 12B and queue corrected 31B retry
+- **Context:** Execute the requested independent Gemma 4 31B retry and 12B smoke without rerunning 26B-A4B or launching full pipelines.
+- **Agent:** gpt-5-codex
+- **Did:** Passed the SCCKN environment and Git-identity preflight, submitted jobs `1141614` (31B retry) and `1141615` (12B), inspected scheduler accounting and logs, synchronized the 12B JSON, and created `paper/2026-07-15_0839_gemma4_12b_smoke.md`.
+- **Findings:** The 12B smoke completed on an NVIDIA L40 in 152 seconds with `failed=0`, `exit_status=0`, exact Bridge/HF parity (`max_logit_diff=0.0`), a finite steering response (margin 17.5569 to 17.5745), and 22.5006 GiB peak allocated VRAM. The model exposed 48 layers with width 3,840 and used layer 31. The corrected 31B job remained queued for `gpu@scc214`; it had not failed or started. The 26B-A4B smoke was not rerun and no production chain was submitted.
+- **Decision / rationale:** Treat 12B as technically supported for the existing experiment suite, while withholding any 31B conclusion until job `1141614` runs and produces scheduler accounting plus a valid JSON artifact.
+- **Next:** Monitor job `1141614`; if it passes, record its VRAM and Bridge parity before deciding separately whether to submit any full replication.
