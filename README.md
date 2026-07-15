@@ -236,6 +236,13 @@ bash jobs/sge/submit_gemma4.sh --smoke
 bash jobs/sge/submit_gemma4.sh --full
 ```
 
+To rerun only the corrected 31B smoke and add the 12B Unified smoke, without
+resubmitting the already validated 26B-A4B model:
+
+```bash
+bash jobs/sge/submit_gemma4.sh --smoke-31b-12b
+```
+
 The full chain reproduces extraction, probe validation, layer sweep, neutral-corpus PCA,
 dense steering, broad/local/denoised hiring steering, the 282-name audit, disparity,
 mediation, and the 149-name R4 analysis. SAE and MoE-specific analyses are excluded.
