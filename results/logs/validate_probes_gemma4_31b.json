@@ -1,0 +1,103 @@
+{
+  "meta": {
+    "model": "google/gemma-4-31B-it",
+    "probe_layer": 39,
+    "n_layers": 60,
+    "d_model": 5376,
+    "hook": "blocks.39.hook_resid_post",
+    "start_token": 50,
+    "seed": 20260527,
+    "timestamp": 1784314852,
+    "n_per_condition": {
+      "high_warmth": 50,
+      "low_warmth": 50,
+      "high_competence": 50,
+      "low_competence": 50
+    },
+    "warmth_vec_norm": 12.099692,
+    "competence_vec_norm": 15.08127,
+    "input_format": "raw-passage",
+    "runtime": {
+      "backend": "transformer-bridge",
+      "transformer_lens_version": "3.5.1",
+      "transformers_version": "5.13.0",
+      "torch_version": "2.13.0+cu130",
+      "dtype": "torch.bfloat16",
+      "execution_topology": "single-device",
+      "parameter_devices": [
+        "cuda:0"
+      ],
+      "hf_device_map": null,
+      "visible_cuda_devices": [
+        {
+          "index": 0,
+          "name": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+        }
+      ]
+    }
+  },
+  "warmth": {
+    "axis": "warmth",
+    "diff_norm": 12.099693,
+    "cosine_high_low": 0.998018,
+    "proj_high_mean": 53.496017,
+    "proj_high_std": 1.936903,
+    "proj_low_mean": 41.396328,
+    "proj_low_std": 1.169727,
+    "cohens_d": 7.562413,
+    "cv_mean": 1.0,
+    "cv_std": 0.0,
+    "cv_folds": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "topic_cv_mean": 1.0,
+    "topic_cv_std": 0.0,
+    "topic_cv_folds": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "competence": {
+    "axis": "competence",
+    "diff_norm": 15.081271,
+    "cosine_high_low": 0.997417,
+    "proj_high_mean": 89.946228,
+    "proj_high_std": 2.513173,
+    "proj_low_mean": 74.86496,
+    "proj_low_std": 2.487298,
+    "cohens_d": 6.031858,
+    "cv_mean": 1.0,
+    "cv_std": 0.0,
+    "cv_folds": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "topic_cv_mean": 1.0,
+    "topic_cv_std": 0.0,
+    "topic_cv_folds": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "axis_cosine": 0.526157,
+  "cross_warmth_on_competence_cv": 1.0,
+  "cross_competence_on_warmth_cv": 0.95,
+  "pass_warmth_cv": true,
+  "pass_competence_cv": true,
+  "pass_orthogonality": false,
+  "pass_warmth_topic_cv": true,
+  "pass_competence_topic_cv": true
+}
