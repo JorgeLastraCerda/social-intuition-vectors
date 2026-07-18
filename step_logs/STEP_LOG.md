@@ -1751,3 +1751,13 @@
 - **Findings:** Live access passed all doctor gates, remote identity returned `jovyan`, and the visible NVIDIA H100 80GB HBM3 had 80,995 MiB free at 0% utilization. The CCU suite passed 60 tests plus Ruff, shell syntax, and the token-leak scan.
 - **Decision / rationale:** Treat HTTP 302 as ambiguous between a stopped server and credential rejection. Check server lifecycle first to avoid unnecessary token rotation while retaining strict no-redirect and Keychain-only authentication.
 - **Next:** Use the restored H100 access to bootstrap the pinned Gemma 4 environment and start the resumable serial queue.
+
+---
+
+## 2026-07-18 · Step 44 — Bootstrap CCU and close missing scientific dependencies
+- **Context:** Deploy the approved Gemma 4 calibrated queue after CCU access was restored.
+- **Agent:** gpt-5-codex
+- **Did:** Cloned commit `79c6b0d` to `/home/jovyan/work/normalcy-axis`, built `/home/jovyan/.venvs/normalcy-gemma4-cu124`, and launched the serial queue; after its fail-closed import gate identified missing SciPy, pinned SciPy 1.17.0 and scikit-learn 1.8.0 in the CCU environment specification and regression test.
+- **Findings:** The environment passed exact version and H100 checks for PyTorch 2.6.0+cu124, torchvision 0.21.0+cu124, TransformerLens 3.5.1, Transformers 5.13.0, and Accelerate 1.14.0. The first 12B attempt stopped before model loading or output/checkpoint creation with exact error `ModuleNotFoundError: No module named 'scipy'`; 26B-A4B and 31B remained pending. The focused checkpoint/CCU suite passed five tests plus Ruff, shell syntax, and `git diff --check`.
+- **Decision / rationale:** Treat this as an environment-manifest omission, not a model or method failure. Pin both SciPy and scikit-learn because the imported Gemma causality module requires both at import time; retain the same clean model labels and serial order.
+- **Next:** Commit and deploy the dependency correction, rerun bootstrap, then restart the 12B-first queue.
