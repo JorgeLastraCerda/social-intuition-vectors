@@ -1,0 +1,25 @@
+{
+  "run_id": "20260718T205911Z_retry2",
+  "status": "checkpoint-origin-resume-user-held",
+  "git_commit": "6984bd3",
+  "checkpoint_origin_commit": "ae94b4d62d55d39e477dac29b754916f77f9b3ad",
+  "previous_job": {
+    "job_id": "1145490",
+    "failed": 0,
+    "exit_status": 1,
+    "reason": "checkpoint fingerprint differed only because repository HEAD advanced"
+  },
+  "job": {
+    "job_id": "1145497",
+    "model_key": "gemma4_31b",
+    "config": "config/gemma4_31b.yaml",
+    "label": "gemma4_31b_calibrated_scckn_rtx6000",
+    "queue": "gpu@scc214",
+    "resources": "gpu=1,rtx_6000=1,h_vmem=96G,h_rt=24:00:00",
+    "expected_gpu_kind": "RTX_PRO_6000",
+    "user_held": true,
+    "resume_checkpoint": "/work/emrecan.ulu/calibrated_steering/20260718T205911Z/checkpoint",
+    "success_sentinel": "/work/emrecan.ulu/calibrated_steering/20260718T205911Z/gemma4_31b.success"
+  },
+  "release_command": "qrls 1145497"
+}
