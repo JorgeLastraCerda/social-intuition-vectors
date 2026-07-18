@@ -811,11 +811,11 @@ def fig8b_stage3b_validation(
         )
         axes[0, 1].plot(
             x, [float(row["warmth_to_comp_topic_transfer"]) for row in rows],
-            color=color, linewidth=1.8, label=f"{label} W→C",
+            color=color, linewidth=1.8, label=f"{label} W->C",
         )
         axes[0, 1].plot(
             x, [float(row["comp_to_warmth_topic_transfer"]) for row in rows],
-            color=color, linewidth=1.4, linestyle=":", label=f"{label} C→W",
+            color=color, linewidth=1.4, linestyle=":", label=f"{label} C->W",
         )
         for metric, linestyle, axis_name in (
             ("warmth_cohens_d", "-", "warmth"),
