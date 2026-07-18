@@ -1,0 +1,31 @@
+{
+  "model": "google/gemma-4-31B-it",
+  "n_layers": 60,
+  "d_model": 5376,
+  "probe_layer": 39,
+  "probe_layer_frac": 0.66,
+  "start_token": 50,
+  "seed": 20260527,
+  "n_stories": 200,
+  "label": "gemma4_31b",
+  "timestamp": 1784369183,
+  "input_format": "raw-passage",
+  "runtime": {
+    "backend": "transformer-bridge",
+    "transformer_lens_version": "3.5.1",
+    "transformers_version": "5.13.0",
+    "torch_version": "2.13.0+cu130",
+    "dtype": "torch.bfloat16",
+    "execution_topology": "single-device",
+    "parameter_devices": [
+      "cuda:0"
+    ],
+    "hf_device_map": null,
+    "visible_cuda_devices": [
+      {
+        "index": 0,
+        "name": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+      }
+    ]
+  }
+}
