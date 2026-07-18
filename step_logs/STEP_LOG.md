@@ -1711,3 +1711,13 @@
 - **Findings:** All three jobs entered independent `qw` state on `gpu@scc214`; none received a physical GPU assignment yet. The host reports one `rtx_6000` resource at the latest check, while the submission-time aggregate reported two. No error log or compute output exists because no job has started.
 - **Decision / rationale:** Leave all pilots queued rather than changing hardware or chaining jobs. Their exact RTX PRO 6000 runtime gate will reject any incorrect assignment.
 - **Next:** Monitor for assignment, validate every completed artifact set, and write a separate empirical report per model before any nine-model rollout decision or full-282 launch.
+
+---
+
+## 2026-07-18 · Step 40 — Diagnose and correct TransformerLens hook adapter signature
+- **Context:** The first calibrated Gemma 4 pilot reached its first active intervention after passing exact-GPU and output-absence gates.
+- **Agent:** gpt-5-codex
+- **Did:** Preserved the exact runtime error `TypeError: make_torch_hook.<locals>.hook() got an unexpected keyword argument 'hook'`, traced it to TransformerLens passing its hook point by keyword, and changed the shared callback parameter to the required `hook` name. Added a direct regression test that invokes the callback with `hook=`.
+- **Findings:** This is a local adapter-signature bug, not a calibration, model, memory, or library-compatibility limitation. Gemma-4 job `1145430` failed at the first intervention; Gemma-3 job `1145429` was deleted before reaching the guaranteed same failure, and queued Qwen job `1145431` was deleted to preserve clean commit provenance.
+- **Decision / rationale:** Replace all three initial pilot jobs with clean write-once retry labels rather than patching or resuming partial output.
+- **Next:** Pass the full local suite, commit and synchronize the fix, then submit three new independent held retries.

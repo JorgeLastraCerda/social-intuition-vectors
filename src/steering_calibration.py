@@ -117,7 +117,7 @@ def make_torch_hook(
     direction_tensor = torch.from_numpy(unit(direction).astype(np.float32))
     diagnostics = NormDiagnostics()
 
-    def hook(residual: torch.Tensor, _hook=None) -> torch.Tensor:
+    def hook(residual: torch.Tensor, hook=None) -> torch.Tensor:  # noqa: ARG001
         return intervene_tensor(
             residual, direction_tensor, alpha, intervention, diagnostics
         )
