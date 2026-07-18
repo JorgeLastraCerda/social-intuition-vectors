@@ -9,6 +9,9 @@
 | [STORAGE.md](STORAGE.md) | Disk kotası, dizinler, dosya transferi |
 | [TIPS.md](TIPS.md) | Checkpointing, modüller, JupyterHub kernel ekleme |
 | [RULES.md](RULES.md) | Kullanım kuralları, limitler, yayın teşekkürü |
+| [GPU_JOB_DESIGN.md](GPU_JOB_DESIGN.md) | Cross-project GPU pipeline design, priority, dependencies, and recovery |
+| [hybrid_gpu_submit_template.sh](hybrid_gpu_submit_template.sh) | Reusable two-resource-class submitter template |
+| [staged_gpu_runner_template.sh](staged_gpu_runner_template.sh) | Resumable staged-job runner template |
 
 ---
 

@@ -1,5 +1,14 @@
 # Claude için Talimatlar
 
+## Cross-Project GPU Job Design
+
+Before creating or changing SCCKN GPU job scripts, read
+`GPU_JOB_DESIGN.md` and follow its resource-class hybrid design, explicit
+per-job priority, stage validation, durable sync, and sentinel rules. Use the
+provided submitter and runner templates as starting points. Keep all
+project-specific queue, module, scratch, GPU, priority, and command values as
+`# ADJUST` placeholders until they are confirmed.
+
 ## Bu Proje Nedir?
 
 Bu dizin, Universität Konstanz'ın SCCKN (Scientific Compute Cluster) sistemine bağlanmak ve kullanmak için yapılan kurulum adımlarını içeriyor. Kullanıcı bu cluster'ı araştırma amaçlı kullanıyor: dosya yükleme/indirme, job başlatma, Jupyter üzerinden çalışma.

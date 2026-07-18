@@ -1279,3 +1279,42 @@
 - **Findings:** SCCKN reports PyTorch `2.13.0+cu130`, Transformers `5.13.0`, TransformerLens `3.5.1`, and a clean `pip check`. The production environment does not contain pytest (`No module named pytest`), so cluster validation used Python compilation and shell checks after the 35-test local suite passed. Job `1142148` requests two GPUs from `gpu@scc192,gpu@scc213` and is still user-held; no empirical parity result exists yet.
 - **Decision / rationale:** Do not mutate the production environment solely to add pytest. Keep the job held until its manifest and this audit entry are committed, then release it from the isolated checkout.
 - **Next:** Pull this entry into the parity checkout, release `1142148`, and inspect scheduler state before monitoring the three capture arms.
+
+---
+
+## 2026-07-15 · Step 16 — Create Siemens distributed-inference application portfolio
+- **Context:** User requested implementation of the approved English portfolio plan for Siemens PhD Job ID 513241.
+- **Agent:** gpt-5-codex
+- **Did:** Recovered the current empirical state, inspected the model-loading, multi-GPU parity, validation, and Grid Engine paths, checked live SCCKN scheduler/accounting state, and created the recruiter-safe local Markdown portfolio at `applications/siemens_513241_distributed_llm_inference_portfolio.md`; excluded the application file locally through `.git/info/exclude`.
+- **Findings:** Gemma 4 smoke artifacts report exact Bridge/HF logit parity for 12B, 26B-A4B, and 31B with peak allocated VRAM of 22.50, 48.35, and 58.50 GiB. Gemma 4 12B Stage 1 completed in 153 seconds with exit status 0. The two-L40 parity job is released and queued; no empirical multi-GPU result exists. The portfolio labels completed, execution-pending, and proposed work separately and omits personal paths, scheduler identifiers, node names, queue names, and email addresses.
+- **Decision / rationale:** Present the implemented systems work strongly without claiming unperformed multi-node, tensor-parallel, network-aware, heterogeneous-edge, or C++ runtime work; frame these as an explicit PhD roadmap.
+- **Next:** Review the local portfolio for wording and tailor the opening paragraph to the final application form or cover letter if needed.
+
+---
+
+## 2026-07-15 · Step 17 — Add reusable SCCKN GPU job-design standard
+- **Context:** Preserve the scheduler-priority and GPU job-packaging lessons from the congested Gemma 4 queue for reuse across projects.
+- **Agent:** gpt-5-codex
+- **Did:** Added `scckn/GPU_JOB_DESIGN.md`, nested agent instructions, and generic hybrid submitter/staged-runner templates; linked them from the existing SCCKN documentation and mirrored the same files to the canonical cross-project kit at `/Users/emrecanulu/Documents/scckn`.
+- **Findings:** Both SCCKN copies are byte-identical. Bash syntax, unresolved-placeholder rejection, two-job dry-run output, stubbed `qsub` priority/dependency propagation, stage resume, failure-stop behavior, internal links, generic-value scanning, and `git diff --check` passed. `shellcheck` was unavailable locally and was skipped.
+- **Decision / rationale:** Default to a resource-class hybrid design: keep common-GPU work separate, consolidate consecutive scarce-GPU stages into a resumable allocation, and pass an explicit priority to every submitted job because `hold_jid` transfers neither priority nor resources.
+- **Next:** Copy and adapt the templates for the next SCCKN pipeline, resolve every `# ADJUST` value, then validate with `qsub -w v` before submission.
+
+---
+
+## 2026-07-18 · Step 1 — Retry Graphify visual extraction after permission fix
+- **Context:** Recheck the previously blocked Graphify visual audit of tracked result figures after macOS Documents access was repaired.
+- **Agent:** gpt-5-codex
+- **Did:** Resumed the existing `results/` scan, visually extracted nine image/SVG figures and two PDF renderings, built and labeled `graphify-out/graph.json`, `graphify-out/GRAPH_REPORT.md`, and `graphify-out/graph.html`, and ran the extraction health diagnostic.
+- **Findings:** Visual access succeeded for all 11 pending files with no permission error. The graph contains 123 nodes, 160 built edges, and 10 communities. There are no missing endpoints, dangling endpoints, or self-loops; nine endpoint-pair collapses arise from duplicate PNG/PDF or PNG/SVG renderings of the same figures. The in-app browser backend was unavailable, so HTML runtime interaction could not be inspected, but the generated HTML embeds the expected 123 nodes, 160 edges, community legend, search control, and hyperedges.
+- **Decision / rationale:** Treat the original Documents permission blocker as resolved. Keep the duplicate-rendering collapse warning visible because it reflects graph extraction redundancy, not a change or corruption in the tracked scientific artifacts.
+- **Next:** Open `graphify-out/graph.html` locally if interactive layout inspection is desired; use the tracked JSON/NumPy artifacts, rather than duplicate figure renderings, for scientific verification.
+
+---
+
+## 2026-07-18 · Step 2 — Audit live L40 and RTX 6000 availability
+- **Context:** User requested a current SCCKN inventory of active and available L40 and RTX 6000 GPUs with running-job ages.
+- **Agent:** gpt-5-codex
+- **Did:** Queried the live Grid Engine queue configuration, host GPU features, consumable `gpu` availability, running GPU jobs, requested resources, and start times without modifying any jobs.
+- **Findings:** At 2026-07-18 11:43:21 CEST, the L40 pool had 11 GPUs across `scc192` and `scc213`: 5 reserved and 6 scheduler-available. The RTX 6000 pool on `scc214` had 8 GPUs: 6 reserved and 2 available. The 11 active reservations had run for 14h46m to 188h25m.
+- **Decision / rationale:** Count only jobs consuming the Grid Engine `gpu` resource as unavailable GPUs; interactive sessions on a GPU host without a `gpu` reservation do not reduce scheduler-reported availability.
