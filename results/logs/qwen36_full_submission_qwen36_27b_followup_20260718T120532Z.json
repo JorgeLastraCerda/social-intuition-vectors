@@ -1,0 +1,32 @@
+{
+  "run_id": "20260718T120532Z",
+  "submitted_at_utc": "2026-07-18T12:05:56.917347+00:00",
+  "status": "independent-followup-jobs-user-held",
+  "model": "Qwen/Qwen3.6-27B",
+  "revision": "6a9e13bd6fc8f0983b9b99948120bc37f49c13e9",
+  "config": "config/qwen36_27b.yaml",
+  "git_commit": "30715518bfaa6ec14541131c8312693628767dd4",
+  "availability_at_submission": 1,
+  "hold_jid_used": false,
+  "jobs": [
+    {
+      "job_id": "1145106",
+      "stage": 2,
+      "queue": "scc",
+      "resources": "h_vmem=8G,h_rt=00:15:00",
+      "gpu_request": 0,
+      "user_held": true,
+      "success_sentinel": "/work/emrecan.ulu/qwen36_full/20260718T120532Z/qwen36_27b.stage2.success"
+    },
+    {
+      "job_id": "1145108",
+      "stage": 3,
+      "queue": "gpu@scc214",
+      "resources": "gpu=1,rtx_6000=1,h_vmem=96G,h_rt=04:00:00",
+      "gpu_request": 1,
+      "user_held": true,
+      "success_sentinel": "/work/emrecan.ulu/qwen36_full/20260718T120532Z/qwen36_27b.stage3.success"
+    }
+  ],
+  "release_command": "qrls 1145106 1145108"
+}
