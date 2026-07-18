@@ -1,0 +1,31 @@
+{
+  "model": "google/gemma-4-12B-it",
+  "n_layers": 48,
+  "d_model": 3840,
+  "probe_layer": 31,
+  "probe_layer_frac": 0.66,
+  "start_token": 50,
+  "seed": 20260527,
+  "n_stories": 200,
+  "label": "gemma4_12b_l40_repro",
+  "timestamp": 1784371365,
+  "input_format": "raw-passage",
+  "runtime": {
+    "backend": "transformer-bridge",
+    "transformer_lens_version": "3.5.1",
+    "transformers_version": "5.13.0",
+    "torch_version": "2.13.0+cu130",
+    "dtype": "torch.bfloat16",
+    "execution_topology": "single-device",
+    "parameter_devices": [
+      "cuda:0"
+    ],
+    "hf_device_map": null,
+    "visible_cuda_devices": [
+      {
+        "index": 0,
+        "name": "NVIDIA L40"
+      }
+    ]
+  }
+}
