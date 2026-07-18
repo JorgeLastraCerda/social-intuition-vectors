@@ -9,6 +9,7 @@ from src.validate_gemma4_stage import (
     validate_stage1,
     validate_stage2,
     validate_stage3,
+    validate_stage3b,
 )
 
 
@@ -147,6 +148,87 @@ def test_stage3_accepts_complete_finite_sweep(tmp_path):
         encoding="utf-8",
     )
     validate_stage3(table, meta, **common())
+
+
+def test_stage3b_accepts_enhanced_artifacts(tmp_path):
+    table = tmp_path / "layers.csv"
+    frame = pd.DataFrame(
+        {
+            "layer": range(LAYERS),
+            "frac": np.arange(LAYERS) / (LAYERS - 1),
+            "is_probe_layer": [index == PROBE_LAYER for index in range(LAYERS)],
+            "warmth_topic_cv": 0.9,
+            "comp_topic_cv": 0.9,
+            "warmth_cohens_d": 1.0,
+            "comp_cohens_d": 1.0,
+            "cos_wc": 0.2,
+            "mean_resid_norm": 10.0,
+            "warmth_direction_topic_cv": 0.9,
+            "warmth_direction_topic_cv_std": 0.02,
+            "comp_direction_topic_cv": 0.9,
+            "comp_direction_topic_cv_std": 0.02,
+            "warmth_to_comp_topic_transfer": 0.8,
+            "warmth_to_comp_topic_transfer_std": 0.03,
+            "comp_to_warmth_topic_transfer": 0.8,
+            "comp_to_warmth_topic_transfer_std": 0.03,
+            "warmth_cohens_d_ci_low": 0.8,
+            "warmth_cohens_d_ci_high": 1.2,
+            "comp_cohens_d_ci_low": 0.8,
+            "comp_cohens_d_ci_high": 1.2,
+            "cos_wc_ci_low": 0.1,
+            "cos_wc_ci_high": 0.3,
+        }
+    )
+    frame.to_csv(table, index=False)
+    meta = tmp_path / "layers.meta.json"
+    meta.write_text(
+        json.dumps(
+            {
+                "model": MODEL,
+                "n_layers": LAYERS,
+                "d_model": D_MODEL,
+                "probe_layer": PROBE_LAYER,
+                "seed": 20260527,
+                "n_stories": 200,
+                "input_format": "raw-passage",
+                "analysis_profile": "stage3b",
+                "n_bootstrap": 1000,
+                "git_commit": "abc123",
+                "stimuli_sha256": "deadbeef",
+            }
+        ),
+        encoding="utf-8",
+    )
+    fold_metrics = {
+        "warmth_direction_topic_cv": [0.9] * 5,
+        "comp_direction_topic_cv": [0.9] * 5,
+        "warmth_to_comp_topic_transfer": [0.8] * 5,
+        "comp_to_warmth_topic_transfer": [0.8] * 5,
+    }
+    probability = [0.0] * LAYERS
+    probability[10] = 1.0
+    peak = {"layer_probabilities": probability}
+    audit = tmp_path / "audit.json"
+    audit.write_text(
+        json.dumps(
+            {
+                "analysis_profile": "stage3b",
+                "n_layers": LAYERS,
+                "folds_by_layer": {str(i): fold_metrics for i in range(LAYERS)},
+                "bootstrap": {
+                    "n_bootstrap": 1000,
+                    "n_topics": 50,
+                    "peaks": {
+                        "warmth_cohens_d": peak,
+                        "comp_cohens_d": peak,
+                        "cos_wc": peak,
+                    },
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    validate_stage3b(table, meta, audit, **common())
 
 
 def test_no_clobber_rejects_existing_target(tmp_path):

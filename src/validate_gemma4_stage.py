@@ -189,6 +189,75 @@ def validate_stage3(
             )
 
 
+def validate_stage3b(
+    table_path: Path,
+    meta_path: Path,
+    audit_path: Path,
+    *,
+    model: str,
+    expected_layers: int,
+    expected_d_model: int,
+    expected_layer: int,
+) -> None:
+    """Validate enhanced per-layer direction, transfer, and bootstrap artifacts."""
+    validate_stage3(
+        table_path,
+        meta_path,
+        model=model,
+        expected_layers=expected_layers,
+        expected_d_model=expected_d_model,
+        expected_layer=expected_layer,
+    )
+    table = pd.read_csv(table_path)
+    bounded_columns = (
+        "warmth_direction_topic_cv",
+        "comp_direction_topic_cv",
+        "warmth_to_comp_topic_transfer",
+        "comp_to_warmth_topic_transfer",
+    )
+    for column in bounded_columns:
+        values = table[column].to_numpy(float)
+        if not np.isfinite(values).all() or not ((0.0 <= values) & (values <= 1.0)).all():
+            raise AssertionError(f"{table_path}: {column} must be finite and within [0, 1]")
+    if not ((-1.0 <= table["cos_wc"]) & (table["cos_wc"] <= 1.0)).all():
+        raise AssertionError(f"{table_path}: cos_wc must be within [-1, 1]")
+    for metric in ("warmth_cohens_d", "comp_cohens_d", "cos_wc"):
+        low = table[f"{metric}_ci_low"].to_numpy(float)
+        high = table[f"{metric}_ci_high"].to_numpy(float)
+        if not np.isfinite(low).all() or not np.isfinite(high).all() or not (low <= high).all():
+            raise AssertionError(f"{table_path}: invalid bootstrap interval for {metric}")
+
+    meta = json.loads(meta_path.read_text(encoding="utf-8"))
+    if meta.get("analysis_profile") != "stage3b":
+        raise AssertionError(f"{meta_path}: analysis_profile must be 'stage3b'")
+    if meta.get("seed") != 20260527 or meta.get("n_bootstrap") != 1000:
+        raise AssertionError(f"{meta_path}: unexpected Stage 3B seed/bootstrap count")
+    for key in ("git_commit", "stimuli_sha256"):
+        value = meta.get(key)
+        if not isinstance(value, str) or not value:
+            raise AssertionError(f"{meta_path}: missing {key}")
+
+    audit = json.loads(audit_path.read_text(encoding="utf-8"))
+    if audit.get("analysis_profile") != "stage3b" or audit.get("n_layers") != expected_layers:
+        raise AssertionError(f"{audit_path}: Stage 3B profile/layer mismatch")
+    folds_by_layer = audit.get("folds_by_layer", {})
+    if set(folds_by_layer) != {str(i) for i in range(expected_layers)}:
+        raise AssertionError(f"{audit_path}: incomplete folds_by_layer")
+    for layer_folds in folds_by_layer.values():
+        if set(layer_folds) != set(bounded_columns):
+            raise AssertionError(f"{audit_path}: incomplete fold metrics")
+        if any(len(scores) != 5 for scores in layer_folds.values()):
+            raise AssertionError(f"{audit_path}: every metric must contain five folds")
+    bootstrap = audit.get("bootstrap", {})
+    if bootstrap.get("n_bootstrap") != 1000 or bootstrap.get("n_topics") != 50:
+        raise AssertionError(f"{audit_path}: unexpected bootstrap design")
+    for metric in ("warmth_cohens_d", "comp_cohens_d", "cos_wc"):
+        summary = bootstrap.get("peaks", {}).get(metric, {})
+        probabilities = np.asarray(summary.get("layer_probabilities", []), dtype=float)
+        if probabilities.shape != (expected_layers,) or not np.isclose(probabilities.sum(), 1.0):
+            raise AssertionError(f"{audit_path}: invalid peak probabilities for {metric}")
+
+
 def main() -> None:
     args = parse_args()
     cfg = load_config(args.config)
@@ -203,8 +272,12 @@ def main() -> None:
         vectors_subdir=args.vectors_subdir,
         label=args.label,
     )
+    audit_path = logs_dir / f"validate_layer_sweep_{args.label}.json"
+    absent_targets = targets
+    if args.stage == 3 and args.analysis_profile == "stage3b":
+        absent_targets = (*targets, audit_path)
     if args.require_absent:
-        require_targets_absent(targets)
+        require_targets_absent(absent_targets)
         print(f"[preflight] stage {args.stage} targets are absent")
         return
 
@@ -220,7 +293,10 @@ def main() -> None:
     elif args.stage == 2:
         validate_stage2(targets[0], targets[1], **common)
     else:
-        validate_stage3(targets[0], targets[1], **common)
+        if args.analysis_profile == "stage3b":
+            validate_stage3b(targets[0], targets[1], audit_path, **common)
+        else:
+            validate_stage3(targets[0], targets[1], **common)
     print(f"[validated] {args.label} stage {args.stage}: technical gates passed")
 
 
@@ -234,6 +310,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--expected-layers", required=True, type=int)
     parser.add_argument("--expected-d-model", required=True, type=int)
     parser.add_argument("--require-absent", action="store_true")
+    parser.add_argument(
+        "--analysis-profile", choices=("legacy", "stage3b"), default="legacy"
+    )
     return parser.parse_args()
 
 

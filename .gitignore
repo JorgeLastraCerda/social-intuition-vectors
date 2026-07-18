@@ -114,6 +114,15 @@ project_personal_plan.md
 !results/logs/gemma4_stages_1_3_submission_*.json
 !results/logs/gemma4_parity_*.json
 !results/logs/gemma4_stage3_retry_submission_*.json
+!results/logs/validate_layer_sweep_stage3b_gemma4_*.json
+!results/logs/gemma4_stage3b_submission_*.json
+!results/logs/gemma4_stage3b_outcome_*.json
+!results/logs/gemma4_stage3b_*.out
+!results/logs/gemma4_stage3b_*.err
+!results/logs/gemma4_stage3_retry_*.out
+!results/logs/gemma4_stage3_retry_*.err
+!results/logs/gemma4_12b_l40_repro_*.out
+!results/logs/gemma4_12b_l40_repro_*.err
 
 # Local manuscript and presentation exports
 paper/paper/Ulu_Lastra.log

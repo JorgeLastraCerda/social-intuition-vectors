@@ -22,8 +22,9 @@
 #   results/logs/gemma4_stages_1_3_submission_*.json  (staged-run job manifest)
 #   results/logs/gemma4_parity_*.json  (multi-GPU parity manifests/results)
 #   results/logs/gemma4_stage3_retry_submission_*.json (parallel Stage 3 retry manifest)
+#   results/logs/gemma4_stage3b_*.{json,out,err} (enhanced sweep provenance/logs)
 #
-# NOT committed: model weights (*.safetensors, *.bin, *.pt), SGE logs (*.out, *.err),
+# NOT committed: model weights (*.safetensors, *.bin, *.pt), unrelated SGE logs,
 #               HF cache (/work/.../hf_cache).
 #
 # Usage:
@@ -76,6 +77,15 @@ output_paths=(
     results/logs/gemma4_stages_1_3_submission_*.json
     results/logs/gemma4_parity_*.json
     results/logs/gemma4_stage3_retry_submission_*.json
+    results/logs/validate_layer_sweep_stage3b_gemma4_*.json
+    results/logs/gemma4_stage3b_submission_*.json
+    results/logs/gemma4_stage3b_outcome_*.json
+    results/logs/gemma4_stage3b_*.out
+    results/logs/gemma4_stage3b_*.err
+    results/logs/gemma4_stage3_retry_*.out
+    results/logs/gemma4_stage3_retry_*.err
+    results/logs/gemma4_12b_l40_repro_*.out
+    results/logs/gemma4_12b_l40_repro_*.err
 )
 if ((${#output_paths[@]})); then
     git add "${output_paths[@]}"
