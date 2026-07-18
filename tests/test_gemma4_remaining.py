@@ -132,6 +132,10 @@ def test_submitter_dry_runs_all_models_without_scheduler_chaining() -> None:
     assert "-hold_jid" not in text
     assert "git pull" not in runner
     assert "sync_outputs.sh" not in runner
+    assert "critical_paths=(" in text
+    assert (
+        'git status --porcelain --untracked-files=no -- "${critical_paths[@]}"' in text
+    )
     for model in ("12b", "26b_a4b", "31b"):
         env = {**os.environ, "RUN_ID": "test-run"}
         result = subprocess.run(

@@ -1585,6 +1585,16 @@
 
 ---
 
+## 2026-07-18 · Step 30 — Scope the SCCKN dirty-worktree submission gate
+- **Context:** A held 12B PCA submission was refused while active jobs appended to previously synchronized tracked raw logs.
+- **Agent:** gpt-5-codex
+- **Did:** Preserved the exact error `Refusing submission: tracked SCCKN worktree is not clean.`, traced it to growing result logs, and narrowed the submitter cleanliness check to the selected config, `src/`, the Gemma 4 smoke implementation, and the remaining-test runner and submitter. Added a regression assertion and documented the correction in `paper/2026-07-18_1604_gemma4_remaining_pipeline.md`.
+- **Findings:** The focused tests passed 15 cases and the project test directory passed all 74 tests; targeted Ruff, formatting, shell syntax, and `git diff --check` passed. An unrestricted repository-root pytest also collected the user's untracked `ccu/` project and failed five imports because `ccu_client` and `websocket` are not installed in the paper environment; no `ccu/` file was changed.
+- **Decision / rationale:** Continue refusing any dirty scientific source, config, smoke, or runner file, but do not treat active result-log growth as a source-integrity violation. This retains the submitted-commit and critical-diff runtime gates.
+- **Next:** Push the corrected submitter, fast-forward SCCKN, and retry the independent 12B PCA submission without altering active output files.
+
+---
+
 ## 2026-07-18 · Step 27 — Implement direct CCU Jupyter terminal client
 - **Context:** Build a reusable, local-only access kit for the personal CCU JupyterHub H100 environment without a third-party remote-access relay.
 - **Agent:** gpt-5-codex
@@ -1592,3 +1602,22 @@
 - **Findings:** The discovered CCU environment exposes JupyterHub 4.0.2, Jupyter Server 2.8.0, JupyterLab 4.0.7, the terminal API, and server proxy support. Local validation passed 32 tests, Ruff, shell syntax, CLI/profile smoke, mode-0600 config verification, trailing-whitespace scan, and package lock/sync. No live CCU token or terminal session was created during implementation.
 - **Decision / rationale:** Use the existing authenticated Jupyter terminal REST/WebSocket path directly from the Mac. Keep runtime traffic limited to the CCU origin, require a 24-hour default-server-scoped token stored only in macOS Keychain, and prohibit query-string tokens, redirects, proxy environment routing, TLS bypass, public listeners, and relay services.
 - **Next:** Run the README personal live smoke with a new 24-hour token, verify `jovyan`, H100 visibility, interactive reconnect, command exit handling, file hash round-trip, restart behavior, and token revocation before preparing the anonymized shareable revision.
+
+---
+
+## 2026-07-18 · Step 30 — Validate direct CCU access end to end
+- **Context:** Complete the personal live smoke for the direct CCU Jupyter terminal client before anonymizing it for reuse.
+- **Agent:** gpt-5-codex
+- **Did:** Installed the local client and personal profile, authenticated with a one-day token stored in macOS Keychain, exercised the status and terminal APIs, ran remote identity and GPU commands, detached and reattached an interactive shell, and verified an upload/download round trip with SHA-256. Corrected the terminal WebSocket route and switched managed terminal names from hyphens to underscores for Jupyter Server 2.8 compatibility; added legacy reporting and a `Ctrl-]` detach sequence.
+- **Findings:** Live access returned `jovyan` and `NVIDIA H100 80GB HBM3, 81559 MiB`. Interactive reattachment preserved the remote shell. Upload, server read-back, download, and local comparison all produced SHA-256 `61dcadff4021a7b25d1320202607c8b9a3cfa4303a06c80e188157473be1c350`. The final suite passed 35 tests, Ruff, and shell syntax validation. Two empty hyphenated terminals from the failed prototype cannot match the deployed server's deletion route and will disappear at the next Jupyter restart.
+- **Decision / rationale:** Treat the direct HTTPS/WSS path as operational without SSH, Tailscale, a public listener, or remote package installation. Keep the one-day token active for current work; do not restart the Jupyter server or revoke the token during a live session merely to test lifecycle behavior.
+- **Next:** Use `ccu shell -p personal` or `ccu exec -p personal -- <command>` for current work. After a natural Jupyter restart, run `ccu doctor -p personal` and reconnect; then prepare the anonymized shareable revision separately.
+
+---
+
+## 2026-07-18 · Step 31 — Confirm remote exit and stream propagation
+- **Context:** Close the final live command-execution gate for the CCU client.
+- **Agent:** gpt-5-codex
+- **Did:** Ran a remote command that wrote independently to stdout and stderr and exited with status 7.
+- **Findings:** The local client returned `stdout-ok` on stdout, `stderr-ok` on stderr, and process exit status 7 exactly.
+- **Decision / rationale:** Accept disposable remote execution as end-to-end validated, including nonzero status propagation.
