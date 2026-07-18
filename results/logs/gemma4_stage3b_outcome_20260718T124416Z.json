@@ -1,0 +1,142 @@
+{
+  "run_id": "20260718T124416Z",
+  "completed_at_utc": "2026-07-18T12:51:23.287330+00:00",
+  "status": "complete",
+  "git_commit": "ddb61abe8807ab7af85d5af24766089e8fa04ac0",
+  "submission_manifest": "results/logs/gemma4_stage3b_submission_20260718T124416Z.json",
+  "accounting": {
+    "1145163": {
+      "jobnumber": "1145163",
+      "qname": "gpu",
+      "hostname": "scc192",
+      "failed": "0",
+      "exit_status": "0",
+      "ru_wallclock": "97s",
+      "maxvmem": "17.380GB",
+      "start_time": "Sat Jul 18 14:47:07 2026",
+      "end_time": "Sat Jul 18 14:48:44 2026"
+    },
+    "1145164": {
+      "jobnumber": "1145164",
+      "qname": "gpu",
+      "hostname": "scc214",
+      "failed": "0",
+      "exit_status": "0",
+      "ru_wallclock": "61s",
+      "maxvmem": "39.517GB",
+      "start_time": "Sat Jul 18 14:47:07 2026",
+      "end_time": "Sat Jul 18 14:48:08 2026"
+    },
+    "1145165": {
+      "jobnumber": "1145165",
+      "qname": "gpu",
+      "hostname": "scc214",
+      "failed": "0",
+      "exit_status": "0",
+      "ru_wallclock": "78s",
+      "maxvmem": "57.779GB",
+      "start_time": "Sat Jul 18 14:47:07 2026",
+      "end_time": "Sat Jul 18 14:48:25 2026"
+    },
+    "1145166": {
+      "jobnumber": "1145166",
+      "qname": "scc",
+      "hostname": "scc123",
+      "failed": "0",
+      "exit_status": "0",
+      "ru_wallclock": "53s",
+      "maxvmem": "64.984MB",
+      "start_time": "Sat Jul 18 14:50:07 2026",
+      "end_time": "Sat Jul 18 14:51:00 2026"
+    }
+  },
+  "artifacts": [
+    {
+      "path": "results/tables/layer_sweep_stage3b_gemma4_12b_l40.csv",
+      "bytes": 11581,
+      "sha256": "c7d6a3abfcd961737e6e5f209c64f2c2955bba9b060c4bb448be3b124432087a"
+    },
+    {
+      "path": "results/tables/layer_sweep_stage3b_gemma4_12b_l40.meta.json",
+      "bytes": 941,
+      "sha256": "440dbbab86182e063bc92fbd1da350a6e26589a05101cb4c73b61d8e071b629a"
+    },
+    {
+      "path": "results/logs/validate_layer_sweep_stage3b_gemma4_12b_l40.json",
+      "bytes": 34551,
+      "sha256": "b028092140173daa8a48fa8c43db8e0b0090b56e1924aefad3277218c214c697"
+    },
+    {
+      "path": "results/tables/layer_sweep_stage3b_gemma4_26b_a4b.csv",
+      "bytes": 7234,
+      "sha256": "6f21b1f2c823711a84a25bae3684de8eb120d163b9556af1950eb6c3f7c48144"
+    },
+    {
+      "path": "results/tables/layer_sweep_stage3b_gemma4_26b_a4b.meta.json",
+      "bytes": 979,
+      "sha256": "05c5d7ad48b39a88b08c82c23bd631e77b64aedc081585b9c62016bfadcd1d1a"
+    },
+    {
+      "path": "results/logs/validate_layer_sweep_stage3b_gemma4_26b_a4b.json",
+      "bytes": 21968,
+      "sha256": "212e3cd5baf70205f35be46d7000716b11f149fe5caad4914b8d7fd39061f825"
+    },
+    {
+      "path": "results/tables/layer_sweep_stage3b_gemma4_31b.csv",
+      "bytes": 14241,
+      "sha256": "b47cd68a466ced7f960de7386da2e682eb88763d032e4c3a60097fe161d4181d"
+    },
+    {
+      "path": "results/tables/layer_sweep_stage3b_gemma4_31b.meta.json",
+      "bytes": 971,
+      "sha256": "7c1fac662696e0b1e42279442f51ec5efb9271a0c2b4b15d4f29e182650a508e"
+    },
+    {
+      "path": "results/logs/validate_layer_sweep_stage3b_gemma4_31b.json",
+      "bytes": 42845,
+      "sha256": "e495c29e1ace2f031319404463f2fd3f0bf840211e2b6b505ead5907a8be89b3"
+    }
+  ],
+  "raw_logs": [
+    {
+      "path": "results/logs/gemma4_stage3b_20260718T124416Z_12b.out",
+      "bytes": 5759,
+      "sha256": "0328f8891b39896e8aab7ba103667e856c1d480e9121fa32f8f67aa0c80b1a39"
+    },
+    {
+      "path": "results/logs/gemma4_stage3b_20260718T124416Z_12b.err",
+      "bytes": 245,
+      "sha256": "7f112df470dc3e696aee78b66e0ca64400fd58708a1051d6f90c86893bf38204"
+    },
+    {
+      "path": "results/logs/gemma4_stage3b_20260718T124416Z_26b.out",
+      "bytes": 4998,
+      "sha256": "ccb7afe8ecc8736abe60c53cc4f3254cd5e544c4d49cedd79c2f7a55c557fe28"
+    },
+    {
+      "path": "results/logs/gemma4_stage3b_20260718T124416Z_26b.err",
+      "bytes": 253,
+      "sha256": "815ba53dc9295d711624bbbb82eefc0262bc814fdb4aa1d9c571517229e4a34e"
+    },
+    {
+      "path": "results/logs/gemma4_stage3b_20260718T124416Z_31b.out",
+      "bytes": 7224,
+      "sha256": "a0c9b270fe60d521eda986e2405a351ec8b6f373050e29964694bbcc2b18fdf8"
+    },
+    {
+      "path": "results/logs/gemma4_stage3b_20260718T124416Z_31b.err",
+      "bytes": 245,
+      "sha256": "b2f99c81c7718b0dfac6fe769b3753e6ff208436d54be948e05a35c010be697a"
+    },
+    {
+      "path": "results/logs/gemma4_stage3b_20260718T124416Z_final.out",
+      "bytes": 273,
+      "sha256": "5d676aaca7556705c94e828bcd36a2a5c5e576988d892218635798070429bbbf"
+    },
+    {
+      "path": "results/logs/gemma4_stage3b_20260718T124416Z_final.err",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}
