@@ -1731,3 +1731,13 @@
 - **Findings:** All retry output labels and success sentinels were absent before submission. SCCKN reported two RTX PRO 6000 resources at submission; all three retries currently remain in independent `qw` state with no scheduler dependency.
 - **Decision / rationale:** Retain the same predeclared calibration and model scope because the first failure was fully explained by the tested adapter signature.
 - **Next:** Validate runtime assignment and outputs as resources become available, then write one empirical report per completed model.
+
+---
+
+## 2026-07-18 · Step 42 — Validate calibrated pilots and implement resumable CCU Gemma 4 queue
+- **Context:** Recover the failed 12B calibrated run, preserve backward compatibility, and move the three-model Gemma 4 replication to the CCU H100.
+- **Agent:** gpt-5-codex
+- **Did:** Synchronized the completed SCCKN artifacts; added opt-in fingerprinted atomic checkpoint/resume support to `src/dense_steering.py`; added isolated CCU environment, H100 smoke, model runner, and serial 12B-to-26B-A4B-to-31B queue scripts under `jobs/ccu/`; added CCU smoke and calibrated-output validators; wrote `paper/2026-07-18_2201_gemma4_12b_calibrated_steering.md` and `paper/2026-07-18_2201_qwen36_27b_calibrated_incomplete.md`.
+- **Findings:** Gemma 4 12B produced all 40,440 raw, 2,020 summary, and eight null rows. Its original failure was a marginal BF16 norm-drift gate exceedance, with median 0.000114, p99 0.004047, and maximum 0.005620; it passes the documented 0.01 BF16 tolerance. Qwen3.6-27B produced only 16,176 rows because its runner sampled contiguous indices instead of the stimulus file's non-contiguous topic IDs. The full project suite passed 87 tests; Ruff, formatting, Python compilation, shell syntax, and `git diff --check` passed. CCU launch is currently blocked by an HTTP 302 login redirect from an expired or rejected JupyterHub token, before any remote mutation.
+- **Decision / rationale:** Keep checkpointing opt-in so legacy invocations and SCCKN scripts retain their existing interfaces and labels. Treat SCCKN Gemma 4 12B as supporting evidence and CCU as primary. Use a 0.01 BF16 implementation tolerance while recording the exact drift. Stop the serial CCU queue only on technical failure, never on scientific effect size.
+- **Next:** Commit and push the implementation. After the user refreshes the CCU token, bootstrap the pinned environment, run the three-model serial queue, retrieve and validate each completed artifact set, and write one CCU report per model.

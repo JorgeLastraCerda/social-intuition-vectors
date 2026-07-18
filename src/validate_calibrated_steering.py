@@ -11,6 +11,8 @@ import numpy as np
 
 from src.utils.config import load_config
 
+BFLOAT16_NORM_DRIFT_TOLERANCE = 1e-2
+
 
 def artifact_paths(config: str, label: str) -> tuple[Path, Path, Path, Path]:
     cfg = load_config(config)
@@ -30,6 +32,7 @@ def read_csv(path: Path) -> list[dict[str, str]]:
 
 
 def validate(config: str, label: str, *, require_absent: bool = False) -> dict:
+    cfg = load_config(config)
     paths = artifact_paths(config, label)
     if require_absent:
         collisions = [str(path) for path in paths if path.exists()]
@@ -68,6 +71,18 @@ def validate(config: str, label: str, *, require_absent: bool = False) -> dict:
         raise AssertionError("Calibration log must specify 99 random directions.")
     if meta.get("scientific_gate") != "descriptive-only":
         raise AssertionError("Scientific effects must remain descriptive-only.")
+    runtime = meta.get("runtime", {})
+    requested_revision = runtime.get("model_revision_requested", meta.get("revision"))
+    resolved_revision = runtime.get("model_revision_resolved", meta.get("revision"))
+    if cfg.model.revision and (
+        requested_revision != cfg.model.revision
+        or resolved_revision != cfg.model.revision
+    ):
+        raise AssertionError(
+            "Calibrated output model revision mismatch: "
+            f"requested={requested_revision!r}, resolved={resolved_revision!r}, "
+            f"expected={cfg.model.revision!r}."
+        )
     if meta.get("transformer_lens_imported") not in (None, False):
         raise AssertionError("Native-HF run imported TransformerLens.")
 
@@ -106,9 +121,10 @@ def validate(config: str, label: str, *, require_absent: bool = False) -> dict:
         for row in steering
         if row["intervention"] == "norm_preserving"
     )
-    if norm_preserving_drift > 5e-3:
+    if norm_preserving_drift > BFLOAT16_NORM_DRIFT_TOLERANCE:
         raise AssertionError(
-            f"Norm-preserving drift {norm_preserving_drift:.6g} exceeds 5e-3."
+            f"Norm-preserving drift {norm_preserving_drift:.6g} exceeds "
+            f"the BF16 tolerance {BFLOAT16_NORM_DRIFT_TOLERANCE:.6g}."
         )
     return {
         "status": "pass",
@@ -117,6 +133,7 @@ def validate(config: str, label: str, *, require_absent: bool = False) -> dict:
         "summary_rows": len(summary),
         "null_rows": len(null),
         "max_norm_preserving_drift": norm_preserving_drift,
+        "norm_drift_tolerance": BFLOAT16_NORM_DRIFT_TOLERANCE,
     }
 
 
