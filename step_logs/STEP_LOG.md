@@ -1917,3 +1917,13 @@
 - **Findings:** Retry `1145490` reached the correct RTX PRO 6000 but fail-closed before model loading because repository HEAD had advanced from checkpoint origin `ae94b4d`; all critical code/config diffs and input hashes were unchanged. The backward-compatible fix leaves default fingerprinting strict and permits the old commit only when explicitly resuming. The 26B-A4B local expansion completed 2,820 rows; warmth was monotone but small, while competence remained non-monotone with +0.10 mean delta -0.408 (95% CI [-0.443, -0.376]). CCU advanced to broad full-282.
 - **Decision / rationale:** Permit resume across unrelated repository-history advances only by explicitly preserving the manifest's original commit; do not rewrite manifests or weaken any other fingerprint field.
 - **Next:** Confirm retry `1145497` assignment and shard advancement; report the remaining queued full-282 runs as they complete.
+
+---
+
+## 2026-07-18 · Step 61 — Confirm successful 31B calibrated checkpoint resume
+- **Context:** Verify the checkpoint-origin compatibility fix under the real SCCKN retry.
+- **Agent:** gpt-5-codex
+- **Did:** Confirmed retry `1145497` received an RTX PRO 6000, passed hardware, absence, fingerprint, and model-load gates, replayed existing shards as resume hits, and began writing new immutable shards.
+- **Findings:** The log advanced from `[resume] competence random_025` into new steering work for random directions 025 and 026; checkpoint files increased from 1,657 to 1,668 with no error output. CCU simultaneously remained occupied by 26B-A4B broad full-282 under queue PID `7229`.
+- **Decision / rationale:** Accept the compatibility fix as operationally validated while retaining the original checkpoint manifest and all strict non-commit fingerprint fields.
+- **Next:** Monitor both active paths to their validators and success sentinels.
