@@ -1,0 +1,15 @@
+{
+  "model_label": "gemma4_26b_a4b",
+  "run_full_282": true,
+  "reasons": [
+    "local:competence:r_squared_below_0.50",
+    "local:competence:endpoint_slope_sign_mismatch",
+    "local:competence:non_monotone",
+    "broad:competence:r_squared_below_0.50",
+    "broad:competence:endpoint_slope_sign_mismatch",
+    "broad:competence:non_monotone",
+    "denoised_local:competence:r_squared_below_0.50",
+    "denoised_local:competence:non_monotone"
+  ],
+  "policy": "run all local, broad, and denoised-local regimes if any reason fires"
+}

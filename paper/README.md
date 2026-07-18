@@ -194,3 +194,6 @@ Paper-draft figures (prefixed `paper_figure*`; produced 2026-06-24 for superviso
 | `2026-07-18_2318_gemma4_12b_local_full282.md` | 2026-07-18 23:18 | Gemma-4-12B-it | Raw local-strength steering across all 282 rated names | Complete; both axes are monotone with positive endpoint effects. |
 | `2026-07-18_2322_gemma4_12b_broad_full282.md` | 2026-07-18 23:22 | Gemma-4-12B-it | Raw broad-strength steering across all 282 rated names | Complete; both axes remain non-monotone and reverse at +0.50. |
 | `2026-07-18_2325_gemma4_12b_denoised_full282.md` | 2026-07-18 23:25 | Gemma-4-12B-it | Denoised local-strength steering across all 282 rated names | Complete; denoising attenuates but preserves monotone causal effects. |
+| `2026-07-18_2335_gemma4_26b_a4b_posthoc_hiring.md` | 2026-07-18 23:35 | Gemma-4-26B-A4B-it | Demographic disparity, mediation, group R4, and name-level R4 | Complete; two mediation intervals exclude zero. |
+| `2026-07-18_2335_gemma4_31b_posthoc_hiring.md` | 2026-07-18 23:35 | Gemma-4-31B-it | Demographic disparity, mediation, group R4, and name-level R4 | Complete; competence is the strongest name-level correlate. |
+| `2026-07-18_2335_gemma4_26b_a4b_full282_gate.md` | 2026-07-18 23:35 | Gemma-4-26B-A4B-it | Predeclared conditional expansion gate | Gate fired on eight competence-response criteria; three 282-name runs queued. |
