@@ -1575,6 +1575,16 @@
 
 ---
 
+## 2026-07-18 · Step 29 — Complete 12B hiring audit and 26B-A4B neutral extraction
+- **Context:** Validate and report the first two completed first-wave Gemma 4 production jobs.
+- **Agent:** gpt-5-codex
+- **Did:** Validated SCCKN jobs `1145333` and `1145339`, synchronized their artifacts and raw logs, wrote `paper/2026-07-18_1623_gemma4_12b_hiring_audit.md` and `paper/2026-07-18_1623_gemma4_26b_a4b_neutral_extraction.md`, and submitted independent held CPU PCA job `1145368` for the validated 26B-A4B neutral matrix.
+- **Findings:** Both jobs completed with `failed=0,exit_status=0`. The 12B audit covered 282 names: model-versus-human rho was 0.020 for warmth and 0.222 for competence; callback-versus-model rho was -0.110 for warmth and -0.124 for competence. The 26B-A4B neutral output is a finite 1500×2816 matrix at layer 19 with 51.537 GiB peak reserved VRAM.
+- **Decision / rationale:** Treat the audit as observational and retain the causal steering tests. Accept the neutral matrix for PCA, but do not submit denoised jobs until PCA validation passes.
+- **Next:** Persist this entry, release CPU job `1145368`, and continue monitoring the remaining independent GPU jobs.
+
+---
+
 ## 2026-07-18 · Step 27 — Implement direct CCU Jupyter terminal client
 - **Context:** Build a reusable, local-only access kit for the personal CCU JupyterHub H100 environment without a third-party remote-access relay.
 - **Agent:** gpt-5-codex
