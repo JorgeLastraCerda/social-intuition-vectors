@@ -1328,3 +1328,13 @@
 - **Findings:** The original 26B and 31B jobs did not execute model code; they exited 20 because the 12B Stage 3 OOM prevented predecessor sentinels. Local verification passed 17 tests, shell syntax, Python compilation, submitter dry-run, Stage 1–2 input validation for both models, canonical-output absence checks, and `git diff --check`. `shellcheck` was unavailable locally.
 - **Decision / rationale:** Remove only the retry dependency on 12B, keep 26B and 31B compute jobs independent and user-held, prohibit Git operations inside parallel GPU jobs, and defer one durable sync to a CPU finalizer after both technical validators pass.
 - **Next:** Push the implementation, preflight the clean SCCKN checkout and two available RTX 6000 resources, submit both jobs held, synchronize the manifest, and release them together.
+
+---
+
+## 2026-07-18 · Step 4 — Submit held parallel Gemma 4 Stage 3 retries
+- **Context:** Launch the approved 26B-A4B and 31B Stage 3 retries on the two scheduler-available RTX PRO 6000 GPUs.
+- **Agent:** gpt-5-codex
+- **Did:** Fast-forwarded SCCKN to `c5b4bc4`, passed environment, input, collision, GPU-availability, shell, compile, and `qsub -w v` gates, then submitted held GPU jobs `1144931` (26B-A4B) and `1144932` (31B) plus CPU finalizer `1144933`; synchronized `results/logs/gemma4_stage3_retry_submission_20260718T100211Z.json` in commit `6190680`.
+- **Findings:** `gpu@scc214` reported exactly two available GPUs at preflight. Both model jobs independently request `gpu=1,rtx_6000=1,h_vmem=96G,h_rt=12:00:00` with no predecessor relation. The finalizer requests no GPU and is held on both model job IDs. No Stage 3 canonical output existed at submission.
+- **Decision / rationale:** Keep both GPU jobs user-held until this submission audit is pushed, then release them together so each can claim one of the two available RTX PRO 6000 devices.
+- **Next:** Pull this entry on SCCKN, run `qrls 1144931 1144932`, verify distinct device assignments, and monitor both jobs through validation and finalizer sync.
