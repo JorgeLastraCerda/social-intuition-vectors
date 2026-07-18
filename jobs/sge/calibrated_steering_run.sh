@@ -70,9 +70,16 @@ case "$MODEL_KEY" in
   qwen36_27b)
     ENV_NAME=wc-qwen36-hf
     CONFIG_PATH=config/qwen36_27b.yaml
-    LABEL=qwen36_27b_calibrated
+    LABEL=qwen36_27b_calibrated_topicfix_scckn_rtx6000
     COMMAND=(-m src.qwen36_calibrated_steering --config "$CONFIG_PATH" \
-      --n-random-directions 99)
+      --label "$LABEL" --n-random-directions 99)
+    ;;
+  qwen36_35b_a3b)
+    ENV_NAME=wc-qwen36-hf
+    CONFIG_PATH=config/qwen36_35b_a3b.yaml
+    LABEL=qwen36_35b_a3b_calibrated_scckn_rtx6000
+    COMMAND=(-m src.qwen36_calibrated_steering --config "$CONFIG_PATH" \
+      --label "$LABEL" --n-random-directions 99)
     ;;
   *) echo "Unknown MODEL_KEY=$MODEL_KEY" >&2; exit 2 ;;
 esac

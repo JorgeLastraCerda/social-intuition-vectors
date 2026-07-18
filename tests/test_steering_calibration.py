@@ -16,6 +16,7 @@ from src.steering_calibration import (
     paired_topic_difference_ci,
     standardized_shift,
 )
+from src.qwen36_calibrated_steering import topic_row_indices, train_test_topics
 
 ROOT = Path(__file__).resolve().parents[1]
 SUBMITTER = ROOT / "jobs/sge/submit_calibrated_steering_pilot.sh"
@@ -131,6 +132,21 @@ def test_paired_topic_bootstrap_uses_within_topic_random_median() -> None:
     assert low <= estimate <= high
 
 
+def test_qwen_calibrated_split_uses_actual_non_contiguous_topic_ids() -> None:
+    topic_ids = [0, 1, 3, 8, 19, 35, 56, 57, 66, 78, 79, 97]
+    train, test = train_test_topics(topic_ids, seed=20260527, n_test_topics=3)
+    assert set(train) | set(test) == set(topic_ids)
+    assert set(train).isdisjoint(test)
+    assert not set(test) - set(topic_ids)
+
+    records = [
+        {"topic_idx": topic}
+        for topic in [97, 3, 56, 0, 79, 1, 78, 8, 66, 35, 19, 57]
+    ]
+    indices = topic_row_indices(records, test)
+    assert {records[index]["topic_idx"] for index in indices} == set(test)
+
+
 def test_pilot_jobs_are_independent_rtx6000_and_disable_full282() -> None:
     submitter = SUBMITTER.read_text(encoding="utf-8")
     runner = RUNNER.read_text(encoding="utf-8")
@@ -144,6 +160,7 @@ def test_pilot_jobs_are_independent_rtx6000_and_disable_full282() -> None:
         "gemma4_26b_a4b",
         "gemma4_31b",
         "qwen36_27b",
+        "qwen36_35b_a3b",
     ):
         result = subprocess.run(
             ["bash", str(SUBMITTER), "--model", model, "--dry-run"],
