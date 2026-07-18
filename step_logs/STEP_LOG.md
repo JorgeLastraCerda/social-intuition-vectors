@@ -1848,3 +1848,12 @@
 - **Findings:** The CCU calibrated run passed with 40,440 raw, 2,020 summary, and eight null rows and maximum norm drift 0.005823. Post-hoc validation produced all five required outputs; the competence-mediated race path was the only 95% interval excluding zero. The full-282 gate fired for broad-regime sign mismatch and non-monotonicity on both axes. Local full-282 selected 282 of 282 names and began model loading on the H100.
 - **Decision / rationale:** Run local, broad, and denoised-local full-282 expansions as separate write-once executions because the predeclared gate requires all three when any criterion fires. Do not substitute an SAE test because no compatible Gemma 4 SAE is available.
 - **Next:** Validate and report local full-282, then launch broad and denoised-local independently; continue monitoring SCCKN 26B-A4B and 31B calibrated runs.
+
+---
+
+## 2026-07-18 · Step 54 — Complete local full-282 and start broad expansion
+- **Context:** Continue the gate-required Gemma 4 12B expansion without leaving the CCU H100 idle.
+- **Agent:** gpt-5-codex
+- **Did:** Validated and hash-retrieved all four local full-282 outputs, wrote `paper/2026-07-18_2318_gemma4_12b_local_full282.md`, and launched broad full-282 as a separate write-once CCU run.
+- **Findings:** Local full-282 produced 2,820 raw rows over all 282 names. Warmth steering was monotone with slope 20.215, R2 0.930, and +0.10 mean delta 1.036 (95% CI [1.022, 1.051]); competence steering was monotone with slope 22.951, R2 0.967, and +0.10 mean delta 1.515 (95% CI [1.499, 1.531]). Broad full-282 passed its H100 and output-absence gates and began model loading.
+- **Next:** Validate and report broad full-282, then launch denoised-local independently.
