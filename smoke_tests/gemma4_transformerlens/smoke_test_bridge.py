@@ -15,13 +15,25 @@ from src.hiring_steering import hiring_prompt
 from src.utils.config import load_config
 from src.utils.hooks import residual_hook_name
 from src.utils.model_loader import load_hooked_model, model_runtime_metadata
-from src.utils.prompting import decision_token_ids, encode_decision_prompt, encode_passage
+from src.utils.prompting import (
+    decision_token_ids,
+    encode_decision_prompt,
+    encode_passage,
+)
 
 
 def main() -> None:
     args = parse_args()
     cfg = load_config(args.config)
-    cfg = replace(cfg, model=replace(cfg.model, name=args.model))
+    if args.model is not None:
+        cfg = replace(cfg, model=replace(cfg.model, name=args.model))
+    model_name = cfg.model.name
+    expected_layers = args.expected_layers or cfg.smoke.expected_layers
+    expected_d_model = args.expected_d_model or cfg.smoke.expected_d_model
+    if expected_layers <= 0 or expected_d_model <= 0:
+        raise ValueError(
+            "Expected layer and width values must be set in config.smoke or CLI."
+        )
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
     if torch.cuda.is_available():
@@ -29,14 +41,16 @@ def main() -> None:
 
     model = load_hooked_model(cfg)
     model.eval()
-    if model.cfg.n_layers != args.expected_layers:
-        raise AssertionError((model.cfg.n_layers, args.expected_layers))
-    if model.cfg.d_model != args.expected_d_model:
-        raise AssertionError((model.cfg.d_model, args.expected_d_model))
+    if model.cfg.n_layers != expected_layers:
+        raise AssertionError((model.cfg.n_layers, expected_layers))
+    if model.cfg.d_model != expected_d_model:
+        raise AssertionError((model.cfg.d_model, expected_d_model))
 
     layer = round((model.cfg.n_layers - 1) * cfg.probing.probe_layer_frac)
     hook_name = residual_hook_name(layer)
-    passage_tokens = encode_passage(model, "A person carefully completed a routine task.")
+    passage_tokens = encode_passage(
+        model, "A person carefully completed a routine task."
+    )
     with torch.no_grad():
         bridge_logits, cache = model.run_with_cache(
             passage_tokens,
@@ -47,7 +61,7 @@ def main() -> None:
     if activations.shape != (
         1,
         passage_tokens.shape[1],
-        args.expected_d_model,
+        expected_d_model,
     ):
         raise AssertionError(f"Unexpected activation shape: {activations.shape}")
     if not torch.isfinite(activations).all() or not torch.isfinite(bridge_logits).all():
@@ -59,10 +73,8 @@ def main() -> None:
     prompt = hiring_prompt("Jordan Lee")
     rendered, _ = encode_decision_prompt(model, prompt, "native-chat")
     yes_id, no_id = decision_token_ids(model, rendered, "native-chat")
-    baseline = yes_no_margin(
-        model, prompt, hook_name, prompt_format="native-chat"
-    )
-    direction = np.ones(args.expected_d_model, dtype=np.float32)
+    baseline = yes_no_margin(model, prompt, hook_name, prompt_format="native-chat")
+    direction = np.ones(expected_d_model, dtype=np.float32)
     steered = yes_no_margin(
         model,
         prompt,
@@ -71,13 +83,18 @@ def main() -> None:
         prompt_format="native-chat",
     )
     if not np.isfinite([baseline, steered]).all() or baseline == steered:
-        raise AssertionError("Steering smoke check did not produce a finite margin change.")
+        raise AssertionError(
+            "Steering smoke check did not produce a finite margin change."
+        )
 
     peak_gib = (
-        torch.cuda.max_memory_allocated() / 1024**3 if torch.cuda.is_available() else 0.0
+        torch.cuda.max_memory_allocated() / 1024**3
+        if torch.cuda.is_available()
+        else 0.0
     )
     result = {
-        "model": args.model,
+        "model": model_name,
+        "revision": cfg.model.revision,
         "seed": args.seed,
         "n_layers": model.cfg.n_layers,
         "d_model": model.cfg.d_model,
@@ -93,7 +110,7 @@ def main() -> None:
         "prompt_format": "native-chat",
         "runtime": model_runtime_metadata(model),
     }
-    output = Path(args.output)
+    output = Path(args.output or f"results/logs/smoke_{cfg.smoke.label}.json")
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(result, indent=2), encoding="utf-8")
     print(json.dumps(result, indent=2))
@@ -102,12 +119,12 @@ def main() -> None:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", default="config/config.yaml")
-    parser.add_argument("--model", required=True)
-    parser.add_argument("--expected-layers", required=True, type=int)
-    parser.add_argument("--expected-d-model", required=True, type=int)
+    parser.add_argument("--model", default=None)
+    parser.add_argument("--expected-layers", default=0, type=int)
+    parser.add_argument("--expected-d-model", default=0, type=int)
     parser.add_argument("--seed", default=20260527, type=int)
     parser.add_argument("--max-logit-diff", default=0.02, type=float)
-    parser.add_argument("--output", required=True)
+    parser.add_argument("--output", default=None)
     return parser.parse_args()
 
 

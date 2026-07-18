@@ -18,6 +18,7 @@ the ``raw_dense`` rows in the summary CSV must match
 ``results/tables/gemma_scope_causality_gemma3_12b_local.csv`` exactly
 (warmth +0.1 → 3.88125, competence +0.1 → 2.00625, etc.).
 """
+
 from __future__ import annotations
 
 import argparse
@@ -42,7 +43,6 @@ from src.gemma_scope_causality import (
 from src.gemma_scope_utils import (
     CONDITIONS,
     check_file_size,
-    condition_slices,
     load_story_records,
 )
 from src.utils.config import load_config
@@ -54,11 +54,108 @@ AXES = ("warmth", "competence")
 DEFAULT_STRENGTHS = "-0.1,-0.05,0,0.05,0.1"
 
 
+def orthogonal_random_directions(
+    warmth: np.ndarray,
+    competence: np.ndarray,
+    *,
+    n_directions: int,
+    seed: int,
+) -> list[np.ndarray]:
+    """Return deterministic unit vectors orthogonal to the two-axis span."""
+    if n_directions < 1:
+        raise ValueError("n_directions must be at least 1")
+    basis, _ = np.linalg.qr(
+        np.column_stack([unit(warmth), unit(competence)]).astype(np.float64)
+    )
+    rng = np.random.default_rng(seed)
+    directions: list[np.ndarray] = []
+    for _ in range(n_directions):
+        candidate = rng.normal(size=warmth.shape[0]).astype(np.float64)
+        candidate -= basis @ (basis.T @ candidate)
+        directions.append(unit(candidate).astype(np.float32))
+    return directions
+
+
+def direction_metadata(judgment_axis: str, direction: str) -> tuple[str, str, str]:
+    if direction in AXES:
+        kind = "target" if direction == judgment_axis else "cross_axis"
+        return direction, kind, ""
+    if direction.startswith("random_"):
+        return "", "random", direction.removeprefix("random_")
+    if direction == "raw_dense":
+        return judgment_axis, "target", ""
+    if direction == "random":
+        return "", "random", "000"
+    return "", direction, ""
+
+
+def empirical_null_rows(summary_rows: list[dict]) -> list[dict]:
+    """Compare target/cross-axis endpoint effects and slopes with the random null."""
+    output: list[dict] = []
+    for judgment_axis in AXES:
+        steering = [
+            row
+            for row in summary_rows
+            if row.get("mode") == "steering" and row.get("axis") == judgment_axis
+        ]
+        strengths = sorted(
+            {
+                float(row["strength"])
+                for row in steering
+                if float(row["strength"]) != 0.0
+            }
+        )
+        endpoint = max(strengths)
+        random_endpoint = np.array(
+            [
+                float(row["effect"])
+                for row in steering
+                if str(row["direction"]).startswith("random_")
+                and float(row["strength"]) == endpoint
+            ]
+        )
+        for steering_axis in AXES:
+            selected = [row for row in steering if row["direction"] == steering_axis]
+            if not selected:
+                continue
+            x = np.array([float(row["strength"]) for row in selected])
+            y = np.array([float(row["effect"]) for row in selected])
+            slope = float(np.polyfit(x, y, 1)[0])
+            endpoint_effect = float(
+                next(
+                    row["effect"]
+                    for row in selected
+                    if float(row["strength"]) == endpoint
+                )
+            )
+            empirical_p = (
+                float(
+                    (1 + np.sum(np.abs(random_endpoint) >= abs(endpoint_effect)))
+                    / (1 + len(random_endpoint))
+                )
+                if len(random_endpoint)
+                else None
+            )
+            output.append(
+                {
+                    "judgment_axis": judgment_axis,
+                    "steering_axis": steering_axis,
+                    "direction_type": "target"
+                    if judgment_axis == steering_axis
+                    else "cross_axis",
+                    "endpoint_strength": endpoint,
+                    "endpoint_effect": endpoint_effect,
+                    "slope": slope,
+                    "n_random_directions": int(len(random_endpoint)),
+                    "empirical_two_sided_p": empirical_p,
+                }
+            )
+    return output
+
+
 def main() -> None:
     args = parse_args()
-    strengths = tuple(
-        float(v.strip()) for v in args.strengths.split(",") if v.strip()
-    )
+    strengths = tuple(float(v.strip()) for v in args.strengths.split(",") if v.strip())
     if 0.0 not in strengths:
         raise ValueError("--strengths must include 0.")
 
@@ -79,16 +176,13 @@ def main() -> None:
     records_by_condition = load_story_records(
         Path(cfg.paths.stimuli) / "concept_stories.jsonl"
     )
-    counts = {c: len(records_by_condition[c]) for c in CONDITIONS}
-    slices = condition_slices(counts)
     train_topics, test_topics = train_test_topics(
         records_by_condition, cfg.probing.seed, args.n_test_topics
     )
 
     # --- activations → mean_resid_norm + raw concept directions (train only) ---
     activations_by_condition = {
-        c: np.load(vectors_dir / f"X_{c}.npy").astype(np.float32)
-        for c in CONDITIONS
+        c: np.load(vectors_dir / f"X_{c}.npy").astype(np.float32) for c in CONDITIONS
     }
     all_activations = np.concatenate(
         [activations_by_condition[c] for c in CONDITIONS], axis=0
@@ -109,8 +203,30 @@ def main() -> None:
         ),
     }
 
+    if args.vector_kind == "denoised":
+        denoised_path = vectors_dir / "concept_vectors_denoised.npz"
+        if not denoised_path.exists():
+            raise FileNotFoundError(
+                f"{denoised_path} not found; run neutral extraction and PCA denoising first."
+            )
+        denoised = np.load(denoised_path)
+        components = np.asarray(denoised["neutral_pca_components"], dtype=np.float64)
+        raw_vectors = {
+            axis: (
+                np.asarray(vector, dtype=np.float64)
+                - components.T @ (components @ np.asarray(vector, dtype=np.float64))
+            ).astype(np.float32)
+            for axis, vector in raw_vectors.items()
+        }
+
     # --- random control (orthogonalized to each axis direction) ---
-    rng = np.random.default_rng(cfg.probing.seed)
+    enhanced = args.include_cross_axis or args.n_random_directions != 1
+    random_directions = orthogonal_random_directions(
+        raw_vectors["warmth"],
+        raw_vectors["competence"],
+        n_directions=args.n_random_directions,
+        seed=cfg.probing.seed,
+    )
 
     # --- load model ---
     print(f"[model] loading {model_name}", flush=True)
@@ -132,14 +248,22 @@ def main() -> None:
     raw_rows: list[dict] = []
 
     for axis in AXES:
-        random_vec = rng.normal(size=int(meta["d_model"])).astype(np.float32)
-        random_vec -= unit(raw_vectors[axis]) * float(
-            random_vec @ unit(raw_vectors[axis])
-        )
-        directions = {
-            "raw_dense": raw_vectors[axis],
-            "random": random_vec,
-        }
+        if enhanced:
+            directions = {axis: raw_vectors[axis]}
+            if args.include_cross_axis:
+                other_axis = "competence" if axis == "warmth" else "warmth"
+                directions[other_axis] = raw_vectors[other_axis]
+            directions.update(
+                {
+                    f"random_{index:03d}": vector
+                    for index, vector in enumerate(random_directions)
+                }
+            )
+        else:
+            directions = {
+                "raw_dense": raw_vectors[axis],
+                "random": random_directions[0],
+            }
 
         test_conditions = (
             (f"high_{axis}", 1),
@@ -171,6 +295,11 @@ def main() -> None:
                     "strength": 0.0,
                     "margin": margin,
                     "delta_margin": 0.0,
+                    "judgment_axis": axis,
+                    "steering_axis": "",
+                    "direction_type": "baseline",
+                    "random_id": "",
+                    "vector_kind": args.vector_kind,
                 }
             )
             if idx % 10 == 0:
@@ -181,6 +310,9 @@ def main() -> None:
             for strength in strengths:
                 if strength == 0.0:
                     for record, label in test_records:
+                        steering_axis, direction_type, random_id = direction_metadata(
+                            axis, direction_name
+                        )
                         raw_rows.append(
                             {
                                 "mode": "steering",
@@ -193,6 +325,11 @@ def main() -> None:
                                 "strength": strength,
                                 "margin": baseline_margins[record["id"]],
                                 "delta_margin": 0.0,
+                                "judgment_axis": axis,
+                                "steering_axis": steering_axis,
+                                "direction_type": direction_type,
+                                "random_id": random_id,
+                                "vector_kind": args.vector_kind,
                             }
                         )
                     continue
@@ -207,6 +344,9 @@ def main() -> None:
                         hook,
                         prompt_format=args.prompt_format,
                     )
+                    steering_axis, direction_type, random_id = direction_metadata(
+                        axis, direction_name
+                    )
                     raw_rows.append(
                         {
                             "mode": "steering",
@@ -219,6 +359,11 @@ def main() -> None:
                             "strength": strength,
                             "margin": margin,
                             "delta_margin": margin - baseline_margins[record["id"]],
+                            "judgment_axis": axis,
+                            "steering_axis": steering_axis,
+                            "direction_type": direction_type,
+                            "random_id": random_id,
+                            "vector_kind": args.vector_kind,
                         }
                     )
                 print(
@@ -229,6 +374,20 @@ def main() -> None:
     # --- summaries ---
     summary_rows = summarize_baseline(raw_rows, cfg.probing.seed)
     summary_rows.extend(summarize_steering(raw_rows, cfg.probing.seed))
+    for row in summary_rows:
+        steering_axis, direction_type, random_id = direction_metadata(
+            str(row["axis"]), str(row["direction"])
+        )
+        row.update(
+            {
+                "judgment_axis": row["axis"],
+                "steering_axis": steering_axis,
+                "direction_type": direction_type,
+                "random_id": random_id,
+                "vector_kind": args.vector_kind,
+            }
+        )
+    null_rows = empirical_null_rows(summary_rows) if enhanced else []
 
     # --- write outputs ---
     raw_path = table_dir / f"steering_dense_raw_{args.label}.csv"
@@ -243,6 +402,12 @@ def main() -> None:
         writer = csv.DictWriter(fh, fieldnames=list(summary_rows[0].keys()))
         writer.writeheader()
         writer.writerows(summary_rows)
+    null_path = table_dir / f"steering_dense_null_{args.label}.csv"
+    if null_rows:
+        with null_path.open("w", newline="", encoding="utf-8") as fh:
+            writer = csv.DictWriter(fh, fieldnames=list(null_rows[0].keys()))
+            writer.writeheader()
+            writer.writerows(null_rows)
 
     log = {
         "label": args.label,
@@ -255,17 +420,23 @@ def main() -> None:
         "mean_resid_norm": mean_resid_norm,
         "strengths": list(strengths),
         "n_test_topics": args.n_test_topics,
+        "vector_kind": args.vector_kind,
+        "include_cross_axis": args.include_cross_axis,
+        "n_random_directions": args.n_random_directions,
         "prompt_format": args.prompt_format,
         "rendered_prompt_example": rendered,
         "runtime": model_runtime_metadata(model),
         "raw_output": str(raw_path),
         "summary_output": str(summary_path),
+        "null_output": str(null_path) if null_rows else None,
     }
     log_path = log_dir / f"steering_dense_{args.label}.json"
     log_path.write_text(json.dumps(log, indent=2), encoding="utf-8")
 
     print(f"[done] {raw_path}")
     print(f"[done] {summary_path}")
+    if null_rows:
+        print(f"[done] {null_path}")
     print(f"[done] {log_path}")
 
 
@@ -281,6 +452,23 @@ def parse_args() -> argparse.Namespace:
         "--vectors-subdir",
         required=True,
         help="Subdirectory under data/processed/ containing concept vectors.",
+    )
+    parser.add_argument(
+        "--vector-kind",
+        choices=("raw", "denoised"),
+        default="raw",
+        help="Steer with train-topic raw directions or their neutral-PCA-denoised forms.",
+    )
+    parser.add_argument(
+        "--include-cross-axis",
+        action="store_true",
+        help="Also steer each judgment with the other concept axis.",
+    )
+    parser.add_argument(
+        "--n-random-directions",
+        type=int,
+        default=1,
+        help="Number of seeded controls orthogonal to the warmth/competence span.",
     )
     parser.add_argument(
         "--label",

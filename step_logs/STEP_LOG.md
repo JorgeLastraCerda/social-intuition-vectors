@@ -1532,3 +1532,13 @@
 - **Findings:** All jobs ended with `failed=0,exit_status=0`; 12B ran on an exact NVIDIA L40 and 26B-A4B/31B ran independently on RTX PRO 6000 devices. Every legacy metric matches at every layer with maximum absolute difference 0. Probe-layer direction topic CV is 1.00/1.00 for every model, while strict W-to-C/C-to-W transfer is 0.99/0.97 (12B), 0.99/0.95 (26B-A4B), and 0.95/0.88 (31B). Paired-topic bootstrap peak ranges show stable middle-layer regions but wider exact-layer uncertainty for 12B and 31B competence.
 - **Decision / rationale:** Retain `probe_layer_frac=0.66` for comparability and treat it as a strong but entangled fixed layer, not a data-selected or construct-pure optimum. Preserve legacy Stage 3 as the comparison reference and use Stage 3B for the stricter scientific interpretation.
 - **Next:** Use strict cross-axis controls and external human/hiring validation in the causal stage; do not infer external validity from perfect synthetic topic holdout.
+
+---
+
+## 2026-07-18 · Step 25 — Implement the SAE-free Gemma 4 remaining-test pipeline
+- **Context:** Implement the user-approved parity-plus-strengthened-controls plan for the tests still possible without a current Gemma 4 SAE.
+- **Agent:** gpt-5-codex
+- **Did:** Added exact-revision configs for all three Gemma 4 variants, revision-aware TransformerLens Bridge loading, a strengthened dense-steering design with cross-axis and 50-direction empirical-null controls, neutral-PCA metadata, paired-bootstrap hiring summaries and a conditional 282-name gate, write-once validators, and independent held SCCKN runners and submitters. Documented the method in `paper/2026-07-18_1604_gemma4_remaining_pipeline.md` and updated the report index.
+- **Findings:** The full suite passed 74 tests; targeted Ruff lint and format checks passed; shell validation passed; all 33 model-by-run submitter dry-runs passed; and `git diff --check` passed. Empirical smoke and production results are not yet claimed.
+- **Decision / rationale:** Preserve the legacy bfloat16 callback-margin path for old/new-generation parity and expose its quantization diagnostics explicitly. Require exact NVIDIA L40 for 12B and RTX PRO 6000 for 26B-A4B/31B. Keep every scheduler job independent and prohibit `hold_jid`.
+- **Next:** Commit and synchronize the implementation, then submit one held smoke job per model, persist the manifests, release the jobs, and monitor their hardware and scientific gates.

@@ -1,0 +1,48 @@
+model:
+  name: "google/gemma-4-12B-it"
+  revision: "12ace6d648d72bd41519e140f1185f34d38c7e3d"
+  dtype: "bfloat16"
+  device: "cuda"
+  backend: "transformer-bridge"
+
+generation: &generation
+  model: "claude-haiku-4-5-20251001"
+  max_tokens: 300
+  temperature: 1.0
+  max_retries: 5
+  requests_per_minute: 50
+
+probing: &probing
+  probe_layer_frac: 0.66
+  n_topics: 100
+  stories_per_topic: 12
+  start_token: 50
+  seed: 20260527
+
+steering:
+  strengths: [0.0, 0.25, 0.5, 1.0]
+
+paths: &paths
+  papers: "literature/"
+  raw_data: "data/raw/"
+  stimuli: "data/stimuli/"
+  processed: "data/processed/"
+  results: "results/"
+  logs: "results/logs/"
+
+neutral: &neutral
+  corpus_path: "data/stimuli/neutral_corpus.jsonl"
+  source_dataset: "wikimedia/wikipedia"
+  source_config: "20231101.en"
+  n_texts: 1500
+  min_words: 90
+  max_words: 200
+  variance_threshold: 0.50
+
+smoke:
+  label: "gemma4_12b_pinned"
+  n_topics: 10
+  expected_layers: 48
+  expected_d_model: 3840
+  min_free_vram_gib: 30.0
+  max_vram_fraction: 0.90

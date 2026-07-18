@@ -39,16 +39,25 @@ def install_fake_modules(monkeypatch, bridge_model, processor_or_error):
 
     transformers = ModuleType("transformers")
     if isinstance(processor_or_error, Exception):
+
         class AutoProcessor:
             @staticmethod
-            def from_pretrained(model_name):
+            def from_pretrained(model_name, **kwargs):
                 raise processor_or_error
     else:
+
         class AutoProcessor:
             @staticmethod
-            def from_pretrained(model_name):
+            def from_pretrained(model_name, **kwargs):
                 return processor_or_error
+
+    class AutoTokenizer:
+        @staticmethod
+        def from_pretrained(model_name, **kwargs):
+            return SimpleNamespace(chat_template="test-template")
+
     transformers.AutoProcessor = AutoProcessor
+    transformers.AutoTokenizer = AutoTokenizer
     monkeypatch.setitem(sys.modules, "transformers", transformers)
     return calls
 
@@ -109,3 +118,53 @@ def test_loader_rejects_nonpositive_n_devices(monkeypatch):
 
     with pytest.raises(ValueError, match="at least 1"):
         load_hooked_model(config_for("Qwen/Qwen3-14B"), n_devices=0)
+
+
+def test_pinned_gemma4_loader_propagates_and_verifies_revision(monkeypatch):
+    revision = "a" * 40
+    processor = SimpleNamespace(
+        apply_chat_template=lambda *args, **kwargs: "prompt",
+        chat_template="pinned-template",
+    )
+    original = SimpleNamespace(config=SimpleNamespace(_commit_hash=revision))
+    model = SimpleNamespace(processor=None, original_model=original)
+    calls = install_fake_modules(monkeypatch, model, processor)
+    cfg = config_for("google/gemma-4-31B-it")
+    cfg.model = ModelConfig(
+        name=cfg.model.name,
+        dtype=cfg.model.dtype,
+        device=cfg.model.device,
+        backend=cfg.model.backend,
+        revision=revision,
+    )
+
+    loaded = load_hooked_model(cfg)
+
+    assert calls[0][1]["revision"] == revision
+    assert calls[0][1]["tokenizer"].chat_template == "test-template"
+    assert loaded.processor is processor
+    assert loaded._normalcy_revision_requested == revision
+    assert loaded._normalcy_revision_resolved == revision
+
+
+def test_pinned_loader_rejects_resolved_revision_mismatch(monkeypatch):
+    requested = "a" * 40
+    processor = SimpleNamespace(
+        apply_chat_template=lambda *args, **kwargs: "prompt",
+        chat_template="pinned-template",
+    )
+    model = SimpleNamespace(
+        processor=None,
+        original_model=SimpleNamespace(config=SimpleNamespace(_commit_hash="b" * 40)),
+    )
+    install_fake_modules(monkeypatch, model, processor)
+    cfg = config_for("google/gemma-4-12B-it")
+    cfg.model = ModelConfig(
+        name=cfg.model.name,
+        dtype=cfg.model.dtype,
+        device=cfg.model.device,
+        backend=cfg.model.backend,
+        revision=requested,
+    )
+    with pytest.raises(RuntimeError, match="Resolved model revision mismatch"):
+        load_hooked_model(cfg)

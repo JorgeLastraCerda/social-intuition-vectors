@@ -62,6 +62,7 @@ output_paths=(
     results/logs/steering_dense_*.json
     results/tables/hiring_audit_*.csv
     results/tables/hiring_steering_raw_*.csv
+    results/tables/hiring_steering_*.csv
     results/tables/hiring_disparity_*.csv
     results/tables/hiring_group_r4_*.csv
     results/tables/hiring_name_level_*.csv
@@ -69,6 +70,7 @@ output_paths=(
     results/logs/hiring_probe_vs_human_*.json
     results/logs/hiring_mediation_*.json
     results/logs/hiring_r4_*.json
+    results/logs/hiring_full282_gate_*.json
     results/logs/smoke_gemma4_*.json
     results/logs/smoke_qwen36_*.json
     results/logs/qwen36_smoke_submission_*.json
@@ -80,6 +82,25 @@ output_paths=(
     results/logs/validate_layer_sweep_stage3b_gemma4_*.json
     results/logs/gemma4_stage3b_submission_*.json
     results/logs/gemma4_stage3b_outcome_*.json
+    results/logs/gemma4_remaining_submission_*.json
+    results/logs/gemma4_*_smoke_*.out
+    results/logs/gemma4_*_smoke_*.err
+    results/logs/gemma4_*_dense_raw_*.out
+    results/logs/gemma4_*_dense_raw_*.err
+    results/logs/gemma4_*_dense_denoised_*.out
+    results/logs/gemma4_*_dense_denoised_*.err
+    results/logs/gemma4_*_neutral_*.out
+    results/logs/gemma4_*_neutral_*.err
+    results/logs/gemma4_*_pca_*.out
+    results/logs/gemma4_*_pca_*.err
+    results/logs/gemma4_*_audit_*.out
+    results/logs/gemma4_*_audit_*.err
+    results/logs/gemma4_*_hiring_*.out
+    results/logs/gemma4_*_hiring_*.err
+    results/logs/gemma4_*_posthoc_*.out
+    results/logs/gemma4_*_posthoc_*.err
+    results/logs/gemma4_*_full282_gate_*.out
+    results/logs/gemma4_*_full282_gate_*.err
     results/logs/gemma4_stage3b_*.out
     results/logs/gemma4_stage3b_*.err
     results/logs/gemma4_stage3_retry_*.out
