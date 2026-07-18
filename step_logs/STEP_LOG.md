@@ -1681,3 +1681,13 @@
 - **Findings:** Target alpha is preserved exactly while random and cross-axis directions receive matched standardized shifts. The full project suite passed 81 tests; Ruff, formatting, Python compilation, shell syntax, output-absence checks, and `git diff --check` passed. All three pilot labels were absent.
 - **Decision / rationale:** Use 99 seeded random directions and report effects descriptively with no scientific gate. Run Gemma-3-12B, Gemma-4-12B, and Qwen3.6-27B as independent pilots; keep the 282-name expansion paused.
 - **Next:** Commit and synchronize the implementation, submit the three user-held pilot jobs, record availability, then release and monitor them.
+
+---
+
+## 2026-07-18 · Step 37 — Submit three held calibrated-steering pilots
+- **Context:** Begin the technical pilot after committing the calibrated-control implementation.
+- **Agent:** gpt-5-codex
+- **Did:** Fast-forwarded SCCKN to commit `88d5ca2` and submitted independent user-held RTX PRO 6000 jobs `1145429` (Gemma-3-12B), `1145430` (Gemma-4-12B), and `1145431` (Qwen3.6-27B). Extended `jobs/sync_outputs.sh` to include their manifests and scheduler logs after its first invocation correctly reported no matching files.
+- **Findings:** SCCKN reported two RTX PRO 6000 GPUs at submission. All three jobs are held, use no `hold_jid`, require exact RTX PRO 6000 runtime hardware, and keep full-282 disabled.
+- **Decision / rationale:** Preserve the held-manifest-release audit sequence and synchronize all three manifests before releasing any job.
+- **Next:** Push the sync-pattern correction, synchronize the manifests, release all three jobs, and monitor technical validators.
