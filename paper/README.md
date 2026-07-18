@@ -68,6 +68,19 @@ Per-model figures for Qwen3-14B and Llama-3.1-8B in subdirectories:
 | `llama31_8b/fig2_random_baseline.{png,pdf}` | Random baseline (z=15.0/15.1) — Llama-3.1-8B |
 | `llama31_8b/fig3_lorenz_concentration.{png,pdf}` | Lorenz concentration — Llama-3.1-8B |
 
+Full-run figures for Qwen3.6-27B and Qwen3.6-35B-A3B:
+
+| Path | Description |
+|------|-------------|
+| `qwen36_27b/fig{1,2,3,4}_*.{png,pdf}` | Qwen3.6-27B Stage 1 extraction geometry, random baseline, concentration, and axis geometry |
+| `qwen36_27b/fig5_cross_model.{png,pdf}` | Qwen3.6-27B Stage 2 probe accuracy, effect size, and axis overlap |
+| `qwen36_27b/fig8_layer_emergence.{png,pdf}` | Qwen3.6-27B Stage 3 all-layer profile |
+| `qwen36_35b_a3b/fig{1,2,3,4}_*.{png,pdf}` | Qwen3.6-35B-A3B Stage 1 extraction geometry, random baseline, concentration, and axis geometry |
+| `qwen36_35b_a3b/fig5_cross_model.{png,pdf}` | Qwen3.6-35B-A3B Stage 2 probe accuracy, effect size, and axis overlap |
+| `qwen36_35b_a3b/fig8_layer_emergence.{png,pdf}` | Qwen3.6-35B-A3B Stage 3 all-layer profile |
+| `qwen36_cross/fig5_cross_model.{png,pdf}` | Two-model probe-layer comparison |
+| `qwen36_cross/fig8_layer_emergence.{png,pdf}` | Two-model layer-depth comparison |
+
 Cross-model figures:
 
 | File | Description |
@@ -121,3 +134,10 @@ Paper-draft figures (prefixed `paper_figure*`; produced 2026-06-24 for superviso
 | `2026-07-18_1208_gemma4_stage3_layer_sweep.md` | 2026-07-18 12:08 | Gemma-4-26B-A4B-it · Gemma-4-31B-it | Stage 3 all-layer warmth/competence probe sweep and independent RTX retry | Complete for 26B-A4B and 31B; 12B Stage 3 OOM remains separate. |
 | `2026-07-18_1244_gemma4_12b_stage3_l40_reproducibility.md` | 2026-07-18 12:44 | Gemma-4-12B-it | Stage 3 all-layer sweep plus exact-L40 versus L40S cross-stage reproducibility audit | Complete; exact L40 reproduces Stage 2 probe metrics exactly at six decimals, while the L40S run shows small bfloat16 geometry drift. |
 | `2026-07-18_1336_qwen36_27b_native_hf_smoke.md` | 2026-07-18 13:36 | Qwen3.6-27B | Native Hugging Face Stage 1–3 technical smoke on 40 concept stories and one RTX PRO 6000 | Complete; all hook, parity, memory, output, and scheduler gates passed without TransformerLens. |
+| `2026-07-18_1404_qwen36_27b_stage1_extraction.md` | 2026-07-18 14:04 | Qwen3.6-27B | Full Stage 1 extraction on 200 stories using native Hugging Face hooks | Complete; passive-hook, hidden-state, text-only, memory, and output gates passed. |
+| `2026-07-18_1408_qwen36_27b_stage2_validation.md` | 2026-07-18 14:08 | Qwen3.6-27B | Full Stage 2 probe validation | Complete; both axes achieve 1.00 five-fold and topic-held-out accuracy. |
+| `2026-07-18_1408_qwen36_27b_stage3_layer_sweep.md` | 2026-07-18 14:08 | Qwen3.6-27B | Full Stage 3 all-layer sweep | Complete; 64 finite layers and exact probe-layer reproduction. |
+| `2026-07-18_1414_qwen36_35b_a3b_stage1_extraction.md` | 2026-07-18 14:14 | Qwen3.6-35B-A3B | Full Stage 1 extraction on 200 stories using native Hugging Face hooks | Complete; one RTX PRO 6000, BF16, no fallback. |
+| `2026-07-18_1418_qwen36_35b_a3b_stage2_validation.md` | 2026-07-18 14:18 | Qwen3.6-35B-A3B | Full Stage 2 probe validation | Complete; both axes achieve 1.00 five-fold and topic-held-out accuracy. |
+| `2026-07-18_1418_qwen36_35b_a3b_stage3_layer_sweep.md` | 2026-07-18 14:18 | Qwen3.6-35B-A3B | Full Stage 3 all-layer sweep | Complete; 40 finite layers and exact probe-layer reproduction. |
+| `2026-07-18_1421_qwen36_full_stage_comparison.md` | 2026-07-18 14:21 | Qwen3.6-27B · Qwen3.6-35B-A3B | Cross-model synthesis of all six full stage runs | Complete; all jobs and technical gates passed, with story- and layer-level comparison. |

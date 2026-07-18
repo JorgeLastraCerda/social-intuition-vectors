@@ -759,14 +759,18 @@ def fig8_layer_emergence(
                 label="low-overlap target (0.30)", zorder=1)
     ax2.set_xlabel("Layer fraction (depth / n_layers)")
     ax2.set_ylabel("cos(warmth_vec, competence_vec)")
-    ax2.set_title("Warmth/competence axis overlap by depth\n(Gemma stays elevated at ALL layers — architectural effect)")
+    ax2.set_title(
+        "Warmth/competence axis overlap by depth\n"
+        "(cosine geometry; lower values indicate less overlap)"
+    )
     ax2.set_xlim(0, 1)
     ax2.set_ylim(0, 1.0)
     ax2.legend(fontsize=9, loc="upper left", framealpha=0.9)
 
+    model_scope = "one model" if len(sweeps) == 1 else f"{len(sweeps)} models"
     fig.suptitle(
         "Layer sweep: representation strength and axis geometry across depth  "
-        "(topic-holdout CV = 1.00 at every layer; four open-weights models)",
+        f"({model_scope})",
         fontsize=10, y=1.02,
     )
     fig.tight_layout()
