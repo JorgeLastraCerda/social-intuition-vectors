@@ -1819,3 +1819,13 @@
 - **Did:** Checked CCU access, processes, GPU accounting, queue state, sentinels, checkpoint counts, and logs; checked SCCKN scheduler assignment, resource request, accounting, sentinel, and checkpoint count.
 - **Findings:** CCU Gemma 4 12B remains active on the H100 at 41% sampled utilization and 24,166 MiB allocated, with 1,317 of 2,022 checkpoint shards (65.1%) and no error or success sentinel. SCCKN job `1145460` remains running on `gpu@scc214` with the hard `rtx_6000=1` request, 425 checkpoint files (approximately 21.0%), active accounting, and no error or success sentinel. The detached CCU handoff watcher remains active; 31B has correctly not started. A direct nested SSH GPU query to `scc214` was denied by host authentication policy, but Grid Engine assignment and advancing checkpoints independently confirm execution.
 - **Next:** Continue monitoring 12B and 26B-A4B; allow the sentinel-gated watcher to start CCU 31B only after validated 12B completion.
+
+---
+
+## 2026-07-18 · Step 51 — Move calibrated 31B execution to the second SCCKN GPU
+- **Context:** Use the remaining idle SCCKN RTX PRO 6000 while retaining CCU 31B as a fallback until physical scheduler assignment.
+- **Agent:** gpt-5-codex
+- **Did:** Added a checkpointed, write-once Gemma 4 31B condition to the independent SCCKN calibrated submitter and runner; passed the focused suite; submitted held job `1145463`, synchronized its manifest, released it, and waited for Grid Engine state `r`. Only after assignment, terminated the CCU 31B handoff watcher and stopped coordinator while preserving the active orphaned 12B runner and tee.
+- **Findings:** SCCKN 31B is running on `gpu@scc214` with hard resource `rtx_6000=1`, active accounting, 54.916 GiB virtual memory, and 17 checkpoint files shortly after startup. SCCKN 26B-A4B remains running with 766 checkpoint files. CCU 12B remains active with 24,156 MiB GPU allocation; its queue state now marks both 26B-A4B and 31B as `delegated_scckn`, and neither CCU coordinator nor handoff watcher remains. Thirteen focused tests, Ruff, shell syntax, dry-run, and `git diff --check` passed.
+- **Decision / rationale:** Cancel the CCU 31B launch path only after SCCKN provided physical execution evidence, exactly preserving the H100 fallback until that point. Distinct SCCKN labels and checkpoint roots prevent output collision.
+- **Next:** Monitor all three live models, validate each success artifact set, and create the required per-model empirical reports.
