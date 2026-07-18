@@ -1510,6 +1510,7 @@
 - **Findings:** All three GPU jobs are independent and user-held; the finalizer depends only on those three IDs. Outputs are separately labeled and write-once, with no overwrite of legacy Stage 3 tables. Preflight requires one exact NVIDIA L40 and two NVIDIA RTX PRO 6000 Blackwell Server Edition devices.
 - **Decision / rationale:** Persist the held-job manifest and audit entry before releasing the GPU jobs together; retain `probe_layer_frac=0.66` and treat Stage 3B as validation rather than automatic layer selection.
 - **Next:** Pull this entry on SCCKN, release `1145163 1145164 1145165`, verify physical device assignments, and monitor through finalizer and provenance postflight.
+
 - **Decision / rationale:** Keep all six individual reports as execution-specific records and use the seventh report for direct model selection and subsequent steering design.
 
 ---
@@ -1521,3 +1522,13 @@
 - **Findings:** Direction-specific topic CV was 1.00 for both axes and models. Strict warmth-to-competence and competence-to-warmth transfer was 0.97/0.98 for 27B and 0.99/0.93 for 35B-A3B. Every pre-existing Stage 2 value was retained; both strengthened validators and cross-stage audits passed with zero probe-layer drift. The full suite passed 66 tests, Ruff passed, and `git diff --check` passed. A NumPy 2.3.0 Apple Accelerate build emitted erroneous dot-product warnings and unstable fold scores; those provisional extension values were rejected, and the accepted results were reproduced warning-free with NumPy 2.5.1 and scikit-learn 1.9.0.
 - **Decision / rationale:** Treat fold-internal direction CV as the construction-specific generalization result and strict transfer as the construct-selectivity control. Keep the older target-calibrated cross-axis fields only for compatibility. Run future Qwen3.6 Stage 2 jobs through the complete schema automatically.
 - **Next:** Technical steering remains a separate GPU experiment; the two CPU validation omissions are now closed for both Qwen3.6 models.
+
+---
+
+## 2026-07-18 · Step 24 — Complete Gemma 4 Stage 3B audit
+- **Context:** Execute and report the enhanced all-layer validation for all three Gemma 4 variants.
+- **Agent:** gpt-5-codex
+- **Did:** Released and monitored SCCKN jobs `1145163`–`1145166`, ran local post-sync validators, verified every legacy Stage 3 column against its canonical table, generated and visually inspected corrected Figure 8 and new Figure 8B, and created `paper/2026-07-18_1453_gemma4_stage3b_validation.md`.
+- **Findings:** All jobs ended with `failed=0,exit_status=0`; 12B ran on an exact NVIDIA L40 and 26B-A4B/31B ran independently on RTX PRO 6000 devices. Every legacy metric matches at every layer with maximum absolute difference 0. Probe-layer direction topic CV is 1.00/1.00 for every model, while strict W-to-C/C-to-W transfer is 0.99/0.97 (12B), 0.99/0.95 (26B-A4B), and 0.95/0.88 (31B). Paired-topic bootstrap peak ranges show stable middle-layer regions but wider exact-layer uncertainty for 12B and 31B competence.
+- **Decision / rationale:** Retain `probe_layer_frac=0.66` for comparability and treat it as a strong but entangled fixed layer, not a data-selected or construct-pure optimum. Preserve legacy Stage 3 as the comparison reference and use Stage 3B for the stricter scientific interpretation.
+- **Next:** Use strict cross-axis controls and external human/hiring validation in the causal stage; do not infer external validity from perfect synthetic topic holdout.

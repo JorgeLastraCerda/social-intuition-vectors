@@ -68,6 +68,38 @@ Per-model figures for Qwen3-14B and Llama-3.1-8B in subdirectories:
 | `llama31_8b/fig2_random_baseline.{png,pdf}` | Random baseline (z=15.0/15.1) — Llama-3.1-8B |
 | `llama31_8b/fig3_lorenz_concentration.{png,pdf}` | Lorenz concentration — Llama-3.1-8B |
 
+Per-model figures for the three Gemma 4 models (Stage 1 extraction geometry):
+
+| Path | Description |
+|------|-------------|
+| `gemma4_12b/fig1_joint_density.{png,pdf}` | Joint density — Gemma-4-12B-it |
+| `gemma4_12b/fig2_random_baseline.{png,pdf}` | Random baseline (z=14.1/12.8) — Gemma-4-12B-it |
+| `gemma4_12b/fig3_lorenz_concentration.{png,pdf}` | Lorenz concentration — Gemma-4-12B-it |
+| `gemma4_12b/fig4_axis_geometry.{png,pdf}` | Axis geometry, cos=0.494 — Gemma-4-12B-it |
+| `gemma4_26b_a4b/fig1_joint_density.{png,pdf}` | Joint density — Gemma-4-26B-A4B-it |
+| `gemma4_26b_a4b/fig2_random_baseline.{png,pdf}` | Random baseline (z=15.0/14.3) — Gemma-4-26B-A4B-it |
+| `gemma4_26b_a4b/fig3_lorenz_concentration.{png,pdf}` | Lorenz concentration — Gemma-4-26B-A4B-it |
+| `gemma4_26b_a4b/fig4_axis_geometry.{png,pdf}` | Axis geometry, cos=0.587 — Gemma-4-26B-A4B-it |
+| `gemma4_31b/fig1_joint_density.{png,pdf}` | Joint density — Gemma-4-31B-it |
+| `gemma4_31b/fig2_random_baseline.{png,pdf}` | Random baseline (z=13.1/8.6) — Gemma-4-31B-it |
+| `gemma4_31b/fig3_lorenz_concentration.{png,pdf}` | Lorenz concentration — Gemma-4-31B-it |
+| `gemma4_31b/fig4_axis_geometry.{png,pdf}` | Axis geometry, cos=0.526 — Gemma-4-31B-it |
+
+Cross-model figures (Gemma 4 Stage 2 probe validation, three-model comparison):
+
+| Path | Description |
+|------|-------------|
+| `gemma4_cross/fig5_cross_model.{png,pdf}` | Grouped bars: CV accuracy, Cohen's d, cos(W,C) across the three Gemma 4 models — CV flat at ceiling, 31B competence d visibly lowest, 26B-A4B cosine visibly highest |
+| `gemma4_cross/fig6_cross_model_story_agreement.{png,pdf}` | Overall and within-condition Spearman ρ heatmaps — overall ρ=0.905–0.960; within-condition warmth ρ=0.434–0.574 and competence ρ=0.618–0.645 |
+| `gemma4_cross/fig7_same_story_demo.{png,pdf}` | Qualitative overlay of 6 Gemma-4-12B-selected exemplar stories across the three variants |
+
+Cross-model figures (Gemma 4 Stage 3 consolidated layer sweep, three-model comparison):
+
+| Path | Description |
+|------|-------------|
+| `gemma4_cross/fig8_layer_emergence.{png,pdf}` | Cohen's d and cos(W,C) vs layer fraction, three Gemma 4 models — mid-layer amplification peak and mid-layer cosine peak in all three, 12B row uses the exact-L40 sweep |
+| `gemma4_cross/fig8b_stage3b_validation.{png,pdf}` | Stage 3B all-layer direction topic holdout, strict cross-axis transfer, and paired-topic 95% bootstrap intervals for Cohen's d and cos(W,C) |
+
 Full-run figures for Qwen3.6-27B and Qwen3.6-35B-A3B:
 
 | Path | Description |
@@ -133,7 +165,11 @@ Paper-draft figures (prefixed `paper_figure*`; produced 2026-06-24 for superviso
 | `2026-07-15_0839_gemma4_12b_smoke.md` | 2026-07-15 08:39 | Gemma-4-12B-it | TransformerLens Bridge compatibility, hook, steering, and single-GPU memory smoke | Complete; all smoke gates passed. Independent 31B retry remains queued. |
 | `2026-07-18_1208_gemma4_stage3_layer_sweep.md` | 2026-07-18 12:08 | Gemma-4-26B-A4B-it · Gemma-4-31B-it | Stage 3 all-layer warmth/competence probe sweep and independent RTX retry | Complete for 26B-A4B and 31B; 12B Stage 3 OOM remains separate. |
 | `2026-07-18_1244_gemma4_12b_stage3_l40_reproducibility.md` | 2026-07-18 12:44 | Gemma-4-12B-it | Stage 3 all-layer sweep plus exact-L40 versus L40S cross-stage reproducibility audit | Complete; exact L40 reproduces Stage 2 probe metrics exactly at six decimals, while the L40S run shows small bfloat16 geometry drift. |
+| `2026-07-18_1308_gemma4_stage1_extraction_geometry.md` | 2026-07-18 13:08 | Gemma-4-12B-it · Gemma-4-26B-A4B-it · Gemma-4-31B-it | Stage 1: extraction geometry — vector norms, cos(W,C), random-baseline null separation, Lorenz weight concentration | Complete for all three models; 26B-A4B most concentrated and most cross-axis-entangled, while 31B has the lowest cross-axis CV cell. |
 | `2026-07-18_1336_qwen36_27b_native_hf_smoke.md` | 2026-07-18 13:36 | Qwen3.6-27B | Native Hugging Face Stage 1–3 technical smoke on 40 concept stories and one RTX PRO 6000 | Complete; all hook, parity, memory, output, and scheduler gates passed without TransformerLens. |
+| `2026-07-18_1326_gemma4_stage2_probe_validation.md` | 2026-07-18 13:26 | Gemma-4-12B-it · Gemma-4-26B-A4B-it · Gemma-4-31B-it | Stage 2: full-feature and direction-specific topic validation, cross-axis transfer, and condition-aware story-ranking agreement | Target-axis CV is 1.00 throughout; strict topic-held-out transfer is 0.88–0.99; within-condition ρ is 0.434–0.645. |
+| `2026-07-18_1340_gemma4_stage3_layer_sweep_consolidated.md` | 2026-07-18 13:40 | Gemma-4-12B-it · Gemma-4-26B-A4B-it · Gemma-4-31B-it | Stage 3: consolidated all-layer sweep — Cohen's d and cos(W,C) depth profiles, probe-layer reproduction of Stage 2, 12B exact-L40 vs L40S hardware audit | Complete for all three models; all peak before frac=0.66, mid-layer cosine peak (0.62–0.74) in all three, 12B exact-L40 reproduces Stage 2 with zero difference. |
+| `2026-07-18_1453_gemma4_stage3b_validation.md` | 2026-07-18 14:53 | Gemma-4-12B-it · Gemma-4-26B-A4B-it · Gemma-4-31B-it | Stage 3B: all-layer direction validation, strict cross-axis topic transfer, paired-topic bootstrap uncertainty, and SCCKN provenance | Complete; legacy Stage 3 is reproduced exactly, probe-layer direction CV is 1.00/1.00, and strict transfer remains 0.88–0.99. |
 | `2026-07-18_1404_qwen36_27b_stage1_extraction.md` | 2026-07-18 14:04 | Qwen3.6-27B | Full Stage 1 extraction on 200 stories using native Hugging Face hooks | Complete; passive-hook, hidden-state, text-only, memory, and output gates passed. |
 | `2026-07-18_1408_qwen36_27b_stage2_validation.md` | 2026-07-18 14:08 | Qwen3.6-27B | Full Stage 2 probe validation | Complete; both axes achieve 1.00 five-fold and topic-held-out accuracy. |
 | `2026-07-18_1408_qwen36_27b_stage3_layer_sweep.md` | 2026-07-18 14:08 | Qwen3.6-27B | Full Stage 3 all-layer sweep | Complete; 64 finite layers and exact probe-layer reproduction. |
