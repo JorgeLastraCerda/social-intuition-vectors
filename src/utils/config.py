@@ -64,6 +64,17 @@ class SmokeConfig:
 
 
 @dataclass(frozen=True)
+class NativeHFConfig:
+    """Optional production settings for native Hugging Face activation runs."""
+
+    label: str = "native_hf"
+    expected_layers: int = 0
+    expected_d_model: int = 0
+    min_free_vram_gib: float = 0.0
+    max_vram_fraction: float = 0.90
+
+
+@dataclass(frozen=True)
 class PathConfig:
     papers: Path
     raw_data: Path
@@ -82,6 +93,7 @@ class ProjectConfig:
     paths: PathConfig
     neutral: NeutralConfig = field(default_factory=NeutralConfig)
     smoke: SmokeConfig = field(default_factory=SmokeConfig)
+    native_hf: NativeHFConfig = field(default_factory=NativeHFConfig)
 
 
 def load_config(path: str | Path = "config/config.yaml") -> ProjectConfig:
@@ -97,6 +109,7 @@ def load_config(path: str | Path = "config/config.yaml") -> ProjectConfig:
         paths=PathConfig(**{key: Path(value) for key, value in raw["paths"].items()}),
         neutral=NeutralConfig(**(raw.get("neutral") or {})),
         smoke=SmokeConfig(**(raw.get("smoke") or {})),
+        native_hf=NativeHFConfig(**(raw.get("native_hf") or {})),
     )
 
 

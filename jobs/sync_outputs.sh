@@ -71,6 +71,8 @@ output_paths=(
     results/logs/smoke_gemma4_*.json
     results/logs/smoke_qwen36_*.json
     results/logs/qwen36_smoke_submission_*.json
+    results/logs/qwen36_*_stage*.json
+    results/logs/qwen36_full_submission_*.json
     results/logs/gemma4_stages_1_3_submission_*.json
     results/logs/gemma4_parity_*.json
     results/logs/gemma4_stage3_retry_submission_*.json

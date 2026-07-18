@@ -1,0 +1,38 @@
+model:
+  name: "Qwen/Qwen3.6-35B-A3B"
+  revision: "995ad96eacd98c81ed38be0c5b274b04031597b0"
+  dtype: "bfloat16"
+  device: "cuda"
+  backend: "huggingface-native"
+
+generation:
+  model: "claude-haiku-4-5-20251001"
+  max_tokens: 300
+  temperature: 1.0
+  max_retries: 5
+  requests_per_minute: 50
+
+probing:
+  probe_layer_frac: 0.66
+  n_topics: 100
+  stories_per_topic: 12
+  start_token: 50
+  seed: 20260527
+
+steering:
+  strengths: [0.0, 0.25, 0.5, 1.0]
+
+paths:
+  papers: "literature/"
+  raw_data: "data/raw/"
+  stimuli: "data/stimuli/"
+  processed: "data/processed/"
+  results: "results/"
+  logs: "results/logs/"
+
+native_hf:
+  label: "qwen36_35b_a3b"
+  expected_layers: 40
+  expected_d_model: 2048
+  min_free_vram_gib: 88.0
+  max_vram_fraction: 0.90
