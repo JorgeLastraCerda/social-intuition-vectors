@@ -47,9 +47,9 @@ if pgrep -u "$USER" -f 'pip(3)? install|conda (create|install|update)' >/dev/nul
 fi
 
 module load conda  # ADJUST
-conda activate wc-qwen36-hf
-python -m pip check
-python - <<'PY'
+PYTHON=(conda run --no-capture-output -n wc-qwen36-hf python)
+"${PYTHON[@]}" -m pip check
+"${PYTHON[@]}" - <<'PY'
 import importlib.util
 
 import torch
@@ -61,7 +61,7 @@ assert importlib.util.find_spec("transformer_lens") is None
 print("torch", torch.__version__, "transformers", transformers.__version__)
 print("classes", AutoProcessor.__name__, AutoModelForMultimodalLM.__name__)
 PY
-python -m src.validate_qwen36_smoke \
+"${PYTHON[@]}" -m src.validate_qwen36_smoke \
   --config "$CONFIG_PATH" --require-absent
 
 available=$(qstat -F gpu -q "$QUEUE" | awk -F= '/qc:gpu=/{gsub(/[[:space:]]/, "", $2); print $2; exit}')
@@ -113,7 +113,7 @@ qstat -j "$job_final" >/dev/null
 export RUN_ID STATE_DIR MANIFEST GIT_COMMIT REPO_PATH CONFIG_PATH QUEUE
 export GPU_RESOURCES PRIORITY AVAILABLE="$available" JOB_GPU="$job_gpu" JOB_FINAL="$job_final"
 export GPU_SENTINEL FINAL_SENTINEL
-python - <<'PY'
+"${PYTHON[@]}" - <<'PY'
 import json
 import os
 from datetime import datetime, timezone
