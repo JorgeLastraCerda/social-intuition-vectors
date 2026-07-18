@@ -1691,3 +1691,13 @@
 - **Findings:** SCCKN reported two RTX PRO 6000 GPUs at submission. All three jobs are held, use no `hold_jid`, require exact RTX PRO 6000 runtime hardware, and keep full-282 disabled.
 - **Decision / rationale:** Preserve the held-manifest-release audit sequence and synchronize all three manifests before releasing any job.
 - **Next:** Push the sync-pattern correction, synchronize the manifests, release all three jobs, and monitor technical validators.
+
+---
+
+## 2026-07-18 · Step 38 — Complete calibrated-artifact tracking whitelist
+- **Context:** The first post-submission sync reached the new manifest files but Git refused them as ignored.
+- **Agent:** gpt-5-codex
+- **Did:** Preserved the exact Git error that the three `calibrated_steering_submission_*.json` paths were ignored, then added explicit `.gitignore` exceptions for calibrated manifests and scheduler logs plus regression assertions.
+- **Findings:** The issue affected artifact tracking only; jobs `1145429`, `1145430`, and `1145431` remained user-held and no compute work started.
+- **Decision / rationale:** Track the new lightweight manifests and logs under the same write-once policy as prior Gemma 4 and Qwen3.6 runs.
+- **Next:** Push the whitelist correction, synchronize all manifests, then release the three independent jobs.

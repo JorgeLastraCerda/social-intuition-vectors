@@ -20,6 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SUBMITTER = ROOT / "jobs/sge/submit_calibrated_steering_pilot.sh"
 RUNNER = ROOT / "jobs/sge/calibrated_steering_run.sh"
 SYNC = ROOT / "jobs/sync_outputs.sh"
+GITIGNORE = ROOT / ".gitignore"
 
 
 def test_sd_matching_equalizes_standardized_shift() -> None:
@@ -144,3 +145,7 @@ def test_pilot_jobs_are_independent_rtx6000_and_disable_full282() -> None:
     assert "results/logs/calibrated_steering_submission_*.json" in sync
     assert "results/logs/calibrated_steering_*.out" in sync
     assert "results/logs/calibrated_steering_*.err" in sync
+    ignored = GITIGNORE.read_text(encoding="utf-8")
+    assert "!results/logs/calibrated_steering_submission_*.json" in ignored
+    assert "!results/logs/calibrated_steering_*.out" in ignored
+    assert "!results/logs/calibrated_steering_*.err" in ignored
