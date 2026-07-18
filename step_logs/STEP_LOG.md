@@ -1790,3 +1790,13 @@
 - **Did:** Checked CCU doctor, queue process/state, GPU utilization, checkpoint shard count, sentinels, and the current steering log.
 - **Findings:** Queue PID `1197` remained live after 11 minutes 26 seconds. Gemma 4 12B was running with 456 of 2,022 checkpoint shards (22.6%); the log had reached warmth additive `random_088`. The H100 used 24,166 MiB with 43% utilization. No error or success sentinel existed; 26B-A4B and 31B remained pending.
 - **Next:** Continue monitoring until the 12B validator and sentinel pass, then allow the serial coordinator to start 26B-A4B automatically.
+
+---
+
+## 2026-07-18 · Step 48 — Delegate calibrated 26B-A4B from CCU to SCCKN
+- **Context:** Use two newly idle SCCKN RTX PRO 6000 slots while CCU continues the 12B calibrated run.
+- **Agent:** gpt-5-codex
+- **Did:** Verified `gpu@scc214` reports two free GPU slots and the `rtx_6000` host feature; sent `SIGSTOP` only to CCU coordinator PID `1197`, leaving its 12B runner, tee, and GPU process active; extended the independent SGE calibrated submitter/runner with a distinct checkpointed Gemma 4 26B-A4B condition.
+- **Findings:** CCU 12B continued on 24,156 MiB VRAM after the coordinator entered stopped state, so it cannot auto-launch 26B after 12B completion. The new SCCKN condition uses label `gemma4_26b_a4b_calibrated_scckn_rtx6000`, exact RTX PRO 6000 runtime gating, 99 SD-matched random directions, additive plus norm-preserving interventions, and atomic resume. Thirteen focused tests, Ruff, shell syntax, dry-run, and `git diff --check` passed.
+- **Decision / rationale:** Run 26B-A4B on SCCKN in parallel, preserve CCU 12B, and reserve CCU for 31B after the 12B sentinel. Separate labels prevent output collision or accidental duplicate acceptance.
+- **Next:** Commit and deploy the SGE extension, submit/release 26B-A4B, verify physical RTX assignment, and install a safe post-12B CCU handoff to 31B only.

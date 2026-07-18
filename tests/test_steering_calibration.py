@@ -138,7 +138,12 @@ def test_pilot_jobs_are_independent_rtx6000_and_disable_full282() -> None:
     assert "git pull" not in runner
     assert "sync_outputs.sh" not in runner
     assert 'if "RTX PRO 6000" not in name' in runner
-    for model in ("gemma3_12b", "gemma4_12b", "qwen36_27b"):
+    for model in (
+        "gemma3_12b",
+        "gemma4_12b",
+        "gemma4_26b_a4b",
+        "qwen36_27b",
+    ):
         result = subprocess.run(
             ["bash", str(SUBMITTER), "--model", model, "--dry-run"],
             cwd=ROOT,
