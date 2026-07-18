@@ -1,0 +1,3 @@
+[preflight] validating Stage 1 and Stage 2 inputs for gemma4_12b
+[start] 2026-07-18T10:41:28Z model=google/gemma-4-12B-it label=gemma4_12b_l40_repro job=1144977
+Loading weights:   0%|          | 0/677 [00:00<?, ?it/s]Loading weights: 100%|██████████| 677/677 [00:00<00:00, 8942.99it/s]

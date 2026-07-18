@@ -1,0 +1,94 @@
+--- Grid Engine ---
+Reserving GPUs @ scc192 ..
+Number of requested GPUS: 1
+GPU 0: NVIDIA L40 (UUID: GPU-58427703-bce4-32fd-4b8a-f00823f1d59c)
+GPU 1: NVIDIA L40 (UUID: GPU-41e5380b-23f0-e6b0-6d0a-a44254ec8642)
+GPU 2: NVIDIA L40 (UUID: GPU-aa56efa3-44bb-3542-e797-a0b90a3d3978)
+GPU 3: NVIDIA L40 (UUID: GPU-52b7f36d-6004-78d2-75d7-91fd517911ae)
+Set SGE_GPU = 0
+Set CUDA_VISIBLE_DEVICES = 0
+--- Grid Engine ---
+[runtime] host GPU: NVIDIA L40
+[runtime] visible GPUs=1 free_memory=44.00 GiB total_memory=44.42 GiB
+[validated] gemma4_12b stage 1: technical gates passed
+[validated] gemma4_12b stage 2: technical gates passed
+[preflight] stage 3 targets are absent
+[override] model set to: google/gemma-4-12B-it
+[stimuli] data/stimuli/concept_stories.jsonl
+  [stimuli] high_warmth: 50 stories
+  [stimuli] low_warmth: 50 stories
+  [stimuli] high_competence: 50 stories
+  [stimuli] low_competence: 50 stories
+[model] loading google/gemma-4-12B-it ...
+[model] n_layers=48, d_model=3840, probe_layer=31 (frac=0.66)
+[sweep] extracting all 48 layers for 200 stories ...
+  [sweep] 20/200 stories done
+  [sweep] 40/200 stories done
+  [sweep] 60/200 stories done
+  [sweep] 80/200 stories done
+  [sweep] 100/200 stories done
+  [sweep] 120/200 stories done
+  [sweep] 140/200 stories done
+  [sweep] 160/200 stories done
+  [sweep] 180/200 stories done
+  [sweep] 200/200 stories done
+[sweep] extraction done in 36.1s  acts.shape=(48, 200, 3840)
+[sweep] computing metrics per layer ...
+  L000  frac=0.00  w_cv=0.820  c_cv=0.960  w_d=1.64  cos=0.098  norm=35.1
+  L001  frac=0.02  w_cv=0.830  c_cv=0.980  w_d=2.13  cos=-0.102  norm=43.0
+  L002  frac=0.04  w_cv=0.850  c_cv=0.960  w_d=2.26  cos=0.136  norm=74.8
+  L003  frac=0.06  w_cv=0.840  c_cv=0.960  w_d=2.66  cos=0.131  norm=62.5
+  L004  frac=0.09  w_cv=0.860  c_cv=0.960  w_d=2.46  cos=0.259  norm=31.6
+  L005  frac=0.11  w_cv=0.890  c_cv=0.900  w_d=2.40  cos=0.138  norm=40.9
+  L006  frac=0.13  w_cv=0.880  c_cv=0.930  w_d=2.12  cos=0.174  norm=41.8
+  L007  frac=0.15  w_cv=0.820  c_cv=0.910  w_d=2.64  cos=0.157  norm=30.4
+  L008  frac=0.17  w_cv=0.910  c_cv=0.930  w_d=2.76  cos=0.130  norm=62.8
+  L009  frac=0.19  w_cv=0.850  c_cv=0.960  w_d=2.63  cos=0.194  norm=36.7
+  L010  frac=0.21  w_cv=0.910  c_cv=0.950  w_d=2.34  cos=0.280  norm=18.8
+  L011  frac=0.23  w_cv=0.770  c_cv=0.910  w_d=1.82  cos=0.022  norm=17.5
+  L012  frac=0.26  w_cv=0.840  c_cv=0.930  w_d=1.95  cos=0.052  norm=67.6
+  L013  frac=0.28  w_cv=0.890  c_cv=0.980  w_d=2.26  cos=0.086  norm=130.9
+  L014  frac=0.30  w_cv=0.930  c_cv=1.000  w_d=2.38  cos=0.229  norm=171.8
+  L015  frac=0.32  w_cv=0.980  c_cv=1.000  w_d=3.94  cos=0.402  norm=208.2
+  L016  frac=0.34  w_cv=0.970  c_cv=1.000  w_d=3.54  cos=0.455  norm=230.2
+  L017  frac=0.36  w_cv=0.980  c_cv=1.000  w_d=2.00  cos=0.496  norm=166.0
+  L018  frac=0.38  w_cv=0.990  c_cv=1.000  w_d=4.26  cos=0.528  norm=166.4
+  L019  frac=0.40  w_cv=0.990  c_cv=1.000  w_d=4.74  cos=0.602  norm=195.7
+  L020  frac=0.43  w_cv=1.000  c_cv=1.000  w_d=6.27  cos=0.575  norm=234.8
+  L021  frac=0.45  w_cv=1.000  c_cv=1.000  w_d=7.57  cos=0.603  norm=264.4
+  L022  frac=0.47  w_cv=1.000  c_cv=1.000  w_d=7.83  cos=0.591  norm=278.1
+  L023  frac=0.49  w_cv=1.000  c_cv=1.000  w_d=7.42  cos=0.561  norm=240.2
+  L024  frac=0.51  w_cv=1.000  c_cv=1.000  w_d=7.78  cos=0.582  norm=235.6
+  L025  frac=0.53  w_cv=1.000  c_cv=1.000  w_d=9.96  cos=0.617  norm=232.5
+  L026  frac=0.55  w_cv=1.000  c_cv=1.000  w_d=10.56  cos=0.596  norm=225.3
+  L027  frac=0.57  w_cv=1.000  c_cv=1.000  w_d=10.05  cos=0.543  norm=198.1
+  L028  frac=0.60  w_cv=1.000  c_cv=1.000  w_d=9.83  cos=0.538  norm=180.5
+  L029  frac=0.62  w_cv=1.000  c_cv=1.000  w_d=9.72  cos=0.499  norm=107.5
+  L030  frac=0.64  w_cv=1.000  c_cv=1.000  w_d=9.98  cos=0.493  norm=92.9
+  L031  frac=0.66  w_cv=1.000  c_cv=1.000  w_d=8.63  cos=0.494  norm=97.8 <-- probe_layer_frac=0.66
+  L032  frac=0.68  w_cv=1.000  c_cv=1.000  w_d=6.63  cos=0.440  norm=137.5
+  L033  frac=0.70  w_cv=1.000  c_cv=1.000  w_d=7.44  cos=0.430  norm=157.7
+  L034  frac=0.72  w_cv=1.000  c_cv=1.000  w_d=6.14  cos=0.430  norm=155.5
+  L035  frac=0.74  w_cv=1.000  c_cv=1.000  w_d=6.36  cos=0.415  norm=107.4
+  L036  frac=0.77  w_cv=1.000  c_cv=1.000  w_d=5.62  cos=0.407  norm=100.4
+  L037  frac=0.79  w_cv=1.000  c_cv=1.000  w_d=5.04  cos=0.411  norm=116.7
+  L038  frac=0.81  w_cv=1.000  c_cv=1.000  w_d=5.07  cos=0.411  norm=144.2
+  L039  frac=0.83  w_cv=1.000  c_cv=1.000  w_d=5.25  cos=0.383  norm=127.5
+  L040  frac=0.85  w_cv=1.000  c_cv=1.000  w_d=5.27  cos=0.399  norm=82.6
+  L041  frac=0.87  w_cv=1.000  c_cv=1.000  w_d=4.85  cos=0.403  norm=68.8
+  L042  frac=0.89  w_cv=1.000  c_cv=1.000  w_d=4.56  cos=0.389  norm=71.5
+  L043  frac=0.91  w_cv=1.000  c_cv=1.000  w_d=3.62  cos=0.378  norm=73.0
+  L044  frac=0.94  w_cv=1.000  c_cv=1.000  w_d=3.11  cos=0.357  norm=82.5
+  L045  frac=0.96  w_cv=1.000  c_cv=1.000  w_d=2.65  cos=0.319  norm=65.6
+  L046  frac=0.98  w_cv=1.000  c_cv=1.000  w_d=1.64  cos=0.284  norm=57.1
+  L047  frac=1.00  w_cv=0.940  c_cv=0.970  w_d=0.53  cos=0.507  norm=9.3
+
+[DONE] layer sweep CSV: results/tables/layer_sweep_gemma4_12b_l40_repro.csv
+
+--- SUMMARY ---
+  Best warmth topic-CV   : L20 (frac=0.43)  cv=1.0000  d=6.27
+  Best comp  topic-CV    : L14 (frac=0.30)  cv=1.0000  d=4.38
+  probe_layer_frac=0.66  : L31 (frac=0.66)  w_cv=1.0000  c_cv=1.0000  cos=0.494  norm=97.8
+[DONE] meta: results/tables/layer_sweep_gemma4_12b_l40_repro.meta.json
+[validated] gemma4_12b_l40_repro stage 3: technical gates passed
+[success] 2026-07-18T10:42:47Z gemma4_12b_l40_repro Stage 3 -> /work/emrecan.ulu/gemma4_stage3_l40_repro/20260718T103904Z/12b_l40_repro.success

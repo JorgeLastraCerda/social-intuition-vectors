@@ -1,0 +1,8 @@
+[validated] gemma4_12b stage 3: technical gates passed
+[main 78d3055] Sync pipeline outputs from scc123 (2026-07-18T10:35Z)
+ 2 files changed, 80 insertions(+)
+ create mode 100644 results/tables/layer_sweep_gemma4_12b.csv
+ create mode 100644 results/tables/layer_sweep_gemma4_12b.meta.json
+Current branch main is up to date.
+[sync] pushed successfully.
+[success] Gemma 4 12B Stage 3 validated and synchronized

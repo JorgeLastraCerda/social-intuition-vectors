@@ -1,0 +1,11 @@
+[validated] gemma4_26b_a4b stage 3: technical gates passed
+[validated] gemma4_31b stage 3: technical gates passed
+[main 8512efa] Sync pipeline outputs from scc123 (2026-07-18T10:08Z)
+ 4 files changed, 154 insertions(+)
+ create mode 100644 results/tables/layer_sweep_gemma4_26b_a4b.csv
+ create mode 100644 results/tables/layer_sweep_gemma4_26b_a4b.meta.json
+ create mode 100644 results/tables/layer_sweep_gemma4_31b.csv
+ create mode 100644 results/tables/layer_sweep_gemma4_31b.meta.json
+Current branch main is up to date.
+[sync] pushed successfully.
+[success] both Gemma 4 Stage 3 retries validated and synchronized
