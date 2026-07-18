@@ -63,8 +63,15 @@ if ((DRY_RUN)); then
   echo "[dry-run] independent=1 user_held=1 hold_jid=none availability=submit-even-when-zero"
   exit 0
 fi
-if [[ -n "$(git status --porcelain --untracked-files=no)" ]]; then
-  echo "Refusing submission: tracked SCCKN worktree is not clean." >&2
+critical_paths=(
+  "$CONFIG_PATH"
+  src
+  smoke_tests/gemma4_transformerlens/smoke_test_bridge.py
+  jobs/sge/gemma4_remaining_run.sh
+  jobs/sge/submit_gemma4_remaining.sh
+)
+if [[ -n "$(git status --porcelain --untracked-files=no -- "${critical_paths[@]}")" ]]; then
+  echo "Refusing submission: tracked critical source/config files are not clean." >&2
   exit 3
 fi
 for path in "$MANIFEST" "$STATE_DIR"; do

@@ -52,3 +52,7 @@ Hiring summaries use a seeded paired bootstrap with 5,000 resamples. The legacy 
 - `git diff --check`: passed.
 
 These checks establish implementation readiness only. Scientific conclusions require the SCCKN smoke and production outputs, which will receive separate model- and run-specific reports.
+
+## Operational correction during execution
+
+The initial submitter treated any modified tracked file as a critical dirty-worktree condition. Once synchronized raw scheduler logs continued to grow during active jobs, this produced the exact false-positive error `Refusing submission: tracked SCCKN worktree is not clean.` The check was narrowed to the selected config, `src/`, the smoke implementation, and the remaining-test runner and submitter. Active result logs can therefore grow without blocking an otherwise clean independent submission, while every executable scientific input remains protected.
