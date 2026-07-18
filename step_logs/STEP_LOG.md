@@ -1318,3 +1318,13 @@
 - **Did:** Queried the live Grid Engine queue configuration, host GPU features, consumable `gpu` availability, running GPU jobs, requested resources, and start times without modifying any jobs.
 - **Findings:** At 2026-07-18 11:43:21 CEST, the L40 pool had 11 GPUs across `scc192` and `scc213`: 5 reserved and 6 scheduler-available. The RTX 6000 pool on `scc214` had 8 GPUs: 6 reserved and 2 available. The 11 active reservations had run for 14h46m to 188h25m.
 - **Decision / rationale:** Count only jobs consuming the Grid Engine `gpu` resource as unavailable GPUs; interactive sessions on a GPU host without a `gpu` reservation do not reduce scheduler-reported availability.
+
+---
+
+## 2026-07-18 · Step 3 — Implement independent Gemma 4 Stage 3 retries
+- **Context:** Retry Gemma 4 26B-A4B and 31B Stage 3 concurrently after the original serial chain was blocked by the failed 12B predecessor sentinel.
+- **Agent:** gpt-5-codex
+- **Did:** Added an independent single-GPU Stage 3 runner, a held two-job submitter for `gpu@scc214`, and a CPU-only finalizer that validates both sentinels before one output sync; added manifest tracking and focused script tests.
+- **Findings:** The original 26B and 31B jobs did not execute model code; they exited 20 because the 12B Stage 3 OOM prevented predecessor sentinels. Local verification passed 17 tests, shell syntax, Python compilation, submitter dry-run, Stage 1–2 input validation for both models, canonical-output absence checks, and `git diff --check`. `shellcheck` was unavailable locally.
+- **Decision / rationale:** Remove only the retry dependency on 12B, keep 26B and 31B compute jobs independent and user-held, prohibit Git operations inside parallel GPU jobs, and defer one durable sync to a CPU finalizer after both technical validators pass.
+- **Next:** Push the implementation, preflight the clean SCCKN checkout and two available RTX 6000 resources, submit both jobs held, synchronize the manifest, and release them together.
