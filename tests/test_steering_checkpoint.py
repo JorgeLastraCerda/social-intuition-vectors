@@ -84,5 +84,16 @@ def test_ccu_queue_is_serial_fail_closed_and_h100_only() -> None:
         "jobs/ccu/run_gemma4_calibrated.sh",
         "jobs/ccu/run_gemma4_calibrated_queue.sh",
         "jobs/ccu/handoff_12b_to_31b.sh",
+        "jobs/ccu/run_gemma4_12b_full282.sh",
     ):
         subprocess.run(["bash", "-n", script], cwd=ROOT, check=True)
+
+
+def test_ccu_full282_runner_is_h100_only_and_write_once() -> None:
+    runner = (ROOT / "jobs/ccu/run_gemma4_12b_full282.sh").read_text()
+    assert "local|broad|denoised" in runner
+    assert '"$GPU_NAME" != *H100*' in runner
+    assert "--n-names 0" in runner
+    assert "--full282 --require-absent" in runner
+    assert "local_full282.success" not in runner
+    assert 'SENTINEL="$STATE_ROOT/sentinels/' in runner
