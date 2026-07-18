@@ -1,0 +1,21 @@
+{
+  "run_id": "20260718T155600Z_qwen36_27b_retry1",
+  "submitted_at_utc": "2026-07-18T15:55:09.595176+00:00",
+  "status": "independent-job-user-held",
+  "git_commit": "ec416ee2bde541168f096e9c0b0369d7dfd1f8f5",
+  "hold_jid_used": false,
+  "full282_enabled": false,
+  "availability_at_submission": 2,
+  "job": {
+    "job_id": "1145435",
+    "model_key": "qwen36_27b",
+    "config": "config/qwen36_27b.yaml",
+    "label": "qwen36_27b_calibrated",
+    "queue": "gpu@scc214",
+    "resources": "gpu=1,rtx_6000=1,h_vmem=96G,h_rt=24:00:00",
+    "expected_gpu_kind": "RTX_PRO_6000",
+    "user_held": true,
+    "success_sentinel": "/work/emrecan.ulu/calibrated_steering/20260718T155600Z_qwen36_27b_retry1/qwen36_27b.success"
+  },
+  "release_command": "qrls 1145435"
+}

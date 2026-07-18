@@ -1,0 +1,86 @@
+Loading weights:   0%|          | 0/677 [00:00<?, ?it/s]Loading weights: 100%|██████████| 677/677 [00:00<00:00, 27378.33it/s]
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/data/scc/emrecan.ulu/normalcy-axis/src/dense_steering.py", line 753, in <module>
+    main()
+  File "/data/scc/emrecan.ulu/normalcy-axis/src/dense_steering.py", line 551, in main
+    else yes_no_margin(
+         ^^^^^^^^^^^^^^
+  File "/data/scc/emrecan.ulu/normalcy-axis/src/gemma_scope_causality.py", line 71, in yes_no_margin
+    logits = model.run_with_hooks(prompt_tokens, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scc/emrecan.ulu/.conda/envs/wc-tl-g4/lib/python3.11/site-packages/transformer_lens/model_bridge/bridge.py", line 2365, in run_with_hooks
+    output = self.forward(
+             ^^^^^^^^^^^^^
+  File "/home/scc/emrecan.ulu/.conda/envs/wc-tl-g4/lib/python3.11/site-packages/transformer_lens/model_bridge/bridge.py", line 1906, in forward
+    output = self.original_model(input_ids, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scc/emrecan.ulu/.conda/envs/wc-tl-g4/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scc/emrecan.ulu/.conda/envs/wc-tl-g4/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scc/emrecan.ulu/.conda/envs/wc-tl-g4/lib/python3.11/site-packages/transformers/utils/generic.py", line 911, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scc/emrecan.ulu/.conda/envs/wc-tl-g4/lib/python3.11/site-packages/transformers/models/gemma4_unified/modeling_gemma4_unified.py", line 1313, in forward
+    outputs = self.model(
+              ^^^^^^^^^^^
+  File "/home/scc/emrecan.ulu/.conda/envs/wc-tl-g4/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scc/emrecan.ulu/.conda/envs/wc-tl-g4/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scc/emrecan.ulu/.conda/envs/wc-tl-g4/lib/python3.11/site-packages/transformers/utils/generic.py", line 1040, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scc/emrecan.ulu/.conda/envs/wc-tl-g4/lib/python3.11/site-packages/transformers/utils/generic.py", line 911, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scc/emrecan.ulu/.conda/envs/wc-tl-g4/lib/python3.11/site-packages/transformers/models/gemma4_unified/modeling_gemma4_unified.py", line 1126, in forward
+    outputs = self.language_model(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "/home/scc/emrecan.ulu/.conda/envs/wc-tl-g4/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scc/emrecan.ulu/.conda/envs/wc-tl-g4/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scc/emrecan.ulu/.conda/envs/wc-tl-g4/lib/python3.11/site-packages/transformers/utils/generic.py", line 1040, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scc/emrecan.ulu/.conda/envs/wc-tl-g4/lib/python3.11/site-packages/transformers/utils/output_capturing.py", line 252, in wrapper
+    outputs = func(self, *args, **kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scc/emrecan.ulu/.conda/envs/wc-tl-g4/lib/python3.11/site-packages/transformers/models/gemma4_unified/modeling_gemma4_unified.py", line 682, in forward
+    hidden_states = decoder_layer(
+                    ^^^^^^^^^^^^^^
+  File "/home/scc/emrecan.ulu/.conda/envs/wc-tl-g4/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scc/emrecan.ulu/.conda/envs/wc-tl-g4/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scc/emrecan.ulu/.conda/envs/wc-tl-g4/lib/python3.11/site-packages/transformer_lens/model_bridge/generalized_components/block.py", line 205, in forward
+    return self._apply_output_hook(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scc/emrecan.ulu/.conda/envs/wc-tl-g4/lib/python3.11/site-packages/transformer_lens/model_bridge/generalized_components/block.py", line 236, in _apply_output_hook
+    output = self.hook_out(output)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scc/emrecan.ulu/.conda/envs/wc-tl-g4/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scc/emrecan.ulu/.conda/envs/wc-tl-g4/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1884, in _call_impl
+    return inner()
+           ^^^^^^^
+  File "/home/scc/emrecan.ulu/.conda/envs/wc-tl-g4/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1845, in inner
+    hook_result = hook(self, args, result)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scc/emrecan.ulu/.conda/envs/wc-tl-g4/lib/python3.11/site-packages/transformer_lens/hook_points.py", line 232, in full_hook
+    hook_result = hook(module_output, hook=self)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: make_torch_hook.<locals>.hook() got an unexpected keyword argument 'hook'
+ERROR conda.cli.main_run:execute(125): `conda run python -m src.dense_steering --config config/gemma4_12b.yaml --vectors-subdir concept_vectors_gemma4_12b --label gemma4_12b_calibrated --vector-kind raw --include-cross-axis --n-random-directions 99 --strengths=-0.1,-0.05,0,0.05,0.1 --prompt-format native-chat --control-scale sd_matched --interventions additive,norm_preserving` failed. (See above for error)
