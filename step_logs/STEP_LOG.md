@@ -1781,3 +1781,12 @@
 - **Findings:** Gemma 4 Stage 1, Stage 2, Stage 3, Stage 3B, technical smoke, neutral/PCA, raw dense steering, 282-name audit, and local/broad hiring steering are complete for all three models. Denoised dense and denoised hiring are complete for 12B and 26B-A4B but missing for 31B. Demographic disparity, mediation, name-level R4, and full-282 expansions are absent for all Gemma 4 models. No compatible Gemma 4 SAE exists. The CCU 12B calibrated run was live with 207 of 2,022 checkpoint shards, while 26B-A4B and 31B remained pending.
 - **Decision / rationale:** Describe Gemma 4 as complete for representation and basic SAE-free causal parity, but not as a complete replication of the full legacy post-hoc/SAE matrix.
 - **Next:** Complete the serial calibrated runs, then close the 31B denoised and three-model post-hoc gaps before claiming full legacy parity.
+
+---
+
+## 2026-07-18 · Step 47 — Confirm live CCU 12B calibrated progress
+- **Context:** Provide a live status check for the serial Gemma 4 calibrated queue.
+- **Agent:** gpt-5-codex
+- **Did:** Checked CCU doctor, queue process/state, GPU utilization, checkpoint shard count, sentinels, and the current steering log.
+- **Findings:** Queue PID `1197` remained live after 11 minutes 26 seconds. Gemma 4 12B was running with 456 of 2,022 checkpoint shards (22.6%); the log had reached warmth additive `random_088`. The H100 used 24,166 MiB with 43% utilization. No error or success sentinel existed; 26B-A4B and 31B remained pending.
+- **Next:** Continue monitoring until the 12B validator and sentinel pass, then allow the serial coordinator to start 26B-A4B automatically.
