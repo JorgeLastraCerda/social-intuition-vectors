@@ -1,0 +1,50 @@
+{
+  "run_id": "20260718T100211Z",
+  "submitted_at_utc": "2026-07-18T10:02:33.200966+00:00",
+  "status": "gpu-jobs-user-held",
+  "git_commit": "c5b4bc45ddb40a4f5bcd03c50828c0ea4d04b028",
+  "repo_path": "/data/scc/emrecan.ulu/normalcy-axis",
+  "state_dir": "/work/emrecan.ulu/gemma4_stage3_retry/20260718T100211Z",
+  "release_command": "qrls 1144931 1144932",
+  "jobs": [
+    {
+      "model": "google/gemma-4-26B-A4B-it",
+      "label": "gemma4_26b_a4b",
+      "job_id": "1144931",
+      "queue": "gpu@scc214",
+      "resources": "gpu=1,rtx_6000=1,h_vmem=96G,h_rt=12:00:00",
+      "priority": 0,
+      "user_held": true,
+      "success_sentinel": "/work/emrecan.ulu/gemma4_stage3_retry/20260718T100211Z/26b.success",
+      "outputs": [
+        "results/tables/layer_sweep_gemma4_26b_a4b.csv",
+        "results/tables/layer_sweep_gemma4_26b_a4b.meta.json"
+      ]
+    },
+    {
+      "model": "google/gemma-4-31B-it",
+      "label": "gemma4_31b",
+      "job_id": "1144932",
+      "queue": "gpu@scc214",
+      "resources": "gpu=1,rtx_6000=1,h_vmem=96G,h_rt=12:00:00",
+      "priority": 0,
+      "user_held": true,
+      "success_sentinel": "/work/emrecan.ulu/gemma4_stage3_retry/20260718T100211Z/31b.success",
+      "outputs": [
+        "results/tables/layer_sweep_gemma4_31b.csv",
+        "results/tables/layer_sweep_gemma4_31b.meta.json"
+      ]
+    },
+    {
+      "role": "finalizer",
+      "job_id": "1144933",
+      "queue": "scc",
+      "gpu_request": 0,
+      "hold_job_ids": [
+        "1144931",
+        "1144932"
+      ],
+      "success_sentinel": "/work/emrecan.ulu/gemma4_stage3_retry/20260718T100211Z/final.success"
+    }
+  ]
+}
