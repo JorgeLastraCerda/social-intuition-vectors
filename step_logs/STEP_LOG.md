@@ -1552,3 +1552,23 @@
 - **Findings:** SCCKN reported three available L40 GPUs for the 12B submission and two available RTX PRO 6000 GPUs for each larger-model submission. Each manifest records the exact model revision, queue, resources, expected GPU family, submitted commit, and success sentinel; no `hold_jid` was used.
 - **Decision / rationale:** Keep the jobs user-held until their provenance manifests and this audit entry exist on the shared branch, then release all three and require exact runtime hardware checks.
 - **Next:** Pull this entry on SCCKN, release all three jobs, verify their physical assignments, and monitor through output validation and per-model smoke reports.
+
+---
+
+## 2026-07-18 · Step 27 — Complete and report three Gemma 4 remaining-test smokes
+- **Context:** Validate the technical and hardware gates before launching the SAE-free Gemma 4 production runs.
+- **Agent:** gpt-5-codex
+- **Did:** Released and monitored SCCKN jobs `1145318`, `1145320`, and `1145322`; ran the production smoke validator on SCCKN and locally; persisted scheduler accounting in `results/logs/gemma4_remaining_smoke_outcome_20260718T141000Z.json`; and wrote separate 12B, 26B-A4B, and 31B smoke reports under `paper/2026-07-18_1612_gemma4_*_remaining_smoke.md`.
+- **Findings:** All jobs completed with `failed=0,exit_status=0`. Bridge-to-HF maximum logit difference was 0.0 for every model, requested and resolved revisions matched exactly, activation shapes were `[1,9,3840]`, `[1,9,2816]`, and `[1,9,5376]`, and technical steering changed each finite Yes/No margin. Peak reserved VRAM was 22.795 GiB on exact L40 for 12B, 48.449 GiB on RTX PRO 6000 for 26B-A4B, and 58.867 GiB on RTX PRO 6000 for 31B.
+- **Decision / rationale:** Accept all three pinned checkpoints and their assigned single-GPU hardware for production. Treat the one-prompt steering changes only as hook-activity checks, not causal warmth or competence findings.
+- **Next:** Submit independent first-wave production jobs for neutral extraction, raw dense steering, unsteered hiring audit, and raw local/broad hiring steering; synchronize all manifests before release.
+
+---
+
+## 2026-07-18 · Step 27 — Implement direct CCU Jupyter terminal client
+- **Context:** Build a reusable, local-only access kit for the personal CCU JupyterHub H100 environment without a third-party remote-access relay.
+- **Agent:** gpt-5-codex
+- **Did:** Added `ccu/` with nested agent, security, operations, architecture, setup, and troubleshooting guidance; implemented a macOS CLI for scoped-Keychain authentication, interactive Jupyter terminal attachment, disposable command execution, managed-terminal cleanup, and verified small-file transfer; added a locked `uv` environment and focused tests.
+- **Findings:** The discovered CCU environment exposes JupyterHub 4.0.2, Jupyter Server 2.8.0, JupyterLab 4.0.7, the terminal API, and server proxy support. Local validation passed 32 tests, Ruff, shell syntax, CLI/profile smoke, mode-0600 config verification, trailing-whitespace scan, and package lock/sync. No live CCU token or terminal session was created during implementation.
+- **Decision / rationale:** Use the existing authenticated Jupyter terminal REST/WebSocket path directly from the Mac. Keep runtime traffic limited to the CCU origin, require a 24-hour default-server-scoped token stored only in macOS Keychain, and prohibit query-string tokens, redirects, proxy environment routing, TLS bypass, public listeners, and relay services.
+- **Next:** Run the README personal live smoke with a new 24-hour token, verify `jovyan`, H100 visibility, interactive reconnect, command exit handling, file hash round-trip, restart behavior, and token revocation before preparing the anonymized shareable revision.
