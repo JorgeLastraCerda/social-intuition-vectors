@@ -1,0 +1,22 @@
+{
+  "run_id": "20260718T141249Z_31b_hiring_broad",
+  "submitted_at_utc": "2026-07-18T14:14:37.524227+00:00",
+  "status": "independent-job-user-held",
+  "git_commit": "8dc292567ce9d624cb5c3265de508a9fa573bf7b",
+  "hold_jid_used": false,
+  "availability_at_submission": "2",
+  "job": {
+    "job_id": "1145359",
+    "run": "hiring_broad",
+    "full282": false,
+    "model": "google/gemma-4-31B-it",
+    "revision": "b9ea41a2887d8607f594846523f94c6cc75ac8a4",
+    "config": "config/gemma4_31b.yaml",
+    "queue": "gpu@scc214",
+    "resources": "gpu=1,rtx_6000=1,h_vmem=96G,h_rt=12:00:00",
+    "expected_gpu_kind": "RTX_PRO_6000",
+    "user_held": true,
+    "success_sentinel": "/work/emrecan.ulu/gemma4_remaining/20260718T141249Z_31b_hiring_broad/31b_hiring_broad.success"
+  },
+  "release_command": "qrls 1145359"
+}

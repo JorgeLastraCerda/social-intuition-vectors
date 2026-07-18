@@ -1,0 +1,22 @@
+{
+  "run_id": "20260718T141249Z_26b_a4b_hiring_local",
+  "submitted_at_utc": "2026-07-18T14:13:54.760020+00:00",
+  "status": "independent-job-user-held",
+  "git_commit": "8dc292567ce9d624cb5c3265de508a9fa573bf7b",
+  "hold_jid_used": false,
+  "availability_at_submission": "2",
+  "job": {
+    "job_id": "1145346",
+    "run": "hiring_local",
+    "full282": false,
+    "model": "google/gemma-4-26B-A4B-it",
+    "revision": "01e5b3ee840d3a9e0b0b493c593e85398a30ef75",
+    "config": "config/gemma4_26b_a4b.yaml",
+    "queue": "gpu@scc214",
+    "resources": "gpu=1,rtx_6000=1,h_vmem=96G,h_rt=12:00:00",
+    "expected_gpu_kind": "RTX_PRO_6000",
+    "user_held": true,
+    "success_sentinel": "/work/emrecan.ulu/gemma4_remaining/20260718T141249Z_26b_a4b_hiring_local/26b_a4b_hiring_local.success"
+  },
+  "release_command": "qrls 1145346"
+}
