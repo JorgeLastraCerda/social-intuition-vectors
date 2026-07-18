@@ -1,0 +1,11 @@
+{
+  "status": "pass",
+  "stage": 2,
+  "label": "qwen36_35b_a3b",
+  "model": "Qwen/Qwen3.6-35B-A3B",
+  "revision": "995ad96eacd98c81ed38be0c5b274b04031597b0",
+  "seed": 20260527,
+  "stimuli_sha256": "81c3b973e00f131e051a8250d6d076ef7a536974fd8a5fc5596af4b36b6ae916",
+  "backend": "numpy-scikit-learn-cpu",
+  "elapsed_seconds": 0.326
+}

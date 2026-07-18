@@ -1,0 +1,119 @@
+{
+  "meta": {
+    "model": "Qwen/Qwen3.6-35B-A3B",
+    "revision": "995ad96eacd98c81ed38be0c5b274b04031597b0",
+    "probe_layer": 26,
+    "probe_layer_frac": 0.66,
+    "n_layers": 40,
+    "d_model": 2048,
+    "start_token": 50,
+    "seed": 20260527,
+    "n_stories": 200,
+    "input_format": "raw-passage-explicit-bos",
+    "stimuli_sha256": "81c3b973e00f131e051a8250d6d076ef7a536974fd8a5fc5596af4b36b6ae916",
+    "runtime": {
+      "backend": "huggingface-native",
+      "hook_backend": "torch-forward-hook+transformers-hidden-states",
+      "transformers_version": "5.14.1",
+      "torch_version": "2.13.0+cu130",
+      "torchvision_version": "0.28.0",
+      "accelerate_version": "1.14.0",
+      "transformer_lens_version": "not-installed",
+      "transformer_lens_imported": false,
+      "model_class": "Qwen3_5MoeForConditionalGeneration",
+      "base_model_class": "Qwen3_5MoeModel",
+      "language_model_class": "Qwen3_5MoeTextModel",
+      "tokenizer_class": "Qwen2Tokenizer",
+      "model_revision_requested": "995ad96eacd98c81ed38be0c5b274b04031597b0",
+      "model_revision_resolved": "995ad96eacd98c81ed38be0c5b274b04031597b0",
+      "dtype": "torch.bfloat16",
+      "parameter_devices": [
+        "cuda:0"
+      ],
+      "cuda_device_name": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+      "cuda_total_vram_gib": 95.010315,
+      "peak_allocated_vram_gib": 65.518281,
+      "peak_reserved_vram_gib": 65.542969,
+      "peak_reserved_vram_fraction": 0.68985108,
+      "elapsed_seconds": 630.567,
+      "vision_forward_calls": 0,
+      "hook_hidden_max_diff": 0.0,
+      "passive_hook_max_logit_diff": 0.0
+    },
+    "n_per_condition": {
+      "high_warmth": 50,
+      "low_warmth": 50,
+      "high_competence": 50,
+      "low_competence": 50
+    },
+    "warmth_vec_norm": 0.480083,
+    "competence_vec_norm": 0.643543,
+    "token_length_min": 101,
+    "token_length_max": 167
+  },
+  "warmth": {
+    "axis": "warmth",
+    "diff_norm": 0.480083,
+    "cosine_high_low": 0.990248,
+    "proj_high_mean": 0.735587,
+    "proj_high_std": 0.08559,
+    "proj_low_mean": 0.255504,
+    "proj_low_std": 0.065221,
+    "cohens_d": 6.309371,
+    "cv_mean": 1.0,
+    "cv_std": 0.0,
+    "cv_folds": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "topic_cv_mean": 1.0,
+    "topic_cv_std": 0.0,
+    "topic_cv_folds": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "competence": {
+    "axis": "competence",
+    "diff_norm": 0.643543,
+    "cosine_high_low": 0.983787,
+    "proj_high_mean": 1.109602,
+    "proj_high_std": 0.092291,
+    "proj_low_mean": 0.466059,
+    "proj_low_std": 0.082555,
+    "cohens_d": 7.349901,
+    "cv_mean": 1.0,
+    "cv_std": 0.0,
+    "cv_folds": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "topic_cv_mean": 1.0,
+    "topic_cv_std": 0.0,
+    "topic_cv_folds": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "axis_cosine": 0.61918,
+  "cross_warmth_on_competence_cv": 1.0,
+  "cross_competence_on_warmth_cv": 0.97,
+  "pass_warmth_cv": true,
+  "pass_competence_cv": true,
+  "pass_orthogonality": false,
+  "pass_warmth_topic_cv": true,
+  "pass_competence_topic_cv": true,
+  "scientific_flags_are_non_gating": true
+}
