@@ -1,0 +1,3 @@
+axis,diff_norm,cosine_high_low,proj_high_mean,proj_high_std,proj_low_mean,proj_low_std,cohens_d,cv_mean,cv_std,cv_folds,topic_cv_mean,topic_cv_std,topic_cv_folds
+warmth,12.099693,0.998018,53.496017,1.936903,41.396328,1.169727,7.562413,1.0,0.0,"[1.0, 1.0, 1.0, 1.0, 1.0]",1.0,0.0,"[1.0, 1.0, 1.0, 1.0, 1.0]"
+competence,15.081271,0.997417,89.946228,2.513173,74.86496,2.487298,6.031858,1.0,0.0,"[1.0, 1.0, 1.0, 1.0, 1.0]",1.0,0.0,"[1.0, 1.0, 1.0, 1.0, 1.0]"
