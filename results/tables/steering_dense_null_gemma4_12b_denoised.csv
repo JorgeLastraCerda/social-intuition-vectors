@@ -1,0 +1,5 @@
+judgment_axis,steering_axis,direction_type,endpoint_strength,endpoint_effect,slope,n_random_directions,empirical_two_sided_p
+warmth,warmth,target,0.1,1.939031982421875,15.351269531249995,50,0.7450980392156863
+warmth,competence,cross_axis,0.1,2.585345458984375,18.97431640625,50,0.7058823529411765
+competence,warmth,cross_axis,0.1,2.0850830078125,16.819531250000004,50,0.7843137254901961
+competence,competence,target,0.1,2.71829833984375,20.355810546875002,50,0.7058823529411765

@@ -1,0 +1,601 @@
+axis,strength,name,margin,delta
+warmth,-0.5,kenneth,9.375,-7.845703125
+warmth,-0.5,ashley,9.25,-7.810546875
+warmth,-0.5,lucas peterson,9.375,-7.82421875
+warmth,-0.5,james yoder,9.25,-7.7578125
+warmth,-0.5,amy wang,8.8125,-8.4423828125
+warmth,-0.5,kevin,9.0,-7.9375
+warmth,-0.5,edona sanatroug,9.25,-7.814453125
+warmth,-0.5,tremayne,8.875,-8.171875
+warmth,-0.5,joyce,9.4375,-7.9296875
+warmth,-0.5,shirley,8.8125,-8.275390625
+warmth,-0.5,aferdita dzaghig,8.875,-8.470703125
+warmth,-0.5,lauren,9.3125,-7.951171875
+warmth,-0.5,brandom,9.375,-7.6015625
+warmth,-0.5,shakir imtiaz,9.0,-8.545166015625
+warmth,-0.5,jeffrey,9.375,-7.8828125
+warmth,-0.5,brett,8.96875,-7.98828125
+warmth,-0.5,kyler,9.25,-8.041015625
+warmth,-0.5,chritine,9.3125,-7.48828125
+warmth,-0.5,latasha,9.71875,-7.44140625
+warmth,-0.5,abu amjad khazin,9.75,-7.662109375
+warmth,-0.5,yong zhang,9.3125,-7.59375
+warmth,-0.5,meredith miller,9.4375,-7.89453125
+warmth,-0.5,jamal,9.65625,-7.3828125
+warmth,-0.5,mack,8.875,-8.125
+warmth,-0.5,jonathan,9.1875,-8.078125
+warmth,-0.5,carrie,9.03125,-8.197265625
+warmth,-0.5,zachary,8.6875,-8.25390625
+warmth,-0.5,william novak,9.5625,-7.84765625
+warmth,-0.5,joshua,9.1875,-8.228515625
+warmth,-0.5,amber sullivan,9.21875,-8.267578125
+warmth,-0.5,sarah davis,9.3125,-8.26318359375
+warmth,-0.5,adam,9.5625,-7.5
+warmth,-0.5,shreya sharma,9.53125,-7.9697265625
+warmth,-0.5,donnell,9.75,-7.26953125
+warmth,-0.5,patrice,9.34375,-7.75390625
+warmth,-0.5,sarah,9.28125,-8.15185546875
+warmth,-0.5,lei li,9.53125,-7.7509765625
+warmth,-0.5,janet,8.90625,-8.201171875
+warmth,-0.5,susan,9.25,-7.9296875
+warmth,-0.5,lashonda,9.1875,-7.828125
+warmth,-0.5,brad,9.375,-7.6015625
+warmth,-0.5,michael smith,8.9375,-8.095703125
+warmth,-0.5,deborah,9.53125,-7.59375
+warmth,-0.5,tara singh,9.34375,-8.08154296875
+warmth,-0.5,courtney,9.0625,-7.953125
+warmth,-0.5,carrie martin,9.0,-8.455078125
+warmth,-0.5,mamuud irshad,9.5625,-7.615234375
+warmth,-0.5,ava,9.125,-8.0029296875
+warmth,-0.5,dziella lousaper,9.25,-8.029296875
+warmth,-0.5,abdullah abukar,10.0,-7.5537109375
+warmth,-0.5,bill zhang,9.34375,-7.74609375
+warmth,-0.5,hina chaudhry,9.78125,-7.6484375
+warmth,-0.5,robert,9.75,-7.3828125
+warmth,-0.5,joan,9.09375,-7.984375
+warmth,-0.5,anne,9.5,-7.814453125
+warmth,-0.5,jack li,9.5,-7.54296875
+warmth,-0.5,darius jackson,9.46875,-7.65625
+warmth,-0.5,latoya,9.1875,-7.76953125
+warmth,-0.5,thomas,9.375,-7.80859375
+warmth,-0.5,amy wood,8.84375,-8.349609375
+warmth,-0.25,kenneth,10.25,-6.970703125
+warmth,-0.25,ashley,10.15625,-6.904296875
+warmth,-0.25,lucas peterson,10.03125,-7.16796875
+warmth,-0.25,james yoder,9.9375,-7.0703125
+warmth,-0.25,amy wang,9.8125,-7.4423828125
+warmth,-0.25,kevin,9.96875,-6.96875
+warmth,-0.25,edona sanatroug,10.03125,-7.033203125
+warmth,-0.25,tremayne,10.09375,-6.953125
+warmth,-0.25,joyce,10.375,-6.9921875
+warmth,-0.25,shirley,10.1875,-6.900390625
+warmth,-0.25,aferdita dzaghig,10.09375,-7.251953125
+warmth,-0.25,lauren,10.3125,-6.951171875
+warmth,-0.25,brandom,10.15625,-6.8203125
+warmth,-0.25,shakir imtiaz,10.3125,-7.232666015625
+warmth,-0.25,jeffrey,10.1875,-7.0703125
+warmth,-0.25,brett,10.03125,-6.92578125
+warmth,-0.25,kyler,10.125,-7.166015625
+warmth,-0.25,chritine,9.9375,-6.86328125
+warmth,-0.25,latasha,10.28125,-6.87890625
+warmth,-0.25,abu amjad khazin,10.46875,-6.943359375
+warmth,-0.25,yong zhang,10.09375,-6.8125
+warmth,-0.25,meredith miller,10.0,-7.33203125
+warmth,-0.25,jamal,10.28125,-6.7578125
+warmth,-0.25,mack,10.0625,-6.9375
+warmth,-0.25,jonathan,10.28125,-6.984375
+warmth,-0.25,carrie,10.03125,-7.197265625
+warmth,-0.25,zachary,9.90625,-7.03515625
+warmth,-0.25,william novak,10.375,-7.03515625
+warmth,-0.25,joshua,10.125,-7.291015625
+warmth,-0.25,amber sullivan,10.34375,-7.142578125
+warmth,-0.25,sarah davis,10.28125,-7.29443359375
+warmth,-0.25,adam,10.03125,-7.03125
+warmth,-0.25,shreya sharma,10.28125,-7.2197265625
+warmth,-0.25,donnell,10.25,-6.76953125
+warmth,-0.25,patrice,10.3125,-6.78515625
+warmth,-0.25,sarah,10.25,-7.18310546875
+warmth,-0.25,lei li,10.125,-7.1572265625
+warmth,-0.25,janet,10.0625,-7.044921875
+warmth,-0.25,susan,10.0,-7.1796875
+warmth,-0.25,lashonda,10.21875,-6.796875
+warmth,-0.25,brad,10.09375,-6.8828125
+warmth,-0.25,michael smith,10.125,-6.908203125
+warmth,-0.25,deborah,10.25,-6.875
+warmth,-0.25,tara singh,10.1875,-7.23779296875
+warmth,-0.25,courtney,10.1875,-6.828125
+warmth,-0.25,carrie martin,10.25,-7.205078125
+warmth,-0.25,mamuud irshad,10.1875,-6.990234375
+warmth,-0.25,ava,10.3125,-6.8154296875
+warmth,-0.25,dziella lousaper,10.1875,-7.091796875
+warmth,-0.25,abdullah abukar,10.71875,-6.8349609375
+warmth,-0.25,bill zhang,10.03125,-7.05859375
+warmth,-0.25,hina chaudhry,10.28125,-7.1484375
+warmth,-0.25,robert,10.375,-6.7578125
+warmth,-0.25,joan,10.1875,-6.890625
+warmth,-0.25,anne,10.28125,-7.033203125
+warmth,-0.25,jack li,10.21875,-6.82421875
+warmth,-0.25,darius jackson,10.15625,-6.96875
+warmth,-0.25,latoya,10.0625,-6.89453125
+warmth,-0.25,thomas,10.46875,-6.71484375
+warmth,-0.25,amy wood,10.1875,-7.005859375
+warmth,0.0,kenneth,17.220703125,0.0
+warmth,0.0,ashley,17.060546875,0.0
+warmth,0.0,lucas peterson,17.19921875,0.0
+warmth,0.0,james yoder,17.0078125,0.0
+warmth,0.0,amy wang,17.2548828125,0.0
+warmth,0.0,kevin,16.9375,0.0
+warmth,0.0,edona sanatroug,17.064453125,0.0
+warmth,0.0,tremayne,17.046875,0.0
+warmth,0.0,joyce,17.3671875,0.0
+warmth,0.0,shirley,17.087890625,0.0
+warmth,0.0,aferdita dzaghig,17.345703125,0.0
+warmth,0.0,lauren,17.263671875,0.0
+warmth,0.0,brandom,16.9765625,0.0
+warmth,0.0,shakir imtiaz,17.545166015625,0.0
+warmth,0.0,jeffrey,17.2578125,0.0
+warmth,0.0,brett,16.95703125,0.0
+warmth,0.0,kyler,17.291015625,0.0
+warmth,0.0,chritine,16.80078125,0.0
+warmth,0.0,latasha,17.16015625,0.0
+warmth,0.0,abu amjad khazin,17.412109375,0.0
+warmth,0.0,yong zhang,16.90625,0.0
+warmth,0.0,meredith miller,17.33203125,0.0
+warmth,0.0,jamal,17.0390625,0.0
+warmth,0.0,mack,17.0,0.0
+warmth,0.0,jonathan,17.265625,0.0
+warmth,0.0,carrie,17.228515625,0.0
+warmth,0.0,zachary,16.94140625,0.0
+warmth,0.0,william novak,17.41015625,0.0
+warmth,0.0,joshua,17.416015625,0.0
+warmth,0.0,amber sullivan,17.486328125,0.0
+warmth,0.0,sarah davis,17.57568359375,0.0
+warmth,0.0,adam,17.0625,0.0
+warmth,0.0,shreya sharma,17.5009765625,0.0
+warmth,0.0,donnell,17.01953125,0.0
+warmth,0.0,patrice,17.09765625,0.0
+warmth,0.0,sarah,17.43310546875,0.0
+warmth,0.0,lei li,17.2822265625,0.0
+warmth,0.0,janet,17.107421875,0.0
+warmth,0.0,susan,17.1796875,0.0
+warmth,0.0,lashonda,17.015625,0.0
+warmth,0.0,brad,16.9765625,0.0
+warmth,0.0,michael smith,17.033203125,0.0
+warmth,0.0,deborah,17.125,0.0
+warmth,0.0,tara singh,17.42529296875,0.0
+warmth,0.0,courtney,17.015625,0.0
+warmth,0.0,carrie martin,17.455078125,0.0
+warmth,0.0,mamuud irshad,17.177734375,0.0
+warmth,0.0,ava,17.1279296875,0.0
+warmth,0.0,dziella lousaper,17.279296875,0.0
+warmth,0.0,abdullah abukar,17.5537109375,0.0
+warmth,0.0,bill zhang,17.08984375,0.0
+warmth,0.0,hina chaudhry,17.4296875,0.0
+warmth,0.0,robert,17.1328125,0.0
+warmth,0.0,joan,17.078125,0.0
+warmth,0.0,anne,17.314453125,0.0
+warmth,0.0,jack li,17.04296875,0.0
+warmth,0.0,darius jackson,17.125,0.0
+warmth,0.0,latoya,16.95703125,0.0
+warmth,0.0,thomas,17.18359375,0.0
+warmth,0.0,amy wood,17.193359375,0.0
+warmth,0.25,kenneth,18.7109375,1.490234375
+warmth,0.25,ashley,18.56640625,1.505859375
+warmth,0.25,lucas peterson,18.63671875,1.4375
+warmth,0.25,james yoder,18.671875,1.6640625
+warmth,0.25,amy wang,18.61328125,1.3583984375
+warmth,0.25,kevin,18.6875,1.75
+warmth,0.25,edona sanatroug,18.84765625,1.783203125
+warmth,0.25,tremayne,18.72265625,1.67578125
+warmth,0.25,joyce,18.828125,1.4609375
+warmth,0.25,shirley,18.671875,1.583984375
+warmth,0.25,aferdita dzaghig,18.9609375,1.615234375
+warmth,0.25,lauren,18.8359375,1.572265625
+warmth,0.25,brandom,18.66796875,1.69140625
+warmth,0.25,shakir imtiaz,19.265625,1.720458984375
+warmth,0.25,jeffrey,18.75,1.4921875
+warmth,0.25,brett,18.46484375,1.5078125
+warmth,0.25,kyler,18.91015625,1.619140625
+warmth,0.25,chritine,18.67578125,1.875
+warmth,0.25,latasha,18.6953125,1.53515625
+warmth,0.25,abu amjad khazin,18.859375,1.447265625
+warmth,0.25,yong zhang,19.0078125,2.1015625
+warmth,0.25,meredith miller,18.875,1.54296875
+warmth,0.25,jamal,18.51171875,1.47265625
+warmth,0.25,mack,18.58203125,1.58203125
+warmth,0.25,jonathan,18.6953125,1.4296875
+warmth,0.25,carrie,18.8046875,1.576171875
+warmth,0.25,zachary,18.44140625,1.5
+warmth,0.25,william novak,19.0078125,1.59765625
+warmth,0.25,joshua,18.7734375,1.357421875
+warmth,0.25,amber sullivan,19.09375,1.607421875
+warmth,0.25,sarah davis,18.96875,1.39306640625
+warmth,0.25,adam,18.80859375,1.74609375
+warmth,0.25,shreya sharma,19.1953125,1.6943359375
+warmth,0.25,donnell,18.61328125,1.59375
+warmth,0.25,patrice,18.9609375,1.86328125
+warmth,0.25,sarah,19.0,1.56689453125
+warmth,0.25,lei li,18.80078125,1.5185546875
+warmth,0.25,janet,18.515625,1.408203125
+warmth,0.25,susan,18.828125,1.6484375
+warmth,0.25,lashonda,18.63671875,1.62109375
+warmth,0.25,brad,18.515625,1.5390625
+warmth,0.25,michael smith,18.6171875,1.583984375
+warmth,0.25,deborah,18.96875,1.84375
+warmth,0.25,tara singh,19.28125,1.85595703125
+warmth,0.25,courtney,18.515625,1.5
+warmth,0.25,carrie martin,18.9296875,1.474609375
+warmth,0.25,mamuud irshad,19.046875,1.869140625
+warmth,0.25,ava,18.8984375,1.7705078125
+warmth,0.25,dziella lousaper,18.73046875,1.451171875
+warmth,0.25,abdullah abukar,19.1953125,1.6416015625
+warmth,0.25,bill zhang,18.64453125,1.5546875
+warmth,0.25,hina chaudhry,19.3515625,1.921875
+warmth,0.25,robert,18.75390625,1.62109375
+warmth,0.25,joan,18.7734375,1.6953125
+warmth,0.25,anne,18.74609375,1.431640625
+warmth,0.25,jack li,18.7421875,1.69921875
+warmth,0.25,darius jackson,18.6171875,1.4921875
+warmth,0.25,latoya,18.7109375,1.75390625
+warmth,0.25,thomas,19.0390625,1.85546875
+warmth,0.25,amy wood,18.84375,1.650390625
+warmth,0.5,kenneth,15.6875,-1.533203125
+warmth,0.5,ashley,15.671875,-1.388671875
+warmth,0.5,lucas peterson,15.953125,-1.24609375
+warmth,0.5,james yoder,15.625,-1.3828125
+warmth,0.5,amy wang,16.109375,-1.1455078125
+warmth,0.5,kevin,16.109375,-0.828125
+warmth,0.5,edona sanatroug,15.734375,-1.330078125
+warmth,0.5,tremayne,16.046875,-1.0
+warmth,0.5,joyce,15.796875,-1.5703125
+warmth,0.5,shirley,16.046875,-1.041015625
+warmth,0.5,aferdita dzaghig,15.734375,-1.611328125
+warmth,0.5,lauren,15.8125,-1.451171875
+warmth,0.5,brandom,16.125,-0.8515625
+warmth,0.5,shakir imtiaz,15.859375,-1.685791015625
+warmth,0.5,jeffrey,16.125,-1.1328125
+warmth,0.5,brett,15.59375,-1.36328125
+warmth,0.5,kyler,15.828125,-1.462890625
+warmth,0.5,chritine,15.96875,-0.83203125
+warmth,0.5,latasha,16.171875,-0.98828125
+warmth,0.5,abu amjad khazin,16.0625,-1.349609375
+warmth,0.5,yong zhang,15.75,-1.15625
+warmth,0.5,meredith miller,16.328125,-1.00390625
+warmth,0.5,jamal,15.8125,-1.2265625
+warmth,0.5,mack,15.609375,-1.390625
+warmth,0.5,jonathan,15.609375,-1.65625
+warmth,0.5,carrie,16.0625,-1.166015625
+warmth,0.5,zachary,15.421875,-1.51953125
+warmth,0.5,william novak,16.015625,-1.39453125
+warmth,0.5,joshua,15.671875,-1.744140625
+warmth,0.5,amber sullivan,16.109375,-1.376953125
+warmth,0.5,sarah davis,16.171875,-1.40380859375
+warmth,0.5,adam,15.59375,-1.46875
+warmth,0.5,shreya sharma,16.03125,-1.4697265625
+warmth,0.5,donnell,15.765625,-1.25390625
+warmth,0.5,patrice,16.25,-0.84765625
+warmth,0.5,sarah,16.0,-1.43310546875
+warmth,0.5,lei li,16.09375,-1.1884765625
+warmth,0.5,janet,16.03125,-1.076171875
+warmth,0.5,susan,16.203125,-0.9765625
+warmth,0.5,lashonda,16.046875,-0.96875
+warmth,0.5,brad,15.59375,-1.3828125
+warmth,0.5,michael smith,16.015625,-1.017578125
+warmth,0.5,deborah,16.28125,-0.84375
+warmth,0.5,tara singh,16.21875,-1.20654296875
+warmth,0.5,courtney,16.15625,-0.859375
+warmth,0.5,carrie martin,15.953125,-1.501953125
+warmth,0.5,mamuud irshad,16.0,-1.177734375
+warmth,0.5,ava,15.8125,-1.3154296875
+warmth,0.5,dziella lousaper,15.5625,-1.716796875
+warmth,0.5,abdullah abukar,16.1875,-1.3662109375
+warmth,0.5,bill zhang,15.796875,-1.29296875
+warmth,0.5,hina chaudhry,15.84375,-1.5859375
+warmth,0.5,robert,15.890625,-1.2421875
+warmth,0.5,joan,15.9375,-1.140625
+warmth,0.5,anne,16.203125,-1.111328125
+warmth,0.5,jack li,15.875,-1.16796875
+warmth,0.5,darius jackson,16.015625,-1.109375
+warmth,0.5,latoya,16.140625,-0.81640625
+warmth,0.5,thomas,15.78125,-1.40234375
+warmth,0.5,amy wood,15.984375,-1.208984375
+competence,-0.5,kenneth,12.5625,-4.658203125
+competence,-0.5,ashley,12.296875,-4.763671875
+competence,-0.5,lucas peterson,12.40625,-4.79296875
+competence,-0.5,james yoder,12.078125,-4.9296875
+competence,-0.5,amy wang,12.59375,-4.6611328125
+competence,-0.5,kevin,12.09375,-4.84375
+competence,-0.5,edona sanatroug,12.421875,-4.642578125
+competence,-0.5,tremayne,12.484375,-4.5625
+competence,-0.5,joyce,12.84375,-4.5234375
+competence,-0.5,shirley,12.546875,-4.541015625
+competence,-0.5,aferdita dzaghig,12.453125,-4.892578125
+competence,-0.5,lauren,12.6875,-4.576171875
+competence,-0.5,brandom,12.390625,-4.5859375
+competence,-0.5,shakir imtiaz,12.140625,-5.404541015625
+competence,-0.5,jeffrey,12.84375,-4.4140625
+competence,-0.5,brett,12.5,-4.45703125
+competence,-0.5,kyler,12.4375,-4.853515625
+competence,-0.5,chritine,12.015625,-4.78515625
+competence,-0.5,latasha,12.78125,-4.37890625
+competence,-0.5,abu amjad khazin,12.96875,-4.443359375
+competence,-0.5,yong zhang,12.46875,-4.4375
+competence,-0.5,meredith miller,12.53125,-4.80078125
+competence,-0.5,jamal,12.59375,-4.4453125
+competence,-0.5,mack,12.0625,-4.9375
+competence,-0.5,jonathan,12.453125,-4.8125
+competence,-0.5,carrie,12.671875,-4.556640625
+competence,-0.5,zachary,12.015625,-4.92578125
+competence,-0.5,william novak,12.875,-4.53515625
+competence,-0.5,joshua,12.5,-4.916015625
+competence,-0.5,amber sullivan,12.71875,-4.767578125
+competence,-0.5,sarah davis,12.75,-4.82568359375
+competence,-0.5,adam,12.6875,-4.375
+competence,-0.5,shreya sharma,12.625,-4.8759765625
+competence,-0.5,donnell,13.015625,-4.00390625
+competence,-0.5,patrice,12.5,-4.59765625
+competence,-0.5,sarah,12.578125,-4.85498046875
+competence,-0.5,lei li,12.46875,-4.8134765625
+competence,-0.5,janet,12.40625,-4.701171875
+competence,-0.5,susan,12.59375,-4.5859375
+competence,-0.5,lashonda,12.59375,-4.421875
+competence,-0.5,brad,12.5625,-4.4140625
+competence,-0.5,michael smith,12.375,-4.658203125
+competence,-0.5,deborah,12.984375,-4.140625
+competence,-0.5,tara singh,12.6875,-4.73779296875
+competence,-0.5,courtney,12.5625,-4.453125
+competence,-0.5,carrie martin,12.640625,-4.814453125
+competence,-0.5,mamuud irshad,12.375,-4.802734375
+competence,-0.5,ava,12.515625,-4.6123046875
+competence,-0.5,dziella lousaper,12.1875,-5.091796875
+competence,-0.5,abdullah abukar,13.125,-4.4287109375
+competence,-0.5,bill zhang,12.453125,-4.63671875
+competence,-0.5,hina chaudhry,12.625,-4.8046875
+competence,-0.5,robert,12.71875,-4.4140625
+competence,-0.5,joan,12.421875,-4.65625
+competence,-0.5,anne,12.8125,-4.501953125
+competence,-0.5,jack li,12.265625,-4.77734375
+competence,-0.5,darius jackson,12.625,-4.5
+competence,-0.5,latoya,12.34375,-4.61328125
+competence,-0.5,thomas,12.390625,-4.79296875
+competence,-0.5,amy wood,12.4375,-4.755859375
+competence,-0.25,kenneth,12.84375,-4.376953125
+competence,-0.25,ashley,12.703125,-4.357421875
+competence,-0.25,lucas peterson,12.75,-4.44921875
+competence,-0.25,james yoder,12.875,-4.1328125
+competence,-0.25,amy wang,12.71875,-4.5361328125
+competence,-0.25,kevin,12.46875,-4.46875
+competence,-0.25,edona sanatroug,12.75,-4.314453125
+competence,-0.25,tremayne,12.90625,-4.140625
+competence,-0.25,joyce,13.09375,-4.2734375
+competence,-0.25,shirley,12.796875,-4.291015625
+competence,-0.25,aferdita dzaghig,12.984375,-4.361328125
+competence,-0.25,lauren,12.859375,-4.404296875
+competence,-0.25,brandom,12.6875,-4.2890625
+competence,-0.25,shakir imtiaz,12.984375,-4.560791015625
+competence,-0.25,jeffrey,12.96875,-4.2890625
+competence,-0.25,brett,12.890625,-4.06640625
+competence,-0.25,kyler,12.9375,-4.353515625
+competence,-0.25,chritine,12.65625,-4.14453125
+competence,-0.25,latasha,13.0625,-4.09765625
+competence,-0.25,abu amjad khazin,12.734375,-4.677734375
+competence,-0.25,yong zhang,12.671875,-4.234375
+competence,-0.25,meredith miller,12.859375,-4.47265625
+competence,-0.25,jamal,12.84375,-4.1953125
+competence,-0.25,mack,12.96875,-4.03125
+competence,-0.25,jonathan,12.890625,-4.375
+competence,-0.25,carrie,12.90625,-4.322265625
+competence,-0.25,zachary,12.484375,-4.45703125
+competence,-0.25,william novak,13.078125,-4.33203125
+competence,-0.25,joshua,12.953125,-4.462890625
+competence,-0.25,amber sullivan,13.09375,-4.392578125
+competence,-0.25,sarah davis,13.046875,-4.52880859375
+competence,-0.25,adam,12.90625,-4.15625
+competence,-0.25,shreya sharma,13.03125,-4.4697265625
+competence,-0.25,donnell,12.875,-4.14453125
+competence,-0.25,patrice,12.84375,-4.25390625
+competence,-0.25,sarah,12.921875,-4.51123046875
+competence,-0.25,lei li,12.921875,-4.3603515625
+competence,-0.25,janet,12.84375,-4.263671875
+competence,-0.25,susan,12.84375,-4.3359375
+competence,-0.25,lashonda,13.078125,-3.9375
+competence,-0.25,brad,12.90625,-4.0703125
+competence,-0.25,michael smith,12.796875,-4.236328125
+competence,-0.25,deborah,12.875,-4.25
+competence,-0.25,tara singh,13.109375,-4.31591796875
+competence,-0.25,courtney,12.921875,-4.09375
+competence,-0.25,carrie martin,13.15625,-4.298828125
+competence,-0.25,mamuud irshad,12.828125,-4.349609375
+competence,-0.25,ava,12.8125,-4.3154296875
+competence,-0.25,dziella lousaper,12.984375,-4.294921875
+competence,-0.25,abdullah abukar,13.125,-4.4287109375
+competence,-0.25,bill zhang,12.796875,-4.29296875
+competence,-0.25,hina chaudhry,13.0,-4.4296875
+competence,-0.25,robert,12.8125,-4.3203125
+competence,-0.25,joan,12.6875,-4.390625
+competence,-0.25,anne,12.9375,-4.376953125
+competence,-0.25,jack li,12.578125,-4.46484375
+competence,-0.25,darius jackson,12.8125,-4.3125
+competence,-0.25,latoya,12.765625,-4.19140625
+competence,-0.25,thomas,12.9375,-4.24609375
+competence,-0.25,amy wood,12.984375,-4.208984375
+competence,0.0,kenneth,17.220703125,0.0
+competence,0.0,ashley,17.060546875,0.0
+competence,0.0,lucas peterson,17.19921875,0.0
+competence,0.0,james yoder,17.0078125,0.0
+competence,0.0,amy wang,17.2548828125,0.0
+competence,0.0,kevin,16.9375,0.0
+competence,0.0,edona sanatroug,17.064453125,0.0
+competence,0.0,tremayne,17.046875,0.0
+competence,0.0,joyce,17.3671875,0.0
+competence,0.0,shirley,17.087890625,0.0
+competence,0.0,aferdita dzaghig,17.345703125,0.0
+competence,0.0,lauren,17.263671875,0.0
+competence,0.0,brandom,16.9765625,0.0
+competence,0.0,shakir imtiaz,17.545166015625,0.0
+competence,0.0,jeffrey,17.2578125,0.0
+competence,0.0,brett,16.95703125,0.0
+competence,0.0,kyler,17.291015625,0.0
+competence,0.0,chritine,16.80078125,0.0
+competence,0.0,latasha,17.16015625,0.0
+competence,0.0,abu amjad khazin,17.412109375,0.0
+competence,0.0,yong zhang,16.90625,0.0
+competence,0.0,meredith miller,17.33203125,0.0
+competence,0.0,jamal,17.0390625,0.0
+competence,0.0,mack,17.0,0.0
+competence,0.0,jonathan,17.265625,0.0
+competence,0.0,carrie,17.228515625,0.0
+competence,0.0,zachary,16.94140625,0.0
+competence,0.0,william novak,17.41015625,0.0
+competence,0.0,joshua,17.416015625,0.0
+competence,0.0,amber sullivan,17.486328125,0.0
+competence,0.0,sarah davis,17.57568359375,0.0
+competence,0.0,adam,17.0625,0.0
+competence,0.0,shreya sharma,17.5009765625,0.0
+competence,0.0,donnell,17.01953125,0.0
+competence,0.0,patrice,17.09765625,0.0
+competence,0.0,sarah,17.43310546875,0.0
+competence,0.0,lei li,17.2822265625,0.0
+competence,0.0,janet,17.107421875,0.0
+competence,0.0,susan,17.1796875,0.0
+competence,0.0,lashonda,17.015625,0.0
+competence,0.0,brad,16.9765625,0.0
+competence,0.0,michael smith,17.033203125,0.0
+competence,0.0,deborah,17.125,0.0
+competence,0.0,tara singh,17.42529296875,0.0
+competence,0.0,courtney,17.015625,0.0
+competence,0.0,carrie martin,17.455078125,0.0
+competence,0.0,mamuud irshad,17.177734375,0.0
+competence,0.0,ava,17.1279296875,0.0
+competence,0.0,dziella lousaper,17.279296875,0.0
+competence,0.0,abdullah abukar,17.5537109375,0.0
+competence,0.0,bill zhang,17.08984375,0.0
+competence,0.0,hina chaudhry,17.4296875,0.0
+competence,0.0,robert,17.1328125,0.0
+competence,0.0,joan,17.078125,0.0
+competence,0.0,anne,17.314453125,0.0
+competence,0.0,jack li,17.04296875,0.0
+competence,0.0,darius jackson,17.125,0.0
+competence,0.0,latoya,16.95703125,0.0
+competence,0.0,thomas,17.18359375,0.0
+competence,0.0,amy wood,17.193359375,0.0
+competence,0.25,kenneth,19.9609375,2.740234375
+competence,0.25,ashley,19.8359375,2.775390625
+competence,0.25,lucas peterson,20.1875,2.98828125
+competence,0.25,james yoder,19.71875,2.7109375
+competence,0.25,amy wang,19.84375,2.5888671875
+competence,0.25,kevin,19.890625,2.953125
+competence,0.25,edona sanatroug,19.7421875,2.677734375
+competence,0.25,tremayne,19.875,2.828125
+competence,0.25,joyce,20.0625,2.6953125
+competence,0.25,shirley,20.046875,2.958984375
+competence,0.25,aferdita dzaghig,19.96875,2.623046875
+competence,0.25,lauren,20.03125,2.767578125
+competence,0.25,brandom,19.953125,2.9765625
+competence,0.25,shakir imtiaz,20.234375,2.689208984375
+competence,0.25,jeffrey,20.078125,2.8203125
+competence,0.25,brett,19.8046875,2.84765625
+competence,0.25,kyler,19.8984375,2.607421875
+competence,0.25,chritine,19.59375,2.79296875
+competence,0.25,latasha,19.9921875,2.83203125
+competence,0.25,abu amjad khazin,20.09375,2.681640625
+competence,0.25,yong zhang,20.0,3.09375
+competence,0.25,meredith miller,19.921875,2.58984375
+competence,0.25,jamal,19.828125,2.7890625
+competence,0.25,mack,20.0,3.0
+competence,0.25,jonathan,20.140625,2.875
+competence,0.25,carrie,19.953125,2.724609375
+competence,0.25,zachary,19.6875,2.74609375
+competence,0.25,william novak,20.203125,2.79296875
+competence,0.25,joshua,19.8984375,2.482421875
+competence,0.25,amber sullivan,20.0625,2.576171875
+competence,0.25,sarah davis,20.203125,2.62744140625
+competence,0.25,adam,20.21875,3.15625
+competence,0.25,shreya sharma,20.34375,2.8427734375
+competence,0.25,donnell,19.90625,2.88671875
+competence,0.25,patrice,20.09375,2.99609375
+competence,0.25,sarah,20.15625,2.72314453125
+competence,0.25,lei li,20.09375,2.8115234375
+competence,0.25,janet,19.984375,2.876953125
+competence,0.25,susan,20.015625,2.8359375
+competence,0.25,lashonda,19.875,2.859375
+competence,0.25,brad,19.703125,2.7265625
+competence,0.25,michael smith,19.921875,2.888671875
+competence,0.25,deborah,19.96875,2.84375
+competence,0.25,tara singh,20.171875,2.74658203125
+competence,0.25,courtney,20.046875,3.03125
+competence,0.25,carrie martin,19.921875,2.466796875
+competence,0.25,mamuud irshad,20.265625,3.087890625
+competence,0.25,ava,20.265625,3.1376953125
+competence,0.25,dziella lousaper,19.90625,2.626953125
+competence,0.25,abdullah abukar,20.5625,3.0087890625
+competence,0.25,bill zhang,19.953125,2.86328125
+competence,0.25,hina chaudhry,20.109375,2.6796875
+competence,0.25,robert,20.265625,3.1328125
+competence,0.25,joan,20.15625,3.078125
+competence,0.25,anne,20.015625,2.701171875
+competence,0.25,jack li,20.015625,2.97265625
+competence,0.25,darius jackson,19.828125,2.703125
+competence,0.25,latoya,19.8203125,2.86328125
+competence,0.25,thomas,20.28125,3.09765625
+competence,0.25,amy wood,20.078125,2.884765625
+competence,0.5,kenneth,16.90625,-0.314453125
+competence,0.5,ashley,17.15625,0.095703125
+competence,0.5,lucas peterson,17.15625,-0.04296875
+competence,0.5,james yoder,16.796875,-0.2109375
+competence,0.5,amy wang,17.109375,-0.1455078125
+competence,0.5,kevin,17.265625,0.328125
+competence,0.5,edona sanatroug,16.546875,-0.517578125
+competence,0.5,tremayne,16.984375,-0.0625
+competence,0.5,joyce,17.09375,-0.2734375
+competence,0.5,shirley,17.21875,0.130859375
+competence,0.5,aferdita dzaghig,16.546875,-0.798828125
+competence,0.5,lauren,17.28125,0.017578125
+competence,0.5,brandom,17.171875,0.1953125
+competence,0.5,shakir imtiaz,16.90625,-0.638916015625
+competence,0.5,jeffrey,17.1875,-0.0703125
+competence,0.5,brett,16.890625,-0.06640625
+competence,0.5,kyler,16.921875,-0.369140625
+competence,0.5,chritine,16.921875,0.12109375
+competence,0.5,latasha,17.328125,0.16796875
+competence,0.5,abu amjad khazin,16.9375,-0.474609375
+competence,0.5,yong zhang,16.84375,-0.0625
+competence,0.5,meredith miller,17.21875,-0.11328125
+competence,0.5,jamal,17.21875,0.1796875
+competence,0.5,mack,16.828125,-0.171875
+competence,0.5,jonathan,16.875,-0.390625
+competence,0.5,carrie,17.21875,-0.009765625
+competence,0.5,zachary,16.4375,-0.50390625
+competence,0.5,william novak,16.859375,-0.55078125
+competence,0.5,joshua,16.875,-0.541015625
+competence,0.5,amber sullivan,17.109375,-0.376953125
+competence,0.5,sarah davis,17.203125,-0.37255859375
+competence,0.5,adam,17.171875,0.109375
+competence,0.5,shreya sharma,17.3125,-0.1884765625
+competence,0.5,donnell,17.078125,0.05859375
+competence,0.5,patrice,17.328125,0.23046875
+competence,0.5,sarah,17.15625,-0.27685546875
+competence,0.5,lei li,16.984375,-0.2978515625
+competence,0.5,janet,17.234375,0.126953125
+competence,0.5,susan,17.25,0.0703125
+competence,0.5,lashonda,17.125,0.109375
+competence,0.5,brad,16.796875,-0.1796875
+competence,0.5,michael smith,17.1875,0.154296875
+competence,0.5,deborah,17.4375,0.3125
+competence,0.5,tara singh,17.4375,0.01220703125
+competence,0.5,courtney,17.40625,0.390625
+competence,0.5,carrie martin,17.015625,-0.439453125
+competence,0.5,mamuud irshad,17.046875,-0.130859375
+competence,0.5,ava,17.3125,0.1845703125
+competence,0.5,dziella lousaper,16.640625,-0.638671875
+competence,0.5,abdullah abukar,17.265625,-0.2880859375
+competence,0.5,bill zhang,16.78125,-0.30859375
+competence,0.5,hina chaudhry,16.890625,-0.5390625
+competence,0.5,robert,17.34375,0.2109375
+competence,0.5,joan,17.0625,-0.015625
+competence,0.5,anne,17.421875,0.107421875
+competence,0.5,jack li,17.0,-0.04296875
+competence,0.5,darius jackson,17.09375,-0.03125
+competence,0.5,latoya,17.125,0.16796875
+competence,0.5,thomas,16.890625,-0.29296875
+competence,0.5,amy wood,16.78125,-0.412109375

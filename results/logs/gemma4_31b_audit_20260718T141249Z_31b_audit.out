@@ -1,0 +1,45 @@
+--- Grid Engine ---
+Reserving GPUs @ scc214 ..
+Number of requested GPUS: 1
+GPU 0: NVIDIA RTX PRO 6000 Blackwell Server Edition (UUID: GPU-507970ca-1d83-07f5-7313-8794afdd8585)
+GPU 1: NVIDIA RTX PRO 6000 Blackwell Server Edition (UUID: GPU-ffa89324-cc75-4306-b653-c29c4dda1cdf)
+GPU 2: NVIDIA RTX PRO 6000 Blackwell Server Edition (UUID: GPU-bb1778b1-810c-451b-46f5-c60e94530810)
+GPU 3: NVIDIA RTX PRO 6000 Blackwell Server Edition (UUID: GPU-6ca202c9-9e24-bc3e-5a9e-514db7180d18)
+GPU 4: NVIDIA RTX PRO 6000 Blackwell Server Edition (UUID: GPU-1a96c05e-b1c1-872c-1610-c4412502b862)
+GPU 5: NVIDIA RTX PRO 6000 Blackwell Server Edition (UUID: GPU-86953032-21b6-1c61-d81c-dfb6d54de161)
+GPU 6: NVIDIA RTX PRO 6000 Blackwell Server Edition (UUID: GPU-391a19d5-ffde-82dc-4f71-f679faa836f0)
+GPU 7: NVIDIA RTX PRO 6000 Blackwell Server Edition (UUID: GPU-72a4de52-03aa-35bf-0c55-e25b5f57d678)
+Set SGE_GPU = 2
+Set CUDA_VISIBLE_DEVICES = 2
+--- Grid Engine ---
+[runtime] gpu='NVIDIA RTX PRO 6000 Blackwell Server Edition' free=94.47 GiB total=95.01 GiB
+[validated] audit: 2 outputs absent
+[meta] model=google/gemma-4-31B-it  layer=39  hook=blocks.39.hook_resid_post
+[names] 282 unique rated names
+[model] loading google/gemma-4-31B-it …
+[tokens] Yes=10784  No=3771  (continuation check passed)
+[audit] 20/282
+[audit] 40/282
+[audit] 60/282
+[audit] 80/282
+[audit] 100/282
+[audit] 120/282
+[audit] 140/282
+[audit] 160/282
+[audit] 180/282
+[audit] 200/282
+[audit] 220/282
+[audit] 240/282
+[audit] 260/282
+[audit] 280/282
+[audit] 282/282
+[done] results/tables/hiring_audit_gemma4_31b.csv  (282 rows)
+[corr] warmth                                    Spearman rho=+0.267  (p=5.6e-06)
+[corr] competence                                Spearman rho=+0.293  (p=5.3e-07)
+[corr] callback_vs_model_warmth                  Spearman rho=+0.024  (p=0.69)
+[corr] callback_vs_model_competence              Spearman rho=+0.337  (p=6.6e-09)
+[corr] callback_vs_human_warm                    Spearman rho=+0.120  (p=0.044)
+[corr] callback_vs_human_competent               Spearman rho=-0.012  (p=0.84)
+[done] results/logs/hiring_probe_vs_human_gemma4_31b.json
+[validated] audit: 2 outputs complete
+[success] run=audit -> /work/emrecan.ulu/gemma4_remaining/20260718T141249Z_31b_audit/31b_audit.success

@@ -12,3 +12,34 @@ GPU 7: NVIDIA RTX PRO 6000 Blackwell Server Edition (UUID: GPU-72a4de52-03aa-35b
 Set SGE_GPU = 2
 Set CUDA_VISIBLE_DEVICES = 2
 --- Grid Engine ---
+[runtime] gpu='NVIDIA RTX PRO 6000 Blackwell Server Edition' free=94.47 GiB total=95.01 GiB
+[validated] audit: 2 outputs absent
+[meta] model=google/gemma-4-26B-A4B-it  layer=19  hook=blocks.19.hook_resid_post
+[names] 282 unique rated names
+[model] loading google/gemma-4-26B-A4B-it …
+[tokens] Yes=10784  No=3771  (continuation check passed)
+[audit] 20/282
+[audit] 40/282
+[audit] 60/282
+[audit] 80/282
+[audit] 100/282
+[audit] 120/282
+[audit] 140/282
+[audit] 160/282
+[audit] 180/282
+[audit] 200/282
+[audit] 220/282
+[audit] 240/282
+[audit] 260/282
+[audit] 280/282
+[audit] 282/282
+[done] results/tables/hiring_audit_gemma4_26b_a4b.csv  (282 rows)
+[corr] warmth                                    Spearman rho=-0.204  (p=0.00056)
+[corr] competence                                Spearman rho=-0.044  (p=0.46)
+[corr] callback_vs_model_warmth                  Spearman rho=+0.510  (p=4.3e-20)
+[corr] callback_vs_model_competence              Spearman rho=+0.373  (p=9.8e-11)
+[corr] callback_vs_human_warm                    Spearman rho=+0.056  (p=0.35)
+[corr] callback_vs_human_competent               Spearman rho=-0.015  (p=0.8)
+[done] results/logs/hiring_probe_vs_human_gemma4_26b_a4b.json
+[validated] audit: 2 outputs complete
+[success] run=audit -> /work/emrecan.ulu/gemma4_remaining/20260718T141249Z_26b_a4b_audit/26b_a4b_audit.success

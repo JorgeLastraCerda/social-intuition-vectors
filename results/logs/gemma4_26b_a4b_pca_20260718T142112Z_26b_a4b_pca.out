@@ -1,0 +1,10 @@
+[validated] pca: 2 outputs absent
+[pca] neutral n=1500 d=2816 -> k=11 components cover 0.503 variance (threshold 0.5)
+
+BEFORE vs AFTER denoising:
+  [raw     ] cos(w,c)=+0.587   d_warmth= 8.27   d_competence= 8.67   warmth-on-competence(leak)= 4.90
+  [denoised] cos(w,c)=+0.564   d_warmth= 8.42   d_competence= 8.49   warmth-on-competence(leak)= 4.75
+
+[DONE] saved concept_vectors_denoised.npz (k=11, cos +0.587 -> +0.564)
+[validated] pca: 2 outputs complete
+[success] run=pca -> /work/emrecan.ulu/gemma4_remaining/20260718T142112Z_26b_a4b_pca/26b_a4b_pca.success

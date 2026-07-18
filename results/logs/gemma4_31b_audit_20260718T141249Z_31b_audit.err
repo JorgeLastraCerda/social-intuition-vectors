@@ -1,0 +1,2 @@
+[start] 2026-07-18T14:34:24Z run=audit model=gemma4_31b job=1145355
+Loading weights:   0%|          | 0/1188 [00:00<?, ?it/s]Loading weights: 100%|██████████| 1188/1188 [00:00<00:00, 23730.15it/s]

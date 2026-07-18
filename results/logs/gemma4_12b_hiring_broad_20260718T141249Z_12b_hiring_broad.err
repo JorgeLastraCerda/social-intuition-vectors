@@ -1,0 +1,2 @@
+[start] 2026-07-18T14:24:42Z run=hiring_broad model=gemma4_12b job=1145337
+Loading weights:   0%|          | 0/677 [00:00<?, ?it/s]Loading weights: 100%|██████████| 677/677 [00:00<00:00, 7738.15it/s]
