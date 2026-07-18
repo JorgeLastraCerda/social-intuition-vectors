@@ -1721,3 +1721,13 @@
 - **Findings:** This is a local adapter-signature bug, not a calibration, model, memory, or library-compatibility limitation. Gemma-4 job `1145430` failed at the first intervention; Gemma-3 job `1145429` was deleted before reaching the guaranteed same failure, and queued Qwen job `1145431` was deleted to preserve clean commit provenance.
 - **Decision / rationale:** Replace all three initial pilot jobs with clean write-once retry labels rather than patching or resuming partial output.
 - **Next:** Pass the full local suite, commit and synchronize the fix, then submit three new independent held retries.
+
+---
+
+## 2026-07-18 · Step 41 — Submit clean calibrated-pilot retries
+- **Context:** Replace the initial pilot set after correcting the TransformerLens callback contract.
+- **Agent:** gpt-5-codex
+- **Did:** Passed all 82 project tests, synchronized the failed/cancelled first-attempt logs, submitted held retries `1145433` (Gemma-3-12B), `1145434` (Gemma-4-12B), and `1145435` (Qwen3.6-27B), committed their manifests in sync commit `93255e0`, and released all three.
+- **Findings:** All retry output labels and success sentinels were absent before submission. SCCKN reported two RTX PRO 6000 resources at submission; all three retries currently remain in independent `qw` state with no scheduler dependency.
+- **Decision / rationale:** Retain the same predeclared calibration and model scope because the first failure was fully explained by the tested adapter signature.
+- **Next:** Validate runtime assignment and outputs as resources become available, then write one empirical report per completed model.
