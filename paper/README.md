@@ -206,3 +206,4 @@ Paper-draft figures (prefixed `paper_figure*`; produced 2026-06-24 for superviso
 | `2026-07-19_0022_gemma4_31b_local_full282.md` | 2026-07-19 00:22 | Gemma-4-31B-it | Raw local steering across all 282 names | Complete; both axes are non-monotone with negative endpoints. |
 | `2026-07-19_0022_gemma4_31b_broad_full282.md` | 2026-07-19 00:22 | Gemma-4-31B-it | Raw broad steering across all 282 names | Complete; both axes reverse strongly at +0.50. |
 | `2026-07-19_0022_gemma4_31b_denoised_full282.md` | 2026-07-19 00:22 | Gemma-4-31B-it | Denoised local steering across all 282 names | Complete; denoising does not restore monotonicity. |
+| `2026-07-19_0030_gemma4_31b_calibrated_steering.md` | 2026-07-19 00:30 | Gemma-4-31B-it | Calibrated target, cross-axis, and 99-direction random-control steering | Complete; structural gates pass, but neither target exceeds the calibrated random null. |

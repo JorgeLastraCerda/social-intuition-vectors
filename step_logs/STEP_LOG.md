@@ -1947,3 +1947,13 @@
 - **Findings:** The local branch is one commit ahead of origin. Both SCCKN (`scc2.uni-konstanz.de:22`) and GitHub SSH (`github.com:22`) returned `Connection refused`, preventing a fresh 31B calibrated sentinel check and remote push. CCU access remains healthy, all required larger-model sentinels are present, and its H100 is idle.
 - **Decision / rationale:** Preserve the unpushed local commit and report 31B calibrated as externally unverified rather than inferring completion from elapsed time.
 - **Next:** Retry SCCKN and GitHub SSH after connectivity returns, then synchronize and report the 31B calibrated result.
+
+---
+
+## 2026-07-19 · Step 3 — Close Gemma 4 31B calibrated and repair Qwen topic selection
+- **Context:** Resume cluster work after network connectivity returned and continue the remaining larger-model tests.
+- **Agent:** gpt-5-codex
+- **Did:** Pushed the recovered CCU commit, synchronized and validated the completed SCCKN 31B calibrated outputs, wrote `paper/2026-07-19_0030_gemma4_31b_calibrated_steering.md`, replaced the Qwen calibrated runner's contiguous-index assumption with explicit topic-ID-to-activation-row mapping, added collision-free rerun labels and Qwen3.6-35B-A3B scheduler support, and ran focused tests and shell checks.
+- **Findings:** Gemma 4 31B passed with 40,440 raw rows, 2,020 summary rows, eight null rows, 58.69 GiB peak allocated VRAM, and 0.006368 maximum norm drift. Its target-minus-random paired-topic estimates were negative for both target axes. The Qwen defect is a selection and row-alignment bug caused by non-contiguous topic identifiers, not a model, memory, hook, or library limitation. Nine focused tests, Ruff, shell syntax, and both scheduler dry runs passed.
+- **Decision / rationale:** Preserve the rejected Qwen 27B artifact and write the corrected rerun to a new label. Run corrected Qwen 27B and first calibrated Qwen 35B-A3B as separate, unchained RTX PRO 6000 jobs.
+- **Next:** Commit and synchronize the fix, submit one held job per Qwen model, then release both only after their manifests are preserved.

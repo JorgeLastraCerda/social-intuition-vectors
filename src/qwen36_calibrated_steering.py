@@ -8,7 +8,7 @@ import json
 import sys
 import time
 from pathlib import Path
-from typing import Any
+from typing import Any, Sequence
 
 import numpy as np
 import torch
@@ -50,13 +50,38 @@ def judgement_prompt(text: str, axis: str) -> str:
 
 
 def train_test_topics(
-    seed: int, n_test_topics: int = 10
+    topic_ids: Sequence[int], seed: int, n_test_topics: int = 10
 ) -> tuple[np.ndarray, np.ndarray]:
-    topics = np.arange(50, dtype=np.int64)
+    topics = np.asarray(sorted({int(topic) for topic in topic_ids}), dtype=np.int64)
+    if len(topics) != len(topic_ids):
+        raise ValueError("Calibrated steering requires unique topic identifiers.")
+    if not 0 < n_test_topics < len(topics):
+        raise ValueError(
+            f"n_test_topics must be between 1 and {len(topics) - 1}; "
+            f"got {n_test_topics}."
+        )
     rng = np.random.default_rng(seed)
     test = np.sort(rng.choice(topics, size=n_test_topics, replace=False))
     train = np.asarray([topic for topic in topics if topic not in set(test)])
     return train, test
+
+
+def topic_row_indices(
+    records: Sequence[dict[str, Any]], selected_topics: Sequence[int]
+) -> np.ndarray:
+    selected = {int(topic) for topic in selected_topics}
+    indices = np.asarray(
+        [
+            index
+            for index, record in enumerate(records)
+            if int(record["topic_idx"]) in selected
+        ],
+        dtype=np.int64,
+    )
+    if len(indices) != len(selected):
+        found = {int(records[index]["topic_idx"]) for index in indices}
+        raise ValueError(f"Missing selected topics: {sorted(selected - found)}")
+    return indices
 
 
 def orthogonal_random_directions(
@@ -257,7 +282,7 @@ def main() -> None:
         raise RuntimeError("TransformerLens was imported in the native-HF process.")
     paths = stage_paths(cfg)
     vectors_dir = paths.vectors_dir
-    label = f"{cfg.native_hf.label}_calibrated"
+    label = args.label or f"{cfg.native_hf.label}_calibrated"
     table_dir = Path(cfg.paths.results) / "tables"
     log_dir = Path(cfg.paths.logs)
     raw_path = table_dir / f"steering_dense_raw_{label}.csv"
@@ -273,7 +298,23 @@ def main() -> None:
     buckets, stimuli_hash = load_full_records(
         Path(cfg.paths.stimuli) / "concept_stories.jsonl"
     )
-    train_topics, test_topics = train_test_topics(cfg.probing.seed)
+    topic_ids_by_condition = {
+        condition: [int(record["topic_idx"]) for record in buckets[condition]]
+        for condition in CONDITIONS
+    }
+    reference_topics = set(topic_ids_by_condition[CONDITIONS[0]])
+    for condition, topic_ids in topic_ids_by_condition.items():
+        if set(topic_ids) != reference_topics:
+            raise ValueError(
+                f"Topic identifiers for {condition!r} do not match the reference set."
+            )
+    train_topics, test_topics = train_test_topics(
+        topic_ids_by_condition[CONDITIONS[0]], cfg.probing.seed
+    )
+    train_rows = {
+        condition: topic_row_indices(buckets[condition], train_topics)
+        for condition in CONDITIONS
+    }
     activations = {
         condition: np.load(vectors_dir / f"X_{condition}.npy").astype(np.float32)
         for condition in CONDITIONS
@@ -281,13 +322,15 @@ def main() -> None:
     all_activations = np.concatenate(list(activations.values()))
     mean_residual_norm = float(np.linalg.norm(all_activations, axis=1).mean())
     train_matrix = np.concatenate(
-        [activations[condition][train_topics] for condition in CONDITIONS]
+        [activations[condition][train_rows[condition]] for condition in CONDITIONS]
     )
     vectors = {
-        "warmth": activations["high_warmth"][train_topics].mean(0)
-        - activations["low_warmth"][train_topics].mean(0),
-        "competence": activations["high_competence"][train_topics].mean(0)
-        - activations["low_competence"][train_topics].mean(0),
+        "warmth": activations["high_warmth"][train_rows["high_warmth"]].mean(0)
+        - activations["low_warmth"][train_rows["low_warmth"]].mean(0),
+        "competence": activations["high_competence"][
+            train_rows["high_competence"]
+        ].mean(0)
+        - activations["low_competence"][train_rows["low_competence"]].mean(0),
     }
     randoms = orthogonal_random_directions(
         vectors["warmth"],
@@ -490,6 +533,7 @@ def main() -> None:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", required=True)
+    parser.add_argument("--label")
     parser.add_argument("--n-random-directions", type=int, default=99)
     return parser.parse_args()
 

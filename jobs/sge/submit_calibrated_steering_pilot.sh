@@ -3,7 +3,7 @@
 set -euo pipefail
 
 usage() {
-  echo "usage: bash jobs/sge/submit_calibrated_steering_pilot.sh --model {gemma3_12b|gemma4_12b|gemma4_26b_a4b|gemma4_31b|qwen36_27b} [--dry-run]" >&2
+  echo "usage: bash jobs/sge/submit_calibrated_steering_pilot.sh --model {gemma3_12b|gemma4_12b|gemma4_26b_a4b|gemma4_31b|qwen36_27b|qwen36_35b_a3b} [--dry-run]" >&2
 }
 
 MODEL_KEY=""
@@ -15,7 +15,7 @@ while (($#)); do
     *) usage; exit 2 ;;
   esac
 done
-[[ "$MODEL_KEY" =~ ^(gemma3_12b|gemma4_12b|gemma4_26b_a4b|gemma4_31b|qwen36_27b)$ ]] || { usage; exit 2; }
+[[ "$MODEL_KEY" =~ ^(gemma3_12b|gemma4_12b|gemma4_26b_a4b|gemma4_31b|qwen36_27b|qwen36_35b_a3b)$ ]] || { usage; exit 2; }
 
 cd "$(git rev-parse --show-toplevel)"
 REPO_PATH="$(pwd)"
@@ -31,7 +31,8 @@ case "$MODEL_KEY" in
   gemma4_12b) CONFIG_PATH=config/gemma4_12b.yaml; LABEL=gemma4_12b_calibrated ;;
   gemma4_26b_a4b) CONFIG_PATH=config/gemma4_26b_a4b.yaml; LABEL=gemma4_26b_a4b_calibrated_scckn_rtx6000 ;;
   gemma4_31b) CONFIG_PATH=config/gemma4_31b.yaml; LABEL=gemma4_31b_calibrated_scckn_rtx6000 ;;
-  qwen36_27b) CONFIG_PATH=config/qwen36_27b.yaml; LABEL=qwen36_27b_calibrated ;;
+  qwen36_27b) CONFIG_PATH=config/qwen36_27b.yaml; LABEL=qwen36_27b_calibrated_topicfix_scckn_rtx6000 ;;
+  qwen36_35b_a3b) CONFIG_PATH=config/qwen36_35b_a3b.yaml; LABEL=qwen36_35b_a3b_calibrated_scckn_rtx6000 ;;
 esac
 
 if ((DRY_RUN)); then
