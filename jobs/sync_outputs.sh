@@ -23,6 +23,7 @@
 #   results/logs/gemma4_parity_*.json  (multi-GPU parity manifests/results)
 #   results/logs/gemma4_stage3_retry_submission_*.json (parallel Stage 3 retry manifest)
 #   results/logs/gemma4_stage3b_*.{json,out,err} (enhanced sweep provenance/logs)
+#   results/logs/calibrated_steering_*.{json,out,err} (calibrated pilot manifests/logs)
 #
 # NOT committed: model weights (*.safetensors, *.bin, *.pt), unrelated SGE logs,
 #               HF cache (/work/.../hf_cache).
@@ -84,6 +85,9 @@ output_paths=(
     results/logs/gemma4_stage3b_outcome_*.json
     results/logs/gemma4_remaining_submission_*.json
     results/logs/gemma4_remaining_smoke_outcome_*.json
+    results/logs/calibrated_steering_submission_*.json
+    results/logs/calibrated_steering_*.out
+    results/logs/calibrated_steering_*.err
     results/logs/gemma4_*_smoke_*.out
     results/logs/gemma4_*_smoke_*.err
     results/logs/gemma4_*_dense_raw_*.out
