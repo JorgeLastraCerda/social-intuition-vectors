@@ -1927,3 +1927,13 @@
 - **Findings:** The log advanced from `[resume] competence random_025` into new steering work for random directions 025 and 026; checkpoint files increased from 1,657 to 1,668 with no error output. CCU simultaneously remained occupied by 26B-A4B broad full-282 under queue PID `7229`.
 - **Decision / rationale:** Accept the compatibility fix as operationally validated while retaining the original checkpoint manifest and all strict non-commit fingerprint fields.
 - **Next:** Monitor both active paths to their validators and success sentinels.
+
+---
+
+## 2026-07-19 · Step 1 — Complete all queued larger-model full-282 runs
+- **Context:** Recover overnight CCU results and determine current SCCKN state.
+- **Agent:** gpt-5-codex
+- **Did:** Verified all six queued 26B-A4B and 31B model-regime success sentinels, hash-downloaded the five previously unretrieved output sets, inspected their summaries, and wrote one dated report per run.
+- **Findings:** The CCU queue completed all tasks between 23:42 and 00:09 Europe/Berlin with 2,820 validated rows per run. In 26B-A4B, warmth remained monotone while competence was non-monotone in local, broad, and denoised-local regimes. In 31B, both axes were non-monotone and had negative positive-strength endpoints in all three regimes. CCU is now idle. SCCKN status could not be refreshed because the login host refused port 22; the last verified 31B calibrated state was a successful checkpoint resume with advancing shards.
+- **Decision / rationale:** Mark the full-282 matrix complete for both larger Gemma 4 models, but leave 31B calibrated status unresolved until SCCKN connectivity returns and its final sentinel can be checked.
+- **Next:** Commit the recovered artifacts, then recheck SCCKN and synchronize the 31B calibrated result if complete.
