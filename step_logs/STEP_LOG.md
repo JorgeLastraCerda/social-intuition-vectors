@@ -1857,3 +1857,13 @@
 - **Did:** Validated and hash-retrieved all four local full-282 outputs, wrote `paper/2026-07-18_2318_gemma4_12b_local_full282.md`, and launched broad full-282 as a separate write-once CCU run.
 - **Findings:** Local full-282 produced 2,820 raw rows over all 282 names. Warmth steering was monotone with slope 20.215, R2 0.930, and +0.10 mean delta 1.036 (95% CI [1.022, 1.051]); competence steering was monotone with slope 22.951, R2 0.967, and +0.10 mean delta 1.515 (95% CI [1.499, 1.531]). Broad full-282 passed its H100 and output-absence gates and began model loading.
 - **Next:** Validate and report broad full-282, then launch denoised-local independently.
+
+---
+
+## 2026-07-18 · Step 55 — Complete broad full-282 and start denoised expansion
+- **Context:** Continue the gate-required Gemma 4 12B expansion as independent CCU executions.
+- **Agent:** gpt-5-codex
+- **Did:** Validated and hash-retrieved all four broad full-282 outputs, wrote `paper/2026-07-18_2322_gemma4_12b_broad_full282.md`, and launched denoised-local full-282 separately on the CCU H100.
+- **Findings:** Broad full-282 produced 2,820 raw rows and reproduced non-monotonicity on both axes. Warmth slope was 8.729 but the +0.50 endpoint was -1.276 (95% CI [-1.301, -1.250]); competence slope was 6.503 but the endpoint was -0.082 (95% CI [-0.112, -0.053]). Both endpoint signs opposed their fitted slopes. Denoised-local passed H100 and output-absence gates and began model loading.
+- **Decision / rationale:** Treat broad steering as a bounded nonlinear intervention, not a globally linear dose response; retain the full-name result rather than attributing the reversal to the original 60-name sample.
+- **Next:** Validate and report denoised-local full-282, which will close the gate-required 12B expansion.
