@@ -1,0 +1,2 @@
+[start] 2026-07-18T14:17:33Z run=dense_raw model=gemma4_12b job=1145331
+Loading weights:   0%|          | 0/677 [00:00<?, ?it/s]Loading weights: 100%|██████████| 677/677 [00:00<00:00, 7982.41it/s]

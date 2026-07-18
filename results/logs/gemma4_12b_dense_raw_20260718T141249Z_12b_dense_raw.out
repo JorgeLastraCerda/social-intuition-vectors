@@ -1,0 +1,69 @@
+--- Grid Engine ---
+Reserving GPUs @ scc192 ..
+Number of requested GPUS: 1
+GPU 0: NVIDIA L40 (UUID: GPU-58427703-bce4-32fd-4b8a-f00823f1d59c)
+GPU 1: NVIDIA L40 (UUID: GPU-41e5380b-23f0-e6b0-6d0a-a44254ec8642)
+GPU 2: NVIDIA L40 (UUID: GPU-aa56efa3-44bb-3542-e797-a0b90a3d3978)
+GPU 3: NVIDIA L40 (UUID: GPU-52b7f36d-6004-78d2-75d7-91fd517911ae)
+Set SGE_GPU = 0
+Set CUDA_VISIBLE_DEVICES = 0
+--- Grid Engine ---
+[runtime] gpu='NVIDIA L40' free=44.00 GiB total=44.42 GiB
+[validated] dense_raw: 4 outputs absent
+[model] loading google/gemma-4-12B-it
+[tokens] ' Yes'=10784  ' No'=3771  (single-token check passed, hook=blocks.31.hook_resid_post)
+[baseline] warmth 10/20
+[baseline] warmth 20/20
+[steering] warmth warmth strength=-0.10
+[steering] warmth warmth strength=-0.05
+[steering] warmth warmth strength=+0.05
+[steering] warmth warmth strength=+0.10
+[steering] warmth competence strength=-0.10
+[steering] warmth competence strength=-0.05
+[steering] warmth competence strength=+0.05
+[steering] warmth competence strength=+0.10
+[steering] warmth random_000 strength=-0.10
+[steering] warmth random_000 strength=-0.05
+[steering] warmth random_000 strength=+0.05
+[steering] warmth random_000 strength=+0.10
+[steering] warmth random_001 strength=-0.10
+[steering] warmth random_001 strength=-0.05
+[steering] warmth random_001 strength=+0.05
+[steering] warmth random_001 strength=+0.10
+[steering] warmth random_002 strength=-0.10
+[steering] warmth random_002 strength=-0.05
+[steering] warmth random_002 strength=+0.05
+[steering] warmth random_002 strength=+0.10
+[steering] warmth random_003 strength=-0.10
+[steering] warmth random_003 strength=-0.05
+[steering] warmth random_003 strength=+0.05
+[steering] warmth random_003 strength=+0.10
+[steering] warmth random_004 strength=-0.10
+[steering] warmth random_004 strength=-0.05
+[steering] warmth random_004 strength=+0.05
+[steering] warmth random_004 strength=+0.10
+[steering] warmth random_005 strength=-0.10
+[steering] warmth random_005 strength=-0.05
+[steering] warmth random_005 strength=+0.05
+[steering] warmth random_005 strength=+0.10
+[steering] warmth random_006 strength=-0.10
+[steering] warmth random_006 strength=-0.05
+[steering] warmth random_006 strength=+0.05
+[steering] warmth random_006 strength=+0.10
+[steering] warmth random_007 strength=-0.10
+[steering] warmth random_007 strength=-0.05
+[steering] warmth random_007 strength=+0.05
+[steering] warmth random_007 strength=+0.10
+[steering] warmth random_008 strength=-0.10
+[steering] warmth random_008 strength=-0.05
+[steering] warmth random_008 strength=+0.05
+[steering] warmth random_008 strength=+0.10
+[steering] warmth random_009 strength=-0.10
+[steering] warmth random_009 strength=-0.05
+[steering] warmth random_009 strength=+0.05
+[steering] warmth random_009 strength=+0.10
+[steering] warmth random_010 strength=-0.10
+[steering] warmth random_010 strength=-0.05
+[steering] warmth random_010 strength=+0.05
+[steering] warmth random_010 strength=+0.10
+[steering] warmth random_011 strength=-0.10
