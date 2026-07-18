@@ -1887,3 +1887,13 @@
 - **Findings:** The two SCCKN calibrated jobs remained active at 1,920 and 1,367 of 2,022 shards. The 26B-A4B full-282 gate fired with eight competence-related reasons. Post-hoc joins matched 269 names for disparity/mediation and 149 for R4 in both models. CCU 31B denoised passed its H100 and absence gates and used approximately 61,050 MiB while running. Fourteen focused tests, Ruff, shell syntax, upload hash verification, and `git diff --check` passed.
 - **Decision / rationale:** Use CCU for the missing 31B denoised prerequisite and all gate-required full-282 expansions while SCCKN remains fully occupied by calibrated runs. Keep each model-regime execution write-once with separate logs and sentinels, but use one fail-closed serial coordinator to prevent CCU inactivity between tasks.
 - **Next:** Retrieve, validate, and report each queued output as it completes; synchronize completed SCCKN calibrated artifacts and write one report per model.
+
+---
+
+## 2026-07-18 · Step 58 — Complete 26B calibrated and arm both full-282 expansions
+- **Context:** Validate newly completed SCCKN and CCU prerequisites while the persistent larger-model queue advances.
+- **Agent:** gpt-5-codex
+- **Did:** Synchronized and inspected the completed 26B-A4B calibrated artifacts; retrieved and validated the 31B denoised outputs and full-282 gate; wrote three dated reports; confirmed the queue advanced immediately to 26B-A4B local full-282.
+- **Findings:** The 26B-A4B calibrated run passed with 40,440 raw, 2,020 summary, and eight null rows, peak allocated VRAM 48.48 GiB, and maximum norm drift 0.005351. The 31B denoised prerequisite completed 600 rows and was non-monotone on both axes. Its gate fired with sixteen reasons. CCU then began 26B-A4B local full-282 at approximately 50,280 MiB and 56% sampled GPU utilization; SCCKN 31B calibrated remained active.
+- **Decision / rationale:** Keep the queue order at all three 26B-A4B expansions followed by all three 31B expansions because both predeclared gates fired and the CCU server must remain active.
+- **Next:** Retrieve, validate, and report each full-282 run; synchronize and report 31B calibrated completion.

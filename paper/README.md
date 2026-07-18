@@ -197,3 +197,6 @@ Paper-draft figures (prefixed `paper_figure*`; produced 2026-06-24 for superviso
 | `2026-07-18_2335_gemma4_26b_a4b_posthoc_hiring.md` | 2026-07-18 23:35 | Gemma-4-26B-A4B-it | Demographic disparity, mediation, group R4, and name-level R4 | Complete; two mediation intervals exclude zero. |
 | `2026-07-18_2335_gemma4_31b_posthoc_hiring.md` | 2026-07-18 23:35 | Gemma-4-31B-it | Demographic disparity, mediation, group R4, and name-level R4 | Complete; competence is the strongest name-level correlate. |
 | `2026-07-18_2335_gemma4_26b_a4b_full282_gate.md` | 2026-07-18 23:35 | Gemma-4-26B-A4B-it | Predeclared conditional expansion gate | Gate fired on eight competence-response criteria; three 282-name runs queued. |
+| `2026-07-18_2338_gemma4_26b_a4b_calibrated_steering.md` | 2026-07-18 23:38 | Gemma-4-26B-A4B-it | Calibrated target, cross-axis, and 99-direction random-control steering | Complete; structural gates pass, but target endpoints are weak under the random null. |
+| `2026-07-18_2338_gemma4_31b_denoised_hiring.md` | 2026-07-18 23:38 | Gemma-4-31B-it | Missing denoised local 60-name hiring steering | Complete; both axes are non-monotone with negative +0.10 endpoints. |
+| `2026-07-18_2338_gemma4_31b_full282_gate.md` | 2026-07-18 23:38 | Gemma-4-31B-it | Predeclared conditional expansion gate | Gate fired on sixteen criteria; three 282-name runs queued. |
