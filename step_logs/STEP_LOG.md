@@ -1897,3 +1897,13 @@
 - **Findings:** The 26B-A4B calibrated run passed with 40,440 raw, 2,020 summary, and eight null rows, peak allocated VRAM 48.48 GiB, and maximum norm drift 0.005351. The 31B denoised prerequisite completed 600 rows and was non-monotone on both axes. Its gate fired with sixteen reasons. CCU then began 26B-A4B local full-282 at approximately 50,280 MiB and 56% sampled GPU utilization; SCCKN 31B calibrated remained active.
 - **Decision / rationale:** Keep the queue order at all three 26B-A4B expansions followed by all three 31B expansions because both predeclared gates fired and the CCU server must remain active.
 - **Next:** Retrieve, validate, and report each full-282 run; synchronize and report 31B calibrated completion.
+
+---
+
+## 2026-07-18 · Step 59 — Resume interrupted 31B calibrated run from checkpoint
+- **Context:** Recover the SCCKN 31B calibrated job after it left the queue before producing a success sentinel.
+- **Agent:** gpt-5-codex
+- **Did:** Queried Grid Engine accounting and exact logs, preserved the original state directory, submitted held retry `1145490` against the same pinned commit and output label, committed its retry manifest, released it, and retained the concurrent CCU remaining-test queue.
+- **Findings:** Original job `1145463` ended after 2,217 seconds with scheduler `failed=0`, wrapper `exit_status=120`, an empty error log, no success sentinel, and 1,657 checkpoint files. There is no model, OOM, or validation traceback. The retry is configured to detect the existing checkpoint manifest and resume rather than repeat completed shards; it is currently scheduler-pending while SCCKN reports two available GPU resources. CCU 26B-A4B local full-282 remains active at approximately 50,280 MiB and 55% sampled utilization.
+- **Decision / rationale:** Treat the 31B event as an incomplete operational exit, not an empirical failure. Preserve all checkpoints and require the normal final validator and sentinel before accepting the run.
+- **Next:** Verify physical RTX assignment for retry `1145490`, then synchronize and report the completed 31B calibrated artifacts.
