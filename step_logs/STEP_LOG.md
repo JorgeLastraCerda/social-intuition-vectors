@@ -1565,6 +1565,16 @@
 
 ---
 
+## 2026-07-18 · Step 28 — Submit held Gemma 4 first-wave production jobs
+- **Context:** Start the production tests that are immediately independent after all three technical smokes passed.
+- **Agent:** gpt-5-codex
+- **Did:** Submitted 15 separate user-held jobs: neutral extraction, strengthened raw dense steering, 282-name unsteered hiring audit, 60-name local hiring steering, and 60-name broad hiring steering for each of 12B, 26B-A4B, and 31B. Job IDs are `1145329`, `1145331`, `1145333`, `1145335`, `1145337`; `1145339`, `1145342`, `1145344`, `1145346`, `1145348`; and `1145350`, `1145352`, `1145355`, `1145357`, `1145359`, respectively. Synchronized all 15 `results/logs/gemma4_remaining_submission_*_20260718T141249Z_*.json` manifests before release.
+- **Findings:** Every preflight found its output targets absent and passed dependency checks. Submission-time availability was three L40 GPUs for all 12B jobs and two RTX PRO 6000 GPUs for every 26B-A4B and 31B job. Each job is single-GPU, write-once, exact-revision pinned, and independent; no `hold_jid` was used.
+- **Decision / rationale:** Launch only the first wave whose inputs already exist. Defer PCA and denoised jobs until neutral extraction is validated, and defer post-hoc and full-282 gate jobs until their required hiring artifacts exist.
+- **Next:** Pull this audit entry on SCCKN, release all 15 jobs, monitor scheduler placement and per-run validators, and write a separate report for every completed model/run pair.
+
+---
+
 ## 2026-07-18 · Step 27 — Implement direct CCU Jupyter terminal client
 - **Context:** Build a reusable, local-only access kit for the personal CCU JupyterHub H100 environment without a third-party remote-access relay.
 - **Agent:** gpt-5-codex
