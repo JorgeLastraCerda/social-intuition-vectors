@@ -19,10 +19,10 @@ set -euo pipefail
 : "${GIT_COMMIT:?GIT_COMMIT is required}"
 
 module load conda  # ADJUST
-conda activate wc-qwen36-hf
 export HF_HOME=/work/emrecan.ulu/hf_cache
 export PYTHONPATH="$REPO_PATH"
 cd "$REPO_PATH"
+PYTHON=(conda run --no-capture-output -n wc-qwen36-hf python)
 
 if ! git merge-base --is-ancestor "$GIT_COMMIT" HEAD; then
   echo "Refusing Qwen3.6 smoke: submitted commit is not an ancestor of HEAD." >&2
@@ -38,7 +38,7 @@ if ! git diff --quiet "$GIT_COMMIT" HEAD -- \
   echo "Refusing Qwen3.6 smoke: critical implementation changed after submission." >&2
   exit 11
 fi
-if [[ "$(python -c 'import torch; print(torch.cuda.device_count())')" != "1" ]]; then
+if [[ "$("${PYTHON[@]}" -c 'import torch; print(torch.cuda.device_count())')" != "1" ]]; then
   echo "Refusing Qwen3.6 smoke: Grid Engine did not expose exactly one GPU." >&2
   exit 12
 fi
@@ -47,7 +47,7 @@ if [[ -e "$SUCCESS_SENTINEL" ]]; then
   exit 13
 fi
 
-python - "$CONFIG_PATH" <<'PY'
+"${PYTHON[@]}" - "$CONFIG_PATH" <<'PY'
 import sys
 
 import torch
@@ -73,10 +73,10 @@ if free_gib < cfg.smoke.min_free_vram_gib:
     )
 PY
 
-python -m src.validate_qwen36_smoke --config "$CONFIG_PATH" --require-absent
+"${PYTHON[@]}" -m src.validate_qwen36_smoke --config "$CONFIG_PATH" --require-absent
 echo "[start] $(date -u +%Y-%m-%dT%H:%M:%SZ) job=${JOB_ID:-unknown}" >&2
-python -m src.qwen36_smoke --config "$CONFIG_PATH"
-python -m src.validate_qwen36_smoke --config "$CONFIG_PATH"
+"${PYTHON[@]}" -m src.qwen36_smoke --config "$CONFIG_PATH"
+"${PYTHON[@]}" -m src.validate_qwen36_smoke --config "$CONFIG_PATH"
 
 mkdir -p "$(dirname "$SUCCESS_SENTINEL")"
 sentinel_tmp="${SUCCESS_SENTINEL}.tmp.${JOB_ID:-$$}"

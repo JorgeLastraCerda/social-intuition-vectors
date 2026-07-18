@@ -18,9 +18,8 @@ else
     -r requirements-qwen36.txt
 fi
 
-conda activate "$ENV_NAME"
-python -m pip check
-python - <<'PY'
+conda run --no-capture-output -n "$ENV_NAME" python -m pip check
+conda run --no-capture-output -n "$ENV_NAME" python - <<'PY'
 import importlib.util
 from importlib.metadata import version
 

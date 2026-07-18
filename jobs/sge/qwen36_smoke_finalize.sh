@@ -17,9 +17,9 @@ set -euo pipefail
 : "${FINAL_SENTINEL:?FINAL_SENTINEL is required}"
 
 module load conda  # ADJUST
-conda activate wc-qwen36-hf
 export PYTHONPATH="$REPO_PATH"
 cd "$REPO_PATH"
+PYTHON=(conda run --no-capture-output -n wc-qwen36-hf python)
 
 if ! git merge-base --is-ancestor "$GIT_COMMIT" HEAD; then
   echo "Refusing Qwen3.6 finalization: submitted commit is not an ancestor of HEAD." >&2
@@ -39,7 +39,7 @@ if [[ ! -f "$GPU_SENTINEL" ]]; then
   exit 20
 fi
 
-python -m src.validate_qwen36_smoke --config "$CONFIG_PATH"
+"${PYTHON[@]}" -m src.validate_qwen36_smoke --config "$CONFIG_PATH"
 bash jobs/sync_outputs.sh "$REPO_PATH"
 
 mkdir -p "$(dirname "$FINAL_SENTINEL")"
