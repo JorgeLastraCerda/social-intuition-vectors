@@ -192,3 +192,4 @@ Paper-draft figures (prefixed `paper_figure*`; produced 2026-06-24 for superviso
 | `2026-07-18_2314_gemma4_12b_posthoc_hiring.md` | 2026-07-18 23:14 | Gemma-4-12B-it | Demographic disparity, mediation, group R4, and name-level R4 | Complete; 269-name disparity/mediation join and 149-name R4 join validated. |
 | `2026-07-18_2314_gemma4_12b_full282_gate.md` | 2026-07-18 23:14 | Gemma-4-12B-it | Predeclared conditional expansion gate | Gate fired on four broad-regime criteria; three 282-name runs required. |
 | `2026-07-18_2318_gemma4_12b_local_full282.md` | 2026-07-18 23:18 | Gemma-4-12B-it | Raw local-strength steering across all 282 rated names | Complete; both axes are monotone with positive endpoint effects. |
+| `2026-07-18_2322_gemma4_12b_broad_full282.md` | 2026-07-18 23:22 | Gemma-4-12B-it | Raw broad-strength steering across all 282 rated names | Complete; both axes remain non-monotone and reverse at +0.50. |
