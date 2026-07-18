@@ -1741,3 +1741,13 @@
 - **Findings:** Gemma 4 12B produced all 40,440 raw, 2,020 summary, and eight null rows. Its original failure was a marginal BF16 norm-drift gate exceedance, with median 0.000114, p99 0.004047, and maximum 0.005620; it passes the documented 0.01 BF16 tolerance. Qwen3.6-27B produced only 16,176 rows because its runner sampled contiguous indices instead of the stimulus file's non-contiguous topic IDs. The full project suite passed 87 tests; Ruff, formatting, Python compilation, shell syntax, and `git diff --check` passed. CCU launch is currently blocked by an HTTP 302 login redirect from an expired or rejected JupyterHub token, before any remote mutation.
 - **Decision / rationale:** Keep checkpointing opt-in so legacy invocations and SCCKN scripts retain their existing interfaces and labels. Treat SCCKN Gemma 4 12B as supporting evidence and CCU as primary. Use a 0.01 BF16 implementation tolerance while recording the exact drift. Stop the serial CCU queue only on technical failure, never on scientific effect size.
 - **Next:** Commit and push the implementation. After the user refreshes the CCU token, bootstrap the pinned environment, run the three-model serial queue, retrieve and validate each completed artifact set, and write one CCU report per model.
+
+---
+
+## 2026-07-18 · Step 43 — Distinguish stopped CCU server from token failure
+- **Context:** Recheck CCU after the user restarted the personal Jupyter server and correct the HTTP 302 diagnosis.
+- **Agent:** gpt-5-codex
+- **Did:** Updated the local reusable `ccu/` client so an HTTP 302 login redirect identifies a stopped personal Jupyter server as a possible cause and tells the operator to start it in the browser and retry `ccu doctor` before replacing the Keychain token; added troubleshooting and regression coverage, ran the full CCU validation suite, and reinstalled the local client.
+- **Findings:** Live access passed all doctor gates, remote identity returned `jovyan`, and the visible NVIDIA H100 80GB HBM3 had 80,995 MiB free at 0% utilization. The CCU suite passed 60 tests plus Ruff, shell syntax, and the token-leak scan.
+- **Decision / rationale:** Treat HTTP 302 as ambiguous between a stopped server and credential rejection. Check server lifecycle first to avoid unnecessary token rotation while retaining strict no-redirect and Keychain-only authentication.
+- **Next:** Use the restored H100 access to bootstrap the pinned Gemma 4 environment and start the resumable serial queue.
