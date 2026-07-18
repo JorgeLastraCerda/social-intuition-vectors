@@ -12,6 +12,7 @@ from src.steering_calibration import (
     descriptive_null_metrics,
     directional_sd,
     intervene_tensor,
+    make_torch_hook,
     paired_topic_difference_ci,
     standardized_shift,
 )
@@ -76,6 +77,14 @@ def test_norm_preserving_intervention_preserves_each_token_norm() -> None:
     assert torch.allclose(
         residual.norm(dim=-1), changed.norm(dim=-1), atol=1e-6, rtol=1e-6
     )
+    assert diagnostics.max_relative_norm_drift < 1e-6
+
+
+def test_transformerlens_hook_keyword_contract() -> None:
+    hook, diagnostics = make_torch_hook(np.asarray([1.0, 0.0]), 0.5, "norm_preserving")
+    residual = torch.tensor([[[3.0, 4.0]]])
+    changed = hook(residual, hook=object())
+    assert changed.shape == residual.shape
     assert diagnostics.max_relative_norm_drift < 1e-6
 
 
