@@ -13,6 +13,7 @@ class ModelConfig:
     dtype: str
     device: str
     backend: str = "transformer-bridge"
+    revision: str | None = None
 
 
 @dataclass(frozen=True)
@@ -51,6 +52,18 @@ class NeutralConfig:
 
 
 @dataclass(frozen=True)
+class SmokeConfig:
+    """Optional small-run settings for architecture compatibility checks."""
+
+    label: str = "smoke"
+    n_topics: int = 10
+    expected_layers: int = 0
+    expected_d_model: int = 0
+    min_free_vram_gib: float = 0.0
+    max_vram_fraction: float = 0.90
+
+
+@dataclass(frozen=True)
 class PathConfig:
     papers: Path
     raw_data: Path
@@ -68,6 +81,7 @@ class ProjectConfig:
     steering: SteeringConfig
     paths: PathConfig
     neutral: NeutralConfig = field(default_factory=NeutralConfig)
+    smoke: SmokeConfig = field(default_factory=SmokeConfig)
 
 
 def load_config(path: str | Path = "config/config.yaml") -> ProjectConfig:
@@ -82,6 +96,7 @@ def load_config(path: str | Path = "config/config.yaml") -> ProjectConfig:
         steering=SteeringConfig(**raw["steering"]),
         paths=PathConfig(**{key: Path(value) for key, value in raw["paths"].items()}),
         neutral=NeutralConfig(**(raw.get("neutral") or {})),
+        smoke=SmokeConfig(**(raw.get("smoke") or {})),
     )
 
 
