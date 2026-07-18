@@ -1,4 +1,6 @@
 # Direct runtime dependencies. PyTorch CUDA wheels are installed separately.
 accelerate==1.14.0
+scikit-learn==1.8.0
+scipy==1.17.0
 transformer-lens==3.5.1
 transformers==5.13.0

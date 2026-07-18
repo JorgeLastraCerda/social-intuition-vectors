@@ -68,11 +68,14 @@ def test_ccu_queue_is_serial_fail_closed_and_h100_only() -> None:
     runner = (ROOT / "jobs/ccu/run_gemma4_calibrated.sh").read_text()
     queue = (ROOT / "jobs/ccu/run_gemma4_calibrated_queue.sh").read_text()
     bootstrap = (ROOT / "jobs/ccu/bootstrap_gemma4.sh").read_text()
+    requirements = (ROOT / "jobs/ccu/requirements-gemma4.txt").read_text()
     assert "*H100*" in runner
     assert "--checkpoint-dir" in runner and "--resume" in runner
     assert "12b 26b_a4b 31b" in queue
     assert "stopped after technical failure" in queue
     assert "torch==2.6.0+cu124" in bootstrap
+    assert "scikit-learn==1.8.0" in requirements
+    assert "scipy==1.17.0" in requirements
     for script in (
         "jobs/ccu/bootstrap_gemma4.sh",
         "jobs/ccu/run_gemma4_calibrated.sh",

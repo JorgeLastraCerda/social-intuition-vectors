@@ -27,6 +27,8 @@ import torch
 required = {
     "torch": "2.6.0+cu124",
     "torchvision": "0.21.0+cu124",
+    "scikit-learn": "1.8.0",
+    "scipy": "1.17.0",
     "transformer-lens": "3.5.1",
     "transformers": "5.13.0",
     "accelerate": "1.14.0",
