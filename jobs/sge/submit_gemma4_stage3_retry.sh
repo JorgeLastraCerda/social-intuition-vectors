@@ -29,12 +29,6 @@ outputs=(
   results/tables/layer_sweep_gemma4_31b.csv
   results/tables/layer_sweep_gemma4_31b.meta.json
 )
-for path in "$MANIFEST" "$STATE_DIR" "${outputs[@]}"; do
-  if [[ -e "$path" ]]; then
-    echo "Refusing submission: path already exists: $path" >&2
-    exit 3
-  fi
-done
 
 if ((DRY_RUN)); then
   echo "[dry-run] held model=26b queue=$QUEUE resources=$GPU_RESOURCES priority=$PRIORITY predecessor=none"
@@ -43,6 +37,13 @@ if ((DRY_RUN)); then
   echo "[dry-run] run_id=$RUN_ID manifest=$MANIFEST"
   exit 0
 fi
+
+for path in "$MANIFEST" "$STATE_DIR" "${outputs[@]}"; do
+  if [[ -e "$path" ]]; then
+    echo "Refusing submission: path already exists: $path" >&2
+    exit 3
+  fi
+done
 
 if [[ -n "$(git status --porcelain)" ]]; then
   echo "Refusing submission: SCCKN worktree is not clean." >&2

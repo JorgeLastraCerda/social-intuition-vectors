@@ -1338,3 +1338,22 @@
 - **Findings:** `gpu@scc214` reported exactly two available GPUs at preflight. Both model jobs independently request `gpu=1,rtx_6000=1,h_vmem=96G,h_rt=12:00:00` with no predecessor relation. The finalizer requests no GPU and is held on both model job IDs. No Stage 3 canonical output existed at submission.
 - **Decision / rationale:** Keep both GPU jobs user-held until this submission audit is pushed, then release them together so each can claim one of the two available RTX PRO 6000 devices.
 - **Next:** Pull this entry on SCCKN, run `qrls 1144931 1144932`, verify distinct device assignments, and monitor both jobs through validation and finalizer sync.
+
+---
+
+## 2026-07-18 · Step 5 — Complete Gemma 4 26B and 31B Stage 3 sweeps
+- **Context:** Validate the parallel RTX retry outcome and record the new all-layer empirical result.
+- **Agent:** gpt-5-codex
+- **Did:** Released jobs `1144931` and `1144932` together, verified distinct physical GPUs, monitored both sweeps, ran the dependent finalizer, audited scheduler accounting and finite outputs, and created `paper/2026-07-18_1208_gemma4_stage3_layer_sweep.md`.
+- **Findings:** All three jobs reported `failed=0` and `exit_status=0`; 26B-A4B completed in 59 s, 31B in 78 s, and the CPU finalizer in 58 s. The 30-row and 60-row tables are complete and finite. Probe-layer Stage 3 d values reproduce Stage 2 exactly. Peak d occurs at layer 16 for 26B-A4B (9.14/9.78) and layer 24 for 31B (11.49/9.61), before the configured 0.66-depth probe layers. Topic-holdout accuracy is already at least 0.80/0.94 at layer 0, so the signal is amplified rather than first appearing late.
+- **Decision / rationale:** Accept both Stage 3 outputs as technically complete while retaining the shared-axis and synthetic-distribution caveats. Keep the 12B Stage 3 OOM as a separate unresolved issue and make no manuscript or figure change in this run.
+- **Next:** Review whether the new Gemma 4 depth profiles should be added to the paper's layer-emergence figure; separately diagnose the 12B RTX OOM if that replication remains required.
+
+---
+
+## 2026-07-18 · Step 6 — Finalize Stage 3 reporting and retry dry-run behavior
+- **Context:** Complete post-run verification and keep the retry submitter inspectable after canonical outputs exist.
+- **Agent:** gpt-5-codex
+- **Did:** Re-ran both Stage 3 validators and the 17 focused tests, registered the dated findings report in `paper/README.md`, and moved the submitter's no-op dry-run response before production collision checks.
+- **Findings:** Both empirical tables pass complete-row, ordered-layer, probe-layer, metadata, and finite-value gates. All 17 tests pass after the dry-run remains usable for plan inspection; the real submission path still refuses any existing manifest, state directory, CSV, or metadata target.
+- **Decision / rationale:** Preserve strict write-once behavior for production while allowing a mutation-free dry-run to describe the job topology after a completed run.
