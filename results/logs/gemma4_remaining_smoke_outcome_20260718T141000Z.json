@@ -1,0 +1,39 @@
+{
+  "status": "complete",
+  "validated_locally": true,
+  "jobs": [
+    {
+      "model_label": "gemma4_12b",
+      "job_id": 1145318,
+      "hostname": "scc192",
+      "gpu": "NVIDIA L40",
+      "failed": 0,
+      "exit_status": 0,
+      "wallclock_seconds": 78,
+      "maxvmem": "15.224GB",
+      "smoke_log": "results/logs/smoke_gemma4_12b_pinned.json"
+    },
+    {
+      "model_label": "gemma4_26b_a4b",
+      "job_id": 1145320,
+      "hostname": "scc214",
+      "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+      "failed": 0,
+      "exit_status": 0,
+      "wallclock_seconds": 37,
+      "maxvmem": "44.278GB",
+      "smoke_log": "results/logs/smoke_gemma4_26b_a4b_pinned.json"
+    },
+    {
+      "model_label": "gemma4_31b",
+      "job_id": 1145322,
+      "hostname": "scc214",
+      "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+      "failed": 0,
+      "exit_status": 0,
+      "wallclock_seconds": 52,
+      "maxvmem": "49.243GB",
+      "smoke_log": "results/logs/smoke_gemma4_31b_pinned.json"
+    }
+  ]
+}

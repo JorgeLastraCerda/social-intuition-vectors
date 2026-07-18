@@ -83,6 +83,7 @@ output_paths=(
     results/logs/gemma4_stage3b_submission_*.json
     results/logs/gemma4_stage3b_outcome_*.json
     results/logs/gemma4_remaining_submission_*.json
+    results/logs/gemma4_remaining_smoke_outcome_*.json
     results/logs/gemma4_*_smoke_*.out
     results/logs/gemma4_*_smoke_*.err
     results/logs/gemma4_*_dense_raw_*.out
