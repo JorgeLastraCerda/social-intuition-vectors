@@ -109,6 +109,7 @@ project_personal_plan.md
 !results/logs/smoke_gemma4_*.json
 !results/logs/gemma4_stages_1_3_submission_*.json
 !results/logs/gemma4_parity_*.json
+!results/logs/gemma4_stage3_retry_submission_*.json
 
 # Local manuscript and presentation exports
 paper/paper/Ulu_Lastra.log

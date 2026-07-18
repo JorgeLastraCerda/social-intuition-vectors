@@ -21,6 +21,7 @@
 #   results/logs/{hiring_r4,smoke_gemma4}_*.json      (R4/smoke provenance)
 #   results/logs/gemma4_stages_1_3_submission_*.json  (staged-run job manifest)
 #   results/logs/gemma4_parity_*.json  (multi-GPU parity manifests/results)
+#   results/logs/gemma4_stage3_retry_submission_*.json (parallel Stage 3 retry manifest)
 #
 # NOT committed: model weights (*.safetensors, *.bin, *.pt), SGE logs (*.out, *.err),
 #               HF cache (/work/.../hf_cache).
@@ -70,6 +71,7 @@ output_paths=(
     results/logs/smoke_gemma4_*.json
     results/logs/gemma4_stages_1_3_submission_*.json
     results/logs/gemma4_parity_*.json
+    results/logs/gemma4_stage3_retry_submission_*.json
 )
 if ((${#output_paths[@]})); then
     git add "${output_paths[@]}"
