@@ -1407,3 +1407,13 @@
 - **Findings:** Both audit jobs finished with `failed=0,exit_status=0`; the L40 GPU sweep took 100 seconds and the CPU finalizer 56 seconds. At layer 31, exact L40 reproduces Stage 2 warmth d 8.633730, competence d 9.035413, and cos(W,C) 0.493539 with zero six-decimal difference. Warmth and competence d peak at layers 26 and 27 (10.563076 and 10.445699). The L40S run remains technically valid but differs by -0.171811/-0.052480 d and -0.000977 cosine at the probe layer.
 - **Decision / rationale:** Use the exact-L40 table as the cross-stage-consistent 12B Stage 3 result, preserve the L40S table as a reproducibility artifact, and report the device comparison as a one-run-per-device numerical warning rather than a fully isolated hardware effect.
 - **Next:** Decide separately whether the completed three-model Gemma 4 depth profiles should be added to the active manuscript and paper figures.
+
+---
+
+## 2026-07-18 · Step 14 — Complete Qwen3.6 27B native-HF Stage 1–3 smoke
+- **Context:** Test the current Qwen3.6 target with a TransformerLens-free Stage 1–3 path on an available SCCKN RTX PRO 6000.
+- **Agent:** gpt-5-codex
+- **Did:** Added and locally verified the pinned native-HF smoke pipeline, created an isolated Transformers 5.14.1 environment on SCCKN, submitted held jobs `1145040` and `1145041`, released the GPU job after manifest synchronization, monitored both jobs, revalidated the synchronized artifacts locally, and created `paper/2026-07-18_1336_qwen36_27b_native_hf_smoke.md`.
+- **Findings:** Both jobs finished with `failed=0,exit_status=0`. The 64-layer, 5120-wide checkpoint ran on one RTX PRO 6000 with 51.227 GiB peak reserved VRAM (53.9% of 95.010 GiB). TransformerLens was absent; hook/hidden-state and passive-logit maximum differences were both 0.0; vision calls were zero. On the 40-story smoke subset, probe-layer warmth/competence d was 9.531037/10.469681 and both topic-holdout accuracies were 1.00. Stage 3 produced 64 finite rows and reproduced Stage 2 at layer 42 within `1e-6`.
+- **Decision / rationale:** Accept native Hugging Face hooks as the Qwen3.6 execution backend and accept the 27B Stage 1–3 smoke as technically passed. Treat all smoke effect sizes as non-final because the run used only ten topics and 40 stories.
+- **Next:** Prepare the full-run plan for the two selected Qwen3.6 models, preserving the pinned revision, native-hook parity gates, explicit-BOS input contract, text-only vision gate, and measured memory headroom; do not launch full jobs without the next user instruction.
