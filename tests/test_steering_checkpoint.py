@@ -91,6 +91,24 @@ def test_ccu_queue_is_serial_fail_closed_and_h100_only() -> None:
         subprocess.run(["bash", "-n", script], cwd=ROOT, check=True)
 
 
+def test_qwen_ccu_queue_is_serial_fail_closed_and_native_hf() -> None:
+    runner = (ROOT / "jobs/ccu/run_qwen36_calibrated.sh").read_text()
+    queue = (ROOT / "jobs/ccu/run_qwen36_calibrated_queue.sh").read_text()
+    assert "27b 35b_a3b" in queue
+    assert "stopped after technical failure" in queue
+    assert "qwen36_calibrated_steering" in runner
+    assert "Expected H100" in runner
+    assert 'version != "5.14.1"' in runner
+    assert "TransformerLens must be absent" in runner
+    assert "MIN_FREE_GIB=60" in runner
+    assert "MIN_FREE_GIB=72" in runner
+    for script in (
+        "jobs/ccu/run_qwen36_calibrated.sh",
+        "jobs/ccu/run_qwen36_calibrated_queue.sh",
+    ):
+        subprocess.run(["bash", "-n", script], cwd=ROOT, check=True)
+
+
 def test_ccu_full282_runner_is_h100_only_and_write_once() -> None:
     runner = (ROOT / "jobs/ccu/run_gemma4_12b_full282.sh").read_text()
     assert "local|broad|denoised" in runner
