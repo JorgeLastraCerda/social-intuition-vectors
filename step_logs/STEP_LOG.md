@@ -1771,3 +1771,13 @@
 - **Findings:** The corrected environment passed all seven exact package-version checks and the H100 gate. The queue entered the 12B smoke stage, remained live after 33 seconds, and began downloading the pinned Gemma 4 checkpoint from Hugging Face; GPU allocation had not started yet. The prior SciPy traceback remains only as historical text in the append-only remote queue log.
 - **Decision / rationale:** Keep the remote checkout pinned at `04cf243` for checkpoint fingerprint stability during this queue. Preserve serial order 12B, 26B-A4B, 31B and stop only on a technical failure.
 - **Next:** Monitor the 12B smoke gate and full run, then retrieve, validate, and report each completed model before advancing the empirical synthesis.
+
+---
+
+## 2026-07-18 · Step 46 — Audit legacy-to-Gemma4 test coverage during CCU run
+- **Context:** Compare completed legacy Gemma/Qwen tests with the current three-model Gemma 4 evidence matrix.
+- **Agent:** gpt-5-codex
+- **Did:** Checked committed artifacts for all Gemma 4 stages, dense and hiring regimes, post-hoc outputs, and live CCU queue/checkpoint state; cross-checked the legacy findings index and model reports.
+- **Findings:** Gemma 4 Stage 1, Stage 2, Stage 3, Stage 3B, technical smoke, neutral/PCA, raw dense steering, 282-name audit, and local/broad hiring steering are complete for all three models. Denoised dense and denoised hiring are complete for 12B and 26B-A4B but missing for 31B. Demographic disparity, mediation, name-level R4, and full-282 expansions are absent for all Gemma 4 models. No compatible Gemma 4 SAE exists. The CCU 12B calibrated run was live with 207 of 2,022 checkpoint shards, while 26B-A4B and 31B remained pending.
+- **Decision / rationale:** Describe Gemma 4 as complete for representation and basic SAE-free causal parity, but not as a complete replication of the full legacy post-hoc/SAE matrix.
+- **Next:** Complete the serial calibrated runs, then close the 31B denoised and three-model post-hoc gaps before claiming full legacy parity.
