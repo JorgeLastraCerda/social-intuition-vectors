@@ -1701,3 +1701,13 @@
 - **Findings:** The issue affected artifact tracking only; jobs `1145429`, `1145430`, and `1145431` remained user-held and no compute work started.
 - **Decision / rationale:** Track the new lightweight manifests and logs under the same write-once policy as prior Gemma 4 and Qwen3.6 runs.
 - **Next:** Push the whitelist correction, synchronize all manifests, then release the three independent jobs.
+
+---
+
+## 2026-07-18 · Step 39 — Release calibrated pilots into the RTX PRO 6000 queue
+- **Context:** Start the three pilots after their manifests were committed in SCCKN sync commit `8c695b6`.
+- **Agent:** gpt-5-codex
+- **Did:** Released jobs `1145429`, `1145430`, and `1145431` with `qrls`, then inspected queue and host resources.
+- **Findings:** All three jobs entered independent `qw` state on `gpu@scc214`; none received a physical GPU assignment yet. The host reports one `rtx_6000` resource at the latest check, while the submission-time aggregate reported two. No error log or compute output exists because no job has started.
+- **Decision / rationale:** Leave all pilots queued rather than changing hardware or chaining jobs. Their exact RTX PRO 6000 runtime gate will reject any incorrect assignment.
+- **Next:** Monitor for assignment, validate every completed artifact set, and write a separate empirical report per model before any nine-model rollout decision or full-282 launch.
