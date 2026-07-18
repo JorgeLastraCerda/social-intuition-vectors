@@ -1605,6 +1605,16 @@
 
 ---
 
+## 2026-07-18 · Step 32 — Submit held 26B-A4B denoised production jobs
+- **Context:** Advance the 26B-A4B branch after its neutral PCA artifact passed validation.
+- **Agent:** gpt-5-codex
+- **Did:** Validated the 26B-A4B PCA outputs, then submitted independent user-held jobs `1145378` (strengthened dense denoised steering) and `1145380` (60-name denoised-local hiring steering). Persisted both `results/logs/gemma4_remaining_submission_26b_a4b_*_20260718T142839Z_*.json` manifests before release.
+- **Findings:** Eleven neutral PCs explain 50.3% variance. Denoising reduced cos(W,C) from 0.587 to 0.564, changed warmth d from 8.27 to 8.42 and competence d from 8.67 to 8.49, and reduced warmth-on-competence leakage from 4.90 to 4.75. Both denoised output sets were absent at submission.
+- **Decision / rationale:** Proceed with both denoised causal tests because PCA passed, while retaining raw runs as the direct parity condition. Keep both jobs independent with no `hold_jid`.
+- **Next:** Pull this entry on SCCKN, release jobs `1145378` and `1145380`, and compare their endpoints with the raw local and dense results.
+
+---
+
 ## 2026-07-18 · Step 27 — Implement direct CCU Jupyter terminal client
 - **Context:** Build a reusable, local-only access kit for the personal CCU JupyterHub H100 environment without a third-party remote-access relay.
 - **Agent:** gpt-5-codex
