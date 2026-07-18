@@ -1625,6 +1625,16 @@
 
 ---
 
+## 2026-07-18 · Step 34 — Submit held Gemma 4 31B PCA
+- **Context:** Advance the 31B branch after its 1,500-row neutral extraction passed validation.
+- **Agent:** gpt-5-codex
+- **Did:** Submitted independent user-held CPU PCA job `1145388` and persisted `results/logs/gemma4_remaining_submission_31b_pca_20260718T143500Z_31b_pca.json` before release.
+- **Findings:** The 31B neutral validator passed and both PCA target files were absent. The job is CPU-only, exact-revision associated, and has no `hold_jid`.
+- **Decision / rationale:** Run PCA independently and wait for its validator before submitting any 31B denoised causal job.
+- **Next:** Pull this entry on SCCKN, release job `1145388`, and validate its PCA geometry before the 31B denoised wave.
+
+---
+
 ## 2026-07-18 · Step 27 — Implement direct CCU Jupyter terminal client
 - **Context:** Build a reusable, local-only access kit for the personal CCU JupyterHub H100 environment without a third-party remote-access relay.
 - **Agent:** gpt-5-codex
