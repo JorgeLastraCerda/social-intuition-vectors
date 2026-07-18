@@ -1907,3 +1907,13 @@
 - **Findings:** Original job `1145463` ended after 2,217 seconds with scheduler `failed=0`, wrapper `exit_status=120`, an empty error log, no success sentinel, and 1,657 checkpoint files. There is no model, OOM, or validation traceback. The retry is configured to detect the existing checkpoint manifest and resume rather than repeat completed shards; it is currently scheduler-pending while SCCKN reports two available GPU resources. CCU 26B-A4B local full-282 remains active at approximately 50,280 MiB and 55% sampled utilization.
 - **Decision / rationale:** Treat the 31B event as an incomplete operational exit, not an empirical failure. Preserve all checkpoints and require the normal final validator and sentinel before accepting the run.
 - **Next:** Verify physical RTX assignment for retry `1145490`, then synchronize and report the completed 31B calibrated artifacts.
+
+---
+
+## 2026-07-18 · Step 60 — Preserve checkpoint-origin identity and complete 26B local expansion
+- **Context:** Resolve the strict 31B resume mismatch while the CCU queue continues producing full-name results.
+- **Agent:** gpt-5-codex
+- **Did:** Proved the first resume retry differed only in the fingerprint commit field, added an opt-in resume-only checkpoint-origin commit argument while retaining exact argument and input-hash checks, updated the SCCKN runner to read that commit from the immutable manifest, passed 17 focused tests plus Ruff and shell checks, and submitted held retry `1145497`. Separately retrieved and validated 26B-A4B local full-282 and wrote `paper/2026-07-18_2346_gemma4_26b_a4b_local_full282.md`.
+- **Findings:** Retry `1145490` reached the correct RTX PRO 6000 but fail-closed before model loading because repository HEAD had advanced from checkpoint origin `ae94b4d`; all critical code/config diffs and input hashes were unchanged. The backward-compatible fix leaves default fingerprinting strict and permits the old commit only when explicitly resuming. The 26B-A4B local expansion completed 2,820 rows; warmth was monotone but small, while competence remained non-monotone with +0.10 mean delta -0.408 (95% CI [-0.443, -0.376]). CCU advanced to broad full-282.
+- **Decision / rationale:** Permit resume across unrelated repository-history advances only by explicitly preserving the manifest's original commit; do not rewrite manifests or weaken any other fingerprint field.
+- **Next:** Confirm retry `1145497` assignment and shard advancement; report the remaining queued full-282 runs as they complete.
