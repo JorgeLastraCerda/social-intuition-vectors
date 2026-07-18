@@ -1,0 +1,24 @@
+--- Grid Engine ---
+Reserving GPUs @ scc214 ..
+Number of requested GPUS: 1
+GPU 0: NVIDIA RTX PRO 6000 Blackwell Server Edition (UUID: GPU-507970ca-1d83-07f5-7313-8794afdd8585)
+GPU 1: NVIDIA RTX PRO 6000 Blackwell Server Edition (UUID: GPU-ffa89324-cc75-4306-b653-c29c4dda1cdf)
+GPU 2: NVIDIA RTX PRO 6000 Blackwell Server Edition (UUID: GPU-bb1778b1-810c-451b-46f5-c60e94530810)
+GPU 3: NVIDIA RTX PRO 6000 Blackwell Server Edition (UUID: GPU-6ca202c9-9e24-bc3e-5a9e-514db7180d18)
+GPU 4: NVIDIA RTX PRO 6000 Blackwell Server Edition (UUID: GPU-1a96c05e-b1c1-872c-1610-c4412502b862)
+GPU 5: NVIDIA RTX PRO 6000 Blackwell Server Edition (UUID: GPU-86953032-21b6-1c61-d81c-dfb6d54de161)
+GPU 6: NVIDIA RTX PRO 6000 Blackwell Server Edition (UUID: GPU-391a19d5-ffde-82dc-4f71-f679faa836f0)
+GPU 7: NVIDIA RTX PRO 6000 Blackwell Server Edition (UUID: GPU-72a4de52-03aa-35bf-0c55-e25b5f57d678)
+Set SGE_GPU = 6
+Set CUDA_VISIBLE_DEVICES = 6
+--- Grid Engine ---
+[runtime] gpu='NVIDIA RTX PRO 6000 Blackwell Server Edition' free=94.47 total=95.01 GiB
+{
+  "status": "absent",
+  "label": "gemma4_12b_calibrated"
+}
+[start] model=gemma4_12b job=1145430 2026-07-18T15:53:10Z
+[model] loading google/gemma-4-12B-it
+[tokens] ' Yes'=10784  ' No'=3771  (single-token check passed, hook=blocks.31.hook_resid_post)
+[baseline] warmth 10/20
+[baseline] warmth 20/20
