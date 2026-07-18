@@ -142,6 +142,7 @@ def test_pilot_jobs_are_independent_rtx6000_and_disable_full282() -> None:
         "gemma3_12b",
         "gemma4_12b",
         "gemma4_26b_a4b",
+        "gemma4_31b",
         "qwen36_27b",
     ):
         result = subprocess.run(

@@ -47,6 +47,20 @@ case "$MODEL_KEY" in
       --control-scale sd_matched --interventions additive,norm_preserving \
       "${checkpoint_args[@]}")
     ;;
+  gemma4_31b)
+    ENV_NAME=wc-tl-g4
+    CONFIG_PATH=config/gemma4_31b.yaml
+    LABEL=gemma4_31b_calibrated_scckn_rtx6000
+    CHECKPOINT_DIR="$(dirname "$SUCCESS_SENTINEL")/checkpoint"
+    checkpoint_args=(--checkpoint-dir "$CHECKPOINT_DIR")
+    if [[ -f "$CHECKPOINT_DIR/manifest.json" ]]; then checkpoint_args+=(--resume); fi
+    COMMAND=(-m src.dense_steering --config "$CONFIG_PATH" \
+      --vectors-subdir concept_vectors_gemma4_31b --label "$LABEL" --vector-kind raw \
+      --include-cross-axis --n-random-directions 99 \
+      --strengths=-0.1,-0.05,0,0.05,0.1 --prompt-format native-chat \
+      --control-scale sd_matched --interventions additive,norm_preserving \
+      "${checkpoint_args[@]}")
+    ;;
   qwen36_27b)
     ENV_NAME=wc-qwen36-hf
     CONFIG_PATH=config/qwen36_27b.yaml
