@@ -1387,3 +1387,13 @@
 - **Findings:** The L40S sweep completed 48 finite layers in 146 seconds with 23.174 GB maximum virtual memory, but probe-layer warmth d was 8.461919 versus Stage 2's 8.633730 (difference -0.171811), competence d was 8.982933 versus 9.035413 (difference -0.052480), and cos(W,C) differed by -0.000977. Local verification of the exact-L40 audit path passed 22 tests, shell syntax, dry-run, and `git diff --check`.
 - **Decision / rationale:** Treat the L40S table as a valid write-once result but not as satisfying the planned `1e-6` cross-stage reproduction gate. Run one separately labeled exact-L40 audit without overwriting canonical data to distinguish hardware-class drift from broader run-to-run variation.
 - **Next:** Push the audit implementation, submit it held to `gpu@scc192`, synchronize its manifest, release it, and compare exact-L40, L40S, and Stage 2 probe-layer metrics.
+
+---
+
+## 2026-07-18 · Step 10 — Submit held exact-L40 Stage 3 reproducibility audit
+- **Context:** Test whether the 12B probe-layer mismatch is explained by the Stage 1 L40 versus Stage 3 L40S hardware change.
+- **Agent:** gpt-5-codex
+- **Did:** Fast-forwarded SCCKN to `6d15b09`, validated source artifacts and absent separately labeled outputs, confirmed three scheduler-available GPUs on `gpu@scc192`, and submitted held GPU job `1144977` plus dependent CPU finalizer `1144978`; synchronized `results/logs/gemma4_stage3_retry_submission_12b_l40_repro_20260718T103904Z.json`.
+- **Findings:** The audit requires the exact runtime name `NVIDIA L40`, writes `layer_sweep_gemma4_12b_l40_repro.{csv,meta.json}`, and cannot overwrite the canonical L40S result. Both jobs passed Grid Engine resource verification before submission.
+- **Decision / rationale:** Release the audit only after its manifest and this entry are durable, then use the separately labeled table solely to quantify hardware/run reproducibility before final scientific reporting.
+- **Next:** Pull this entry on SCCKN, release `1144977`, confirm exact-L40 assignment, and compare its probe-layer and full-depth metrics against Stage 2 and the L40S sweep.
