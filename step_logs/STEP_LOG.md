@@ -1595,6 +1595,16 @@
 
 ---
 
+## 2026-07-18 · Step 31 — Submit held Gemma 4 12B PCA after scoped preflight
+- **Context:** Retry the independent 12B PCA job after correcting the active-log false positive.
+- **Agent:** gpt-5-codex
+- **Did:** Fast-forwarded SCCKN to `bab25bb`, reran the source-scoped preflight, submitted user-held CPU job `1145374`, and persisted `results/logs/gemma4_remaining_submission_12b_pca_20260718T142700Z_12b_pca.json` without staging or modifying active GPU logs.
+- **Findings:** The corrected cleanliness gate accepted the unchanged critical source/config state while the PCA validator confirmed both target outputs were absent. The job is independent, CPU-only, and has no `hold_jid`.
+- **Decision / rationale:** Accept the scoped check as operationally validated and keep job `1145374` held until this audit entry is shared.
+- **Next:** Pull this entry on SCCKN, release job `1145374`, and validate both 12B and 26B-A4B PCA outputs before submitting denoised runs.
+
+---
+
 ## 2026-07-18 · Step 27 — Implement direct CCU Jupyter terminal client
 - **Context:** Build a reusable, local-only access kit for the personal CCU JupyterHub H100 environment without a third-party remote-access relay.
 - **Agent:** gpt-5-codex
