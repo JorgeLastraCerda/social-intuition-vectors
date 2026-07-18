@@ -1417,3 +1417,13 @@
 - **Findings:** Both jobs finished with `failed=0,exit_status=0`. The 64-layer, 5120-wide checkpoint ran on one RTX PRO 6000 with 51.227 GiB peak reserved VRAM (53.9% of 95.010 GiB). TransformerLens was absent; hook/hidden-state and passive-logit maximum differences were both 0.0; vision calls were zero. On the 40-story smoke subset, probe-layer warmth/competence d was 9.531037/10.469681 and both topic-holdout accuracies were 1.00. Stage 3 produced 64 finite rows and reproduced Stage 2 at layer 42 within `1e-6`.
 - **Decision / rationale:** Accept native Hugging Face hooks as the Qwen3.6 execution backend and accept the 27B Stage 1–3 smoke as technically passed. Treat all smoke effect sizes as non-final because the run used only ten topics and 40 stories.
 - **Next:** Prepare the full-run plan for the two selected Qwen3.6 models, preserving the pinned revision, native-hook parity gates, explicit-BOS input contract, text-only vision gate, and measured memory headroom; do not launch full jobs without the next user instruction.
+
+---
+
+## 2026-07-18 · Step 16 — Implement full Qwen3.6 native-HF stage pipeline
+- **Context:** Implement the approved independent Stage 1–3 plan for Qwen3.6-27B and Qwen3.6-35B-A3B.
+- **Agent:** gpt-5-codex
+- **Did:** Added two pinned production configs, a shared native-HF 200-story Stage 1–3 backend, stage-specific technical and cross-stage validators, independent held Stage 1 and follow-up submitters with no `hold_jid`, and focused tests; pushed implementation commit `f8734b7`.
+- **Findings:** Local verification passed 56 tests, Ruff, shell syntax, Python compilation, both submitter dry-runs, both model/config dry-runs, and Qwen-scoped `git diff --check`. The configs fix 27B at 64 layers/5120 width/revision `6a9e13b` and 35B-A3B at 40 layers/2048 width/revision `995ad96`.
+- **Decision / rationale:** Keep Stage 1 and Stage 3 on one RTX PRO 6000 each, Stage 2 CPU-only, scientific thresholds non-gating, and all scheduler jobs independent; do not introduce automatic FP8 or hardware fallback.
+- **Next:** Fast-forward the clean SCCKN checkout, run environment and scheduler preflights, submit both Stage 1 jobs held, synchronize the manifest, release together, and monitor before independent follow-up stages.
