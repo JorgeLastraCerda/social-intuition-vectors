@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
 import time
 from dataclasses import replace
@@ -33,10 +34,16 @@ from src.utils.model_loader import load_hooked_model, model_runtime_metadata
 from src.utils.prompting import encode_passage
 
 # Import helpers from validate_probes (topic-holdout) and extract_vectors (story loader).
-from src.validate_probes import load_topic_groups, topic_holdout_cv
+from src.validate_probes import (
+    direction_topic_holdout_cv,
+    load_topic_groups,
+    topic_cross_axis_transfer_cv,
+    topic_holdout_cv,
+)
 from src.extract_vectors import load_stories
 
 EXPECTED_CONDITIONS = ("high_warmth", "low_warmth", "high_competence", "low_competence")
+STAGE3B_PROFILE = "stage3b"
 
 
 # ---------------------------------------------------------------------------
@@ -154,6 +161,190 @@ def sweep_metrics_at_layer(
     }
 
 
+def sweep_stage3b_metrics_at_layer(
+    layer_idx: int,
+    acts: np.ndarray,
+    buckets: dict[str, list[int]],
+    topic_groups: dict[str, np.ndarray],
+    n_layers: int,
+    probe_layer: int,
+    seed: int,
+) -> tuple[dict, dict[str, list[float]]]:
+    """Add fold-internal direction and strict cross-axis transfer metrics."""
+    row = sweep_metrics_at_layer(
+        layer_idx, acts, buckets, topic_groups, n_layers, probe_layer
+    )
+    X = {
+        cond: acts[layer_idx, buckets[cond], :]
+        for cond in EXPECTED_CONDITIONS
+    }
+    w_dir = direction_topic_holdout_cv(
+        X["high_warmth"], X["low_warmth"],
+        topic_groups["high_warmth"], topic_groups["low_warmth"], seed,
+    )
+    c_dir = direction_topic_holdout_cv(
+        X["high_competence"], X["low_competence"],
+        topic_groups["high_competence"], topic_groups["low_competence"], seed,
+    )
+    w_to_c = topic_cross_axis_transfer_cv(
+        X["high_warmth"], X["low_warmth"],
+        X["high_competence"], X["low_competence"],
+        topic_groups["high_warmth"], topic_groups["low_warmth"],
+        topic_groups["high_competence"], topic_groups["low_competence"], seed,
+    )
+    c_to_w = topic_cross_axis_transfer_cv(
+        X["high_competence"], X["low_competence"],
+        X["high_warmth"], X["low_warmth"],
+        topic_groups["high_competence"], topic_groups["low_competence"],
+        topic_groups["high_warmth"], topic_groups["low_warmth"], seed,
+    )
+    row.update({
+        "warmth_direction_topic_cv": round(w_dir[0], 6),
+        "warmth_direction_topic_cv_std": round(w_dir[1], 6),
+        "comp_direction_topic_cv": round(c_dir[0], 6),
+        "comp_direction_topic_cv_std": round(c_dir[1], 6),
+        "warmth_to_comp_topic_transfer": round(w_to_c[0], 6),
+        "warmth_to_comp_topic_transfer_std": round(w_to_c[1], 6),
+        "comp_to_warmth_topic_transfer": round(c_to_w[0], 6),
+        "comp_to_warmth_topic_transfer_std": round(c_to_w[1], 6),
+    })
+    folds = {
+        "warmth_direction_topic_cv": w_dir[2],
+        "comp_direction_topic_cv": c_dir[2],
+        "warmth_to_comp_topic_transfer": w_to_c[2],
+        "comp_to_warmth_topic_transfer": c_to_w[2],
+    }
+    return row, folds
+
+
+def _aligned_condition_arrays(
+    acts: np.ndarray,
+    buckets: dict[str, list[int]],
+    topic_groups: dict[str, np.ndarray],
+) -> tuple[list[int], dict[str, np.ndarray]]:
+    """Align the four conditions by topic for paired resampling."""
+    topic_sets = {cond: set(groups.tolist()) for cond, groups in topic_groups.items()}
+    first = topic_sets[EXPECTED_CONDITIONS[0]]
+    if any(topic_sets[cond] != first for cond in EXPECTED_CONDITIONS[1:]):
+        raise ValueError("Stage 3B bootstrap requires identical topic sets in all conditions.")
+    topics = sorted(first)
+    aligned: dict[str, np.ndarray] = {}
+    for cond in EXPECTED_CONDITIONS:
+        groups = topic_groups[cond]
+        if len(groups) != len(set(groups.tolist())):
+            raise ValueError(f"Stage 3B bootstrap requires one {cond} story per topic.")
+        row_by_topic = {int(topic): row for row, topic in enumerate(groups.tolist())}
+        global_rows = [buckets[cond][row_by_topic[topic]] for topic in topics]
+        aligned[cond] = acts[:, global_rows, :]
+    return topics, aligned
+
+
+def _weighted_cohens_d(
+    unit: torch.Tensor,
+    high: torch.Tensor,
+    low: torch.Tensor,
+    weights: torch.Tensor,
+) -> torch.Tensor:
+    high_proj = unit @ high.T
+    low_proj = unit @ low.T
+    high_mean = (weights * high_proj).sum(dim=1)
+    low_mean = (weights * low_proj).sum(dim=1)
+    high_var = (weights * (high_proj - high_mean[:, None]).square()).sum(dim=1)
+    low_var = (weights * (low_proj - low_mean[:, None]).square()).sum(dim=1)
+    return (high_mean - low_mean) / torch.sqrt((high_var + low_var) / 2.0 + 1e-12)
+
+
+def paired_topic_bootstrap_curves(
+    acts: np.ndarray,
+    buckets: dict[str, list[int]],
+    topic_groups: dict[str, np.ndarray],
+    *,
+    n_bootstrap: int,
+    seed: int,
+    batch_size: int,
+    device: str | torch.device | None = None,
+) -> dict[str, object]:
+    """Bootstrap d/cosine curves by resampling matched four-condition topics."""
+    if n_bootstrap <= 0 or batch_size <= 0:
+        raise ValueError("n_bootstrap and batch_size must be positive")
+    topics, aligned_np = _aligned_condition_arrays(acts, buckets, topic_groups)
+    n_topics = len(topics)
+    rng = np.random.default_rng(seed)
+    draws = rng.integers(0, n_topics, size=(n_bootstrap, n_topics))
+    counts = np.zeros((n_bootstrap, n_topics), dtype=np.float32)
+    for index, draw in enumerate(draws):
+        counts[index] = np.bincount(draw, minlength=n_topics)
+    counts /= float(n_topics)
+
+    target = torch.device(device or ("cuda" if torch.cuda.is_available() else "cpu"))
+    aligned = {
+        cond: torch.as_tensor(values, dtype=torch.float32, device=target)
+        for cond, values in aligned_np.items()
+    }
+    n_layers = acts.shape[0]
+    warmth_draws = np.empty((n_bootstrap, n_layers), dtype=np.float32)
+    comp_draws = np.empty((n_bootstrap, n_layers), dtype=np.float32)
+    cosine_draws = np.empty((n_bootstrap, n_layers), dtype=np.float32)
+
+    with torch.no_grad():
+        for start in range(0, n_bootstrap, batch_size):
+            stop = min(start + batch_size, n_bootstrap)
+            weights = torch.as_tensor(counts[start:stop], device=target)
+            for layer_idx in range(n_layers):
+                wh = aligned["high_warmth"][layer_idx]
+                wl = aligned["low_warmth"][layer_idx]
+                ch = aligned["high_competence"][layer_idx]
+                cl = aligned["low_competence"][layer_idx]
+                warmth = weights @ (wh - wl)
+                comp = weights @ (ch - cl)
+                warmth_unit = warmth / warmth.norm(dim=1, keepdim=True).clamp_min(1e-12)
+                comp_unit = comp / comp.norm(dim=1, keepdim=True).clamp_min(1e-12)
+                warmth_draws[start:stop, layer_idx] = _weighted_cohens_d(
+                    warmth_unit, wh, wl, weights
+                ).cpu().numpy()
+                comp_draws[start:stop, layer_idx] = _weighted_cohens_d(
+                    comp_unit, ch, cl, weights
+                ).cpu().numpy()
+                cosine_draws[start:stop, layer_idx] = (
+                    warmth_unit * comp_unit
+                ).sum(dim=1).cpu().numpy()
+
+    def bands(values: np.ndarray) -> dict[str, list[float]]:
+        return {
+            "low": np.percentile(values, 2.5, axis=0).round(6).tolist(),
+            "high": np.percentile(values, 97.5, axis=0).round(6).tolist(),
+        }
+
+    def peak_summary(values: np.ndarray) -> dict[str, object]:
+        peaks = values.argmax(axis=1)
+        counts_by_layer = np.bincount(peaks, minlength=n_layers)
+        return {
+            "median_layer": float(np.median(peaks)),
+            "ci95_layer": [
+                float(np.percentile(peaks, 2.5)),
+                float(np.percentile(peaks, 97.5)),
+            ],
+            "modal_layer": int(counts_by_layer.argmax()),
+            "layer_probabilities": (counts_by_layer / n_bootstrap).round(6).tolist(),
+        }
+
+    return {
+        "n_bootstrap": n_bootstrap,
+        "n_topics": n_topics,
+        "seed": seed,
+        "bands": {
+            "warmth_cohens_d": bands(warmth_draws),
+            "comp_cohens_d": bands(comp_draws),
+            "cos_wc": bands(cosine_draws),
+        },
+        "peaks": {
+            "warmth_cohens_d": peak_summary(warmth_draws),
+            "comp_cohens_d": peak_summary(comp_draws),
+            "cos_wc": peak_summary(cosine_draws),
+        },
+    }
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -161,6 +352,8 @@ def sweep_metrics_at_layer(
 def main() -> None:
     args = parse_args()
     cfg = load_config(args.config)
+    if args.validation_profile == STAGE3B_PROFILE and not args.git_commit:
+        raise ValueError("--git-commit is required for the stage3b validation profile")
 
     if args.model is not None:
         cfg = replace(cfg, model=replace(cfg.model, name=args.model))
@@ -217,11 +410,19 @@ def main() -> None:
 
     # Per-layer metrics.
     rows: list[dict] = []
-    print(f"[sweep] computing metrics per layer ...", flush=True)
+    folds_by_layer: dict[str, dict[str, list[float]]] = {}
+    print("[sweep] computing metrics per layer ...", flush=True)
     for layer_idx in range(n_layers):
-        row = sweep_metrics_at_layer(
-            layer_idx, acts, story_indices, topic_groups, n_layers, probe_layer
-        )
+        if args.validation_profile == STAGE3B_PROFILE:
+            row, folds = sweep_stage3b_metrics_at_layer(
+                layer_idx, acts, story_indices, topic_groups,
+                n_layers, probe_layer, cfg.probing.seed,
+            )
+            folds_by_layer[str(layer_idx)] = folds
+        else:
+            row = sweep_metrics_at_layer(
+                layer_idx, acts, story_indices, topic_groups, n_layers, probe_layer
+            )
         rows.append(row)
         marker = " <-- probe_layer_frac=0.66" if row["is_probe_layer"] else ""
         print(
@@ -231,6 +432,28 @@ def main() -> None:
             f"norm={row['mean_resid_norm']:.1f}{marker}",
             flush=True,
         )
+
+    bootstrap: dict[str, object] | None = None
+    if args.validation_profile == STAGE3B_PROFILE:
+        print(
+            f"[stage3b] paired-topic bootstrap n={args.n_bootstrap} "
+            f"batch={args.bootstrap_batch_size}",
+            flush=True,
+        )
+        bootstrap = paired_topic_bootstrap_curves(
+            acts,
+            story_indices,
+            topic_groups,
+            n_bootstrap=args.n_bootstrap,
+            seed=cfg.probing.seed,
+            batch_size=args.bootstrap_batch_size,
+        )
+        for metric in ("warmth_cohens_d", "comp_cohens_d", "cos_wc"):
+            low = bootstrap["bands"][metric]["low"]
+            high = bootstrap["bands"][metric]["high"]
+            for layer_idx, row in enumerate(rows):
+                row[f"{metric}_ci_low"] = low[layer_idx]
+                row[f"{metric}_ci_high"] = high[layer_idx]
 
     # Write CSV.
     out_csv_default = Path(cfg.paths.results) / "tables" / f"layer_sweep{label_suffix}.csv"
@@ -254,7 +477,7 @@ def main() -> None:
 
     # Write meta alongside the CSV (same directory, for provenance).
     meta_out = out_csv.with_suffix(".meta.json")
-    meta_out.write_text(json.dumps({
+    meta = {
         "model": cfg.model.name,
         "n_layers": n_layers,
         "d_model": d_model,
@@ -267,8 +490,32 @@ def main() -> None:
         "timestamp": int(time.time()),
         "input_format": "raw-passage",
         "runtime": runtime,
-    }, indent=2), encoding="utf-8")
+    }
+    if args.validation_profile == STAGE3B_PROFILE:
+        meta.update({
+            "analysis_profile": STAGE3B_PROFILE,
+            "n_bootstrap": args.n_bootstrap,
+            "bootstrap_batch_size": args.bootstrap_batch_size,
+            "git_commit": args.git_commit,
+            "stimuli_sha256": hashlib.sha256(stimuli_path.read_bytes()).hexdigest(),
+        })
+    meta_out.write_text(json.dumps(meta, indent=2), encoding="utf-8")
     print(f"[DONE] meta: {meta_out}")
+
+    if args.validation_profile == STAGE3B_PROFILE:
+        audit_out = Path(cfg.paths.logs) / f"validate_layer_sweep_{label}.json"
+        audit_out.parent.mkdir(parents=True, exist_ok=True)
+        audit_out.write_text(json.dumps({
+            "analysis_profile": STAGE3B_PROFILE,
+            "model": cfg.model.name,
+            "label": label,
+            "seed": cfg.probing.seed,
+            "n_layers": n_layers,
+            "probe_layer": probe_layer,
+            "folds_by_layer": folds_by_layer,
+            "bootstrap": bootstrap,
+        }, indent=2), encoding="utf-8")
+        print(f"[DONE] Stage 3B audit: {audit_out}")
 
 
 def parse_args() -> argparse.Namespace:
@@ -287,6 +534,19 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--out-csv", default=None,
         help="Override default output path (results/tables/layer_sweep_<label>.csv).",
+    )
+    parser.add_argument(
+        "--validation-profile",
+        choices=("legacy", STAGE3B_PROFILE),
+        default="legacy",
+        help="Keep legacy metrics or add fold-internal directions, transfer, and bootstrap.",
+    )
+    parser.add_argument("--n-bootstrap", type=int, default=1000)
+    parser.add_argument("--bootstrap-batch-size", type=int, default=100)
+    parser.add_argument(
+        "--git-commit",
+        default=None,
+        help="Submitted source commit; required for Stage 3B provenance.",
     )
     return parser.parse_args()
 

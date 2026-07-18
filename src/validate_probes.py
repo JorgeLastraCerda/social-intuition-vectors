@@ -69,6 +69,105 @@ def topic_holdout_cv(
     return float(scores.mean()), float(scores.std()), [round(float(s), 6) for s in scores.tolist()]
 
 
+def direction_topic_holdout_cv(
+    X_high: np.ndarray,
+    X_low: np.ndarray,
+    groups_high: np.ndarray,
+    groups_low: np.ndarray,
+    seed: int,
+    n_splits: int = 5,
+) -> tuple[float, float, list[float]]:
+    """Validate a mean-difference direction rebuilt inside each topic fold.
+
+    Unlike ``topic_holdout_cv``, which fits an unrestricted full-feature linear
+    classifier, this routine evaluates the exact Stage 1 construction rule. The
+    direction, projection standardisation, and decision boundary are learned
+    only from training topics before scoring the held-out topics.
+    """
+    X = np.concatenate([X_high, X_low], axis=0)
+    y = np.array([1] * len(X_high) + [0] * len(X_low), dtype=np.int64)
+    groups = np.concatenate([groups_high, groups_low])
+    cv = GroupKFold(n_splits=n_splits)
+    scores: list[float] = []
+    for train_idx, test_idx in cv.split(X, y, groups):
+        train_high = X[train_idx][y[train_idx] == 1]
+        train_low = X[train_idx][y[train_idx] == 0]
+        direction = train_high.mean(axis=0) - train_low.mean(axis=0)
+        unit_direction = direction / (np.linalg.norm(direction) + 1e-12)
+        estimator = make_pipeline(
+            StandardScaler(),
+            LogisticRegression(max_iter=1000, random_state=seed, C=1.0),
+        )
+        estimator.fit((X[train_idx] @ unit_direction).reshape(-1, 1), y[train_idx])
+        scores.append(
+            float(estimator.score((X[test_idx] @ unit_direction).reshape(-1, 1), y[test_idx]))
+        )
+    scores_np = np.asarray(scores, dtype=np.float64)
+    return (
+        float(scores_np.mean()),
+        float(scores_np.std()),
+        [round(float(score), 6) for score in scores],
+    )
+
+
+def topic_cross_axis_transfer_cv(
+    source_high: np.ndarray,
+    source_low: np.ndarray,
+    target_high: np.ndarray,
+    target_low: np.ndarray,
+    source_groups_high: np.ndarray,
+    source_groups_low: np.ndarray,
+    target_groups_high: np.ndarray,
+    target_groups_low: np.ndarray,
+    seed: int,
+    n_splits: int = 5,
+) -> tuple[float, float, list[float]]:
+    """Train on one axis and test the other on held-out topics without recalibration."""
+    source_X = np.concatenate([source_high, source_low], axis=0)
+    source_y = np.array([1] * len(source_high) + [0] * len(source_low), dtype=np.int64)
+    source_groups = np.concatenate([source_groups_high, source_groups_low])
+    target_topics = set(target_groups_high.tolist()) | set(target_groups_low.tolist())
+    if set(source_groups.tolist()) != target_topics:
+        raise ValueError("Source and target axes must contain the same topic set for transfer CV.")
+
+    cv = GroupKFold(n_splits=n_splits)
+    scores: list[float] = []
+    for train_idx, heldout_idx in cv.split(source_X, source_y, source_groups):
+        heldout_topics = np.unique(source_groups[heldout_idx])
+        train_high = source_X[train_idx][source_y[train_idx] == 1]
+        train_low = source_X[train_idx][source_y[train_idx] == 0]
+        direction = train_high.mean(axis=0) - train_low.mean(axis=0)
+        unit_direction = direction / (np.linalg.norm(direction) + 1e-12)
+        estimator = make_pipeline(
+            StandardScaler(),
+            LogisticRegression(max_iter=1000, random_state=seed, C=1.0),
+        )
+        estimator.fit(
+            (source_X[train_idx] @ unit_direction).reshape(-1, 1),
+            source_y[train_idx],
+        )
+
+        target_high_mask = np.isin(target_groups_high, heldout_topics)
+        target_low_mask = np.isin(target_groups_low, heldout_topics)
+        target_X = np.concatenate(
+            [target_high[target_high_mask], target_low[target_low_mask]], axis=0
+        )
+        target_y = np.array(
+            [1] * int(target_high_mask.sum()) + [0] * int(target_low_mask.sum()),
+            dtype=np.int64,
+        )
+        scores.append(
+            float(estimator.score((target_X @ unit_direction).reshape(-1, 1), target_y))
+        )
+
+    scores_np = np.asarray(scores, dtype=np.float64)
+    return (
+        float(scores_np.mean()),
+        float(scores_np.std()),
+        [round(float(score), 6) for score in scores],
+    )
+
+
 def load_vectors(processed_dir: Path, subdir: str = "concept_vectors") -> dict:
     vec_dir = processed_dir / subdir
     data: dict = {}
@@ -135,6 +234,16 @@ def probe_axis(
         result["topic_cv_mean"] = round(th_mean, 6)
         result["topic_cv_std"] = round(th_std, 6)
         result["topic_cv_folds"] = th_folds
+        direction_mean, direction_std, direction_folds = direction_topic_holdout_cv(
+            X_high, X_low, groups_high, groups_low, seed
+        )
+        print(
+            f"  direction-topic: {direction_mean:.4f} +/- {direction_std:.4f}  "
+            f"{[round(s, 3) for s in direction_folds]}"
+        )
+        result["direction_topic_cv_mean"] = round(direction_mean, 6)
+        result["direction_topic_cv_std"] = round(direction_std, 6)
+        result["direction_topic_cv_folds"] = direction_folds
 
     return result
 
@@ -240,6 +349,33 @@ def main() -> None:
         "competence_vec on warmth stories", seed,
     )
 
+    transfer_w_to_c: tuple[float, float, list[float]] | None = None
+    transfer_c_to_w: tuple[float, float, list[float]] | None = None
+    if topic_groups is not None:
+        transfer_w_to_c = topic_cross_axis_transfer_cv(
+            data["high_warmth"], data["low_warmth"],
+            data["high_competence"], data["low_competence"],
+            topic_groups["high_warmth"], topic_groups["low_warmth"],
+            topic_groups["high_competence"], topic_groups["low_competence"],
+            seed,
+        )
+        transfer_c_to_w = topic_cross_axis_transfer_cv(
+            data["high_competence"], data["low_competence"],
+            data["high_warmth"], data["low_warmth"],
+            topic_groups["high_competence"], topic_groups["low_competence"],
+            topic_groups["high_warmth"], topic_groups["low_warmth"],
+            seed,
+        )
+        print("\n[cross-axis topic-held-out transfer; no target recalibration]")
+        print(
+            f"  warmth -> competence: {transfer_w_to_c[0]:.4f} +/- "
+            f"{transfer_w_to_c[1]:.4f}  {transfer_w_to_c[2]}"
+        )
+        print(
+            f"  competence -> warmth: {transfer_c_to_w[0]:.4f} +/- "
+            f"{transfer_c_to_w[1]:.4f}  {transfer_c_to_w[2]}"
+        )
+
     # Label suffix keeps outputs for different models from clobbering each other.
     label_suffix = f"_{args.label}" if args.label else ""
 
@@ -259,14 +395,27 @@ def main() -> None:
         "warmth": warmth_metrics,
         "competence": competence_metrics,
         "axis_cosine": round(axis_cosine, 6),
+        # Backward-compatible aliases: these fixed directions are recalibrated
+        # on the target axis inside each CV fold and are not zero-shot transfer.
         "cross_warmth_on_competence_cv": round(cross_w_on_c, 6),
         "cross_competence_on_warmth_cv": round(cross_c_on_w, 6),
+        "cross_warmth_on_competence_calibrated_cv": round(cross_w_on_c, 6),
+        "cross_competence_on_warmth_calibrated_cv": round(cross_c_on_w, 6),
         "pass_warmth_cv": warmth_metrics["cv_mean"] > 0.8,
         "pass_competence_cv": competence_metrics["cv_mean"] > 0.8,
         "pass_orthogonality": abs(axis_cosine) < 0.3,
         "pass_warmth_topic_cv": warmth_metrics.get("topic_cv_mean", 0.0) > 0.8,
         "pass_competence_topic_cv": competence_metrics.get("topic_cv_mean", 0.0) > 0.8,
     }
+    if transfer_w_to_c is not None and transfer_c_to_w is not None:
+        log.update({
+            "cross_warmth_to_competence_topic_transfer_mean": round(transfer_w_to_c[0], 6),
+            "cross_warmth_to_competence_topic_transfer_std": round(transfer_w_to_c[1], 6),
+            "cross_warmth_to_competence_topic_transfer_folds": transfer_w_to_c[2],
+            "cross_competence_to_warmth_topic_transfer_mean": round(transfer_c_to_w[0], 6),
+            "cross_competence_to_warmth_topic_transfer_std": round(transfer_c_to_w[1], 6),
+            "cross_competence_to_warmth_topic_transfer_folds": transfer_c_to_w[2],
+        })
     log_dir = Path(cfg.paths.logs)
     log_dir.mkdir(parents=True, exist_ok=True)
     log_label = args.label or "default"
@@ -284,6 +433,9 @@ def main() -> None:
     print(f"  |cos(W,C)|             : {abs(axis_cosine):.4f}  {'PASS' if log['pass_orthogonality'] else 'FAIL'}  (threshold 0.30)")
     print(f"  cross-W->C CV          : {cross_w_on_c:.4f}")
     print(f"  cross-C->W CV          : {cross_c_on_w:.4f}")
+    if transfer_w_to_c is not None and transfer_c_to_w is not None:
+        print(f"  transfer W->C topic     : {transfer_w_to_c[0]:.4f}")
+        print(f"  transfer C->W topic     : {transfer_c_to_w[0]:.4f}")
 
 
 def parse_args() -> argparse.Namespace:

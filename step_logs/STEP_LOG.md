@@ -1410,6 +1410,24 @@
 
 ---
 
+## 2026-07-18 · Step 12 — Write Gemma 4 Stage 1 extraction-geometry report
+- **Context:** User requested a dedicated Stage 1 (extraction-only) findings report for Gemma 4, in the same house format as prior single-model concept reports, covering all three models with parallel per-model figures.
+- **Agent:** claude-sonnet-5
+- **Did:** Discovered no local Python environment had matplotlib/seaborn/scipy/scikit-learn/pyyaml (Homebrew's system pip refuses installs under PEP 668); created an isolated `paper/figures/.venv` (already covered by `.gitignore`) and installed the plotting/analysis stack there. Ran `paper/figures/generate_figures.py --fig 1,2,3,4` against `data/processed/concept_vectors_gemma4_{12b,26b_a4b,31b}/` to produce 12 figures under new `paper/figures/gemma4_12b/`, `gemma4_26b_a4b/`, `gemma4_31b/` subdirs. Recomputed vector norms, cos(W,C), random-baseline Cohen's d/z, Lorenz top-k concentration, and 1-D projection CV directly from the Stage 1 `.npy` arrays for all three models. Wrote `paper/2026-07-18_1308_gemma4_stage1_extraction_geometry.md`, verified every embedded `![...]` image path resolves on disk, and registered the new figures and report row in `paper/README.md`.
+- **Findings:** All three models show large random-baseline separation (z = 8.6–15.0, p < .001, 0/1000 random directions exceeded the extracted direction) and a positive, moderate warmth–competence cosine (0.494–0.587), replicating the Gemma-3 shared-valence pattern at Stage 1. 26B-A4B is the most weight-concentrated (top 64/2816 dims = 50% of warmth norm) and most cross-axis-entangled (all CV cells 100%, highest cosine 0.587). 31B has the largest absolute vector norms but the weakest competence random-baseline separation (z=8.6) and the only sub-100% cross-axis CV cell (competence-on-warmth 95%). 12B (probe layer 31) reproduces its previously reported cos(W,C)=0.493539 exactly.
+- **Decision / rationale:** Keep this report strictly Stage-1-scoped; the CV-accuracy numbers shown are a same-array sanity check (via `generate_figures.py`'s own `projected_cv_accuracy` call), explicitly labeled as distinct from the authoritative multi-dimensional Stage 2 probe-validation numbers already reported in the Stage 3 reports, to avoid double-counting or contradicting those results.
+- **Next:** User to decide whether to commit the new `.venv`-generated figures and report, and whether the three-model Gemma 4 Stage 1 geometry should inform any manuscript figure selection alongside the pending Stage 3 layer-emergence decision.
+
+## 2026-07-18 · Step 13 — Write Gemma 4 Stage 2 probe-validation report
+- **Context:** Direct follow-on to Step 12; user requested a Stage 2 (probe validation) focus report for the same three Gemma 4 models, following the same house format, figures, and pre-write critical-question process used for the Stage 1 report.
+- **Agent:** claude-opus-4-8
+- **Did:** Confirmed Stage 2 outputs (`results/tables/probe_metrics_gemma4_*.csv`, `results/logs/validate_probes_gemma4_*.json`) already exist and are complete for all three models. Reused the existing `paper/figures/.venv`. Ran `paper/figures/generate_figures.py --fig 5,6,7` with `--metrics`, `--logs`, `--vec-dirs`, `--labels`, `--stories` for all three Gemma 4 models into a new `paper/figures/gemma4_cross/` subdir, producing `fig5_cross_model`, `fig6_cross_model_story_agreement`, `fig7_same_story_demo` (png+pdf each). Wrote `paper/2026-07-18_1326_gemma4_stage2_probe_validation.md`, verified all three embedded `![...]` image paths resolve on disk, and registered the new figures and report row in `paper/README.md`.
+- **Findings:** Both 5-fold and topic-holdout CV reach 1.00 for both axes in all three models, confirming the Stage 1 sanity-check numbers at the authoritative pipeline level. Cohen's d ranges 6.03–9.04 across the six model-axis combinations, with 31B competence (d=6.03) the weakest and 12B competence (d=9.04) the strongest. All three models fail `pass_orthogonality` (cosine 0.494–0.587) with cross-axis CV 0.95–1.00; 31B's competence-probe-on-warmth cell (0.95) is the only sub-ceiling cross-axis result among the three models. Cross-model per-story Spearman agreement (fig6) is 0.905–0.940 (warmth) and 0.947–0.960 (competence), showing the three model sizes rank the same stories the same way, not just classify conditions independently.
+- **Decision / rationale:** Per user instruction, treated the topic-holdout-CV-plus-entanglement result as a headline finding (§6 of the report) rather than a footnote caveat, since it validates Stage 1's shared-valence observation at the stricter Stage 2 level and has direct implications for later steering/causal work (expect cross-axis leakage).
+- **Next:** User to decide whether to commit the new Stage 2 report and `gemma4_cross/` figures, and whether Stage 2's entanglement finding should be folded into the manuscript's discussion of the causal steering results once those are run for Gemma 4.
+
+---
+
 ## 2026-07-18 · Step 14 — Complete Qwen3.6 27B native-HF Stage 1–3 smoke
 - **Context:** Test the current Qwen3.6 target with a TransformerLens-free Stage 1–3 path on an available SCCKN RTX PRO 6000.
 - **Agent:** gpt-5-codex
@@ -1420,6 +1438,15 @@
 
 ---
 
+## 2026-07-18 · Step 15 — Refine Gemma 4 Stage 1 interpretation
+- **Context:** User-approved focused revision of the Gemma 4 Stage 1 report after a read-only scientific and figure audit.
+- **Agent:** gpt-5-codex
+- **Did:** Added residual- and dimension-normalised vector norms, clarified the shared-valence limitation of cross-axis accuracy, qualified the 26B-A4B MoE concentration interpretation, corrected two statements that contradicted the reported concentration and norm values, and aligned displayed layer depth with the repository's zero-indexed fraction definition.
+- **Findings:** Raw and √`d_model`-scaled norms are largest for 31B, while residual-normalised norms are largest for 26B-A4B (warmth/competence 0.1035/0.1254). The 26B-A4B coordinate concentration remains 64/56 dimensions for 50% squared norm, but the residual-only extraction cannot attribute it to MoE routing or establish model-invariant effective dimensionality. Cross-axis accuracy of 0.95–1.00 remains evidence of shared evaluative signal rather than discriminant validation.
+- **Decision / rationale:** Preserve the existing figures and numerical findings while narrowing claims to what the Stage 1 residual geometry directly supports.
+
+---
+
 ## 2026-07-18 · Step 16 — Implement full Qwen3.6 native-HF stage pipeline
 - **Context:** Implement the approved independent Stage 1–3 plan for Qwen3.6-27B and Qwen3.6-35B-A3B.
 - **Agent:** gpt-5-codex
@@ -1427,6 +1454,24 @@
 - **Findings:** Local verification passed 56 tests, Ruff, shell syntax, Python compilation, both submitter dry-runs, both model/config dry-runs, and Qwen-scoped `git diff --check`. The configs fix 27B at 64 layers/5120 width/revision `6a9e13b` and 35B-A3B at 40 layers/2048 width/revision `995ad96`.
 - **Decision / rationale:** Keep Stage 1 and Stage 3 on one RTX PRO 6000 each, Stage 2 CPU-only, scientific thresholds non-gating, and all scheduler jobs independent; do not introduce automatic FP8 or hardware fallback.
 - **Next:** Fast-forward the clean SCCKN checkout, run environment and scheduler preflights, submit both Stage 1 jobs held, synchronize the manifest, release together, and monitor before independent follow-up stages.
+
+## 2026-07-18 · Step 16 — Write consolidated Gemma 4 Stage 3 layer-sweep report
+- **Context:** Stage 3 coverage was split across two prior reports (26B-A4B+31B layer sweep; 12B L40/L40S reproducibility audit). User asked to consolidate all three Gemma 4 sizes into one Stage 3 report, parallel to the Stage 1/2 consolidated format, using the 12B exact-L40 sweep as canonical and adding an explicit hardware-reproducibility comparison table.
+- **Agent:** claude-sonnet-5
+- **Did:** Confirmed `layer_sweep_gemma4_12b.csv`, `layer_sweep_gemma4_12b_l40_repro.csv`, `layer_sweep_gemma4_26b_a4b.csv`, `layer_sweep_gemma4_31b.csv` are all complete (48/48/30/60 layers). Generated `paper/figures/gemma4_cross/fig8_layer_emergence.{png,pdf}` via the existing `paper/figures/.venv` using `--fig 8 --sweep-csvs layer_sweep_gemma4_12b_l40_repro.csv,layer_sweep_gemma4_26b_a4b.csv,layer_sweep_gemma4_31b.csv`. Computed peak-d layer/frac, peak-cos layer/frac, and final-layer values directly from the CSVs for all four sweep files (including L40S) to cross-check against the two prior reports' prose (all matched exactly). Wrote `paper/2026-07-18_1340_gemma4_stage3_layer_sweep_consolidated.md`. Updated `paper/README.md` (new fig8 cross-model figure row, new reports-table row).
+- **Findings:** All three models reproduce their Stage 2 probe-layer numbers exactly (zero difference at six decimals) except 12B L40S, which shows small bfloat16 hardware drift (max abs diff across all layers: 0.638 warmth d, 0.914 competence d, 0.095 cosine). Effect-size peaks occur before the frac=0.66 probe layer in all three models (12B frac 0.55, 26B-A4B frac 0.55, 31B frac 0.41). Axis cosine peaks mid-network in all three (12B 0.617 at frac 0.53; 26B-A4B 0.736 at frac 0.41; 31B 0.705 at frac 0.47), starting near zero/negative at layer 0 and declining again toward the final layer — a depth-wide confirmation of the Stage 1/2 shared-valence entanglement finding.
+- **Decision / rationale:** Used the 12B exact-L40 sweep as the canonical 12B row throughout (matches Stage 1 extraction hardware, zero-difference reproduction of Stage 2); kept the L40S run only in the dedicated hardware-comparison section (§6), per user's third answer. New report supersedes the two prior Stage 3 reports for cross-model comparison but not for execution/hardware detail, which those two reports retain as source of record.
+- **Next:** User to decide whether to commit the new report, `fig8_layer_emergence.{png,pdf}`, and the README/STEP_LOG updates.
+
+---
+
+## 2026-07-18 · Step 17 — Audit and correct Gemma 4 Stage 2 validation
+- **Context:** Implement the user-approved corrections from a read-only scientific audit of the consolidated Gemma 4 Stage 2 report.
+- **Agent:** gpt-5-codex
+- **Did:** Added fold-internal direction reconstruction for topic holdout, strict source-axis-to-target-axis topic transfer, explicit compatibility aliases for the prior target-calibrated cross-axis scores, and a reusable cross-model story-agreement validator. Regenerated the three validation artifacts, the agreement table, Figures 6–7, and revised the Stage 2 report and report index.
+- **Findings:** Direction-specific topic CV is 1.00 for both axes in all three models. Strict warmth-to-competence and competence-to-warmth transfer is 0.99/0.97 for 12B, 0.99/0.95 for 26B-A4B, and 0.95/0.88 for 31B. Overall cross-model story agreement remains high (warmth 0.905–0.940; competence 0.947–0.960), but within-condition agreement is lower (warmth 0.434–0.574; competence 0.618–0.645), showing that condition separation inflated the earlier interpretation. All prior scalar Stage 2 results were preserved exactly; the artifact audit passed, `git diff --check` passed, and the full suite passed 56 tests.
+- **Decision / rationale:** Present generalization and shared evaluative signal together. Retain the calibrated cross-axis fields for compatibility but name them explicitly, use strict transfer for the headline construct-specificity warning, and label Figure 7 as a 12B-selected qualitative illustration rather than representative evidence.
+- **Next:** Use the corrected Stage 2 interpretation when deciding how to frame construct validity and cross-axis leakage in the active manuscript.
 
 ---
 
@@ -1445,4 +1490,14 @@
 - **Agent:** gpt-5-codex
 - **Did:** Generated and visually inspected Stage 1–3 figures for each model and two Qwen-only comparison figures; made the Stage 3 figure title model-count-aware, added the tracked same-story agreement validator/table, created six stage reports plus `paper/2026-07-18_1421_qwen36_full_stage_comparison.md`, and registered them in `paper/README.md`.
 - **Findings:** The dense 27B checkpoint has stronger probe-layer effect sizes and 14.2 GiB more reserved-VRAM headroom; the 35B-A3B MoE checkpoint has slightly greater axis overlap. Cross-model story ranking is high overall (ρ=0.930 warmth, 0.957 competence) and lower within condition (ρ=0.685/0.630). Target separation peaks before frac=0.66 in both models.
+
+---
+
+## 2026-07-18 · Step 20 — Implement Gemma 4 Stage 3B audit pipeline
+- **Context:** Implement the user-approved enhanced all-layer audit after correcting the legacy Stage 3 report.
+- **Agent:** gpt-5-codex
+- **Did:** Added a backward-compatible Stage 3B profile with fold-internal mean-difference direction CV, strict bidirectional cross-axis topic transfer, 1,000-draw paired-topic bootstrap intervals, write-once validators, three held GPU jobs, qacct/hash/raw-log provenance, and a new Figure 8B renderer. Corrected the legacy Figure 8 and consolidated Stage 3 report without changing `probe_layer_frac=0.66`.
+- **Findings:** The legacy pipeline remains the default and comparable to the prior Gemma 3/Qwen/Llama sweeps. Focused tests passed 14 cases, the full suite passed 64 tests, Ruff and Python compilation passed, all shell scripts passed `bash -n`, the submitter dry-run described one exact-L40 and two independent RTX PRO 6000 jobs, and `git diff --check` passed.
+- **Decision / rationale:** Preserve all existing Stage 3 tables; write Stage 3B to separately labeled outputs and treat bootstrap peaks as uncertainty summaries rather than automatic layer-selection rules.
+- **Next:** Push the implementation, submit the three jobs held on SCCKN, synchronize the submission manifest, release together, and monitor through provenance postflight.
 - **Decision / rationale:** Keep all six individual reports as execution-specific records and use the seventh report for direct model selection and subsequent steering design.

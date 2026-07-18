@@ -462,68 +462,60 @@ def fig5_cross_model(
 def fig6_cross_model_story_agreement(
     vec_dirs: list[Path],
     model_labels: list[str],
+    agreement_csv: Path | None = None,
 ) -> None:
-    """Two 3×3 Spearman-ρ heatmaps: warmth and competence per-story projections.
+    """Compare overall and within-condition story-ranking agreement."""
+    from src.validate_cross_model_agreement import compute_agreement_records
 
-    For each model, project all 200 stories onto that model's unit warmth_vec (and
-    competence_vec). The file order of X_<cond>.npy is the deterministic JSONL order,
-    so row i corresponds to the same story across all models.  High ρ between models
-    means the *same stories* are ranked the same → shared underlying construct.
+    if agreement_csv is not None:
+        with agreement_csv.open(newline="", encoding="utf-8") as handle:
+            records = list(csv.DictReader(handle))
+    else:
+        records = compute_agreement_records(vec_dirs, model_labels)
 
-    Each 50-story condition is projected and the full 200-story projection vector is
-    assembled in JSONL order: high_warmth (0–49), low_warmth (50–99),
-    high_competence (100–149), low_competence (150–199).
-    """
-    from scipy.stats import spearmanr
+    n_models = len(model_labels)
+    label_to_index = {label: index for index, label in enumerate(model_labels)}
+    matrices = {
+        (axis, metric): np.eye(n_models, dtype=np.float64)
+        for axis in ("warmth", "competence")
+        for metric in ("overall_rho", "within_condition_rho")
+    }
+    for record in records:
+        axis = str(record["axis"])
+        i = label_to_index[str(record["model_a"])]
+        j = label_to_index[str(record["model_b"])]
+        for metric in ("overall_rho", "within_condition_rho"):
+            value = float(record[metric])
+            matrices[(axis, metric)][i, j] = matrices[(axis, metric)][j, i] = value
 
-    def load_model_vecs(vec_dir: Path) -> dict:
-        d: dict = {}
-        for cond in CONDITIONS:
-            d[cond] = np.load(vec_dir / f"X_{cond}.npy").astype(np.float64)
-        d["warmth_vec"] = np.load(vec_dir / "warmth_vec.npy").astype(np.float64)
-        d["competence_vec"] = np.load(vec_dir / "competence_vec.npy").astype(np.float64)
-        return d
+    for axis in ("warmth", "competence"):
+        print(f"  [fig6] {axis.title()} overall / within-condition Spearman:")
+        for i, label in enumerate(model_labels):
+            overall = "  ".join(
+                f"{matrices[(axis, 'overall_rho')][i, j]:.3f}" for j in range(n_models)
+            )
+            within = "  ".join(
+                f"{matrices[(axis, 'within_condition_rho')][i, j]:.3f}"
+                for j in range(n_models)
+            )
+            print(f"    {label:20s} overall={overall}  within={within}")
 
-    n_models = len(vec_dirs)
-    # Build per-model full projection arrays (200 stories, same order as JSONL).
-    warmth_projs: list[np.ndarray] = []
-    comp_projs: list[np.ndarray] = []
-
-    for vd in vec_dirs:
-        d = load_model_vecs(vd)
-        wv = unit(d["warmth_vec"])
-        cv = unit(d["competence_vec"])
-        # Stack in JSONL order: high_warmth, low_warmth, high_competence, low_competence.
-        all_X = np.concatenate([d[c] for c in CONDITIONS], axis=0)  # [200, d_model]
-        warmth_projs.append(all_X @ wv)
-        comp_projs.append(all_X @ cv)
-
-    # Compute Spearman ρ matrices.
-    def spearman_matrix(projs: list[np.ndarray]) -> np.ndarray:
-        mat = np.ones((n_models, n_models))
-        for i in range(n_models):
-            for j in range(i + 1, n_models):
-                rho, _ = spearmanr(projs[i], projs[j])
-                mat[i, j] = mat[j, i] = float(rho)
-        return mat
-
-    w_mat = spearman_matrix(warmth_projs)
-    c_mat = spearman_matrix(comp_projs)
-
-    print("  [fig6] Warmth Spearman matrix:")
-    for i, lbl in enumerate(model_labels):
-        row_str = "  ".join(f"{w_mat[i, j]:.3f}" for j in range(n_models))
-        print(f"    {lbl:20s} {row_str}")
-    print("  [fig6] Competence Spearman matrix:")
-    for i, lbl in enumerate(model_labels):
-        row_str = "  ".join(f"{c_mat[i, j]:.3f}" for j in range(n_models))
-        print(f"    {lbl:20s} {row_str}")
-
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
-    for ax, mat, title in [
-        (axes[0], w_mat, "Warmth projection\n(Spearman ρ, 200 stories)"),
-        (axes[1], c_mat, "Competence projection\n(Spearman ρ, 200 stories)"),
-    ]:
+    fig, axes = plt.subplots(2, 2, figsize=(10, 8))
+    panels = [
+        (axes[0, 0], matrices[("warmth", "overall_rho")], "Warmth: overall ranking"),
+        (axes[0, 1], matrices[("competence", "overall_rho")], "Competence: overall ranking"),
+        (
+            axes[1, 0],
+            matrices[("warmth", "within_condition_rho")],
+            "Warmth: within-condition ranking",
+        ),
+        (
+            axes[1, 1],
+            matrices[("competence", "within_condition_rho")],
+            "Competence: within-condition ranking",
+        ),
+    ]
+    for ax, mat, title in panels:
         sns.heatmap(
             mat,
             ax=ax,
@@ -538,11 +530,11 @@ def fig6_cross_model_story_agreement(
             yticklabels=model_labels,
             cbar_kws={"shrink": 0.8},
         )
-        ax.set_title(title, fontsize=11, pad=10)
+        ax.set_title(f"{title}\n(Spearman ρ)", fontsize=10, pad=8)
 
     fig.suptitle(
-        "Per-story ranking agreement across models\n"
-        "(High ρ = models rank the same stories the same way → shared construct)",
+        "Cross-model story-ranking agreement\n"
+        "Overall includes condition separation; within-condition compares story ordering",
         fontsize=10,
     )
     fig.tight_layout()
@@ -619,7 +611,7 @@ def fig7_same_story_demo(
         (top_hw_idx,  "Strongest warm",        "#2166AC"),
         (bot_lw_idx,  "Strongest cold",         "#D73027"),
         (top_hc_idx,  "Strongest competent",    "#1A9850"),
-        (bot_lc_idx,  "Weakest competent",      "#D95F02"),
+        (bot_lc_idx,  "Least competent",        "#D95F02"),
         (xax_w_idx,   "Warm / mid-competence",  "#7FCDBB"),
         (xax_c_idx,   "Competent / mid-warmth", "#FD8D3C"),
     ]
@@ -658,9 +650,16 @@ def fig7_same_story_demo(
         xs = [all_w_z[i_m][idx] for i_m in range(n_models)]
         ys = [all_c_z[i_m][idx] for i_m in range(n_models)]
         ax.plot(xs, ys, color=color, linewidth=0.8, alpha=0.6, zorder=2)
-        # Label at the mean position.
-        ax.text(float(np.mean(xs)) + 0.05, float(np.mean(ys)) + 0.05,
-                name, fontsize=7.5, color=color, va="bottom")
+        # Label at the mean position with a fixed display offset to avoid markers.
+        ax.annotate(
+            name,
+            xy=(float(np.mean(xs)), float(np.mean(ys))),
+            xytext=(18, 8),
+            textcoords="offset points",
+            fontsize=7.5,
+            color=color,
+            va="bottom",
+        )
 
     # Legend: model markers.
     from matplotlib.lines import Line2D
@@ -674,8 +673,8 @@ def fig7_same_story_demo(
     ax.set_xlabel("Warmth projection (z-score within model)")
     ax.set_ylabel("Competence projection (z-score within model)")
     ax.set_title(
-        "Same stories, three models: convergent placement\n"
-        "(Lines connect the same story across models; shapes = models)"
+        "Six Gemma-4-12B-selected exemplar stories across three models\n"
+        "(Qualitative illustration; lines connect the same story; shapes = models)"
     )
     fig.tight_layout()
     save("fig7_same_story_demo")
@@ -738,7 +737,7 @@ def fig8_layer_emergence(
                label="probe layer (frac=0.66)", zorder=1)
     ax.axhline(0.8, color="green", linestyle="--", linewidth=0.8,
                label="large effect (d=0.80)", zorder=1)
-    ax.set_xlabel("Layer fraction (depth / n_layers)")
+    ax.set_xlabel("Normalized block depth (layer / (n_layers - 1))")
     ax.set_ylabel("Cohen's d")
     ax.set_title("Representation strength by depth\n(solid = warmth, dotted = competence)")
     ax.set_xlim(0, 1)
@@ -755,21 +754,25 @@ def fig8_layer_emergence(
 
     ax2.axvline(0.66, color="gray", linestyle=":", linewidth=1.2,
                 label="probe layer (frac=0.66)", zorder=1)
+    ax2.axhspan(-0.3, 0.3, color="orange", alpha=0.08, zorder=0)
     ax2.axhline(0.3, color="orange", linestyle="--", linewidth=0.8,
-                label="low-overlap target (0.30)", zorder=1)
-    ax2.set_xlabel("Layer fraction (depth / n_layers)")
+                label="orthogonality bounds (±0.30)", zorder=1)
+    ax2.axhline(-0.3, color="orange", linestyle="--", linewidth=0.8, zorder=1)
+    ax2.axhline(0.0, color="gray", linewidth=0.6, zorder=1)
+    ax2.set_xlabel("Normalized block depth (layer / (n_layers - 1))")
     ax2.set_ylabel("cos(warmth_vec, competence_vec)")
     ax2.set_title(
         "Warmth/competence axis overlap by depth\n"
-        "(cosine geometry; lower values indicate less overlap)"
+        "(negative and positive alignment shown)"
     )
     ax2.set_xlim(0, 1)
-    ax2.set_ylim(0, 1.0)
+    all_cos = np.concatenate([np.asarray(sweep["cos"], dtype=float) for sweep in sweeps])
+    ax2.set_ylim(min(-0.3, float(all_cos.min()) - 0.05), max(0.8, float(all_cos.max()) + 0.05))
     ax2.legend(fontsize=9, loc="upper left", framealpha=0.9)
 
-    model_scope = "one model" if len(sweeps) == 1 else f"{len(sweeps)} models"
+    model_scope = "one model" if len(sweeps) == 1 else f"{len(sweeps)} model variants"
     fig.suptitle(
-        "Layer sweep: representation strength and axis geometry across depth  "
+        "Legacy-compatible layer sweep: descriptive effect size and axis geometry  "
         f"({model_scope})",
         fontsize=10, y=1.02,
     )
@@ -784,6 +787,76 @@ def fig8_layer_emergence(
 def _read_csv(path: Path) -> list[dict[str, str]]:
     with path.open(newline="", encoding="utf-8") as handle:
         return list(csv.DictReader(handle))
+
+
+def fig8b_stage3b_validation(
+    sweep_csv_paths: list[Path],
+    model_labels: list[str],
+) -> None:
+    """Enhanced Stage 3B direction, transfer, and bootstrap profiles."""
+    rows_by_model = [_read_csv(path) for path in sweep_csv_paths]
+    colors = ["#1b7837", "#006d6d", "#762a83"]
+    fig, axes = plt.subplots(2, 2, figsize=(12, 8.5), sharex=True)
+
+    for model_index, (rows, label) in enumerate(zip(rows_by_model, model_labels)):
+        color = colors[model_index % len(colors)]
+        x = np.asarray([float(row["frac"]) for row in rows])
+        axes[0, 0].plot(
+            x, [float(row["warmth_direction_topic_cv"]) for row in rows],
+            color=color, linewidth=1.8, label=f"{label} warmth",
+        )
+        axes[0, 0].plot(
+            x, [float(row["comp_direction_topic_cv"]) for row in rows],
+            color=color, linewidth=1.4, linestyle=":", label=f"{label} competence",
+        )
+        axes[0, 1].plot(
+            x, [float(row["warmth_to_comp_topic_transfer"]) for row in rows],
+            color=color, linewidth=1.8, label=f"{label} W→C",
+        )
+        axes[0, 1].plot(
+            x, [float(row["comp_to_warmth_topic_transfer"]) for row in rows],
+            color=color, linewidth=1.4, linestyle=":", label=f"{label} C→W",
+        )
+        for metric, linestyle, axis_name in (
+            ("warmth_cohens_d", "-", "warmth"),
+            ("comp_cohens_d", ":", "competence"),
+        ):
+            estimate = np.asarray([float(row[metric]) for row in rows])
+            low = np.asarray([float(row[f"{metric}_ci_low"]) for row in rows])
+            high = np.asarray([float(row[f"{metric}_ci_high"]) for row in rows])
+            axes[1, 0].plot(
+                x, estimate, color=color, linestyle=linestyle, linewidth=1.6,
+                label=f"{label} {axis_name}",
+            )
+            axes[1, 0].fill_between(x, low, high, color=color, alpha=0.07)
+        estimate = np.asarray([float(row["cos_wc"]) for row in rows])
+        low = np.asarray([float(row["cos_wc_ci_low"]) for row in rows])
+        high = np.asarray([float(row["cos_wc_ci_high"]) for row in rows])
+        axes[1, 1].plot(x, estimate, color=color, linewidth=1.8, label=label)
+        axes[1, 1].fill_between(x, low, high, color=color, alpha=0.12)
+
+    for ax in axes.flat:
+        ax.axvline(0.66, color="gray", linestyle="--", linewidth=0.8)
+        ax.set_xlim(0, 1)
+        ax.set_xlabel("Normalized block depth (layer / (n_layers - 1))")
+        ax.legend(fontsize=6.8, framealpha=0.9, ncol=2)
+    axes[0, 0].set_title("Fold-internal mean-difference direction")
+    axes[0, 0].set_ylabel("Topic-held-out accuracy")
+    axes[0, 0].set_ylim(0.45, 1.02)
+    axes[0, 1].set_title("Strict cross-axis transfer without target recalibration")
+    axes[0, 1].set_ylabel("Topic-held-out transfer accuracy")
+    axes[0, 1].set_ylim(0.45, 1.02)
+    axes[1, 0].set_title("Descriptive separation with paired-topic 95% intervals")
+    axes[1, 0].set_ylabel("Cohen's d")
+    axes[1, 0].set_ylim(0, None)
+    axes[1, 1].set_title("Axis cosine with paired-topic 95% intervals")
+    axes[1, 1].set_ylabel("cos(warmth, competence)")
+    axes[1, 1].axhspan(-0.3, 0.3, color="orange", alpha=0.08)
+    axes[1, 1].axhline(0.0, color="gray", linewidth=0.6)
+    axes[1, 1].set_ylim(-0.4, 1.0)
+    fig.suptitle("Gemma 4 Stage 3B: generalization, transfer, and topic uncertainty by depth")
+    fig.tight_layout()
+    save("fig8b_stage3b_validation")
 
 
 def fig9_gemma_scope_decomposition(
@@ -2375,7 +2448,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Generate presentation figures.")
     parser.add_argument(
         "--fig", default="all",
-        help="Figure(s) to generate: 1-20, comma-separated, or 'all' (runs 1-4 only).",
+        help="Figure(s) to generate: 1-21, comma-separated, or 'all' (runs 1-4 only).",
     )
     parser.add_argument(
         "--vec-dir",
@@ -2419,6 +2492,11 @@ def main() -> None:
         "--stories",
         default=None,
         help="Path to concept_stories.jsonl for fig7 text labels (optional).",
+    )
+    parser.add_argument(
+        "--agreement-csv",
+        default=None,
+        help="Tracked cross-model agreement CSV for fig6 (preferred; vec-dirs fallback).",
     )
     parser.add_argument(
         "--sweep-csvs",
@@ -2561,12 +2639,13 @@ def main() -> None:
 
     if 6 in selected:
         print("Figure 6: cross-model story agreement (Spearman) …")
-        if not args.vec_dirs or not model_labels:
-            parser.error("--fig 6 requires --vec-dirs and --labels")
-        vec_dirs = [Path(p.strip()) for p in args.vec_dirs.split(",")]
-        if len(vec_dirs) != len(model_labels):
+        if not model_labels or (not args.vec_dirs and not args.agreement_csv):
+            parser.error("--fig 6 requires --labels and either --agreement-csv or --vec-dirs")
+        vec_dirs = [Path(p.strip()) for p in args.vec_dirs.split(",")] if args.vec_dirs else []
+        if vec_dirs and len(vec_dirs) != len(model_labels):
             parser.error("--vec-dirs and --labels must have the same number of entries")
-        fig6_cross_model_story_agreement(vec_dirs, model_labels)
+        agreement_csv = Path(args.agreement_csv) if args.agreement_csv else None
+        fig6_cross_model_story_agreement(vec_dirs, model_labels, agreement_csv=agreement_csv)
 
     if 7 in selected:
         print("Figure 7: same-story three-model demo …")
@@ -2586,6 +2665,15 @@ def main() -> None:
         if len(sweep_paths) != len(model_labels):
             parser.error("--sweep-csvs and --labels must have the same number of entries")
         fig8_layer_emergence(sweep_paths, model_labels)
+
+    if 21 in selected:
+        print("Figure 8B: enhanced Stage 3B validation …")
+        if not args.sweep_csvs or not model_labels:
+            parser.error("--fig 21 requires --sweep-csvs and --labels")
+        sweep_paths = [Path(p.strip()) for p in args.sweep_csvs.split(",")]
+        if len(sweep_paths) != len(model_labels):
+            parser.error("--sweep-csvs and --labels must have the same number of entries")
+        fig8b_stage3b_validation(sweep_paths, model_labels)
 
     if 9 in selected:
         print("Figure 9: Gemma Scope decomposition quality …")
