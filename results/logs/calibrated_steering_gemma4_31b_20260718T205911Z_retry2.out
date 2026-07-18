@@ -1,0 +1,2058 @@
+--- Grid Engine ---
+Reserving GPUs @ scc214 ..
+Number of requested GPUS: 1
+GPU 0: NVIDIA RTX PRO 6000 Blackwell Server Edition (UUID: GPU-507970ca-1d83-07f5-7313-8794afdd8585)
+GPU 1: NVIDIA RTX PRO 6000 Blackwell Server Edition (UUID: GPU-ffa89324-cc75-4306-b653-c29c4dda1cdf)
+GPU 2: NVIDIA RTX PRO 6000 Blackwell Server Edition (UUID: GPU-bb1778b1-810c-451b-46f5-c60e94530810)
+GPU 3: NVIDIA RTX PRO 6000 Blackwell Server Edition (UUID: GPU-6ca202c9-9e24-bc3e-5a9e-514db7180d18)
+GPU 4: NVIDIA RTX PRO 6000 Blackwell Server Edition (UUID: GPU-1a96c05e-b1c1-872c-1610-c4412502b862)
+GPU 5: NVIDIA RTX PRO 6000 Blackwell Server Edition (UUID: GPU-86953032-21b6-1c61-d81c-dfb6d54de161)
+GPU 6: NVIDIA RTX PRO 6000 Blackwell Server Edition (UUID: GPU-391a19d5-ffde-82dc-4f71-f679faa836f0)
+GPU 7: NVIDIA RTX PRO 6000 Blackwell Server Edition (UUID: GPU-72a4de52-03aa-35bf-0c55-e25b5f57d678)
+Set SGE_GPU = 2
+Set CUDA_VISIBLE_DEVICES = 2
+--- Grid Engine ---
+[runtime] gpu='NVIDIA RTX PRO 6000 Blackwell Server Edition' free=94.47 total=95.01 GiB
+{
+  "status": "absent",
+  "label": "gemma4_31b_calibrated_scckn_rtx6000"
+}
+[start] model=gemma4_31b job=1145497 2026-07-18T21:47:38Z
+[model] loading google/gemma-4-31B-it
+[tokens] ' Yes'=10784  ' No'=3771  (single-token check passed, hook=blocks.39.hook_resid_post)
+[resume] baseline warmth
+[resume] warmth warmth additive strength=-0.10
+[resume] warmth warmth additive strength=-0.05
+[resume] warmth warmth additive strength=+0.00
+[resume] warmth warmth additive strength=+0.05
+[resume] warmth warmth additive strength=+0.10
+[resume] warmth competence additive strength=-0.10
+[resume] warmth competence additive strength=-0.05
+[resume] warmth competence additive strength=+0.00
+[resume] warmth competence additive strength=+0.05
+[resume] warmth competence additive strength=+0.10
+[resume] warmth random_000 additive strength=-0.10
+[resume] warmth random_000 additive strength=-0.05
+[resume] warmth random_000 additive strength=+0.00
+[resume] warmth random_000 additive strength=+0.05
+[resume] warmth random_000 additive strength=+0.10
+[resume] warmth random_001 additive strength=-0.10
+[resume] warmth random_001 additive strength=-0.05
+[resume] warmth random_001 additive strength=+0.00
+[resume] warmth random_001 additive strength=+0.05
+[resume] warmth random_001 additive strength=+0.10
+[resume] warmth random_002 additive strength=-0.10
+[resume] warmth random_002 additive strength=-0.05
+[resume] warmth random_002 additive strength=+0.00
+[resume] warmth random_002 additive strength=+0.05
+[resume] warmth random_002 additive strength=+0.10
+[resume] warmth random_003 additive strength=-0.10
+[resume] warmth random_003 additive strength=-0.05
+[resume] warmth random_003 additive strength=+0.00
+[resume] warmth random_003 additive strength=+0.05
+[resume] warmth random_003 additive strength=+0.10
+[resume] warmth random_004 additive strength=-0.10
+[resume] warmth random_004 additive strength=-0.05
+[resume] warmth random_004 additive strength=+0.00
+[resume] warmth random_004 additive strength=+0.05
+[resume] warmth random_004 additive strength=+0.10
+[resume] warmth random_005 additive strength=-0.10
+[resume] warmth random_005 additive strength=-0.05
+[resume] warmth random_005 additive strength=+0.00
+[resume] warmth random_005 additive strength=+0.05
+[resume] warmth random_005 additive strength=+0.10
+[resume] warmth random_006 additive strength=-0.10
+[resume] warmth random_006 additive strength=-0.05
+[resume] warmth random_006 additive strength=+0.00
+[resume] warmth random_006 additive strength=+0.05
+[resume] warmth random_006 additive strength=+0.10
+[resume] warmth random_007 additive strength=-0.10
+[resume] warmth random_007 additive strength=-0.05
+[resume] warmth random_007 additive strength=+0.00
+[resume] warmth random_007 additive strength=+0.05
+[resume] warmth random_007 additive strength=+0.10
+[resume] warmth random_008 additive strength=-0.10
+[resume] warmth random_008 additive strength=-0.05
+[resume] warmth random_008 additive strength=+0.00
+[resume] warmth random_008 additive strength=+0.05
+[resume] warmth random_008 additive strength=+0.10
+[resume] warmth random_009 additive strength=-0.10
+[resume] warmth random_009 additive strength=-0.05
+[resume] warmth random_009 additive strength=+0.00
+[resume] warmth random_009 additive strength=+0.05
+[resume] warmth random_009 additive strength=+0.10
+[resume] warmth random_010 additive strength=-0.10
+[resume] warmth random_010 additive strength=-0.05
+[resume] warmth random_010 additive strength=+0.00
+[resume] warmth random_010 additive strength=+0.05
+[resume] warmth random_010 additive strength=+0.10
+[resume] warmth random_011 additive strength=-0.10
+[resume] warmth random_011 additive strength=-0.05
+[resume] warmth random_011 additive strength=+0.00
+[resume] warmth random_011 additive strength=+0.05
+[resume] warmth random_011 additive strength=+0.10
+[resume] warmth random_012 additive strength=-0.10
+[resume] warmth random_012 additive strength=-0.05
+[resume] warmth random_012 additive strength=+0.00
+[resume] warmth random_012 additive strength=+0.05
+[resume] warmth random_012 additive strength=+0.10
+[resume] warmth random_013 additive strength=-0.10
+[resume] warmth random_013 additive strength=-0.05
+[resume] warmth random_013 additive strength=+0.00
+[resume] warmth random_013 additive strength=+0.05
+[resume] warmth random_013 additive strength=+0.10
+[resume] warmth random_014 additive strength=-0.10
+[resume] warmth random_014 additive strength=-0.05
+[resume] warmth random_014 additive strength=+0.00
+[resume] warmth random_014 additive strength=+0.05
+[resume] warmth random_014 additive strength=+0.10
+[resume] warmth random_015 additive strength=-0.10
+[resume] warmth random_015 additive strength=-0.05
+[resume] warmth random_015 additive strength=+0.00
+[resume] warmth random_015 additive strength=+0.05
+[resume] warmth random_015 additive strength=+0.10
+[resume] warmth random_016 additive strength=-0.10
+[resume] warmth random_016 additive strength=-0.05
+[resume] warmth random_016 additive strength=+0.00
+[resume] warmth random_016 additive strength=+0.05
+[resume] warmth random_016 additive strength=+0.10
+[resume] warmth random_017 additive strength=-0.10
+[resume] warmth random_017 additive strength=-0.05
+[resume] warmth random_017 additive strength=+0.00
+[resume] warmth random_017 additive strength=+0.05
+[resume] warmth random_017 additive strength=+0.10
+[resume] warmth random_018 additive strength=-0.10
+[resume] warmth random_018 additive strength=-0.05
+[resume] warmth random_018 additive strength=+0.00
+[resume] warmth random_018 additive strength=+0.05
+[resume] warmth random_018 additive strength=+0.10
+[resume] warmth random_019 additive strength=-0.10
+[resume] warmth random_019 additive strength=-0.05
+[resume] warmth random_019 additive strength=+0.00
+[resume] warmth random_019 additive strength=+0.05
+[resume] warmth random_019 additive strength=+0.10
+[resume] warmth random_020 additive strength=-0.10
+[resume] warmth random_020 additive strength=-0.05
+[resume] warmth random_020 additive strength=+0.00
+[resume] warmth random_020 additive strength=+0.05
+[resume] warmth random_020 additive strength=+0.10
+[resume] warmth random_021 additive strength=-0.10
+[resume] warmth random_021 additive strength=-0.05
+[resume] warmth random_021 additive strength=+0.00
+[resume] warmth random_021 additive strength=+0.05
+[resume] warmth random_021 additive strength=+0.10
+[resume] warmth random_022 additive strength=-0.10
+[resume] warmth random_022 additive strength=-0.05
+[resume] warmth random_022 additive strength=+0.00
+[resume] warmth random_022 additive strength=+0.05
+[resume] warmth random_022 additive strength=+0.10
+[resume] warmth random_023 additive strength=-0.10
+[resume] warmth random_023 additive strength=-0.05
+[resume] warmth random_023 additive strength=+0.00
+[resume] warmth random_023 additive strength=+0.05
+[resume] warmth random_023 additive strength=+0.10
+[resume] warmth random_024 additive strength=-0.10
+[resume] warmth random_024 additive strength=-0.05
+[resume] warmth random_024 additive strength=+0.00
+[resume] warmth random_024 additive strength=+0.05
+[resume] warmth random_024 additive strength=+0.10
+[resume] warmth random_025 additive strength=-0.10
+[resume] warmth random_025 additive strength=-0.05
+[resume] warmth random_025 additive strength=+0.00
+[resume] warmth random_025 additive strength=+0.05
+[resume] warmth random_025 additive strength=+0.10
+[resume] warmth random_026 additive strength=-0.10
+[resume] warmth random_026 additive strength=-0.05
+[resume] warmth random_026 additive strength=+0.00
+[resume] warmth random_026 additive strength=+0.05
+[resume] warmth random_026 additive strength=+0.10
+[resume] warmth random_027 additive strength=-0.10
+[resume] warmth random_027 additive strength=-0.05
+[resume] warmth random_027 additive strength=+0.00
+[resume] warmth random_027 additive strength=+0.05
+[resume] warmth random_027 additive strength=+0.10
+[resume] warmth random_028 additive strength=-0.10
+[resume] warmth random_028 additive strength=-0.05
+[resume] warmth random_028 additive strength=+0.00
+[resume] warmth random_028 additive strength=+0.05
+[resume] warmth random_028 additive strength=+0.10
+[resume] warmth random_029 additive strength=-0.10
+[resume] warmth random_029 additive strength=-0.05
+[resume] warmth random_029 additive strength=+0.00
+[resume] warmth random_029 additive strength=+0.05
+[resume] warmth random_029 additive strength=+0.10
+[resume] warmth random_030 additive strength=-0.10
+[resume] warmth random_030 additive strength=-0.05
+[resume] warmth random_030 additive strength=+0.00
+[resume] warmth random_030 additive strength=+0.05
+[resume] warmth random_030 additive strength=+0.10
+[resume] warmth random_031 additive strength=-0.10
+[resume] warmth random_031 additive strength=-0.05
+[resume] warmth random_031 additive strength=+0.00
+[resume] warmth random_031 additive strength=+0.05
+[resume] warmth random_031 additive strength=+0.10
+[resume] warmth random_032 additive strength=-0.10
+[resume] warmth random_032 additive strength=-0.05
+[resume] warmth random_032 additive strength=+0.00
+[resume] warmth random_032 additive strength=+0.05
+[resume] warmth random_032 additive strength=+0.10
+[resume] warmth random_033 additive strength=-0.10
+[resume] warmth random_033 additive strength=-0.05
+[resume] warmth random_033 additive strength=+0.00
+[resume] warmth random_033 additive strength=+0.05
+[resume] warmth random_033 additive strength=+0.10
+[resume] warmth random_034 additive strength=-0.10
+[resume] warmth random_034 additive strength=-0.05
+[resume] warmth random_034 additive strength=+0.00
+[resume] warmth random_034 additive strength=+0.05
+[resume] warmth random_034 additive strength=+0.10
+[resume] warmth random_035 additive strength=-0.10
+[resume] warmth random_035 additive strength=-0.05
+[resume] warmth random_035 additive strength=+0.00
+[resume] warmth random_035 additive strength=+0.05
+[resume] warmth random_035 additive strength=+0.10
+[resume] warmth random_036 additive strength=-0.10
+[resume] warmth random_036 additive strength=-0.05
+[resume] warmth random_036 additive strength=+0.00
+[resume] warmth random_036 additive strength=+0.05
+[resume] warmth random_036 additive strength=+0.10
+[resume] warmth random_037 additive strength=-0.10
+[resume] warmth random_037 additive strength=-0.05
+[resume] warmth random_037 additive strength=+0.00
+[resume] warmth random_037 additive strength=+0.05
+[resume] warmth random_037 additive strength=+0.10
+[resume] warmth random_038 additive strength=-0.10
+[resume] warmth random_038 additive strength=-0.05
+[resume] warmth random_038 additive strength=+0.00
+[resume] warmth random_038 additive strength=+0.05
+[resume] warmth random_038 additive strength=+0.10
+[resume] warmth random_039 additive strength=-0.10
+[resume] warmth random_039 additive strength=-0.05
+[resume] warmth random_039 additive strength=+0.00
+[resume] warmth random_039 additive strength=+0.05
+[resume] warmth random_039 additive strength=+0.10
+[resume] warmth random_040 additive strength=-0.10
+[resume] warmth random_040 additive strength=-0.05
+[resume] warmth random_040 additive strength=+0.00
+[resume] warmth random_040 additive strength=+0.05
+[resume] warmth random_040 additive strength=+0.10
+[resume] warmth random_041 additive strength=-0.10
+[resume] warmth random_041 additive strength=-0.05
+[resume] warmth random_041 additive strength=+0.00
+[resume] warmth random_041 additive strength=+0.05
+[resume] warmth random_041 additive strength=+0.10
+[resume] warmth random_042 additive strength=-0.10
+[resume] warmth random_042 additive strength=-0.05
+[resume] warmth random_042 additive strength=+0.00
+[resume] warmth random_042 additive strength=+0.05
+[resume] warmth random_042 additive strength=+0.10
+[resume] warmth random_043 additive strength=-0.10
+[resume] warmth random_043 additive strength=-0.05
+[resume] warmth random_043 additive strength=+0.00
+[resume] warmth random_043 additive strength=+0.05
+[resume] warmth random_043 additive strength=+0.10
+[resume] warmth random_044 additive strength=-0.10
+[resume] warmth random_044 additive strength=-0.05
+[resume] warmth random_044 additive strength=+0.00
+[resume] warmth random_044 additive strength=+0.05
+[resume] warmth random_044 additive strength=+0.10
+[resume] warmth random_045 additive strength=-0.10
+[resume] warmth random_045 additive strength=-0.05
+[resume] warmth random_045 additive strength=+0.00
+[resume] warmth random_045 additive strength=+0.05
+[resume] warmth random_045 additive strength=+0.10
+[resume] warmth random_046 additive strength=-0.10
+[resume] warmth random_046 additive strength=-0.05
+[resume] warmth random_046 additive strength=+0.00
+[resume] warmth random_046 additive strength=+0.05
+[resume] warmth random_046 additive strength=+0.10
+[resume] warmth random_047 additive strength=-0.10
+[resume] warmth random_047 additive strength=-0.05
+[resume] warmth random_047 additive strength=+0.00
+[resume] warmth random_047 additive strength=+0.05
+[resume] warmth random_047 additive strength=+0.10
+[resume] warmth random_048 additive strength=-0.10
+[resume] warmth random_048 additive strength=-0.05
+[resume] warmth random_048 additive strength=+0.00
+[resume] warmth random_048 additive strength=+0.05
+[resume] warmth random_048 additive strength=+0.10
+[resume] warmth random_049 additive strength=-0.10
+[resume] warmth random_049 additive strength=-0.05
+[resume] warmth random_049 additive strength=+0.00
+[resume] warmth random_049 additive strength=+0.05
+[resume] warmth random_049 additive strength=+0.10
+[resume] warmth random_050 additive strength=-0.10
+[resume] warmth random_050 additive strength=-0.05
+[resume] warmth random_050 additive strength=+0.00
+[resume] warmth random_050 additive strength=+0.05
+[resume] warmth random_050 additive strength=+0.10
+[resume] warmth random_051 additive strength=-0.10
+[resume] warmth random_051 additive strength=-0.05
+[resume] warmth random_051 additive strength=+0.00
+[resume] warmth random_051 additive strength=+0.05
+[resume] warmth random_051 additive strength=+0.10
+[resume] warmth random_052 additive strength=-0.10
+[resume] warmth random_052 additive strength=-0.05
+[resume] warmth random_052 additive strength=+0.00
+[resume] warmth random_052 additive strength=+0.05
+[resume] warmth random_052 additive strength=+0.10
+[resume] warmth random_053 additive strength=-0.10
+[resume] warmth random_053 additive strength=-0.05
+[resume] warmth random_053 additive strength=+0.00
+[resume] warmth random_053 additive strength=+0.05
+[resume] warmth random_053 additive strength=+0.10
+[resume] warmth random_054 additive strength=-0.10
+[resume] warmth random_054 additive strength=-0.05
+[resume] warmth random_054 additive strength=+0.00
+[resume] warmth random_054 additive strength=+0.05
+[resume] warmth random_054 additive strength=+0.10
+[resume] warmth random_055 additive strength=-0.10
+[resume] warmth random_055 additive strength=-0.05
+[resume] warmth random_055 additive strength=+0.00
+[resume] warmth random_055 additive strength=+0.05
+[resume] warmth random_055 additive strength=+0.10
+[resume] warmth random_056 additive strength=-0.10
+[resume] warmth random_056 additive strength=-0.05
+[resume] warmth random_056 additive strength=+0.00
+[resume] warmth random_056 additive strength=+0.05
+[resume] warmth random_056 additive strength=+0.10
+[resume] warmth random_057 additive strength=-0.10
+[resume] warmth random_057 additive strength=-0.05
+[resume] warmth random_057 additive strength=+0.00
+[resume] warmth random_057 additive strength=+0.05
+[resume] warmth random_057 additive strength=+0.10
+[resume] warmth random_058 additive strength=-0.10
+[resume] warmth random_058 additive strength=-0.05
+[resume] warmth random_058 additive strength=+0.00
+[resume] warmth random_058 additive strength=+0.05
+[resume] warmth random_058 additive strength=+0.10
+[resume] warmth random_059 additive strength=-0.10
+[resume] warmth random_059 additive strength=-0.05
+[resume] warmth random_059 additive strength=+0.00
+[resume] warmth random_059 additive strength=+0.05
+[resume] warmth random_059 additive strength=+0.10
+[resume] warmth random_060 additive strength=-0.10
+[resume] warmth random_060 additive strength=-0.05
+[resume] warmth random_060 additive strength=+0.00
+[resume] warmth random_060 additive strength=+0.05
+[resume] warmth random_060 additive strength=+0.10
+[resume] warmth random_061 additive strength=-0.10
+[resume] warmth random_061 additive strength=-0.05
+[resume] warmth random_061 additive strength=+0.00
+[resume] warmth random_061 additive strength=+0.05
+[resume] warmth random_061 additive strength=+0.10
+[resume] warmth random_062 additive strength=-0.10
+[resume] warmth random_062 additive strength=-0.05
+[resume] warmth random_062 additive strength=+0.00
+[resume] warmth random_062 additive strength=+0.05
+[resume] warmth random_062 additive strength=+0.10
+[resume] warmth random_063 additive strength=-0.10
+[resume] warmth random_063 additive strength=-0.05
+[resume] warmth random_063 additive strength=+0.00
+[resume] warmth random_063 additive strength=+0.05
+[resume] warmth random_063 additive strength=+0.10
+[resume] warmth random_064 additive strength=-0.10
+[resume] warmth random_064 additive strength=-0.05
+[resume] warmth random_064 additive strength=+0.00
+[resume] warmth random_064 additive strength=+0.05
+[resume] warmth random_064 additive strength=+0.10
+[resume] warmth random_065 additive strength=-0.10
+[resume] warmth random_065 additive strength=-0.05
+[resume] warmth random_065 additive strength=+0.00
+[resume] warmth random_065 additive strength=+0.05
+[resume] warmth random_065 additive strength=+0.10
+[resume] warmth random_066 additive strength=-0.10
+[resume] warmth random_066 additive strength=-0.05
+[resume] warmth random_066 additive strength=+0.00
+[resume] warmth random_066 additive strength=+0.05
+[resume] warmth random_066 additive strength=+0.10
+[resume] warmth random_067 additive strength=-0.10
+[resume] warmth random_067 additive strength=-0.05
+[resume] warmth random_067 additive strength=+0.00
+[resume] warmth random_067 additive strength=+0.05
+[resume] warmth random_067 additive strength=+0.10
+[resume] warmth random_068 additive strength=-0.10
+[resume] warmth random_068 additive strength=-0.05
+[resume] warmth random_068 additive strength=+0.00
+[resume] warmth random_068 additive strength=+0.05
+[resume] warmth random_068 additive strength=+0.10
+[resume] warmth random_069 additive strength=-0.10
+[resume] warmth random_069 additive strength=-0.05
+[resume] warmth random_069 additive strength=+0.00
+[resume] warmth random_069 additive strength=+0.05
+[resume] warmth random_069 additive strength=+0.10
+[resume] warmth random_070 additive strength=-0.10
+[resume] warmth random_070 additive strength=-0.05
+[resume] warmth random_070 additive strength=+0.00
+[resume] warmth random_070 additive strength=+0.05
+[resume] warmth random_070 additive strength=+0.10
+[resume] warmth random_071 additive strength=-0.10
+[resume] warmth random_071 additive strength=-0.05
+[resume] warmth random_071 additive strength=+0.00
+[resume] warmth random_071 additive strength=+0.05
+[resume] warmth random_071 additive strength=+0.10
+[resume] warmth random_072 additive strength=-0.10
+[resume] warmth random_072 additive strength=-0.05
+[resume] warmth random_072 additive strength=+0.00
+[resume] warmth random_072 additive strength=+0.05
+[resume] warmth random_072 additive strength=+0.10
+[resume] warmth random_073 additive strength=-0.10
+[resume] warmth random_073 additive strength=-0.05
+[resume] warmth random_073 additive strength=+0.00
+[resume] warmth random_073 additive strength=+0.05
+[resume] warmth random_073 additive strength=+0.10
+[resume] warmth random_074 additive strength=-0.10
+[resume] warmth random_074 additive strength=-0.05
+[resume] warmth random_074 additive strength=+0.00
+[resume] warmth random_074 additive strength=+0.05
+[resume] warmth random_074 additive strength=+0.10
+[resume] warmth random_075 additive strength=-0.10
+[resume] warmth random_075 additive strength=-0.05
+[resume] warmth random_075 additive strength=+0.00
+[resume] warmth random_075 additive strength=+0.05
+[resume] warmth random_075 additive strength=+0.10
+[resume] warmth random_076 additive strength=-0.10
+[resume] warmth random_076 additive strength=-0.05
+[resume] warmth random_076 additive strength=+0.00
+[resume] warmth random_076 additive strength=+0.05
+[resume] warmth random_076 additive strength=+0.10
+[resume] warmth random_077 additive strength=-0.10
+[resume] warmth random_077 additive strength=-0.05
+[resume] warmth random_077 additive strength=+0.00
+[resume] warmth random_077 additive strength=+0.05
+[resume] warmth random_077 additive strength=+0.10
+[resume] warmth random_078 additive strength=-0.10
+[resume] warmth random_078 additive strength=-0.05
+[resume] warmth random_078 additive strength=+0.00
+[resume] warmth random_078 additive strength=+0.05
+[resume] warmth random_078 additive strength=+0.10
+[resume] warmth random_079 additive strength=-0.10
+[resume] warmth random_079 additive strength=-0.05
+[resume] warmth random_079 additive strength=+0.00
+[resume] warmth random_079 additive strength=+0.05
+[resume] warmth random_079 additive strength=+0.10
+[resume] warmth random_080 additive strength=-0.10
+[resume] warmth random_080 additive strength=-0.05
+[resume] warmth random_080 additive strength=+0.00
+[resume] warmth random_080 additive strength=+0.05
+[resume] warmth random_080 additive strength=+0.10
+[resume] warmth random_081 additive strength=-0.10
+[resume] warmth random_081 additive strength=-0.05
+[resume] warmth random_081 additive strength=+0.00
+[resume] warmth random_081 additive strength=+0.05
+[resume] warmth random_081 additive strength=+0.10
+[resume] warmth random_082 additive strength=-0.10
+[resume] warmth random_082 additive strength=-0.05
+[resume] warmth random_082 additive strength=+0.00
+[resume] warmth random_082 additive strength=+0.05
+[resume] warmth random_082 additive strength=+0.10
+[resume] warmth random_083 additive strength=-0.10
+[resume] warmth random_083 additive strength=-0.05
+[resume] warmth random_083 additive strength=+0.00
+[resume] warmth random_083 additive strength=+0.05
+[resume] warmth random_083 additive strength=+0.10
+[resume] warmth random_084 additive strength=-0.10
+[resume] warmth random_084 additive strength=-0.05
+[resume] warmth random_084 additive strength=+0.00
+[resume] warmth random_084 additive strength=+0.05
+[resume] warmth random_084 additive strength=+0.10
+[resume] warmth random_085 additive strength=-0.10
+[resume] warmth random_085 additive strength=-0.05
+[resume] warmth random_085 additive strength=+0.00
+[resume] warmth random_085 additive strength=+0.05
+[resume] warmth random_085 additive strength=+0.10
+[resume] warmth random_086 additive strength=-0.10
+[resume] warmth random_086 additive strength=-0.05
+[resume] warmth random_086 additive strength=+0.00
+[resume] warmth random_086 additive strength=+0.05
+[resume] warmth random_086 additive strength=+0.10
+[resume] warmth random_087 additive strength=-0.10
+[resume] warmth random_087 additive strength=-0.05
+[resume] warmth random_087 additive strength=+0.00
+[resume] warmth random_087 additive strength=+0.05
+[resume] warmth random_087 additive strength=+0.10
+[resume] warmth random_088 additive strength=-0.10
+[resume] warmth random_088 additive strength=-0.05
+[resume] warmth random_088 additive strength=+0.00
+[resume] warmth random_088 additive strength=+0.05
+[resume] warmth random_088 additive strength=+0.10
+[resume] warmth random_089 additive strength=-0.10
+[resume] warmth random_089 additive strength=-0.05
+[resume] warmth random_089 additive strength=+0.00
+[resume] warmth random_089 additive strength=+0.05
+[resume] warmth random_089 additive strength=+0.10
+[resume] warmth random_090 additive strength=-0.10
+[resume] warmth random_090 additive strength=-0.05
+[resume] warmth random_090 additive strength=+0.00
+[resume] warmth random_090 additive strength=+0.05
+[resume] warmth random_090 additive strength=+0.10
+[resume] warmth random_091 additive strength=-0.10
+[resume] warmth random_091 additive strength=-0.05
+[resume] warmth random_091 additive strength=+0.00
+[resume] warmth random_091 additive strength=+0.05
+[resume] warmth random_091 additive strength=+0.10
+[resume] warmth random_092 additive strength=-0.10
+[resume] warmth random_092 additive strength=-0.05
+[resume] warmth random_092 additive strength=+0.00
+[resume] warmth random_092 additive strength=+0.05
+[resume] warmth random_092 additive strength=+0.10
+[resume] warmth random_093 additive strength=-0.10
+[resume] warmth random_093 additive strength=-0.05
+[resume] warmth random_093 additive strength=+0.00
+[resume] warmth random_093 additive strength=+0.05
+[resume] warmth random_093 additive strength=+0.10
+[resume] warmth random_094 additive strength=-0.10
+[resume] warmth random_094 additive strength=-0.05
+[resume] warmth random_094 additive strength=+0.00
+[resume] warmth random_094 additive strength=+0.05
+[resume] warmth random_094 additive strength=+0.10
+[resume] warmth random_095 additive strength=-0.10
+[resume] warmth random_095 additive strength=-0.05
+[resume] warmth random_095 additive strength=+0.00
+[resume] warmth random_095 additive strength=+0.05
+[resume] warmth random_095 additive strength=+0.10
+[resume] warmth random_096 additive strength=-0.10
+[resume] warmth random_096 additive strength=-0.05
+[resume] warmth random_096 additive strength=+0.00
+[resume] warmth random_096 additive strength=+0.05
+[resume] warmth random_096 additive strength=+0.10
+[resume] warmth random_097 additive strength=-0.10
+[resume] warmth random_097 additive strength=-0.05
+[resume] warmth random_097 additive strength=+0.00
+[resume] warmth random_097 additive strength=+0.05
+[resume] warmth random_097 additive strength=+0.10
+[resume] warmth random_098 additive strength=-0.10
+[resume] warmth random_098 additive strength=-0.05
+[resume] warmth random_098 additive strength=+0.00
+[resume] warmth random_098 additive strength=+0.05
+[resume] warmth random_098 additive strength=+0.10
+[resume] warmth warmth norm_preserving strength=-0.10
+[resume] warmth warmth norm_preserving strength=-0.05
+[resume] warmth warmth norm_preserving strength=+0.00
+[resume] warmth warmth norm_preserving strength=+0.05
+[resume] warmth warmth norm_preserving strength=+0.10
+[resume] warmth competence norm_preserving strength=-0.10
+[resume] warmth competence norm_preserving strength=-0.05
+[resume] warmth competence norm_preserving strength=+0.00
+[resume] warmth competence norm_preserving strength=+0.05
+[resume] warmth competence norm_preserving strength=+0.10
+[resume] warmth random_000 norm_preserving strength=-0.10
+[resume] warmth random_000 norm_preserving strength=-0.05
+[resume] warmth random_000 norm_preserving strength=+0.00
+[resume] warmth random_000 norm_preserving strength=+0.05
+[resume] warmth random_000 norm_preserving strength=+0.10
+[resume] warmth random_001 norm_preserving strength=-0.10
+[resume] warmth random_001 norm_preserving strength=-0.05
+[resume] warmth random_001 norm_preserving strength=+0.00
+[resume] warmth random_001 norm_preserving strength=+0.05
+[resume] warmth random_001 norm_preserving strength=+0.10
+[resume] warmth random_002 norm_preserving strength=-0.10
+[resume] warmth random_002 norm_preserving strength=-0.05
+[resume] warmth random_002 norm_preserving strength=+0.00
+[resume] warmth random_002 norm_preserving strength=+0.05
+[resume] warmth random_002 norm_preserving strength=+0.10
+[resume] warmth random_003 norm_preserving strength=-0.10
+[resume] warmth random_003 norm_preserving strength=-0.05
+[resume] warmth random_003 norm_preserving strength=+0.00
+[resume] warmth random_003 norm_preserving strength=+0.05
+[resume] warmth random_003 norm_preserving strength=+0.10
+[resume] warmth random_004 norm_preserving strength=-0.10
+[resume] warmth random_004 norm_preserving strength=-0.05
+[resume] warmth random_004 norm_preserving strength=+0.00
+[resume] warmth random_004 norm_preserving strength=+0.05
+[resume] warmth random_004 norm_preserving strength=+0.10
+[resume] warmth random_005 norm_preserving strength=-0.10
+[resume] warmth random_005 norm_preserving strength=-0.05
+[resume] warmth random_005 norm_preserving strength=+0.00
+[resume] warmth random_005 norm_preserving strength=+0.05
+[resume] warmth random_005 norm_preserving strength=+0.10
+[resume] warmth random_006 norm_preserving strength=-0.10
+[resume] warmth random_006 norm_preserving strength=-0.05
+[resume] warmth random_006 norm_preserving strength=+0.00
+[resume] warmth random_006 norm_preserving strength=+0.05
+[resume] warmth random_006 norm_preserving strength=+0.10
+[resume] warmth random_007 norm_preserving strength=-0.10
+[resume] warmth random_007 norm_preserving strength=-0.05
+[resume] warmth random_007 norm_preserving strength=+0.00
+[resume] warmth random_007 norm_preserving strength=+0.05
+[resume] warmth random_007 norm_preserving strength=+0.10
+[resume] warmth random_008 norm_preserving strength=-0.10
+[resume] warmth random_008 norm_preserving strength=-0.05
+[resume] warmth random_008 norm_preserving strength=+0.00
+[resume] warmth random_008 norm_preserving strength=+0.05
+[resume] warmth random_008 norm_preserving strength=+0.10
+[resume] warmth random_009 norm_preserving strength=-0.10
+[resume] warmth random_009 norm_preserving strength=-0.05
+[resume] warmth random_009 norm_preserving strength=+0.00
+[resume] warmth random_009 norm_preserving strength=+0.05
+[resume] warmth random_009 norm_preserving strength=+0.10
+[resume] warmth random_010 norm_preserving strength=-0.10
+[resume] warmth random_010 norm_preserving strength=-0.05
+[resume] warmth random_010 norm_preserving strength=+0.00
+[resume] warmth random_010 norm_preserving strength=+0.05
+[resume] warmth random_010 norm_preserving strength=+0.10
+[resume] warmth random_011 norm_preserving strength=-0.10
+[resume] warmth random_011 norm_preserving strength=-0.05
+[resume] warmth random_011 norm_preserving strength=+0.00
+[resume] warmth random_011 norm_preserving strength=+0.05
+[resume] warmth random_011 norm_preserving strength=+0.10
+[resume] warmth random_012 norm_preserving strength=-0.10
+[resume] warmth random_012 norm_preserving strength=-0.05
+[resume] warmth random_012 norm_preserving strength=+0.00
+[resume] warmth random_012 norm_preserving strength=+0.05
+[resume] warmth random_012 norm_preserving strength=+0.10
+[resume] warmth random_013 norm_preserving strength=-0.10
+[resume] warmth random_013 norm_preserving strength=-0.05
+[resume] warmth random_013 norm_preserving strength=+0.00
+[resume] warmth random_013 norm_preserving strength=+0.05
+[resume] warmth random_013 norm_preserving strength=+0.10
+[resume] warmth random_014 norm_preserving strength=-0.10
+[resume] warmth random_014 norm_preserving strength=-0.05
+[resume] warmth random_014 norm_preserving strength=+0.00
+[resume] warmth random_014 norm_preserving strength=+0.05
+[resume] warmth random_014 norm_preserving strength=+0.10
+[resume] warmth random_015 norm_preserving strength=-0.10
+[resume] warmth random_015 norm_preserving strength=-0.05
+[resume] warmth random_015 norm_preserving strength=+0.00
+[resume] warmth random_015 norm_preserving strength=+0.05
+[resume] warmth random_015 norm_preserving strength=+0.10
+[resume] warmth random_016 norm_preserving strength=-0.10
+[resume] warmth random_016 norm_preserving strength=-0.05
+[resume] warmth random_016 norm_preserving strength=+0.00
+[resume] warmth random_016 norm_preserving strength=+0.05
+[resume] warmth random_016 norm_preserving strength=+0.10
+[resume] warmth random_017 norm_preserving strength=-0.10
+[resume] warmth random_017 norm_preserving strength=-0.05
+[resume] warmth random_017 norm_preserving strength=+0.00
+[resume] warmth random_017 norm_preserving strength=+0.05
+[resume] warmth random_017 norm_preserving strength=+0.10
+[resume] warmth random_018 norm_preserving strength=-0.10
+[resume] warmth random_018 norm_preserving strength=-0.05
+[resume] warmth random_018 norm_preserving strength=+0.00
+[resume] warmth random_018 norm_preserving strength=+0.05
+[resume] warmth random_018 norm_preserving strength=+0.10
+[resume] warmth random_019 norm_preserving strength=-0.10
+[resume] warmth random_019 norm_preserving strength=-0.05
+[resume] warmth random_019 norm_preserving strength=+0.00
+[resume] warmth random_019 norm_preserving strength=+0.05
+[resume] warmth random_019 norm_preserving strength=+0.10
+[resume] warmth random_020 norm_preserving strength=-0.10
+[resume] warmth random_020 norm_preserving strength=-0.05
+[resume] warmth random_020 norm_preserving strength=+0.00
+[resume] warmth random_020 norm_preserving strength=+0.05
+[resume] warmth random_020 norm_preserving strength=+0.10
+[resume] warmth random_021 norm_preserving strength=-0.10
+[resume] warmth random_021 norm_preserving strength=-0.05
+[resume] warmth random_021 norm_preserving strength=+0.00
+[resume] warmth random_021 norm_preserving strength=+0.05
+[resume] warmth random_021 norm_preserving strength=+0.10
+[resume] warmth random_022 norm_preserving strength=-0.10
+[resume] warmth random_022 norm_preserving strength=-0.05
+[resume] warmth random_022 norm_preserving strength=+0.00
+[resume] warmth random_022 norm_preserving strength=+0.05
+[resume] warmth random_022 norm_preserving strength=+0.10
+[resume] warmth random_023 norm_preserving strength=-0.10
+[resume] warmth random_023 norm_preserving strength=-0.05
+[resume] warmth random_023 norm_preserving strength=+0.00
+[resume] warmth random_023 norm_preserving strength=+0.05
+[resume] warmth random_023 norm_preserving strength=+0.10
+[resume] warmth random_024 norm_preserving strength=-0.10
+[resume] warmth random_024 norm_preserving strength=-0.05
+[resume] warmth random_024 norm_preserving strength=+0.00
+[resume] warmth random_024 norm_preserving strength=+0.05
+[resume] warmth random_024 norm_preserving strength=+0.10
+[resume] warmth random_025 norm_preserving strength=-0.10
+[resume] warmth random_025 norm_preserving strength=-0.05
+[resume] warmth random_025 norm_preserving strength=+0.00
+[resume] warmth random_025 norm_preserving strength=+0.05
+[resume] warmth random_025 norm_preserving strength=+0.10
+[resume] warmth random_026 norm_preserving strength=-0.10
+[resume] warmth random_026 norm_preserving strength=-0.05
+[resume] warmth random_026 norm_preserving strength=+0.00
+[resume] warmth random_026 norm_preserving strength=+0.05
+[resume] warmth random_026 norm_preserving strength=+0.10
+[resume] warmth random_027 norm_preserving strength=-0.10
+[resume] warmth random_027 norm_preserving strength=-0.05
+[resume] warmth random_027 norm_preserving strength=+0.00
+[resume] warmth random_027 norm_preserving strength=+0.05
+[resume] warmth random_027 norm_preserving strength=+0.10
+[resume] warmth random_028 norm_preserving strength=-0.10
+[resume] warmth random_028 norm_preserving strength=-0.05
+[resume] warmth random_028 norm_preserving strength=+0.00
+[resume] warmth random_028 norm_preserving strength=+0.05
+[resume] warmth random_028 norm_preserving strength=+0.10
+[resume] warmth random_029 norm_preserving strength=-0.10
+[resume] warmth random_029 norm_preserving strength=-0.05
+[resume] warmth random_029 norm_preserving strength=+0.00
+[resume] warmth random_029 norm_preserving strength=+0.05
+[resume] warmth random_029 norm_preserving strength=+0.10
+[resume] warmth random_030 norm_preserving strength=-0.10
+[resume] warmth random_030 norm_preserving strength=-0.05
+[resume] warmth random_030 norm_preserving strength=+0.00
+[resume] warmth random_030 norm_preserving strength=+0.05
+[resume] warmth random_030 norm_preserving strength=+0.10
+[resume] warmth random_031 norm_preserving strength=-0.10
+[resume] warmth random_031 norm_preserving strength=-0.05
+[resume] warmth random_031 norm_preserving strength=+0.00
+[resume] warmth random_031 norm_preserving strength=+0.05
+[resume] warmth random_031 norm_preserving strength=+0.10
+[resume] warmth random_032 norm_preserving strength=-0.10
+[resume] warmth random_032 norm_preserving strength=-0.05
+[resume] warmth random_032 norm_preserving strength=+0.00
+[resume] warmth random_032 norm_preserving strength=+0.05
+[resume] warmth random_032 norm_preserving strength=+0.10
+[resume] warmth random_033 norm_preserving strength=-0.10
+[resume] warmth random_033 norm_preserving strength=-0.05
+[resume] warmth random_033 norm_preserving strength=+0.00
+[resume] warmth random_033 norm_preserving strength=+0.05
+[resume] warmth random_033 norm_preserving strength=+0.10
+[resume] warmth random_034 norm_preserving strength=-0.10
+[resume] warmth random_034 norm_preserving strength=-0.05
+[resume] warmth random_034 norm_preserving strength=+0.00
+[resume] warmth random_034 norm_preserving strength=+0.05
+[resume] warmth random_034 norm_preserving strength=+0.10
+[resume] warmth random_035 norm_preserving strength=-0.10
+[resume] warmth random_035 norm_preserving strength=-0.05
+[resume] warmth random_035 norm_preserving strength=+0.00
+[resume] warmth random_035 norm_preserving strength=+0.05
+[resume] warmth random_035 norm_preserving strength=+0.10
+[resume] warmth random_036 norm_preserving strength=-0.10
+[resume] warmth random_036 norm_preserving strength=-0.05
+[resume] warmth random_036 norm_preserving strength=+0.00
+[resume] warmth random_036 norm_preserving strength=+0.05
+[resume] warmth random_036 norm_preserving strength=+0.10
+[resume] warmth random_037 norm_preserving strength=-0.10
+[resume] warmth random_037 norm_preserving strength=-0.05
+[resume] warmth random_037 norm_preserving strength=+0.00
+[resume] warmth random_037 norm_preserving strength=+0.05
+[resume] warmth random_037 norm_preserving strength=+0.10
+[resume] warmth random_038 norm_preserving strength=-0.10
+[resume] warmth random_038 norm_preserving strength=-0.05
+[resume] warmth random_038 norm_preserving strength=+0.00
+[resume] warmth random_038 norm_preserving strength=+0.05
+[resume] warmth random_038 norm_preserving strength=+0.10
+[resume] warmth random_039 norm_preserving strength=-0.10
+[resume] warmth random_039 norm_preserving strength=-0.05
+[resume] warmth random_039 norm_preserving strength=+0.00
+[resume] warmth random_039 norm_preserving strength=+0.05
+[resume] warmth random_039 norm_preserving strength=+0.10
+[resume] warmth random_040 norm_preserving strength=-0.10
+[resume] warmth random_040 norm_preserving strength=-0.05
+[resume] warmth random_040 norm_preserving strength=+0.00
+[resume] warmth random_040 norm_preserving strength=+0.05
+[resume] warmth random_040 norm_preserving strength=+0.10
+[resume] warmth random_041 norm_preserving strength=-0.10
+[resume] warmth random_041 norm_preserving strength=-0.05
+[resume] warmth random_041 norm_preserving strength=+0.00
+[resume] warmth random_041 norm_preserving strength=+0.05
+[resume] warmth random_041 norm_preserving strength=+0.10
+[resume] warmth random_042 norm_preserving strength=-0.10
+[resume] warmth random_042 norm_preserving strength=-0.05
+[resume] warmth random_042 norm_preserving strength=+0.00
+[resume] warmth random_042 norm_preserving strength=+0.05
+[resume] warmth random_042 norm_preserving strength=+0.10
+[resume] warmth random_043 norm_preserving strength=-0.10
+[resume] warmth random_043 norm_preserving strength=-0.05
+[resume] warmth random_043 norm_preserving strength=+0.00
+[resume] warmth random_043 norm_preserving strength=+0.05
+[resume] warmth random_043 norm_preserving strength=+0.10
+[resume] warmth random_044 norm_preserving strength=-0.10
+[resume] warmth random_044 norm_preserving strength=-0.05
+[resume] warmth random_044 norm_preserving strength=+0.00
+[resume] warmth random_044 norm_preserving strength=+0.05
+[resume] warmth random_044 norm_preserving strength=+0.10
+[resume] warmth random_045 norm_preserving strength=-0.10
+[resume] warmth random_045 norm_preserving strength=-0.05
+[resume] warmth random_045 norm_preserving strength=+0.00
+[resume] warmth random_045 norm_preserving strength=+0.05
+[resume] warmth random_045 norm_preserving strength=+0.10
+[resume] warmth random_046 norm_preserving strength=-0.10
+[resume] warmth random_046 norm_preserving strength=-0.05
+[resume] warmth random_046 norm_preserving strength=+0.00
+[resume] warmth random_046 norm_preserving strength=+0.05
+[resume] warmth random_046 norm_preserving strength=+0.10
+[resume] warmth random_047 norm_preserving strength=-0.10
+[resume] warmth random_047 norm_preserving strength=-0.05
+[resume] warmth random_047 norm_preserving strength=+0.00
+[resume] warmth random_047 norm_preserving strength=+0.05
+[resume] warmth random_047 norm_preserving strength=+0.10
+[resume] warmth random_048 norm_preserving strength=-0.10
+[resume] warmth random_048 norm_preserving strength=-0.05
+[resume] warmth random_048 norm_preserving strength=+0.00
+[resume] warmth random_048 norm_preserving strength=+0.05
+[resume] warmth random_048 norm_preserving strength=+0.10
+[resume] warmth random_049 norm_preserving strength=-0.10
+[resume] warmth random_049 norm_preserving strength=-0.05
+[resume] warmth random_049 norm_preserving strength=+0.00
+[resume] warmth random_049 norm_preserving strength=+0.05
+[resume] warmth random_049 norm_preserving strength=+0.10
+[resume] warmth random_050 norm_preserving strength=-0.10
+[resume] warmth random_050 norm_preserving strength=-0.05
+[resume] warmth random_050 norm_preserving strength=+0.00
+[resume] warmth random_050 norm_preserving strength=+0.05
+[resume] warmth random_050 norm_preserving strength=+0.10
+[resume] warmth random_051 norm_preserving strength=-0.10
+[resume] warmth random_051 norm_preserving strength=-0.05
+[resume] warmth random_051 norm_preserving strength=+0.00
+[resume] warmth random_051 norm_preserving strength=+0.05
+[resume] warmth random_051 norm_preserving strength=+0.10
+[resume] warmth random_052 norm_preserving strength=-0.10
+[resume] warmth random_052 norm_preserving strength=-0.05
+[resume] warmth random_052 norm_preserving strength=+0.00
+[resume] warmth random_052 norm_preserving strength=+0.05
+[resume] warmth random_052 norm_preserving strength=+0.10
+[resume] warmth random_053 norm_preserving strength=-0.10
+[resume] warmth random_053 norm_preserving strength=-0.05
+[resume] warmth random_053 norm_preserving strength=+0.00
+[resume] warmth random_053 norm_preserving strength=+0.05
+[resume] warmth random_053 norm_preserving strength=+0.10
+[resume] warmth random_054 norm_preserving strength=-0.10
+[resume] warmth random_054 norm_preserving strength=-0.05
+[resume] warmth random_054 norm_preserving strength=+0.00
+[resume] warmth random_054 norm_preserving strength=+0.05
+[resume] warmth random_054 norm_preserving strength=+0.10
+[resume] warmth random_055 norm_preserving strength=-0.10
+[resume] warmth random_055 norm_preserving strength=-0.05
+[resume] warmth random_055 norm_preserving strength=+0.00
+[resume] warmth random_055 norm_preserving strength=+0.05
+[resume] warmth random_055 norm_preserving strength=+0.10
+[resume] warmth random_056 norm_preserving strength=-0.10
+[resume] warmth random_056 norm_preserving strength=-0.05
+[resume] warmth random_056 norm_preserving strength=+0.00
+[resume] warmth random_056 norm_preserving strength=+0.05
+[resume] warmth random_056 norm_preserving strength=+0.10
+[resume] warmth random_057 norm_preserving strength=-0.10
+[resume] warmth random_057 norm_preserving strength=-0.05
+[resume] warmth random_057 norm_preserving strength=+0.00
+[resume] warmth random_057 norm_preserving strength=+0.05
+[resume] warmth random_057 norm_preserving strength=+0.10
+[resume] warmth random_058 norm_preserving strength=-0.10
+[resume] warmth random_058 norm_preserving strength=-0.05
+[resume] warmth random_058 norm_preserving strength=+0.00
+[resume] warmth random_058 norm_preserving strength=+0.05
+[resume] warmth random_058 norm_preserving strength=+0.10
+[resume] warmth random_059 norm_preserving strength=-0.10
+[resume] warmth random_059 norm_preserving strength=-0.05
+[resume] warmth random_059 norm_preserving strength=+0.00
+[resume] warmth random_059 norm_preserving strength=+0.05
+[resume] warmth random_059 norm_preserving strength=+0.10
+[resume] warmth random_060 norm_preserving strength=-0.10
+[resume] warmth random_060 norm_preserving strength=-0.05
+[resume] warmth random_060 norm_preserving strength=+0.00
+[resume] warmth random_060 norm_preserving strength=+0.05
+[resume] warmth random_060 norm_preserving strength=+0.10
+[resume] warmth random_061 norm_preserving strength=-0.10
+[resume] warmth random_061 norm_preserving strength=-0.05
+[resume] warmth random_061 norm_preserving strength=+0.00
+[resume] warmth random_061 norm_preserving strength=+0.05
+[resume] warmth random_061 norm_preserving strength=+0.10
+[resume] warmth random_062 norm_preserving strength=-0.10
+[resume] warmth random_062 norm_preserving strength=-0.05
+[resume] warmth random_062 norm_preserving strength=+0.00
+[resume] warmth random_062 norm_preserving strength=+0.05
+[resume] warmth random_062 norm_preserving strength=+0.10
+[resume] warmth random_063 norm_preserving strength=-0.10
+[resume] warmth random_063 norm_preserving strength=-0.05
+[resume] warmth random_063 norm_preserving strength=+0.00
+[resume] warmth random_063 norm_preserving strength=+0.05
+[resume] warmth random_063 norm_preserving strength=+0.10
+[resume] warmth random_064 norm_preserving strength=-0.10
+[resume] warmth random_064 norm_preserving strength=-0.05
+[resume] warmth random_064 norm_preserving strength=+0.00
+[resume] warmth random_064 norm_preserving strength=+0.05
+[resume] warmth random_064 norm_preserving strength=+0.10
+[resume] warmth random_065 norm_preserving strength=-0.10
+[resume] warmth random_065 norm_preserving strength=-0.05
+[resume] warmth random_065 norm_preserving strength=+0.00
+[resume] warmth random_065 norm_preserving strength=+0.05
+[resume] warmth random_065 norm_preserving strength=+0.10
+[resume] warmth random_066 norm_preserving strength=-0.10
+[resume] warmth random_066 norm_preserving strength=-0.05
+[resume] warmth random_066 norm_preserving strength=+0.00
+[resume] warmth random_066 norm_preserving strength=+0.05
+[resume] warmth random_066 norm_preserving strength=+0.10
+[resume] warmth random_067 norm_preserving strength=-0.10
+[resume] warmth random_067 norm_preserving strength=-0.05
+[resume] warmth random_067 norm_preserving strength=+0.00
+[resume] warmth random_067 norm_preserving strength=+0.05
+[resume] warmth random_067 norm_preserving strength=+0.10
+[resume] warmth random_068 norm_preserving strength=-0.10
+[resume] warmth random_068 norm_preserving strength=-0.05
+[resume] warmth random_068 norm_preserving strength=+0.00
+[resume] warmth random_068 norm_preserving strength=+0.05
+[resume] warmth random_068 norm_preserving strength=+0.10
+[resume] warmth random_069 norm_preserving strength=-0.10
+[resume] warmth random_069 norm_preserving strength=-0.05
+[resume] warmth random_069 norm_preserving strength=+0.00
+[resume] warmth random_069 norm_preserving strength=+0.05
+[resume] warmth random_069 norm_preserving strength=+0.10
+[resume] warmth random_070 norm_preserving strength=-0.10
+[resume] warmth random_070 norm_preserving strength=-0.05
+[resume] warmth random_070 norm_preserving strength=+0.00
+[resume] warmth random_070 norm_preserving strength=+0.05
+[resume] warmth random_070 norm_preserving strength=+0.10
+[resume] warmth random_071 norm_preserving strength=-0.10
+[resume] warmth random_071 norm_preserving strength=-0.05
+[resume] warmth random_071 norm_preserving strength=+0.00
+[resume] warmth random_071 norm_preserving strength=+0.05
+[resume] warmth random_071 norm_preserving strength=+0.10
+[resume] warmth random_072 norm_preserving strength=-0.10
+[resume] warmth random_072 norm_preserving strength=-0.05
+[resume] warmth random_072 norm_preserving strength=+0.00
+[resume] warmth random_072 norm_preserving strength=+0.05
+[resume] warmth random_072 norm_preserving strength=+0.10
+[resume] warmth random_073 norm_preserving strength=-0.10
+[resume] warmth random_073 norm_preserving strength=-0.05
+[resume] warmth random_073 norm_preserving strength=+0.00
+[resume] warmth random_073 norm_preserving strength=+0.05
+[resume] warmth random_073 norm_preserving strength=+0.10
+[resume] warmth random_074 norm_preserving strength=-0.10
+[resume] warmth random_074 norm_preserving strength=-0.05
+[resume] warmth random_074 norm_preserving strength=+0.00
+[resume] warmth random_074 norm_preserving strength=+0.05
+[resume] warmth random_074 norm_preserving strength=+0.10
+[resume] warmth random_075 norm_preserving strength=-0.10
+[resume] warmth random_075 norm_preserving strength=-0.05
+[resume] warmth random_075 norm_preserving strength=+0.00
+[resume] warmth random_075 norm_preserving strength=+0.05
+[resume] warmth random_075 norm_preserving strength=+0.10
+[resume] warmth random_076 norm_preserving strength=-0.10
+[resume] warmth random_076 norm_preserving strength=-0.05
+[resume] warmth random_076 norm_preserving strength=+0.00
+[resume] warmth random_076 norm_preserving strength=+0.05
+[resume] warmth random_076 norm_preserving strength=+0.10
+[resume] warmth random_077 norm_preserving strength=-0.10
+[resume] warmth random_077 norm_preserving strength=-0.05
+[resume] warmth random_077 norm_preserving strength=+0.00
+[resume] warmth random_077 norm_preserving strength=+0.05
+[resume] warmth random_077 norm_preserving strength=+0.10
+[resume] warmth random_078 norm_preserving strength=-0.10
+[resume] warmth random_078 norm_preserving strength=-0.05
+[resume] warmth random_078 norm_preserving strength=+0.00
+[resume] warmth random_078 norm_preserving strength=+0.05
+[resume] warmth random_078 norm_preserving strength=+0.10
+[resume] warmth random_079 norm_preserving strength=-0.10
+[resume] warmth random_079 norm_preserving strength=-0.05
+[resume] warmth random_079 norm_preserving strength=+0.00
+[resume] warmth random_079 norm_preserving strength=+0.05
+[resume] warmth random_079 norm_preserving strength=+0.10
+[resume] warmth random_080 norm_preserving strength=-0.10
+[resume] warmth random_080 norm_preserving strength=-0.05
+[resume] warmth random_080 norm_preserving strength=+0.00
+[resume] warmth random_080 norm_preserving strength=+0.05
+[resume] warmth random_080 norm_preserving strength=+0.10
+[resume] warmth random_081 norm_preserving strength=-0.10
+[resume] warmth random_081 norm_preserving strength=-0.05
+[resume] warmth random_081 norm_preserving strength=+0.00
+[resume] warmth random_081 norm_preserving strength=+0.05
+[resume] warmth random_081 norm_preserving strength=+0.10
+[resume] warmth random_082 norm_preserving strength=-0.10
+[resume] warmth random_082 norm_preserving strength=-0.05
+[resume] warmth random_082 norm_preserving strength=+0.00
+[resume] warmth random_082 norm_preserving strength=+0.05
+[resume] warmth random_082 norm_preserving strength=+0.10
+[resume] warmth random_083 norm_preserving strength=-0.10
+[resume] warmth random_083 norm_preserving strength=-0.05
+[resume] warmth random_083 norm_preserving strength=+0.00
+[resume] warmth random_083 norm_preserving strength=+0.05
+[resume] warmth random_083 norm_preserving strength=+0.10
+[resume] warmth random_084 norm_preserving strength=-0.10
+[resume] warmth random_084 norm_preserving strength=-0.05
+[resume] warmth random_084 norm_preserving strength=+0.00
+[resume] warmth random_084 norm_preserving strength=+0.05
+[resume] warmth random_084 norm_preserving strength=+0.10
+[resume] warmth random_085 norm_preserving strength=-0.10
+[resume] warmth random_085 norm_preserving strength=-0.05
+[resume] warmth random_085 norm_preserving strength=+0.00
+[resume] warmth random_085 norm_preserving strength=+0.05
+[resume] warmth random_085 norm_preserving strength=+0.10
+[resume] warmth random_086 norm_preserving strength=-0.10
+[resume] warmth random_086 norm_preserving strength=-0.05
+[resume] warmth random_086 norm_preserving strength=+0.00
+[resume] warmth random_086 norm_preserving strength=+0.05
+[resume] warmth random_086 norm_preserving strength=+0.10
+[resume] warmth random_087 norm_preserving strength=-0.10
+[resume] warmth random_087 norm_preserving strength=-0.05
+[resume] warmth random_087 norm_preserving strength=+0.00
+[resume] warmth random_087 norm_preserving strength=+0.05
+[resume] warmth random_087 norm_preserving strength=+0.10
+[resume] warmth random_088 norm_preserving strength=-0.10
+[resume] warmth random_088 norm_preserving strength=-0.05
+[resume] warmth random_088 norm_preserving strength=+0.00
+[resume] warmth random_088 norm_preserving strength=+0.05
+[resume] warmth random_088 norm_preserving strength=+0.10
+[resume] warmth random_089 norm_preserving strength=-0.10
+[resume] warmth random_089 norm_preserving strength=-0.05
+[resume] warmth random_089 norm_preserving strength=+0.00
+[resume] warmth random_089 norm_preserving strength=+0.05
+[resume] warmth random_089 norm_preserving strength=+0.10
+[resume] warmth random_090 norm_preserving strength=-0.10
+[resume] warmth random_090 norm_preserving strength=-0.05
+[resume] warmth random_090 norm_preserving strength=+0.00
+[resume] warmth random_090 norm_preserving strength=+0.05
+[resume] warmth random_090 norm_preserving strength=+0.10
+[resume] warmth random_091 norm_preserving strength=-0.10
+[resume] warmth random_091 norm_preserving strength=-0.05
+[resume] warmth random_091 norm_preserving strength=+0.00
+[resume] warmth random_091 norm_preserving strength=+0.05
+[resume] warmth random_091 norm_preserving strength=+0.10
+[resume] warmth random_092 norm_preserving strength=-0.10
+[resume] warmth random_092 norm_preserving strength=-0.05
+[resume] warmth random_092 norm_preserving strength=+0.00
+[resume] warmth random_092 norm_preserving strength=+0.05
+[resume] warmth random_092 norm_preserving strength=+0.10
+[resume] warmth random_093 norm_preserving strength=-0.10
+[resume] warmth random_093 norm_preserving strength=-0.05
+[resume] warmth random_093 norm_preserving strength=+0.00
+[resume] warmth random_093 norm_preserving strength=+0.05
+[resume] warmth random_093 norm_preserving strength=+0.10
+[resume] warmth random_094 norm_preserving strength=-0.10
+[resume] warmth random_094 norm_preserving strength=-0.05
+[resume] warmth random_094 norm_preserving strength=+0.00
+[resume] warmth random_094 norm_preserving strength=+0.05
+[resume] warmth random_094 norm_preserving strength=+0.10
+[resume] warmth random_095 norm_preserving strength=-0.10
+[resume] warmth random_095 norm_preserving strength=-0.05
+[resume] warmth random_095 norm_preserving strength=+0.00
+[resume] warmth random_095 norm_preserving strength=+0.05
+[resume] warmth random_095 norm_preserving strength=+0.10
+[resume] warmth random_096 norm_preserving strength=-0.10
+[resume] warmth random_096 norm_preserving strength=-0.05
+[resume] warmth random_096 norm_preserving strength=+0.00
+[resume] warmth random_096 norm_preserving strength=+0.05
+[resume] warmth random_096 norm_preserving strength=+0.10
+[resume] warmth random_097 norm_preserving strength=-0.10
+[resume] warmth random_097 norm_preserving strength=-0.05
+[resume] warmth random_097 norm_preserving strength=+0.00
+[resume] warmth random_097 norm_preserving strength=+0.05
+[resume] warmth random_097 norm_preserving strength=+0.10
+[resume] warmth random_098 norm_preserving strength=-0.10
+[resume] warmth random_098 norm_preserving strength=-0.05
+[resume] warmth random_098 norm_preserving strength=+0.00
+[resume] warmth random_098 norm_preserving strength=+0.05
+[resume] warmth random_098 norm_preserving strength=+0.10
+[resume] baseline competence
+[resume] competence competence additive strength=-0.10
+[resume] competence competence additive strength=-0.05
+[resume] competence competence additive strength=+0.00
+[resume] competence competence additive strength=+0.05
+[resume] competence competence additive strength=+0.10
+[resume] competence warmth additive strength=-0.10
+[resume] competence warmth additive strength=-0.05
+[resume] competence warmth additive strength=+0.00
+[resume] competence warmth additive strength=+0.05
+[resume] competence warmth additive strength=+0.10
+[resume] competence random_000 additive strength=-0.10
+[resume] competence random_000 additive strength=-0.05
+[resume] competence random_000 additive strength=+0.00
+[resume] competence random_000 additive strength=+0.05
+[resume] competence random_000 additive strength=+0.10
+[resume] competence random_001 additive strength=-0.10
+[resume] competence random_001 additive strength=-0.05
+[resume] competence random_001 additive strength=+0.00
+[resume] competence random_001 additive strength=+0.05
+[resume] competence random_001 additive strength=+0.10
+[resume] competence random_002 additive strength=-0.10
+[resume] competence random_002 additive strength=-0.05
+[resume] competence random_002 additive strength=+0.00
+[resume] competence random_002 additive strength=+0.05
+[resume] competence random_002 additive strength=+0.10
+[resume] competence random_003 additive strength=-0.10
+[resume] competence random_003 additive strength=-0.05
+[resume] competence random_003 additive strength=+0.00
+[resume] competence random_003 additive strength=+0.05
+[resume] competence random_003 additive strength=+0.10
+[resume] competence random_004 additive strength=-0.10
+[resume] competence random_004 additive strength=-0.05
+[resume] competence random_004 additive strength=+0.00
+[resume] competence random_004 additive strength=+0.05
+[resume] competence random_004 additive strength=+0.10
+[resume] competence random_005 additive strength=-0.10
+[resume] competence random_005 additive strength=-0.05
+[resume] competence random_005 additive strength=+0.00
+[resume] competence random_005 additive strength=+0.05
+[resume] competence random_005 additive strength=+0.10
+[resume] competence random_006 additive strength=-0.10
+[resume] competence random_006 additive strength=-0.05
+[resume] competence random_006 additive strength=+0.00
+[resume] competence random_006 additive strength=+0.05
+[resume] competence random_006 additive strength=+0.10
+[resume] competence random_007 additive strength=-0.10
+[resume] competence random_007 additive strength=-0.05
+[resume] competence random_007 additive strength=+0.00
+[resume] competence random_007 additive strength=+0.05
+[resume] competence random_007 additive strength=+0.10
+[resume] competence random_008 additive strength=-0.10
+[resume] competence random_008 additive strength=-0.05
+[resume] competence random_008 additive strength=+0.00
+[resume] competence random_008 additive strength=+0.05
+[resume] competence random_008 additive strength=+0.10
+[resume] competence random_009 additive strength=-0.10
+[resume] competence random_009 additive strength=-0.05
+[resume] competence random_009 additive strength=+0.00
+[resume] competence random_009 additive strength=+0.05
+[resume] competence random_009 additive strength=+0.10
+[resume] competence random_010 additive strength=-0.10
+[resume] competence random_010 additive strength=-0.05
+[resume] competence random_010 additive strength=+0.00
+[resume] competence random_010 additive strength=+0.05
+[resume] competence random_010 additive strength=+0.10
+[resume] competence random_011 additive strength=-0.10
+[resume] competence random_011 additive strength=-0.05
+[resume] competence random_011 additive strength=+0.00
+[resume] competence random_011 additive strength=+0.05
+[resume] competence random_011 additive strength=+0.10
+[resume] competence random_012 additive strength=-0.10
+[resume] competence random_012 additive strength=-0.05
+[resume] competence random_012 additive strength=+0.00
+[resume] competence random_012 additive strength=+0.05
+[resume] competence random_012 additive strength=+0.10
+[resume] competence random_013 additive strength=-0.10
+[resume] competence random_013 additive strength=-0.05
+[resume] competence random_013 additive strength=+0.00
+[resume] competence random_013 additive strength=+0.05
+[resume] competence random_013 additive strength=+0.10
+[resume] competence random_014 additive strength=-0.10
+[resume] competence random_014 additive strength=-0.05
+[resume] competence random_014 additive strength=+0.00
+[resume] competence random_014 additive strength=+0.05
+[resume] competence random_014 additive strength=+0.10
+[resume] competence random_015 additive strength=-0.10
+[resume] competence random_015 additive strength=-0.05
+[resume] competence random_015 additive strength=+0.00
+[resume] competence random_015 additive strength=+0.05
+[resume] competence random_015 additive strength=+0.10
+[resume] competence random_016 additive strength=-0.10
+[resume] competence random_016 additive strength=-0.05
+[resume] competence random_016 additive strength=+0.00
+[resume] competence random_016 additive strength=+0.05
+[resume] competence random_016 additive strength=+0.10
+[resume] competence random_017 additive strength=-0.10
+[resume] competence random_017 additive strength=-0.05
+[resume] competence random_017 additive strength=+0.00
+[resume] competence random_017 additive strength=+0.05
+[resume] competence random_017 additive strength=+0.10
+[resume] competence random_018 additive strength=-0.10
+[resume] competence random_018 additive strength=-0.05
+[resume] competence random_018 additive strength=+0.00
+[resume] competence random_018 additive strength=+0.05
+[resume] competence random_018 additive strength=+0.10
+[resume] competence random_019 additive strength=-0.10
+[resume] competence random_019 additive strength=-0.05
+[resume] competence random_019 additive strength=+0.00
+[resume] competence random_019 additive strength=+0.05
+[resume] competence random_019 additive strength=+0.10
+[resume] competence random_020 additive strength=-0.10
+[resume] competence random_020 additive strength=-0.05
+[resume] competence random_020 additive strength=+0.00
+[resume] competence random_020 additive strength=+0.05
+[resume] competence random_020 additive strength=+0.10
+[resume] competence random_021 additive strength=-0.10
+[resume] competence random_021 additive strength=-0.05
+[resume] competence random_021 additive strength=+0.00
+[resume] competence random_021 additive strength=+0.05
+[resume] competence random_021 additive strength=+0.10
+[resume] competence random_022 additive strength=-0.10
+[resume] competence random_022 additive strength=-0.05
+[resume] competence random_022 additive strength=+0.00
+[resume] competence random_022 additive strength=+0.05
+[resume] competence random_022 additive strength=+0.10
+[resume] competence random_023 additive strength=-0.10
+[resume] competence random_023 additive strength=-0.05
+[resume] competence random_023 additive strength=+0.00
+[resume] competence random_023 additive strength=+0.05
+[resume] competence random_023 additive strength=+0.10
+[resume] competence random_024 additive strength=-0.10
+[resume] competence random_024 additive strength=-0.05
+[resume] competence random_024 additive strength=+0.00
+[resume] competence random_024 additive strength=+0.05
+[resume] competence random_024 additive strength=+0.10
+[resume] competence random_025 additive strength=-0.10
+[resume] competence random_025 additive strength=-0.05
+[resume] competence random_025 additive strength=+0.00
+[resume] competence random_025 additive strength=+0.05
+[resume] competence random_025 additive strength=+0.10
+[resume] competence random_026 additive strength=-0.10
+[resume] competence random_026 additive strength=-0.05
+[resume] competence random_026 additive strength=+0.00
+[resume] competence random_026 additive strength=+0.05
+[resume] competence random_026 additive strength=+0.10
+[resume] competence random_027 additive strength=-0.10
+[resume] competence random_027 additive strength=-0.05
+[resume] competence random_027 additive strength=+0.00
+[resume] competence random_027 additive strength=+0.05
+[resume] competence random_027 additive strength=+0.10
+[resume] competence random_028 additive strength=-0.10
+[resume] competence random_028 additive strength=-0.05
+[resume] competence random_028 additive strength=+0.00
+[resume] competence random_028 additive strength=+0.05
+[resume] competence random_028 additive strength=+0.10
+[resume] competence random_029 additive strength=-0.10
+[resume] competence random_029 additive strength=-0.05
+[resume] competence random_029 additive strength=+0.00
+[resume] competence random_029 additive strength=+0.05
+[resume] competence random_029 additive strength=+0.10
+[resume] competence random_030 additive strength=-0.10
+[resume] competence random_030 additive strength=-0.05
+[resume] competence random_030 additive strength=+0.00
+[resume] competence random_030 additive strength=+0.05
+[resume] competence random_030 additive strength=+0.10
+[resume] competence random_031 additive strength=-0.10
+[resume] competence random_031 additive strength=-0.05
+[resume] competence random_031 additive strength=+0.00
+[resume] competence random_031 additive strength=+0.05
+[resume] competence random_031 additive strength=+0.10
+[resume] competence random_032 additive strength=-0.10
+[resume] competence random_032 additive strength=-0.05
+[resume] competence random_032 additive strength=+0.00
+[resume] competence random_032 additive strength=+0.05
+[resume] competence random_032 additive strength=+0.10
+[resume] competence random_033 additive strength=-0.10
+[resume] competence random_033 additive strength=-0.05
+[resume] competence random_033 additive strength=+0.00
+[resume] competence random_033 additive strength=+0.05
+[resume] competence random_033 additive strength=+0.10
+[resume] competence random_034 additive strength=-0.10
+[resume] competence random_034 additive strength=-0.05
+[resume] competence random_034 additive strength=+0.00
+[resume] competence random_034 additive strength=+0.05
+[resume] competence random_034 additive strength=+0.10
+[resume] competence random_035 additive strength=-0.10
+[resume] competence random_035 additive strength=-0.05
+[resume] competence random_035 additive strength=+0.00
+[resume] competence random_035 additive strength=+0.05
+[resume] competence random_035 additive strength=+0.10
+[resume] competence random_036 additive strength=-0.10
+[resume] competence random_036 additive strength=-0.05
+[resume] competence random_036 additive strength=+0.00
+[resume] competence random_036 additive strength=+0.05
+[resume] competence random_036 additive strength=+0.10
+[resume] competence random_037 additive strength=-0.10
+[resume] competence random_037 additive strength=-0.05
+[resume] competence random_037 additive strength=+0.00
+[resume] competence random_037 additive strength=+0.05
+[resume] competence random_037 additive strength=+0.10
+[resume] competence random_038 additive strength=-0.10
+[resume] competence random_038 additive strength=-0.05
+[resume] competence random_038 additive strength=+0.00
+[resume] competence random_038 additive strength=+0.05
+[resume] competence random_038 additive strength=+0.10
+[resume] competence random_039 additive strength=-0.10
+[resume] competence random_039 additive strength=-0.05
+[resume] competence random_039 additive strength=+0.00
+[resume] competence random_039 additive strength=+0.05
+[resume] competence random_039 additive strength=+0.10
+[resume] competence random_040 additive strength=-0.10
+[resume] competence random_040 additive strength=-0.05
+[resume] competence random_040 additive strength=+0.00
+[resume] competence random_040 additive strength=+0.05
+[resume] competence random_040 additive strength=+0.10
+[resume] competence random_041 additive strength=-0.10
+[resume] competence random_041 additive strength=-0.05
+[resume] competence random_041 additive strength=+0.00
+[resume] competence random_041 additive strength=+0.05
+[resume] competence random_041 additive strength=+0.10
+[resume] competence random_042 additive strength=-0.10
+[resume] competence random_042 additive strength=-0.05
+[resume] competence random_042 additive strength=+0.00
+[resume] competence random_042 additive strength=+0.05
+[resume] competence random_042 additive strength=+0.10
+[resume] competence random_043 additive strength=-0.10
+[resume] competence random_043 additive strength=-0.05
+[resume] competence random_043 additive strength=+0.00
+[resume] competence random_043 additive strength=+0.05
+[resume] competence random_043 additive strength=+0.10
+[resume] competence random_044 additive strength=-0.10
+[resume] competence random_044 additive strength=-0.05
+[resume] competence random_044 additive strength=+0.00
+[resume] competence random_044 additive strength=+0.05
+[resume] competence random_044 additive strength=+0.10
+[resume] competence random_045 additive strength=-0.10
+[resume] competence random_045 additive strength=-0.05
+[resume] competence random_045 additive strength=+0.00
+[resume] competence random_045 additive strength=+0.05
+[resume] competence random_045 additive strength=+0.10
+[resume] competence random_046 additive strength=-0.10
+[resume] competence random_046 additive strength=-0.05
+[resume] competence random_046 additive strength=+0.00
+[resume] competence random_046 additive strength=+0.05
+[resume] competence random_046 additive strength=+0.10
+[resume] competence random_047 additive strength=-0.10
+[resume] competence random_047 additive strength=-0.05
+[resume] competence random_047 additive strength=+0.00
+[resume] competence random_047 additive strength=+0.05
+[resume] competence random_047 additive strength=+0.10
+[resume] competence random_048 additive strength=-0.10
+[resume] competence random_048 additive strength=-0.05
+[resume] competence random_048 additive strength=+0.00
+[resume] competence random_048 additive strength=+0.05
+[resume] competence random_048 additive strength=+0.10
+[resume] competence random_049 additive strength=-0.10
+[resume] competence random_049 additive strength=-0.05
+[resume] competence random_049 additive strength=+0.00
+[resume] competence random_049 additive strength=+0.05
+[resume] competence random_049 additive strength=+0.10
+[resume] competence random_050 additive strength=-0.10
+[resume] competence random_050 additive strength=-0.05
+[resume] competence random_050 additive strength=+0.00
+[resume] competence random_050 additive strength=+0.05
+[resume] competence random_050 additive strength=+0.10
+[resume] competence random_051 additive strength=-0.10
+[resume] competence random_051 additive strength=-0.05
+[resume] competence random_051 additive strength=+0.00
+[resume] competence random_051 additive strength=+0.05
+[resume] competence random_051 additive strength=+0.10
+[resume] competence random_052 additive strength=-0.10
+[resume] competence random_052 additive strength=-0.05
+[resume] competence random_052 additive strength=+0.00
+[resume] competence random_052 additive strength=+0.05
+[resume] competence random_052 additive strength=+0.10
+[resume] competence random_053 additive strength=-0.10
+[resume] competence random_053 additive strength=-0.05
+[resume] competence random_053 additive strength=+0.00
+[resume] competence random_053 additive strength=+0.05
+[resume] competence random_053 additive strength=+0.10
+[resume] competence random_054 additive strength=-0.10
+[resume] competence random_054 additive strength=-0.05
+[resume] competence random_054 additive strength=+0.00
+[resume] competence random_054 additive strength=+0.05
+[resume] competence random_054 additive strength=+0.10
+[resume] competence random_055 additive strength=-0.10
+[resume] competence random_055 additive strength=-0.05
+[resume] competence random_055 additive strength=+0.00
+[resume] competence random_055 additive strength=+0.05
+[resume] competence random_055 additive strength=+0.10
+[resume] competence random_056 additive strength=-0.10
+[resume] competence random_056 additive strength=-0.05
+[resume] competence random_056 additive strength=+0.00
+[resume] competence random_056 additive strength=+0.05
+[resume] competence random_056 additive strength=+0.10
+[resume] competence random_057 additive strength=-0.10
+[resume] competence random_057 additive strength=-0.05
+[resume] competence random_057 additive strength=+0.00
+[resume] competence random_057 additive strength=+0.05
+[resume] competence random_057 additive strength=+0.10
+[resume] competence random_058 additive strength=-0.10
+[resume] competence random_058 additive strength=-0.05
+[resume] competence random_058 additive strength=+0.00
+[resume] competence random_058 additive strength=+0.05
+[resume] competence random_058 additive strength=+0.10
+[resume] competence random_059 additive strength=-0.10
+[resume] competence random_059 additive strength=-0.05
+[resume] competence random_059 additive strength=+0.00
+[resume] competence random_059 additive strength=+0.05
+[resume] competence random_059 additive strength=+0.10
+[resume] competence random_060 additive strength=-0.10
+[resume] competence random_060 additive strength=-0.05
+[resume] competence random_060 additive strength=+0.00
+[resume] competence random_060 additive strength=+0.05
+[resume] competence random_060 additive strength=+0.10
+[resume] competence random_061 additive strength=-0.10
+[resume] competence random_061 additive strength=-0.05
+[resume] competence random_061 additive strength=+0.00
+[resume] competence random_061 additive strength=+0.05
+[resume] competence random_061 additive strength=+0.10
+[resume] competence random_062 additive strength=-0.10
+[resume] competence random_062 additive strength=-0.05
+[resume] competence random_062 additive strength=+0.00
+[resume] competence random_062 additive strength=+0.05
+[resume] competence random_062 additive strength=+0.10
+[resume] competence random_063 additive strength=-0.10
+[resume] competence random_063 additive strength=-0.05
+[resume] competence random_063 additive strength=+0.00
+[resume] competence random_063 additive strength=+0.05
+[resume] competence random_063 additive strength=+0.10
+[resume] competence random_064 additive strength=-0.10
+[resume] competence random_064 additive strength=-0.05
+[resume] competence random_064 additive strength=+0.00
+[resume] competence random_064 additive strength=+0.05
+[resume] competence random_064 additive strength=+0.10
+[resume] competence random_065 additive strength=-0.10
+[resume] competence random_065 additive strength=-0.05
+[resume] competence random_065 additive strength=+0.00
+[resume] competence random_065 additive strength=+0.05
+[resume] competence random_065 additive strength=+0.10
+[resume] competence random_066 additive strength=-0.10
+[resume] competence random_066 additive strength=-0.05
+[resume] competence random_066 additive strength=+0.00
+[resume] competence random_066 additive strength=+0.05
+[resume] competence random_066 additive strength=+0.10
+[resume] competence random_067 additive strength=-0.10
+[resume] competence random_067 additive strength=-0.05
+[resume] competence random_067 additive strength=+0.00
+[resume] competence random_067 additive strength=+0.05
+[resume] competence random_067 additive strength=+0.10
+[resume] competence random_068 additive strength=-0.10
+[resume] competence random_068 additive strength=-0.05
+[resume] competence random_068 additive strength=+0.00
+[resume] competence random_068 additive strength=+0.05
+[resume] competence random_068 additive strength=+0.10
+[resume] competence random_069 additive strength=-0.10
+[resume] competence random_069 additive strength=-0.05
+[resume] competence random_069 additive strength=+0.00
+[resume] competence random_069 additive strength=+0.05
+[resume] competence random_069 additive strength=+0.10
+[resume] competence random_070 additive strength=-0.10
+[resume] competence random_070 additive strength=-0.05
+[resume] competence random_070 additive strength=+0.00
+[resume] competence random_070 additive strength=+0.05
+[resume] competence random_070 additive strength=+0.10
+[resume] competence random_071 additive strength=-0.10
+[resume] competence random_071 additive strength=-0.05
+[resume] competence random_071 additive strength=+0.00
+[resume] competence random_071 additive strength=+0.05
+[resume] competence random_071 additive strength=+0.10
+[resume] competence random_072 additive strength=-0.10
+[resume] competence random_072 additive strength=-0.05
+[resume] competence random_072 additive strength=+0.00
+[resume] competence random_072 additive strength=+0.05
+[resume] competence random_072 additive strength=+0.10
+[resume] competence random_073 additive strength=-0.10
+[resume] competence random_073 additive strength=-0.05
+[resume] competence random_073 additive strength=+0.00
+[resume] competence random_073 additive strength=+0.05
+[resume] competence random_073 additive strength=+0.10
+[resume] competence random_074 additive strength=-0.10
+[resume] competence random_074 additive strength=-0.05
+[resume] competence random_074 additive strength=+0.00
+[resume] competence random_074 additive strength=+0.05
+[resume] competence random_074 additive strength=+0.10
+[resume] competence random_075 additive strength=-0.10
+[resume] competence random_075 additive strength=-0.05
+[resume] competence random_075 additive strength=+0.00
+[resume] competence random_075 additive strength=+0.05
+[resume] competence random_075 additive strength=+0.10
+[resume] competence random_076 additive strength=-0.10
+[resume] competence random_076 additive strength=-0.05
+[resume] competence random_076 additive strength=+0.00
+[resume] competence random_076 additive strength=+0.05
+[resume] competence random_076 additive strength=+0.10
+[resume] competence random_077 additive strength=-0.10
+[resume] competence random_077 additive strength=-0.05
+[resume] competence random_077 additive strength=+0.00
+[resume] competence random_077 additive strength=+0.05
+[resume] competence random_077 additive strength=+0.10
+[resume] competence random_078 additive strength=-0.10
+[resume] competence random_078 additive strength=-0.05
+[resume] competence random_078 additive strength=+0.00
+[resume] competence random_078 additive strength=+0.05
+[resume] competence random_078 additive strength=+0.10
+[resume] competence random_079 additive strength=-0.10
+[resume] competence random_079 additive strength=-0.05
+[resume] competence random_079 additive strength=+0.00
+[resume] competence random_079 additive strength=+0.05
+[resume] competence random_079 additive strength=+0.10
+[resume] competence random_080 additive strength=-0.10
+[resume] competence random_080 additive strength=-0.05
+[resume] competence random_080 additive strength=+0.00
+[resume] competence random_080 additive strength=+0.05
+[resume] competence random_080 additive strength=+0.10
+[resume] competence random_081 additive strength=-0.10
+[resume] competence random_081 additive strength=-0.05
+[resume] competence random_081 additive strength=+0.00
+[resume] competence random_081 additive strength=+0.05
+[resume] competence random_081 additive strength=+0.10
+[resume] competence random_082 additive strength=-0.10
+[resume] competence random_082 additive strength=-0.05
+[resume] competence random_082 additive strength=+0.00
+[resume] competence random_082 additive strength=+0.05
+[resume] competence random_082 additive strength=+0.10
+[resume] competence random_083 additive strength=-0.10
+[resume] competence random_083 additive strength=-0.05
+[resume] competence random_083 additive strength=+0.00
+[resume] competence random_083 additive strength=+0.05
+[resume] competence random_083 additive strength=+0.10
+[resume] competence random_084 additive strength=-0.10
+[resume] competence random_084 additive strength=-0.05
+[resume] competence random_084 additive strength=+0.00
+[resume] competence random_084 additive strength=+0.05
+[resume] competence random_084 additive strength=+0.10
+[resume] competence random_085 additive strength=-0.10
+[resume] competence random_085 additive strength=-0.05
+[resume] competence random_085 additive strength=+0.00
+[resume] competence random_085 additive strength=+0.05
+[resume] competence random_085 additive strength=+0.10
+[resume] competence random_086 additive strength=-0.10
+[resume] competence random_086 additive strength=-0.05
+[resume] competence random_086 additive strength=+0.00
+[resume] competence random_086 additive strength=+0.05
+[resume] competence random_086 additive strength=+0.10
+[resume] competence random_087 additive strength=-0.10
+[resume] competence random_087 additive strength=-0.05
+[resume] competence random_087 additive strength=+0.00
+[resume] competence random_087 additive strength=+0.05
+[resume] competence random_087 additive strength=+0.10
+[resume] competence random_088 additive strength=-0.10
+[resume] competence random_088 additive strength=-0.05
+[resume] competence random_088 additive strength=+0.00
+[resume] competence random_088 additive strength=+0.05
+[resume] competence random_088 additive strength=+0.10
+[resume] competence random_089 additive strength=-0.10
+[resume] competence random_089 additive strength=-0.05
+[resume] competence random_089 additive strength=+0.00
+[resume] competence random_089 additive strength=+0.05
+[resume] competence random_089 additive strength=+0.10
+[resume] competence random_090 additive strength=-0.10
+[resume] competence random_090 additive strength=-0.05
+[resume] competence random_090 additive strength=+0.00
+[resume] competence random_090 additive strength=+0.05
+[resume] competence random_090 additive strength=+0.10
+[resume] competence random_091 additive strength=-0.10
+[resume] competence random_091 additive strength=-0.05
+[resume] competence random_091 additive strength=+0.00
+[resume] competence random_091 additive strength=+0.05
+[resume] competence random_091 additive strength=+0.10
+[resume] competence random_092 additive strength=-0.10
+[resume] competence random_092 additive strength=-0.05
+[resume] competence random_092 additive strength=+0.00
+[resume] competence random_092 additive strength=+0.05
+[resume] competence random_092 additive strength=+0.10
+[resume] competence random_093 additive strength=-0.10
+[resume] competence random_093 additive strength=-0.05
+[resume] competence random_093 additive strength=+0.00
+[resume] competence random_093 additive strength=+0.05
+[resume] competence random_093 additive strength=+0.10
+[resume] competence random_094 additive strength=-0.10
+[resume] competence random_094 additive strength=-0.05
+[resume] competence random_094 additive strength=+0.00
+[resume] competence random_094 additive strength=+0.05
+[resume] competence random_094 additive strength=+0.10
+[resume] competence random_095 additive strength=-0.10
+[resume] competence random_095 additive strength=-0.05
+[resume] competence random_095 additive strength=+0.00
+[resume] competence random_095 additive strength=+0.05
+[resume] competence random_095 additive strength=+0.10
+[resume] competence random_096 additive strength=-0.10
+[resume] competence random_096 additive strength=-0.05
+[resume] competence random_096 additive strength=+0.00
+[resume] competence random_096 additive strength=+0.05
+[resume] competence random_096 additive strength=+0.10
+[resume] competence random_097 additive strength=-0.10
+[resume] competence random_097 additive strength=-0.05
+[resume] competence random_097 additive strength=+0.00
+[resume] competence random_097 additive strength=+0.05
+[resume] competence random_097 additive strength=+0.10
+[resume] competence random_098 additive strength=-0.10
+[resume] competence random_098 additive strength=-0.05
+[resume] competence random_098 additive strength=+0.00
+[resume] competence random_098 additive strength=+0.05
+[resume] competence random_098 additive strength=+0.10
+[resume] competence competence norm_preserving strength=-0.10
+[resume] competence competence norm_preserving strength=-0.05
+[resume] competence competence norm_preserving strength=+0.00
+[resume] competence competence norm_preserving strength=+0.05
+[resume] competence competence norm_preserving strength=+0.10
+[resume] competence warmth norm_preserving strength=-0.10
+[resume] competence warmth norm_preserving strength=-0.05
+[resume] competence warmth norm_preserving strength=+0.00
+[resume] competence warmth norm_preserving strength=+0.05
+[resume] competence warmth norm_preserving strength=+0.10
+[resume] competence random_000 norm_preserving strength=-0.10
+[resume] competence random_000 norm_preserving strength=-0.05
+[resume] competence random_000 norm_preserving strength=+0.00
+[resume] competence random_000 norm_preserving strength=+0.05
+[resume] competence random_000 norm_preserving strength=+0.10
+[resume] competence random_001 norm_preserving strength=-0.10
+[resume] competence random_001 norm_preserving strength=-0.05
+[resume] competence random_001 norm_preserving strength=+0.00
+[resume] competence random_001 norm_preserving strength=+0.05
+[resume] competence random_001 norm_preserving strength=+0.10
+[resume] competence random_002 norm_preserving strength=-0.10
+[resume] competence random_002 norm_preserving strength=-0.05
+[resume] competence random_002 norm_preserving strength=+0.00
+[resume] competence random_002 norm_preserving strength=+0.05
+[resume] competence random_002 norm_preserving strength=+0.10
+[resume] competence random_003 norm_preserving strength=-0.10
+[resume] competence random_003 norm_preserving strength=-0.05
+[resume] competence random_003 norm_preserving strength=+0.00
+[resume] competence random_003 norm_preserving strength=+0.05
+[resume] competence random_003 norm_preserving strength=+0.10
+[resume] competence random_004 norm_preserving strength=-0.10
+[resume] competence random_004 norm_preserving strength=-0.05
+[resume] competence random_004 norm_preserving strength=+0.00
+[resume] competence random_004 norm_preserving strength=+0.05
+[resume] competence random_004 norm_preserving strength=+0.10
+[resume] competence random_005 norm_preserving strength=-0.10
+[resume] competence random_005 norm_preserving strength=-0.05
+[resume] competence random_005 norm_preserving strength=+0.00
+[resume] competence random_005 norm_preserving strength=+0.05
+[resume] competence random_005 norm_preserving strength=+0.10
+[resume] competence random_006 norm_preserving strength=-0.10
+[resume] competence random_006 norm_preserving strength=-0.05
+[resume] competence random_006 norm_preserving strength=+0.00
+[resume] competence random_006 norm_preserving strength=+0.05
+[resume] competence random_006 norm_preserving strength=+0.10
+[resume] competence random_007 norm_preserving strength=-0.10
+[resume] competence random_007 norm_preserving strength=-0.05
+[resume] competence random_007 norm_preserving strength=+0.00
+[resume] competence random_007 norm_preserving strength=+0.05
+[resume] competence random_007 norm_preserving strength=+0.10
+[resume] competence random_008 norm_preserving strength=-0.10
+[resume] competence random_008 norm_preserving strength=-0.05
+[resume] competence random_008 norm_preserving strength=+0.00
+[resume] competence random_008 norm_preserving strength=+0.05
+[resume] competence random_008 norm_preserving strength=+0.10
+[resume] competence random_009 norm_preserving strength=-0.10
+[resume] competence random_009 norm_preserving strength=-0.05
+[resume] competence random_009 norm_preserving strength=+0.00
+[resume] competence random_009 norm_preserving strength=+0.05
+[resume] competence random_009 norm_preserving strength=+0.10
+[resume] competence random_010 norm_preserving strength=-0.10
+[resume] competence random_010 norm_preserving strength=-0.05
+[resume] competence random_010 norm_preserving strength=+0.00
+[resume] competence random_010 norm_preserving strength=+0.05
+[resume] competence random_010 norm_preserving strength=+0.10
+[resume] competence random_011 norm_preserving strength=-0.10
+[resume] competence random_011 norm_preserving strength=-0.05
+[resume] competence random_011 norm_preserving strength=+0.00
+[resume] competence random_011 norm_preserving strength=+0.05
+[resume] competence random_011 norm_preserving strength=+0.10
+[resume] competence random_012 norm_preserving strength=-0.10
+[resume] competence random_012 norm_preserving strength=-0.05
+[resume] competence random_012 norm_preserving strength=+0.00
+[resume] competence random_012 norm_preserving strength=+0.05
+[resume] competence random_012 norm_preserving strength=+0.10
+[resume] competence random_013 norm_preserving strength=-0.10
+[resume] competence random_013 norm_preserving strength=-0.05
+[resume] competence random_013 norm_preserving strength=+0.00
+[resume] competence random_013 norm_preserving strength=+0.05
+[resume] competence random_013 norm_preserving strength=+0.10
+[resume] competence random_014 norm_preserving strength=-0.10
+[resume] competence random_014 norm_preserving strength=-0.05
+[resume] competence random_014 norm_preserving strength=+0.00
+[resume] competence random_014 norm_preserving strength=+0.05
+[resume] competence random_014 norm_preserving strength=+0.10
+[resume] competence random_015 norm_preserving strength=-0.10
+[resume] competence random_015 norm_preserving strength=-0.05
+[resume] competence random_015 norm_preserving strength=+0.00
+[resume] competence random_015 norm_preserving strength=+0.05
+[resume] competence random_015 norm_preserving strength=+0.10
+[resume] competence random_016 norm_preserving strength=-0.10
+[resume] competence random_016 norm_preserving strength=-0.05
+[resume] competence random_016 norm_preserving strength=+0.00
+[resume] competence random_016 norm_preserving strength=+0.05
+[resume] competence random_016 norm_preserving strength=+0.10
+[resume] competence random_017 norm_preserving strength=-0.10
+[resume] competence random_017 norm_preserving strength=-0.05
+[resume] competence random_017 norm_preserving strength=+0.00
+[resume] competence random_017 norm_preserving strength=+0.05
+[resume] competence random_017 norm_preserving strength=+0.10
+[resume] competence random_018 norm_preserving strength=-0.10
+[resume] competence random_018 norm_preserving strength=-0.05
+[resume] competence random_018 norm_preserving strength=+0.00
+[resume] competence random_018 norm_preserving strength=+0.05
+[resume] competence random_018 norm_preserving strength=+0.10
+[resume] competence random_019 norm_preserving strength=-0.10
+[resume] competence random_019 norm_preserving strength=-0.05
+[resume] competence random_019 norm_preserving strength=+0.00
+[resume] competence random_019 norm_preserving strength=+0.05
+[resume] competence random_019 norm_preserving strength=+0.10
+[resume] competence random_020 norm_preserving strength=-0.10
+[resume] competence random_020 norm_preserving strength=-0.05
+[resume] competence random_020 norm_preserving strength=+0.00
+[resume] competence random_020 norm_preserving strength=+0.05
+[resume] competence random_020 norm_preserving strength=+0.10
+[resume] competence random_021 norm_preserving strength=-0.10
+[resume] competence random_021 norm_preserving strength=-0.05
+[resume] competence random_021 norm_preserving strength=+0.00
+[resume] competence random_021 norm_preserving strength=+0.05
+[resume] competence random_021 norm_preserving strength=+0.10
+[resume] competence random_022 norm_preserving strength=-0.10
+[resume] competence random_022 norm_preserving strength=-0.05
+[resume] competence random_022 norm_preserving strength=+0.00
+[resume] competence random_022 norm_preserving strength=+0.05
+[resume] competence random_022 norm_preserving strength=+0.10
+[resume] competence random_023 norm_preserving strength=-0.10
+[resume] competence random_023 norm_preserving strength=-0.05
+[resume] competence random_023 norm_preserving strength=+0.00
+[resume] competence random_023 norm_preserving strength=+0.05
+[resume] competence random_023 norm_preserving strength=+0.10
+[resume] competence random_024 norm_preserving strength=-0.10
+[resume] competence random_024 norm_preserving strength=-0.05
+[resume] competence random_024 norm_preserving strength=+0.00
+[resume] competence random_024 norm_preserving strength=+0.05
+[resume] competence random_024 norm_preserving strength=+0.10
+[resume] competence random_025 norm_preserving strength=-0.10
+[resume] competence random_025 norm_preserving strength=-0.05
+[resume] competence random_025 norm_preserving strength=+0.00
+[resume] competence random_025 norm_preserving strength=+0.05
+[steering] competence random_025 norm_preserving strength=+0.10 alpha=+0.8974
+[steering] competence random_026 norm_preserving strength=-0.10 alpha=-0.9163
+[steering] competence random_026 norm_preserving strength=-0.05 alpha=-0.4581
+[steering] competence random_026 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_026 norm_preserving strength=+0.05 alpha=+0.4581
+[steering] competence random_026 norm_preserving strength=+0.10 alpha=+0.9163
+[steering] competence random_027 norm_preserving strength=-0.10 alpha=-0.8035
+[steering] competence random_027 norm_preserving strength=-0.05 alpha=-0.4018
+[steering] competence random_027 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_027 norm_preserving strength=+0.05 alpha=+0.4018
+[steering] competence random_027 norm_preserving strength=+0.10 alpha=+0.8035
+[steering] competence random_028 norm_preserving strength=-0.10 alpha=-0.9128
+[steering] competence random_028 norm_preserving strength=-0.05 alpha=-0.4564
+[steering] competence random_028 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_028 norm_preserving strength=+0.05 alpha=+0.4564
+[steering] competence random_028 norm_preserving strength=+0.10 alpha=+0.9128
+[steering] competence random_029 norm_preserving strength=-0.10 alpha=-0.9563
+[steering] competence random_029 norm_preserving strength=-0.05 alpha=-0.4782
+[steering] competence random_029 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_029 norm_preserving strength=+0.05 alpha=+0.4782
+[steering] competence random_029 norm_preserving strength=+0.10 alpha=+0.9563
+[steering] competence random_030 norm_preserving strength=-0.10 alpha=-0.9754
+[steering] competence random_030 norm_preserving strength=-0.05 alpha=-0.4877
+[steering] competence random_030 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_030 norm_preserving strength=+0.05 alpha=+0.4877
+[steering] competence random_030 norm_preserving strength=+0.10 alpha=+0.9754
+[steering] competence random_031 norm_preserving strength=-0.10 alpha=-0.7987
+[steering] competence random_031 norm_preserving strength=-0.05 alpha=-0.3993
+[steering] competence random_031 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_031 norm_preserving strength=+0.05 alpha=+0.3993
+[steering] competence random_031 norm_preserving strength=+0.10 alpha=+0.7987
+[steering] competence random_032 norm_preserving strength=-0.10 alpha=-0.9038
+[steering] competence random_032 norm_preserving strength=-0.05 alpha=-0.4519
+[steering] competence random_032 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_032 norm_preserving strength=+0.05 alpha=+0.4519
+[steering] competence random_032 norm_preserving strength=+0.10 alpha=+0.9038
+[steering] competence random_033 norm_preserving strength=-0.10 alpha=-0.8815
+[steering] competence random_033 norm_preserving strength=-0.05 alpha=-0.4407
+[steering] competence random_033 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_033 norm_preserving strength=+0.05 alpha=+0.4407
+[steering] competence random_033 norm_preserving strength=+0.10 alpha=+0.8815
+[steering] competence random_034 norm_preserving strength=-0.10 alpha=-0.9120
+[steering] competence random_034 norm_preserving strength=-0.05 alpha=-0.4560
+[steering] competence random_034 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_034 norm_preserving strength=+0.05 alpha=+0.4560
+[steering] competence random_034 norm_preserving strength=+0.10 alpha=+0.9120
+[steering] competence random_035 norm_preserving strength=-0.10 alpha=-1.0419
+[steering] competence random_035 norm_preserving strength=-0.05 alpha=-0.5209
+[steering] competence random_035 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_035 norm_preserving strength=+0.05 alpha=+0.5209
+[steering] competence random_035 norm_preserving strength=+0.10 alpha=+1.0419
+[steering] competence random_036 norm_preserving strength=-0.10 alpha=-1.0547
+[steering] competence random_036 norm_preserving strength=-0.05 alpha=-0.5274
+[steering] competence random_036 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_036 norm_preserving strength=+0.05 alpha=+0.5274
+[steering] competence random_036 norm_preserving strength=+0.10 alpha=+1.0547
+[steering] competence random_037 norm_preserving strength=-0.10 alpha=-0.9491
+[steering] competence random_037 norm_preserving strength=-0.05 alpha=-0.4746
+[steering] competence random_037 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_037 norm_preserving strength=+0.05 alpha=+0.4746
+[steering] competence random_037 norm_preserving strength=+0.10 alpha=+0.9491
+[steering] competence random_038 norm_preserving strength=-0.10 alpha=-0.7971
+[steering] competence random_038 norm_preserving strength=-0.05 alpha=-0.3985
+[steering] competence random_038 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_038 norm_preserving strength=+0.05 alpha=+0.3985
+[steering] competence random_038 norm_preserving strength=+0.10 alpha=+0.7971
+[steering] competence random_039 norm_preserving strength=-0.10 alpha=-0.9009
+[steering] competence random_039 norm_preserving strength=-0.05 alpha=-0.4505
+[steering] competence random_039 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_039 norm_preserving strength=+0.05 alpha=+0.4505
+[steering] competence random_039 norm_preserving strength=+0.10 alpha=+0.9009
+[steering] competence random_040 norm_preserving strength=-0.10 alpha=-1.0552
+[steering] competence random_040 norm_preserving strength=-0.05 alpha=-0.5276
+[steering] competence random_040 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_040 norm_preserving strength=+0.05 alpha=+0.5276
+[steering] competence random_040 norm_preserving strength=+0.10 alpha=+1.0552
+[steering] competence random_041 norm_preserving strength=-0.10 alpha=-1.0016
+[steering] competence random_041 norm_preserving strength=-0.05 alpha=-0.5008
+[steering] competence random_041 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_041 norm_preserving strength=+0.05 alpha=+0.5008
+[steering] competence random_041 norm_preserving strength=+0.10 alpha=+1.0016
+[steering] competence random_042 norm_preserving strength=-0.10 alpha=-0.8840
+[steering] competence random_042 norm_preserving strength=-0.05 alpha=-0.4420
+[steering] competence random_042 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_042 norm_preserving strength=+0.05 alpha=+0.4420
+[steering] competence random_042 norm_preserving strength=+0.10 alpha=+0.8840
+[steering] competence random_043 norm_preserving strength=-0.10 alpha=-0.9485
+[steering] competence random_043 norm_preserving strength=-0.05 alpha=-0.4743
+[steering] competence random_043 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_043 norm_preserving strength=+0.05 alpha=+0.4743
+[steering] competence random_043 norm_preserving strength=+0.10 alpha=+0.9485
+[steering] competence random_044 norm_preserving strength=-0.10 alpha=-0.8394
+[steering] competence random_044 norm_preserving strength=-0.05 alpha=-0.4197
+[steering] competence random_044 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_044 norm_preserving strength=+0.05 alpha=+0.4197
+[steering] competence random_044 norm_preserving strength=+0.10 alpha=+0.8394
+[steering] competence random_045 norm_preserving strength=-0.10 alpha=-0.9666
+[steering] competence random_045 norm_preserving strength=-0.05 alpha=-0.4833
+[steering] competence random_045 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_045 norm_preserving strength=+0.05 alpha=+0.4833
+[steering] competence random_045 norm_preserving strength=+0.10 alpha=+0.9666
+[steering] competence random_046 norm_preserving strength=-0.10 alpha=-0.9295
+[steering] competence random_046 norm_preserving strength=-0.05 alpha=-0.4647
+[steering] competence random_046 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_046 norm_preserving strength=+0.05 alpha=+0.4647
+[steering] competence random_046 norm_preserving strength=+0.10 alpha=+0.9295
+[steering] competence random_047 norm_preserving strength=-0.10 alpha=-0.8466
+[steering] competence random_047 norm_preserving strength=-0.05 alpha=-0.4233
+[steering] competence random_047 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_047 norm_preserving strength=+0.05 alpha=+0.4233
+[steering] competence random_047 norm_preserving strength=+0.10 alpha=+0.8466
+[steering] competence random_048 norm_preserving strength=-0.10 alpha=-0.8050
+[steering] competence random_048 norm_preserving strength=-0.05 alpha=-0.4025
+[steering] competence random_048 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_048 norm_preserving strength=+0.05 alpha=+0.4025
+[steering] competence random_048 norm_preserving strength=+0.10 alpha=+0.8050
+[steering] competence random_049 norm_preserving strength=-0.10 alpha=-1.0415
+[steering] competence random_049 norm_preserving strength=-0.05 alpha=-0.5207
+[steering] competence random_049 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_049 norm_preserving strength=+0.05 alpha=+0.5207
+[steering] competence random_049 norm_preserving strength=+0.10 alpha=+1.0415
+[steering] competence random_050 norm_preserving strength=-0.10 alpha=-0.9787
+[steering] competence random_050 norm_preserving strength=-0.05 alpha=-0.4893
+[steering] competence random_050 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_050 norm_preserving strength=+0.05 alpha=+0.4893
+[steering] competence random_050 norm_preserving strength=+0.10 alpha=+0.9787
+[steering] competence random_051 norm_preserving strength=-0.10 alpha=-0.8340
+[steering] competence random_051 norm_preserving strength=-0.05 alpha=-0.4170
+[steering] competence random_051 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_051 norm_preserving strength=+0.05 alpha=+0.4170
+[steering] competence random_051 norm_preserving strength=+0.10 alpha=+0.8340
+[steering] competence random_052 norm_preserving strength=-0.10 alpha=-1.1572
+[steering] competence random_052 norm_preserving strength=-0.05 alpha=-0.5786
+[steering] competence random_052 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_052 norm_preserving strength=+0.05 alpha=+0.5786
+[steering] competence random_052 norm_preserving strength=+0.10 alpha=+1.1572
+[steering] competence random_053 norm_preserving strength=-0.10 alpha=-0.7734
+[steering] competence random_053 norm_preserving strength=-0.05 alpha=-0.3867
+[steering] competence random_053 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_053 norm_preserving strength=+0.05 alpha=+0.3867
+[steering] competence random_053 norm_preserving strength=+0.10 alpha=+0.7734
+[steering] competence random_054 norm_preserving strength=-0.10 alpha=-0.9744
+[steering] competence random_054 norm_preserving strength=-0.05 alpha=-0.4872
+[steering] competence random_054 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_054 norm_preserving strength=+0.05 alpha=+0.4872
+[steering] competence random_054 norm_preserving strength=+0.10 alpha=+0.9744
+[steering] competence random_055 norm_preserving strength=-0.10 alpha=-1.0077
+[steering] competence random_055 norm_preserving strength=-0.05 alpha=-0.5038
+[steering] competence random_055 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_055 norm_preserving strength=+0.05 alpha=+0.5038
+[steering] competence random_055 norm_preserving strength=+0.10 alpha=+1.0077
+[steering] competence random_056 norm_preserving strength=-0.10 alpha=-0.9701
+[steering] competence random_056 norm_preserving strength=-0.05 alpha=-0.4850
+[steering] competence random_056 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_056 norm_preserving strength=+0.05 alpha=+0.4850
+[steering] competence random_056 norm_preserving strength=+0.10 alpha=+0.9701
+[steering] competence random_057 norm_preserving strength=-0.10 alpha=-1.2165
+[steering] competence random_057 norm_preserving strength=-0.05 alpha=-0.6082
+[steering] competence random_057 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_057 norm_preserving strength=+0.05 alpha=+0.6082
+[steering] competence random_057 norm_preserving strength=+0.10 alpha=+1.2165
+[steering] competence random_058 norm_preserving strength=-0.10 alpha=-0.9247
+[steering] competence random_058 norm_preserving strength=-0.05 alpha=-0.4624
+[steering] competence random_058 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_058 norm_preserving strength=+0.05 alpha=+0.4624
+[steering] competence random_058 norm_preserving strength=+0.10 alpha=+0.9247
+[steering] competence random_059 norm_preserving strength=-0.10 alpha=-0.8962
+[steering] competence random_059 norm_preserving strength=-0.05 alpha=-0.4481
+[steering] competence random_059 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_059 norm_preserving strength=+0.05 alpha=+0.4481
+[steering] competence random_059 norm_preserving strength=+0.10 alpha=+0.8962
+[steering] competence random_060 norm_preserving strength=-0.10 alpha=-0.8496
+[steering] competence random_060 norm_preserving strength=-0.05 alpha=-0.4248
+[steering] competence random_060 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_060 norm_preserving strength=+0.05 alpha=+0.4248
+[steering] competence random_060 norm_preserving strength=+0.10 alpha=+0.8496
+[steering] competence random_061 norm_preserving strength=-0.10 alpha=-0.8182
+[steering] competence random_061 norm_preserving strength=-0.05 alpha=-0.4091
+[steering] competence random_061 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_061 norm_preserving strength=+0.05 alpha=+0.4091
+[steering] competence random_061 norm_preserving strength=+0.10 alpha=+0.8182
+[steering] competence random_062 norm_preserving strength=-0.10 alpha=-0.8926
+[steering] competence random_062 norm_preserving strength=-0.05 alpha=-0.4463
+[steering] competence random_062 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_062 norm_preserving strength=+0.05 alpha=+0.4463
+[steering] competence random_062 norm_preserving strength=+0.10 alpha=+0.8926
+[steering] competence random_063 norm_preserving strength=-0.10 alpha=-0.9508
+[steering] competence random_063 norm_preserving strength=-0.05 alpha=-0.4754
+[steering] competence random_063 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_063 norm_preserving strength=+0.05 alpha=+0.4754
+[steering] competence random_063 norm_preserving strength=+0.10 alpha=+0.9508
+[steering] competence random_064 norm_preserving strength=-0.10 alpha=-0.8992
+[steering] competence random_064 norm_preserving strength=-0.05 alpha=-0.4496
+[steering] competence random_064 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_064 norm_preserving strength=+0.05 alpha=+0.4496
+[steering] competence random_064 norm_preserving strength=+0.10 alpha=+0.8992
+[steering] competence random_065 norm_preserving strength=-0.10 alpha=-0.9692
+[steering] competence random_065 norm_preserving strength=-0.05 alpha=-0.4846
+[steering] competence random_065 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_065 norm_preserving strength=+0.05 alpha=+0.4846
+[steering] competence random_065 norm_preserving strength=+0.10 alpha=+0.9692
+[steering] competence random_066 norm_preserving strength=-0.10 alpha=-1.0394
+[steering] competence random_066 norm_preserving strength=-0.05 alpha=-0.5197
+[steering] competence random_066 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_066 norm_preserving strength=+0.05 alpha=+0.5197
+[steering] competence random_066 norm_preserving strength=+0.10 alpha=+1.0394
+[steering] competence random_067 norm_preserving strength=-0.10 alpha=-0.8793
+[steering] competence random_067 norm_preserving strength=-0.05 alpha=-0.4397
+[steering] competence random_067 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_067 norm_preserving strength=+0.05 alpha=+0.4397
+[steering] competence random_067 norm_preserving strength=+0.10 alpha=+0.8793
+[steering] competence random_068 norm_preserving strength=-0.10 alpha=-0.9259
+[steering] competence random_068 norm_preserving strength=-0.05 alpha=-0.4629
+[steering] competence random_068 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_068 norm_preserving strength=+0.05 alpha=+0.4629
+[steering] competence random_068 norm_preserving strength=+0.10 alpha=+0.9259
+[steering] competence random_069 norm_preserving strength=-0.10 alpha=-0.9728
+[steering] competence random_069 norm_preserving strength=-0.05 alpha=-0.4864
+[steering] competence random_069 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_069 norm_preserving strength=+0.05 alpha=+0.4864
+[steering] competence random_069 norm_preserving strength=+0.10 alpha=+0.9728
+[steering] competence random_070 norm_preserving strength=-0.10 alpha=-1.0096
+[steering] competence random_070 norm_preserving strength=-0.05 alpha=-0.5048
+[steering] competence random_070 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_070 norm_preserving strength=+0.05 alpha=+0.5048
+[steering] competence random_070 norm_preserving strength=+0.10 alpha=+1.0096
+[steering] competence random_071 norm_preserving strength=-0.10 alpha=-0.9410
+[steering] competence random_071 norm_preserving strength=-0.05 alpha=-0.4705
+[steering] competence random_071 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_071 norm_preserving strength=+0.05 alpha=+0.4705
+[steering] competence random_071 norm_preserving strength=+0.10 alpha=+0.9410
+[steering] competence random_072 norm_preserving strength=-0.10 alpha=-0.9618
+[steering] competence random_072 norm_preserving strength=-0.05 alpha=-0.4809
+[steering] competence random_072 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_072 norm_preserving strength=+0.05 alpha=+0.4809
+[steering] competence random_072 norm_preserving strength=+0.10 alpha=+0.9618
+[steering] competence random_073 norm_preserving strength=-0.10 alpha=-0.7786
+[steering] competence random_073 norm_preserving strength=-0.05 alpha=-0.3893
+[steering] competence random_073 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_073 norm_preserving strength=+0.05 alpha=+0.3893
+[steering] competence random_073 norm_preserving strength=+0.10 alpha=+0.7786
+[steering] competence random_074 norm_preserving strength=-0.10 alpha=-0.8542
+[steering] competence random_074 norm_preserving strength=-0.05 alpha=-0.4271
+[steering] competence random_074 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_074 norm_preserving strength=+0.05 alpha=+0.4271
+[steering] competence random_074 norm_preserving strength=+0.10 alpha=+0.8542
+[steering] competence random_075 norm_preserving strength=-0.10 alpha=-0.9810
+[steering] competence random_075 norm_preserving strength=-0.05 alpha=-0.4905
+[steering] competence random_075 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_075 norm_preserving strength=+0.05 alpha=+0.4905
+[steering] competence random_075 norm_preserving strength=+0.10 alpha=+0.9810
+[steering] competence random_076 norm_preserving strength=-0.10 alpha=-0.9616
+[steering] competence random_076 norm_preserving strength=-0.05 alpha=-0.4808
+[steering] competence random_076 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_076 norm_preserving strength=+0.05 alpha=+0.4808
+[steering] competence random_076 norm_preserving strength=+0.10 alpha=+0.9616
+[steering] competence random_077 norm_preserving strength=-0.10 alpha=-0.9346
+[steering] competence random_077 norm_preserving strength=-0.05 alpha=-0.4673
+[steering] competence random_077 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_077 norm_preserving strength=+0.05 alpha=+0.4673
+[steering] competence random_077 norm_preserving strength=+0.10 alpha=+0.9346
+[steering] competence random_078 norm_preserving strength=-0.10 alpha=-1.0017
+[steering] competence random_078 norm_preserving strength=-0.05 alpha=-0.5009
+[steering] competence random_078 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_078 norm_preserving strength=+0.05 alpha=+0.5009
+[steering] competence random_078 norm_preserving strength=+0.10 alpha=+1.0017
+[steering] competence random_079 norm_preserving strength=-0.10 alpha=-0.8898
+[steering] competence random_079 norm_preserving strength=-0.05 alpha=-0.4449
+[steering] competence random_079 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_079 norm_preserving strength=+0.05 alpha=+0.4449
+[steering] competence random_079 norm_preserving strength=+0.10 alpha=+0.8898
+[steering] competence random_080 norm_preserving strength=-0.10 alpha=-0.8970
+[steering] competence random_080 norm_preserving strength=-0.05 alpha=-0.4485
+[steering] competence random_080 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_080 norm_preserving strength=+0.05 alpha=+0.4485
+[steering] competence random_080 norm_preserving strength=+0.10 alpha=+0.8970
+[steering] competence random_081 norm_preserving strength=-0.10 alpha=-0.9731
+[steering] competence random_081 norm_preserving strength=-0.05 alpha=-0.4866
+[steering] competence random_081 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_081 norm_preserving strength=+0.05 alpha=+0.4866
+[steering] competence random_081 norm_preserving strength=+0.10 alpha=+0.9731
+[steering] competence random_082 norm_preserving strength=-0.10 alpha=-1.1348
+[steering] competence random_082 norm_preserving strength=-0.05 alpha=-0.5674
+[steering] competence random_082 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_082 norm_preserving strength=+0.05 alpha=+0.5674
+[steering] competence random_082 norm_preserving strength=+0.10 alpha=+1.1348
+[steering] competence random_083 norm_preserving strength=-0.10 alpha=-1.0610
+[steering] competence random_083 norm_preserving strength=-0.05 alpha=-0.5305
+[steering] competence random_083 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_083 norm_preserving strength=+0.05 alpha=+0.5305
+[steering] competence random_083 norm_preserving strength=+0.10 alpha=+1.0610
+[steering] competence random_084 norm_preserving strength=-0.10 alpha=-0.8691
+[steering] competence random_084 norm_preserving strength=-0.05 alpha=-0.4345
+[steering] competence random_084 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_084 norm_preserving strength=+0.05 alpha=+0.4345
+[steering] competence random_084 norm_preserving strength=+0.10 alpha=+0.8691
+[steering] competence random_085 norm_preserving strength=-0.10 alpha=-0.8709
+[steering] competence random_085 norm_preserving strength=-0.05 alpha=-0.4354
+[steering] competence random_085 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_085 norm_preserving strength=+0.05 alpha=+0.4354
+[steering] competence random_085 norm_preserving strength=+0.10 alpha=+0.8709
+[steering] competence random_086 norm_preserving strength=-0.10 alpha=-0.8343
+[steering] competence random_086 norm_preserving strength=-0.05 alpha=-0.4171
+[steering] competence random_086 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_086 norm_preserving strength=+0.05 alpha=+0.4171
+[steering] competence random_086 norm_preserving strength=+0.10 alpha=+0.8343
+[steering] competence random_087 norm_preserving strength=-0.10 alpha=-0.7766
+[steering] competence random_087 norm_preserving strength=-0.05 alpha=-0.3883
+[steering] competence random_087 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_087 norm_preserving strength=+0.05 alpha=+0.3883
+[steering] competence random_087 norm_preserving strength=+0.10 alpha=+0.7766
+[steering] competence random_088 norm_preserving strength=-0.10 alpha=-0.9373
+[steering] competence random_088 norm_preserving strength=-0.05 alpha=-0.4686
+[steering] competence random_088 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_088 norm_preserving strength=+0.05 alpha=+0.4686
+[steering] competence random_088 norm_preserving strength=+0.10 alpha=+0.9373
+[steering] competence random_089 norm_preserving strength=-0.10 alpha=-0.7442
+[steering] competence random_089 norm_preserving strength=-0.05 alpha=-0.3721
+[steering] competence random_089 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_089 norm_preserving strength=+0.05 alpha=+0.3721
+[steering] competence random_089 norm_preserving strength=+0.10 alpha=+0.7442
+[steering] competence random_090 norm_preserving strength=-0.10 alpha=-0.9347
+[steering] competence random_090 norm_preserving strength=-0.05 alpha=-0.4673
+[steering] competence random_090 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_090 norm_preserving strength=+0.05 alpha=+0.4673
+[steering] competence random_090 norm_preserving strength=+0.10 alpha=+0.9347
+[steering] competence random_091 norm_preserving strength=-0.10 alpha=-0.9627
+[steering] competence random_091 norm_preserving strength=-0.05 alpha=-0.4813
+[steering] competence random_091 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_091 norm_preserving strength=+0.05 alpha=+0.4813
+[steering] competence random_091 norm_preserving strength=+0.10 alpha=+0.9627
+[steering] competence random_092 norm_preserving strength=-0.10 alpha=-0.8373
+[steering] competence random_092 norm_preserving strength=-0.05 alpha=-0.4186
+[steering] competence random_092 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_092 norm_preserving strength=+0.05 alpha=+0.4186
+[steering] competence random_092 norm_preserving strength=+0.10 alpha=+0.8373
+[steering] competence random_093 norm_preserving strength=-0.10 alpha=-0.8521
+[steering] competence random_093 norm_preserving strength=-0.05 alpha=-0.4260
+[steering] competence random_093 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_093 norm_preserving strength=+0.05 alpha=+0.4260
+[steering] competence random_093 norm_preserving strength=+0.10 alpha=+0.8521
+[steering] competence random_094 norm_preserving strength=-0.10 alpha=-0.7824
+[steering] competence random_094 norm_preserving strength=-0.05 alpha=-0.3912
+[steering] competence random_094 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_094 norm_preserving strength=+0.05 alpha=+0.3912
+[steering] competence random_094 norm_preserving strength=+0.10 alpha=+0.7824
+[steering] competence random_095 norm_preserving strength=-0.10 alpha=-0.9292
+[steering] competence random_095 norm_preserving strength=-0.05 alpha=-0.4646
+[steering] competence random_095 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_095 norm_preserving strength=+0.05 alpha=+0.4646
+[steering] competence random_095 norm_preserving strength=+0.10 alpha=+0.9292
+[steering] competence random_096 norm_preserving strength=-0.10 alpha=-1.0600
+[steering] competence random_096 norm_preserving strength=-0.05 alpha=-0.5300
+[steering] competence random_096 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_096 norm_preserving strength=+0.05 alpha=+0.5300
+[steering] competence random_096 norm_preserving strength=+0.10 alpha=+1.0600
+[steering] competence random_097 norm_preserving strength=-0.10 alpha=-0.8188
+[steering] competence random_097 norm_preserving strength=-0.05 alpha=-0.4094
+[steering] competence random_097 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_097 norm_preserving strength=+0.05 alpha=+0.4094
+[steering] competence random_097 norm_preserving strength=+0.10 alpha=+0.8188
+[steering] competence random_098 norm_preserving strength=-0.10 alpha=-0.9164
+[steering] competence random_098 norm_preserving strength=-0.05 alpha=-0.4582
+[steering] competence random_098 norm_preserving strength=+0.00 alpha=+0.0000
+[steering] competence random_098 norm_preserving strength=+0.05 alpha=+0.4582
+[steering] competence random_098 norm_preserving strength=+0.10 alpha=+0.9164
+[done] results/tables/steering_dense_raw_gemma4_31b_calibrated_scckn_rtx6000.csv
+[done] results/tables/steering_dense_gemma4_31b_calibrated_scckn_rtx6000.csv
+[done] results/tables/steering_dense_null_gemma4_31b_calibrated_scckn_rtx6000.csv
+[done] results/logs/steering_dense_gemma4_31b_calibrated_scckn_rtx6000.json
+{
+  "status": "pass",
+  "label": "gemma4_31b_calibrated_scckn_rtx6000",
+  "raw_rows": 40440,
+  "summary_rows": 2020,
+  "null_rows": 8,
+  "max_norm_preserving_drift": 0.006368457339704037,
+  "norm_drift_tolerance": 0.01
+}
+[success] gemma4_31b -> /work/emrecan.ulu/calibrated_steering/20260718T205911Z/gemma4_31b.success
