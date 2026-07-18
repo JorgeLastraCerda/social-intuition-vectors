@@ -1,0 +1,36 @@
+{
+  "run_id": "20260718T102845Z",
+  "submitted_at_utc": "2026-07-18T10:29:05.274444+00:00",
+  "status": "gpu-job-user-held",
+  "git_commit": "ee4049566963a3d33bf08c2714d34094d1e48576",
+  "repo_path": "/data/scc/emrecan.ulu/normalcy-axis",
+  "state_dir": "/work/emrecan.ulu/gemma4_stage3_retry_12b/20260718T102845Z",
+  "release_command": "qrls 1144961",
+  "jobs": [
+    {
+      "model": "google/gemma-4-12B-it",
+      "label": "gemma4_12b",
+      "hardware": "NVIDIA L40",
+      "job_id": "1144961",
+      "queue": "gpu@scc192,gpu@scc213",
+      "resources": "gpu=1,h_vmem=32G,h_rt=01:00:00",
+      "priority": 0,
+      "user_held": true,
+      "success_sentinel": "/work/emrecan.ulu/gemma4_stage3_retry_12b/20260718T102845Z/12b.success",
+      "outputs": [
+        "results/tables/layer_sweep_gemma4_12b.csv",
+        "results/tables/layer_sweep_gemma4_12b.meta.json"
+      ]
+    },
+    {
+      "role": "finalizer",
+      "job_id": "1144962",
+      "queue": "scc",
+      "gpu_request": 0,
+      "hold_job_ids": [
+        "1144961"
+      ],
+      "success_sentinel": "/work/emrecan.ulu/gemma4_stage3_retry_12b/20260718T102845Z/final.success"
+    }
+  ]
+}
