@@ -32,7 +32,6 @@ import numpy as np
 # -- reuse validated helpers from the Gemma Scope causality script (no SAE) --
 from src.gemma_scope_causality import (
     judgement_prompt,
-    make_steering_hook,
     rows_for_topics,
     summarize_baseline,
     summarize_steering,
@@ -42,8 +41,17 @@ from src.gemma_scope_causality import (
 )
 from src.gemma_scope_utils import (
     CONDITIONS,
+    bootstrap_mean_ci,
     check_file_size,
     load_story_records,
+)
+from src.steering_calibration import (
+    calibrated_alpha,
+    descriptive_null_metrics,
+    directional_sd,
+    make_torch_hook,
+    paired_topic_difference_ci,
+    standardized_shift,
 )
 from src.utils.config import load_config
 from src.utils.hooks import residual_hook_name
@@ -153,9 +161,192 @@ def empirical_null_rows(summary_rows: list[dict]) -> list[dict]:
     return output
 
 
+def summarize_calibrated_steering(rows: list[dict], seed: int) -> list[dict]:
+    """Summarize steering separately for every intervention condition."""
+    output: list[dict] = []
+    keys = sorted(
+        {
+            (
+                str(row["axis"]),
+                str(row["direction"]),
+                float(row["strength"]),
+                str(row["intervention"]),
+            )
+            for row in rows
+            if row["mode"] == "steering"
+        }
+    )
+    for axis, direction, strength, intervention in keys:
+        selected = [
+            row
+            for row in rows
+            if row["mode"] == "steering"
+            and row["axis"] == axis
+            and row["direction"] == direction
+            and float(row["strength"]) == strength
+            and row["intervention"] == intervention
+        ]
+        values = np.asarray([float(row["delta_margin"]) for row in selected])
+        groups = np.asarray([int(row["topic_idx"]) for row in selected])
+        estimate, low, high = bootstrap_mean_ci(values, groups, seed)
+        first = selected[0]
+        output.append(
+            {
+                "mode": "steering",
+                "axis": axis,
+                "direction": direction,
+                "strength": strength,
+                "effect": estimate,
+                "ci_low": low,
+                "ci_high": high,
+                "n": len(selected),
+                "intervention": intervention,
+                "control_scale": first["control_scale"],
+                "direction_sd": first["direction_sd"],
+                "alpha_absolute": first["alpha_absolute"],
+                "standardized_shift": first["standardized_shift"],
+                "max_relative_norm_drift": max(
+                    float(row["max_relative_norm_drift"]) for row in selected
+                ),
+            }
+        )
+    return output
+
+
+def calibrated_null_rows(
+    summary_rows: list[dict], raw_rows: list[dict], seed: int
+) -> list[dict]:
+    """Descriptive endpoint and slope ranks against the calibrated random null."""
+    output: list[dict] = []
+    for intervention in sorted(
+        {
+            str(row.get("intervention", ""))
+            for row in summary_rows
+            if row.get("intervention")
+        }
+    ):
+        for judgment_axis in AXES:
+            steering = [
+                row
+                for row in summary_rows
+                if row.get("mode") == "steering"
+                and row.get("axis") == judgment_axis
+                and row.get("intervention") == intervention
+            ]
+            positive = sorted(
+                {
+                    float(row["strength"])
+                    for row in steering
+                    if float(row["strength"]) > 0
+                }
+            )
+            if not positive:
+                continue
+            endpoint = positive[-1]
+            random_names = sorted(
+                {
+                    str(row["direction"])
+                    for row in steering
+                    if str(row["direction"]).startswith("random_")
+                }
+            )
+            random_endpoints: list[float] = []
+            random_slopes: list[float] = []
+            for name in random_names:
+                selected = [row for row in steering if row["direction"] == name]
+                random_endpoints.append(
+                    float(
+                        next(
+                            row["effect"]
+                            for row in selected
+                            if float(row["strength"]) == endpoint
+                        )
+                    )
+                )
+                random_slopes.append(
+                    float(
+                        np.polyfit(
+                            [float(row["strength"]) for row in selected],
+                            [float(row["effect"]) for row in selected],
+                            1,
+                        )[0]
+                    )
+                )
+            for steering_axis in AXES:
+                selected = [
+                    row for row in steering if row["direction"] == steering_axis
+                ]
+                if not selected or not random_names:
+                    continue
+                endpoint_effect = float(
+                    next(
+                        row["effect"]
+                        for row in selected
+                        if float(row["strength"]) == endpoint
+                    )
+                )
+                slope = float(
+                    np.polyfit(
+                        [float(row["strength"]) for row in selected],
+                        [float(row["effect"]) for row in selected],
+                        1,
+                    )[0]
+                )
+                endpoint_metrics = descriptive_null_metrics(
+                    np.asarray(random_endpoints), endpoint_effect
+                )
+                slope_metrics = descriptive_null_metrics(
+                    np.asarray(random_slopes), slope
+                )
+                paired, paired_low, paired_high = paired_topic_difference_ci(
+                    raw_rows,
+                    judgment_axis=judgment_axis,
+                    steering_axis=steering_axis,
+                    intervention=intervention,
+                    endpoint_strength=endpoint,
+                    seed=seed,
+                )
+                output.append(
+                    {
+                        "judgment_axis": judgment_axis,
+                        "steering_axis": steering_axis,
+                        "direction_type": "target"
+                        if judgment_axis == steering_axis
+                        else "cross_axis",
+                        "intervention": intervention,
+                        "control_scale": selected[0]["control_scale"],
+                        "endpoint_strength": endpoint,
+                        "endpoint_effect": endpoint_effect,
+                        "slope": slope,
+                        "n_random_directions": len(random_names),
+                        **{
+                            f"endpoint_{key}": value
+                            for key, value in endpoint_metrics.items()
+                        },
+                        **{
+                            f"slope_{key}": value
+                            for key, value in slope_metrics.items()
+                        },
+                        "paired_topic_difference": paired,
+                        "paired_topic_ci_low": paired_low,
+                        "paired_topic_ci_high": paired_high,
+                    }
+                )
+    return output
+
+
 def main() -> None:
     args = parse_args()
     strengths = tuple(float(v.strip()) for v in args.strengths.split(",") if v.strip())
+    interventions = tuple(
+        value.strip() for value in args.interventions.split(",") if value.strip()
+    )
+    if not interventions or any(
+        value not in ("additive", "norm_preserving") for value in interventions
+    ):
+        raise ValueError(
+            "--interventions must contain additive and/or norm_preserving."
+        )
     if 0.0 not in strengths:
         raise ValueError("--strengths must include 0.")
 
@@ -188,6 +379,16 @@ def main() -> None:
         [activations_by_condition[c] for c in CONDITIONS], axis=0
     )
     mean_resid_norm = float(np.linalg.norm(all_activations, axis=1).mean())
+
+    train_activations = np.concatenate(
+        [
+            activations_by_condition[condition][
+                rows_for_topics(records_by_condition[condition], train_topics)
+            ]
+            for condition in CONDITIONS
+        ],
+        axis=0,
+    )
 
     raw_train_means: dict[str, np.ndarray] = {}
     for condition in CONDITIONS:
@@ -227,6 +428,14 @@ def main() -> None:
         n_directions=args.n_random_directions,
         seed=cfg.probing.seed,
     )
+    direction_sds = {
+        "warmth": directional_sd(train_activations, raw_vectors["warmth"]),
+        "competence": directional_sd(train_activations, raw_vectors["competence"]),
+        **{
+            f"random_{index:03d}": directional_sd(train_activations, vector)
+            for index, vector in enumerate(random_directions)
+        },
+    }
 
     # --- load model ---
     print(f"[model] loading {model_name}", flush=True)
@@ -300,16 +509,53 @@ def main() -> None:
                     "direction_type": "baseline",
                     "random_id": "",
                     "vector_kind": args.vector_kind,
+                    "intervention": "baseline",
+                    "control_scale": args.control_scale,
+                    "direction_sd": "",
+                    "alpha_absolute": 0.0,
+                    "standardized_shift": 0.0,
+                    "max_relative_norm_drift": 0.0,
+                    "decision_flipped": False,
                 }
             )
             if idx % 10 == 0:
                 print(f"[baseline] {axis} {idx}/{len(test_records)}", flush=True)
 
         # steering
-        for direction_name, vector in directions.items():
-            for strength in strengths:
-                if strength == 0.0:
+        for intervention in interventions:
+            for direction_name, vector in directions.items():
+                direction_sd_value = direction_sds.get(direction_name)
+                if direction_sd_value is None:
+                    # Legacy direction labels map to their judgment axis.
+                    direction_sd_value = direction_sds[axis]
+                target_sd = direction_sds[axis]
+                for strength in strengths:
+                    alpha = calibrated_alpha(
+                        strength=strength,
+                        mean_residual_norm=mean_resid_norm,
+                        target_direction_sd=target_sd,
+                        direction_sd=direction_sd_value,
+                        control_scale=args.control_scale,
+                    )
+                    shift_sd = standardized_shift(alpha, direction_sd_value)
+                    if strength == 0.0:
+                        hook = None
+                        diagnostics = None
+                    else:
+                        hook, diagnostics = make_torch_hook(vector, alpha, intervention)
                     for record, label in test_records:
+                        prompt = judgement_prompt(record["text"], axis)
+                        margin = (
+                            baseline_margins[record["id"]]
+                            if hook is None
+                            else yes_no_margin(
+                                model,
+                                prompt,
+                                hook_name,
+                                hook,
+                                prompt_format=args.prompt_format,
+                            )
+                        )
                         steering_axis, direction_type, random_id = direction_metadata(
                             axis, direction_name
                         )
@@ -323,57 +569,44 @@ def main() -> None:
                                 "label": label,
                                 "direction": direction_name,
                                 "strength": strength,
-                                "margin": baseline_margins[record["id"]],
-                                "delta_margin": 0.0,
+                                "margin": margin,
+                                "delta_margin": margin - baseline_margins[record["id"]],
                                 "judgment_axis": axis,
                                 "steering_axis": steering_axis,
                                 "direction_type": direction_type,
                                 "random_id": random_id,
                                 "vector_kind": args.vector_kind,
+                                "intervention": intervention,
+                                "control_scale": args.control_scale,
+                                "direction_sd": direction_sd_value,
+                                "alpha_absolute": alpha,
+                                "standardized_shift": shift_sd,
+                                "max_relative_norm_drift": (
+                                    0.0
+                                    if diagnostics is None
+                                    else diagnostics.max_relative_norm_drift
+                                ),
+                                "decision_flipped": bool(
+                                    np.signbit(margin)
+                                    != np.signbit(baseline_margins[record["id"]])
+                                ),
                             }
                         )
-                    continue
-
-                hook = make_steering_hook(vector, strength * mean_resid_norm)
-                for record, label in test_records:
-                    prompt = judgement_prompt(record["text"], axis)
-                    margin = yes_no_margin(
-                        model,
-                        prompt,
-                        hook_name,
-                        hook,
-                        prompt_format=args.prompt_format,
+                    print(
+                        f"[steering] {axis} {direction_name} {intervention} "
+                        f"strength={strength:+.2f} alpha={alpha:+.4f}",
+                        flush=True,
                     )
-                    steering_axis, direction_type, random_id = direction_metadata(
-                        axis, direction_name
-                    )
-                    raw_rows.append(
-                        {
-                            "mode": "steering",
-                            "axis": axis,
-                            "story_id": record["id"],
-                            "topic_idx": int(record["topic_idx"]),
-                            "condition": record["condition"],
-                            "label": label,
-                            "direction": direction_name,
-                            "strength": strength,
-                            "margin": margin,
-                            "delta_margin": margin - baseline_margins[record["id"]],
-                            "judgment_axis": axis,
-                            "steering_axis": steering_axis,
-                            "direction_type": direction_type,
-                            "random_id": random_id,
-                            "vector_kind": args.vector_kind,
-                        }
-                    )
-                print(
-                    f"[steering] {axis} {direction_name} strength={strength:+.2f}",
-                    flush=True,
-                )
 
     # --- summaries ---
-    summary_rows = summarize_baseline(raw_rows, cfg.probing.seed)
-    summary_rows.extend(summarize_steering(raw_rows, cfg.probing.seed))
+    calibrated_run = args.control_scale == "sd_matched" or interventions != (
+        "additive",
+    )
+    if calibrated_run:
+        summary_rows = summarize_calibrated_steering(raw_rows, cfg.probing.seed)
+    else:
+        summary_rows = summarize_baseline(raw_rows, cfg.probing.seed)
+        summary_rows.extend(summarize_steering(raw_rows, cfg.probing.seed))
     for row in summary_rows:
         steering_axis, direction_type, random_id = direction_metadata(
             str(row["axis"]), str(row["direction"])
@@ -385,9 +618,14 @@ def main() -> None:
                 "direction_type": direction_type,
                 "random_id": random_id,
                 "vector_kind": args.vector_kind,
+                "intervention": row.get("intervention", "baseline"),
+                "control_scale": row.get("control_scale", args.control_scale),
             }
         )
-    null_rows = empirical_null_rows(summary_rows) if enhanced else []
+    if enhanced and calibrated_run:
+        null_rows = calibrated_null_rows(summary_rows, raw_rows, cfg.probing.seed)
+    else:
+        null_rows = empirical_null_rows(summary_rows) if enhanced else []
 
     # --- write outputs ---
     raw_path = table_dir / f"steering_dense_raw_{args.label}.csv"
@@ -424,6 +662,11 @@ def main() -> None:
         "include_cross_axis": args.include_cross_axis,
         "n_random_directions": args.n_random_directions,
         "prompt_format": args.prompt_format,
+        "control_scale": args.control_scale,
+        "interventions": list(interventions),
+        "direction_sds_train_topics": direction_sds,
+        "calibration_activation_rows": int(train_activations.shape[0]),
+        "scientific_gate": "descriptive-only",
         "rendered_prompt_example": rendered,
         "runtime": model_runtime_metadata(model),
         "raw_output": str(raw_path),
@@ -485,6 +728,17 @@ def parse_args() -> argparse.Namespace:
         choices=("raw", "native-chat"),
         default="raw",
         help="Decision-prompt rendering mode (Gemma 4 jobs use native-chat).",
+    )
+    parser.add_argument(
+        "--control-scale",
+        choices=("legacy_l2", "sd_matched"),
+        default="legacy_l2",
+        help="Scale controls by equal L2 alpha or equal projection-SD shift.",
+    )
+    parser.add_argument(
+        "--interventions",
+        default="additive",
+        help="Comma-separated additive and/or norm_preserving interventions.",
     )
     parser.add_argument(
         "--n-test-topics",

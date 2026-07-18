@@ -1661,3 +1661,23 @@
 - **Did:** Ran a remote command that wrote independently to stdout and stderr and exited with status 7.
 - **Findings:** The local client returned `stdout-ok` on stdout, `stderr-ok` on stderr, and process exit status 7 exactly.
 - **Decision / rationale:** Accept disposable remote execution as end-to-end validated, including nonzero status propagation.
+
+---
+
+## 2026-07-18 · Step 35 — Synchronize completed Gemma 4 remaining-test outputs
+- **Context:** Recover the complete empirical state before implementing the calibrated steering-control correction.
+- **Agent:** gpt-5-codex
+- **Did:** Ran `jobs/sync_outputs.sh` on SCCKN, committed and pushed the completed Gemma 4 remaining-test artifacts, and fast-forwarded the local checkout to commit `3757199`.
+- **Findings:** The synchronized commit added 103 files and 64,484 lines covering completed neutral/PCA, raw and denoised dense steering, hiring, and audit outputs. No SCCKN jobs remained active after synchronization.
+- **Decision / rationale:** Use the synchronized artifacts as immutable legacy evidence and write calibrated results under new labels.
+- **Next:** Implement statistically matched controls without overwriting prior outputs.
+
+---
+
+## 2026-07-18 · Step 36 — Implement calibrated steering controls and pilot workflow
+- **Context:** Correct the legacy random-control scale mismatch for old and new model families.
+- **Agent:** gpt-5-codex
+- **Did:** Added shared training-topic SD calibration, additive and token-norm-preserving hooks, descriptive null metrics with topic-paired bootstrap intervals, a native-HF Qwen3.6 runner, a write-once validator, and independent RTX PRO 6000 SGE pilot scripts. Wrote `paper/2026-07-18_1747_calibrated_steering_pipeline.md`.
+- **Findings:** Target alpha is preserved exactly while random and cross-axis directions receive matched standardized shifts. The full project suite passed 81 tests; Ruff, formatting, Python compilation, shell syntax, output-absence checks, and `git diff --check` passed. All three pilot labels were absent.
+- **Decision / rationale:** Use 99 seeded random directions and report effects descriptively with no scientific gate. Run Gemma-3-12B, Gemma-4-12B, and Qwen3.6-27B as independent pilots; keep the 282-name expansion paused.
+- **Next:** Commit and synchronize the implementation, submit the three user-held pilot jobs, record availability, then release and monitor them.
