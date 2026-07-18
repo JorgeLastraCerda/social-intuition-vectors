@@ -115,3 +115,54 @@ Loading model: google/gemma-4-12B-it ...
   [extract] 1000/1500 done
   [extract] 1010/1500 done
   [extract] 1020/1500 done
+  [extract] 1030/1500 done
+  [extract] 1040/1500 done
+  [extract] 1050/1500 done
+  [extract] 1060/1500 done
+  [extract] 1070/1500 done
+  [extract] 1080/1500 done
+  [extract] 1090/1500 done
+  [extract] 1100/1500 done
+  [extract] 1110/1500 done
+  [extract] 1120/1500 done
+  [extract] 1130/1500 done
+  [extract] 1140/1500 done
+  [extract] 1150/1500 done
+  [extract] 1160/1500 done
+  [extract] 1170/1500 done
+  [extract] 1180/1500 done
+  [extract] 1190/1500 done
+  [extract] 1200/1500 done
+  [extract] 1210/1500 done
+  [extract] 1220/1500 done
+  [extract] 1230/1500 done
+  [extract] 1240/1500 done
+  [extract] 1250/1500 done
+  [extract] 1260/1500 done
+  [extract] 1270/1500 done
+  [extract] 1280/1500 done
+  [extract] 1290/1500 done
+  [extract] 1300/1500 done
+  [extract] 1310/1500 done
+  [extract] 1320/1500 done
+  [extract] 1330/1500 done
+  [extract] 1340/1500 done
+  [extract] 1350/1500 done
+  [extract] 1360/1500 done
+  [extract] 1370/1500 done
+  [extract] 1380/1500 done
+  [extract] 1390/1500 done
+  [extract] 1400/1500 done
+  [extract] 1410/1500 done
+  [extract] 1420/1500 done
+  [extract] 1430/1500 done
+  [extract] 1440/1500 done
+  [extract] 1450/1500 done
+  [extract] 1460/1500 done
+  [extract] 1470/1500 done
+  [extract] 1480/1500 done
+  [extract] 1490/1500 done
+  [extract] 1500/1500 done
+[DONE] saved X_neutral.npy shape=(1500, 3840) -> data/processed/concept_vectors_gemma4_12b
+[validated] neutral: 2 outputs complete
+[success] run=neutral -> /work/emrecan.ulu/gemma4_remaining/20260718T141249Z_12b_neutral/12b_neutral.success

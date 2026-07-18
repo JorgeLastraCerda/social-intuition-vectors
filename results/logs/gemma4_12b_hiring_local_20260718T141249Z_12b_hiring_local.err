@@ -1,0 +1,2 @@
+[start] 2026-07-18T14:21:52Z run=hiring_local model=gemma4_12b job=1145335
+Loading weights:   0%|          | 0/677 [00:00<?, ?it/s]Loading weights: 100%|██████████| 677/677 [00:00<00:00, 8182.68it/s]
