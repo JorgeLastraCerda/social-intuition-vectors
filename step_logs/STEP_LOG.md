@@ -1800,3 +1800,13 @@
 - **Findings:** CCU 12B continued on 24,156 MiB VRAM after the coordinator entered stopped state, so it cannot auto-launch 26B after 12B completion. The new SCCKN condition uses label `gemma4_26b_a4b_calibrated_scckn_rtx6000`, exact RTX PRO 6000 runtime gating, 99 SD-matched random directions, additive plus norm-preserving interventions, and atomic resume. Thirteen focused tests, Ruff, shell syntax, dry-run, and `git diff --check` passed.
 - **Decision / rationale:** Run 26B-A4B on SCCKN in parallel, preserve CCU 12B, and reserve CCU for 31B after the 12B sentinel. Separate labels prevent output collision or accidental duplicate acceptance.
 - **Next:** Commit and deploy the SGE extension, submit/release 26B-A4B, verify physical RTX assignment, and install a safe post-12B CCU handoff to 31B only.
+
+---
+
+## 2026-07-18 · Step 49 — Start parallel SCCKN 26B-A4B and arm CCU handoff
+- **Context:** Complete the requested split execution without interrupting the live CCU Gemma 4 12B run or launching duplicate 26B-A4B work.
+- **Agent:** gpt-5-codex
+- **Did:** Submitted and released SCCKN job `1145460` for the distinct Gemma 4 26B-A4B calibrated condition, verified its assignment to `gpu@scc214` with the hard `rtx_6000=1` resource, and installed a durable CCU watcher that waits for the 12B success sentinel, terminates the stopped serial coordinator, marks 26B-A4B as delegated, and launches only 31B.
+- **Findings:** SCCKN reports the 26B-A4B job in running state with active CPU and memory accounting and a 38.937 GiB maximum virtual-memory footprint during startup. CCU still reports coordinator PID `1197` stopped, 12B runner PID `1201` active, 24,156 MiB GPU memory allocated, and no 12B success sentinel yet; watcher PID `2318` survived terminal detachment and is waiting. Thirteen focused tests, Ruff, shell syntax, upload SHA-256 verification, and `git diff --check` passed.
+- **Decision / rationale:** Keep 12B and later 31B on the CCU H100 while executing 26B-A4B independently on one SCCKN RTX PRO 6000. Sentinel-gated handoff preserves the existing 12B checkpoint fingerprint and prevents both an accidental CCU 26B launch and premature 31B overlap.
+- **Next:** Monitor both active runs; after each success sentinel, retrieve and validate artifacts and write the required per-model empirical report.
