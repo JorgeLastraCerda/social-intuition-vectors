@@ -1877,3 +1877,13 @@
 - **Findings:** Denoised-local produced 2,820 raw rows. Warmth steering remained monotone with slope 19.652, R2 0.911, and +0.10 mean delta 0.908 (95% CI [0.894, 0.922]); competence remained monotone with slope 21.352, R2 0.951, and +0.10 mean delta 1.259 (95% CI [1.243, 1.276]). Relative to raw local, denoising reduced but did not reverse either endpoint effect.
 - **Decision / rationale:** Mark all currently defined SAE-independent Gemma 4 12B legacy-parity tests complete. The only unavailable class remains SAE-based testing because no compatible Gemma 4 SAE exists.
 - **Next:** Finish and report the SCCKN calibrated 26B-A4B and 31B runs, then apply the post-hoc and conditional expansion matrix to those models as required.
+
+---
+
+## 2026-07-18 · Step 57 — Queue larger-model remaining tests and keep CCU active
+- **Context:** Apply the completed 12B SAE-independent test matrix to Gemma 4 26B-A4B and 31B without allowing the CCU server to idle.
+- **Agent:** gpt-5-codex
+- **Did:** Confirmed no pending RTX PRO 6000 jobs and zero free SCCKN GPUs; added and tested generic larger-model CCU runner and fail-closed gate-driven queue; launched 31B denoised 60-name steering on H100; completed and validated 26B-A4B and 31B post-hoc analyses and the 26B-A4B full-282 gate; armed the queue to run the 31B gate followed by required expansions; wrote three dated findings reports.
+- **Findings:** The two SCCKN calibrated jobs remained active at 1,920 and 1,367 of 2,022 shards. The 26B-A4B full-282 gate fired with eight competence-related reasons. Post-hoc joins matched 269 names for disparity/mediation and 149 for R4 in both models. CCU 31B denoised passed its H100 and absence gates and used approximately 61,050 MiB while running. Fourteen focused tests, Ruff, shell syntax, upload hash verification, and `git diff --check` passed.
+- **Decision / rationale:** Use CCU for the missing 31B denoised prerequisite and all gate-required full-282 expansions while SCCKN remains fully occupied by calibrated runs. Keep each model-regime execution write-once with separate logs and sentinels, but use one fail-closed serial coordinator to prevent CCU inactivity between tasks.
+- **Next:** Retrieve, validate, and report each queued output as it completes; synchronize completed SCCKN calibrated artifacts and write one report per model.
