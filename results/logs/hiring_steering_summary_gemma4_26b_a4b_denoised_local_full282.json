@@ -1,0 +1,35 @@
+{
+  "label": "gemma4_26b_a4b_denoised_local_full282",
+  "seed": 20260527,
+  "raw_input": "results/tables/hiring_steering_raw_gemma4_26b_a4b_denoised_local_full282.csv",
+  "summary_output": "results/tables/hiring_steering_gemma4_26b_a4b_denoised_local_full282.csv",
+  "axes": {
+    "warmth": {
+      "slope": 2.3051861702127665,
+      "r_squared": 0.8903813745645062,
+      "monotone_non_decreasing": true,
+      "positive_endpoint": 0.1,
+      "endpoint_mean_delta": 0.0749113475177305,
+      "endpoint_ci_95_low": 0.04997783687943262,
+      "endpoint_ci_95_high": 0.09995567375886524,
+      "endpoint_sign_matches_slope": true
+    },
+    "competence": {
+      "slope": -0.16647273936170154,
+      "r_squared": 0.0038279320865942656,
+      "monotone_non_decreasing": false,
+      "positive_endpoint": 0.1,
+      "endpoint_mean_delta": -0.4613253546099291,
+      "endpoint_ci_95_low": -0.4910239361702128,
+      "endpoint_ci_95_high": -0.4326213430851064,
+      "endpoint_sign_matches_slope": true
+    }
+  },
+  "margin_diagnostic": {
+    "n": 282,
+    "n_unique": 37,
+    "sd": 0.5856883932519812,
+    "fraction_on_0.125_grid": 0.5602836879432624,
+    "quantisation_warning": false
+  }
+}

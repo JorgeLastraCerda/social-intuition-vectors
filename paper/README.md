@@ -201,3 +201,8 @@ Paper-draft figures (prefixed `paper_figure*`; produced 2026-06-24 for superviso
 | `2026-07-18_2338_gemma4_31b_denoised_hiring.md` | 2026-07-18 23:38 | Gemma-4-31B-it | Missing denoised local 60-name hiring steering | Complete; both axes are non-monotone with negative +0.10 endpoints. |
 | `2026-07-18_2338_gemma4_31b_full282_gate.md` | 2026-07-18 23:38 | Gemma-4-31B-it | Predeclared conditional expansion gate | Gate fired on sixteen criteria; three 282-name runs queued. |
 | `2026-07-18_2346_gemma4_26b_a4b_local_full282.md` | 2026-07-18 23:46 | Gemma-4-26B-A4B-it | Raw local-strength steering across all 282 rated names | Complete; warmth is monotone but weak, while competence remains non-monotone. |
+| `2026-07-19_0022_gemma4_26b_a4b_broad_full282.md` | 2026-07-19 00:22 | Gemma-4-26B-A4B-it | Raw broad steering across all 282 names | Complete; warmth is monotone, competence is non-monotone and negative-ended. |
+| `2026-07-19_0022_gemma4_26b_a4b_denoised_full282.md` | 2026-07-19 00:22 | Gemma-4-26B-A4B-it | Denoised local steering across all 282 names | Complete; denoising preserves competence instability. |
+| `2026-07-19_0022_gemma4_31b_local_full282.md` | 2026-07-19 00:22 | Gemma-4-31B-it | Raw local steering across all 282 names | Complete; both axes are non-monotone with negative endpoints. |
+| `2026-07-19_0022_gemma4_31b_broad_full282.md` | 2026-07-19 00:22 | Gemma-4-31B-it | Raw broad steering across all 282 names | Complete; both axes reverse strongly at +0.50. |
+| `2026-07-19_0022_gemma4_31b_denoised_full282.md` | 2026-07-19 00:22 | Gemma-4-31B-it | Denoised local steering across all 282 names | Complete; denoising does not restore monotonicity. |
