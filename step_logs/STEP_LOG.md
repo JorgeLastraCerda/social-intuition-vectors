@@ -1542,3 +1542,13 @@
 - **Findings:** The full suite passed 74 tests; targeted Ruff lint and format checks passed; shell validation passed; all 33 model-by-run submitter dry-runs passed; and `git diff --check` passed. Empirical smoke and production results are not yet claimed.
 - **Decision / rationale:** Preserve the legacy bfloat16 callback-margin path for old/new-generation parity and expose its quantization diagnostics explicitly. Require exact NVIDIA L40 for 12B and RTX PRO 6000 for 26B-A4B/31B. Keep every scheduler job independent and prohibit `hold_jid`.
 - **Next:** Commit and synchronize the implementation, then submit one held smoke job per model, persist the manifests, release the jobs, and monitor their hardware and scientific gates.
+
+---
+
+## 2026-07-18 · Step 26 — Submit three held Gemma 4 remaining-test smokes
+- **Context:** Begin empirical execution of the pinned SAE-free Gemma 4 pipeline after all local implementation gates passed.
+- **Agent:** gpt-5-codex
+- **Did:** Fast-forwarded the clean SCCKN checkout to `5e4fb17`, passed `pip check` and Python compilation in `wc-tl-g4`, and submitted independent user-held smoke jobs `1145318` (12B), `1145320` (26B-A4B), and `1145322` (31B). Synchronized the three `results/logs/gemma4_remaining_submission_*_smoke_20260718T140550Z_*.json` manifests before release.
+- **Findings:** SCCKN reported three available L40 GPUs for the 12B submission and two available RTX PRO 6000 GPUs for each larger-model submission. Each manifest records the exact model revision, queue, resources, expected GPU family, submitted commit, and success sentinel; no `hold_jid` was used.
+- **Decision / rationale:** Keep the jobs user-held until their provenance manifests and this audit entry exist on the shared branch, then release all three and require exact runtime hardware checks.
+- **Next:** Pull this entry on SCCKN, release all three jobs, verify their physical assignments, and monitor through output validation and per-model smoke reports.
