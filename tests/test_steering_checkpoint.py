@@ -86,6 +86,7 @@ def test_ccu_queue_is_serial_fail_closed_and_h100_only() -> None:
         "jobs/ccu/handoff_12b_to_31b.sh",
         "jobs/ccu/run_gemma4_12b_full282.sh",
         "jobs/ccu/run_gemma4_remaining.sh",
+        "jobs/ccu/run_gemma4_remaining_queue.sh",
     ):
         subprocess.run(["bash", "-n", script], cwd=ROOT, check=True)
 
@@ -107,3 +108,12 @@ def test_ccu_remaining_runner_supports_larger_gemma4_models() -> None:
     assert '"$GPU_NAME" != *H100*' in runner
     assert "--require-absent" in runner
     assert 'N_NAMES=0' in runner and 'N_NAMES=60' in runner
+
+
+def test_ccu_remaining_queue_is_fail_closed_and_gate_driven() -> None:
+    queue = (ROOT / "jobs/ccu/run_gemma4_remaining_queue.sh").read_text()
+    assert "exited without sentinel" in queue
+    assert "run_gate_31b" in queue
+    assert "local_full282 broad_full282 denoised_full282" in queue
+    assert 'gate_decision "$gate26"' in queue
+    assert 'gate_decision "$gate31"' in queue
