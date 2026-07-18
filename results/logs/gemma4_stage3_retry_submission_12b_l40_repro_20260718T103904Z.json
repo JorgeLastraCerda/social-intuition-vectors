@@ -1,0 +1,37 @@
+{
+  "run_id": "20260718T103904Z",
+  "submitted_at_utc": "2026-07-18T10:39:17.588153+00:00",
+  "status": "gpu-job-user-held",
+  "purpose": "L40 versus L40S Stage 3 reproducibility audit",
+  "git_commit": "6d15b09994e07cada863cd4e05fd68ed8c4eeed5",
+  "repo_path": "/data/scc/emrecan.ulu/normalcy-axis",
+  "state_dir": "/work/emrecan.ulu/gemma4_stage3_l40_repro/20260718T103904Z",
+  "release_command": "qrls 1144977",
+  "jobs": [
+    {
+      "model": "google/gemma-4-12B-it",
+      "label": "gemma4_12b_l40_repro",
+      "expected_gpu_name": "NVIDIA L40",
+      "job_id": "1144977",
+      "queue": "gpu@scc192",
+      "resources": "gpu=1,h_vmem=32G,h_rt=01:00:00",
+      "priority": 0,
+      "user_held": true,
+      "success_sentinel": "/work/emrecan.ulu/gemma4_stage3_l40_repro/20260718T103904Z/12b_l40_repro.success",
+      "outputs": [
+        "results/tables/layer_sweep_gemma4_12b_l40_repro.csv",
+        "results/tables/layer_sweep_gemma4_12b_l40_repro.meta.json"
+      ]
+    },
+    {
+      "role": "finalizer",
+      "job_id": "1144978",
+      "queue": "scc",
+      "gpu_request": 0,
+      "hold_job_ids": [
+        "1144977"
+      ],
+      "success_sentinel": "/work/emrecan.ulu/gemma4_stage3_l40_repro/20260718T103904Z/final.success"
+    }
+  ]
+}
