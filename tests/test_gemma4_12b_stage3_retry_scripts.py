@@ -9,6 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SUBMITTER = ROOT / "jobs/sge/submit_gemma4_12b_stage3_retry.sh"
 RUNNER = ROOT / "jobs/sge/gemma4_12b_stage3_retry.sh"
 FINALIZER = ROOT / "jobs/sge/gemma4_12b_stage3_finalize.sh"
+REPRO_SUBMITTER = ROOT / "jobs/sge/submit_gemma4_12b_l40_repro.sh"
 
 
 def test_submitter_dry_run_describes_one_held_l40_job() -> None:
@@ -32,7 +33,7 @@ def test_submitter_dry_run_describes_one_held_l40_job() -> None:
 
 def test_runner_requires_l40_headroom_and_has_no_git_mutation() -> None:
     text = RUNNER.read_text(encoding="utf-8")
-    assert 'if "L40" not in name:' in text
+    assert 'if name != expected_name:' in text
     assert "free_gib < 30.0" in text
     assert "git pull" not in text
     assert "sync_outputs.sh" not in text
@@ -52,3 +53,21 @@ def test_submitter_verifies_both_job_shapes_before_submission() -> None:
     assert text.count("qsub -w v") == 2
     assert "-hold_jid \"$job_gpu\"" in text
     assert "gemma4_stage3_retry_submission_12b_${RUN_ID}.json" in text
+
+
+def test_exact_l40_repro_uses_separate_outputs_and_queue() -> None:
+    env = os.environ.copy()
+    env["RUN_ID"] = "20990101T000000Z"
+    result = subprocess.run(
+        ["bash", str(REPRO_SUBMITTER), "--dry-run"],
+        cwd=ROOT,
+        env=env,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    output = result.stdout
+    assert "hardware=NVIDIA_L40 queue=gpu@scc192" in output
+    assert "output_label=gemma4_12b_l40_repro" in output
+    assert "gpu@scc213" not in output
+    assert "finalizer queue=scc hold=12b_l40_repro gpu=0" in output

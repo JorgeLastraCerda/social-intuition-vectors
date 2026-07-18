@@ -15,6 +15,8 @@ set -euo pipefail
 : "${SUCCESS_SENTINEL:?SUCCESS_SENTINEL is required}"
 : "${REPO_PATH:?REPO_PATH is required}"
 : "${GIT_COMMIT:?GIT_COMMIT is required}"
+: "${OUTPUT_LABEL:=gemma4_12b}"
+: "${EXPECTED_GPU_KIND:=L40}"
 
 module load conda  # ADJUST
 conda activate wc-tl-g4
@@ -44,7 +46,9 @@ if [[ -e "$SUCCESS_SENTINEL" ]]; then
   exit 13
 fi
 
-python - <<'PY'
+EXPECTED_GPU_KIND="$EXPECTED_GPU_KIND" python - <<'PY'
+import os
+
 import torch
 
 name = torch.cuda.get_device_name(0)
@@ -57,8 +61,11 @@ print(
     f"free_memory={free_gib:.2f} GiB total_memory={total_gib:.2f} GiB",
     flush=True,
 )
-if "L40" not in name:
-    raise SystemExit(f"Refusing 12B Stage 3 retry: expected an L40, got {name!r}.")
+expected_name = f"NVIDIA {os.environ['EXPECTED_GPU_KIND']}"
+if name != expected_name:
+    raise SystemExit(
+        f"Refusing 12B Stage 3 retry: expected {expected_name!r}, got {name!r}."
+    )
 if free_gib < 30.0:
     raise SystemExit(
         f"Refusing 12B Stage 3 retry: only {free_gib:.2f} GiB is free; "
@@ -66,25 +73,32 @@ if free_gib < 30.0:
     )
 PY
 
-common_args=(
+source_args=(
   --model google/gemma-4-12B-it
   --label gemma4_12b
   --vectors-subdir concept_vectors_gemma4_12b
   --expected-layers 48
   --expected-d-model 3840
 )
+output_args=(
+  --model google/gemma-4-12B-it
+  --label "$OUTPUT_LABEL"
+  --vectors-subdir concept_vectors_gemma4_12b
+  --expected-layers 48
+  --expected-d-model 3840
+)
 
 echo "[preflight] validating Stage 1 and Stage 2 inputs for gemma4_12b" >&2
-python -m src.validate_gemma4_stage --stage 1 "${common_args[@]}"
-python -m src.validate_gemma4_stage --stage 2 "${common_args[@]}"
-python -m src.validate_gemma4_stage --stage 3 "${common_args[@]}" --require-absent
+python -m src.validate_gemma4_stage --stage 1 "${source_args[@]}"
+python -m src.validate_gemma4_stage --stage 2 "${source_args[@]}"
+python -m src.validate_gemma4_stage --stage 3 "${output_args[@]}" --require-absent
 
-echo "[start] $(date -u +%Y-%m-%dT%H:%M:%SZ) model=google/gemma-4-12B-it job=${JOB_ID:-unknown}" >&2
-python src/layer_sweep.py --model google/gemma-4-12B-it --label gemma4_12b
-python -m src.validate_gemma4_stage --stage 3 "${common_args[@]}"
+echo "[start] $(date -u +%Y-%m-%dT%H:%M:%SZ) model=google/gemma-4-12B-it label=$OUTPUT_LABEL job=${JOB_ID:-unknown}" >&2
+python src/layer_sweep.py --model google/gemma-4-12B-it --label "$OUTPUT_LABEL"
+python -m src.validate_gemma4_stage --stage 3 "${output_args[@]}"
 
 mkdir -p "$(dirname "$SUCCESS_SENTINEL")"
 sentinel_tmp="${SUCCESS_SENTINEL}.tmp.${JOB_ID:-$$}"
 : > "$sentinel_tmp"
 mv "$sentinel_tmp" "$SUCCESS_SENTINEL"
-echo "[success] $(date -u +%Y-%m-%dT%H:%M:%SZ) gemma4_12b Stage 3 -> $SUCCESS_SENTINEL"
+echo "[success] $(date -u +%Y-%m-%dT%H:%M:%SZ) $OUTPUT_LABEL Stage 3 -> $SUCCESS_SENTINEL"

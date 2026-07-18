@@ -1377,3 +1377,13 @@
 - **Findings:** The GPU job requests one GPU from `gpu@scc192,gpu@scc213` with `h_vmem=32G,h_rt=01:00:00`; it is user-held and the finalizer has only `1144961` as its predecessor. Stage 1 and Stage 2 validate, both canonical Stage 3 targets are absent, and `wc-tl-g4` reports PyTorch 2.13.0+cu130, Transformers 5.13.0, and TransformerLens 3.5.1.
 - **Decision / rationale:** Keep the GPU job held until the manifest and this audit entry are durable, then release only the GPU job and let Grid Engine release the CPU finalizer through its dependency.
 - **Next:** Pull this entry on SCCKN, release `1144961`, verify an L40 assignment with at least 30 GiB free VRAM, and monitor both jobs through validation and output synchronization.
+
+---
+
+## 2026-07-18 · Step 9 — Add exact-L40 reproducibility audit after L40S drift
+- **Context:** Resolve a cross-stage acceptance mismatch after the nominal L40-pool retry was dispatched to an NVIDIA L40S rather than the L40 used for Stage 1 extraction.
+- **Agent:** gpt-5-codex
+- **Did:** Completed jobs `1144961` and `1144962`, preserved their canonical L40S outputs, then extended the runner/finalizer with separate output-label and exact-device support and added an `scc192`-only L40 reproducibility submitter.
+- **Findings:** The L40S sweep completed 48 finite layers in 146 seconds with 23.174 GB maximum virtual memory, but probe-layer warmth d was 8.461919 versus Stage 2's 8.633730 (difference -0.171811), competence d was 8.982933 versus 9.035413 (difference -0.052480), and cos(W,C) differed by -0.000977. Local verification of the exact-L40 audit path passed 22 tests, shell syntax, dry-run, and `git diff --check`.
+- **Decision / rationale:** Treat the L40S table as a valid write-once result but not as satisfying the planned `1e-6` cross-stage reproduction gate. Run one separately labeled exact-L40 audit without overwriting canonical data to distinguish hardware-class drift from broader run-to-run variation.
+- **Next:** Push the audit implementation, submit it held to `gpu@scc192`, synchronize its manifest, release it, and compare exact-L40, L40S, and Stage 2 probe-layer metrics.
