@@ -1,0 +1,58 @@
+--- Grid Engine ---
+Reserving GPUs @ scc192 ..
+Number of requested GPUS: 1
+GPU 0: NVIDIA L40 (UUID: GPU-58427703-bce4-32fd-4b8a-f00823f1d59c)
+GPU 1: NVIDIA L40 (UUID: GPU-41e5380b-23f0-e6b0-6d0a-a44254ec8642)
+GPU 2: NVIDIA L40 (UUID: GPU-aa56efa3-44bb-3542-e797-a0b90a3d3978)
+GPU 3: NVIDIA L40 (UUID: GPU-52b7f36d-6004-78d2-75d7-91fd517911ae)
+Set SGE_GPU = 0
+Set CUDA_VISIBLE_DEVICES = 0
+--- Grid Engine ---
+[runtime] gpu='NVIDIA L40' free=44.00 GiB total=44.42 GiB
+[validated] smoke: 1 outputs absent
+{
+  "model": "google/gemma-4-12B-it",
+  "revision": "12ace6d648d72bd41519e140f1185f34d38c7e3d",
+  "seed": 20260527,
+  "n_layers": 48,
+  "d_model": 3840,
+  "probe_layer": 31,
+  "hook": "blocks.31.hook_resid_post",
+  "activation_shape": [
+    1,
+    9,
+    3840
+  ],
+  "yes_token_id": 10784,
+  "no_token_id": 3771,
+  "bridge_hf_max_logit_diff": 0.0,
+  "baseline_margin": 17.556884765625,
+  "steered_margin": 17.574462890625,
+  "peak_allocated_vram_gib": 22.50063133239746,
+  "prompt_format": "native-chat",
+  "runtime": {
+    "backend": "transformer-bridge",
+    "transformer_lens_version": "3.5.1",
+    "transformers_version": "5.13.0",
+    "torch_version": "2.13.0+cu130",
+    "dtype": "torch.bfloat16",
+    "execution_topology": "single-device",
+    "parameter_devices": [
+      "cuda:0"
+    ],
+    "hf_device_map": null,
+    "visible_cuda_devices": [
+      {
+        "index": 0,
+        "name": "NVIDIA L40"
+      }
+    ],
+    "model_revision_requested": "12ace6d648d72bd41519e140f1185f34d38c7e3d",
+    "model_revision_resolved": "12ace6d648d72bd41519e140f1185f34d38c7e3d",
+    "chat_template_sha256": "ae53464bf3be25802b3a5b37def7fd89667067d7577049b3b2d74c4d8de4c6d4",
+    "peak_allocated_vram_gib": 22.50063133239746,
+    "peak_reserved_vram_gib": 22.794921875
+  }
+}
+[validated] smoke: 1 outputs complete
+[success] run=smoke -> /work/emrecan.ulu/gemma4_remaining/20260718T140550Z_12b/12b_smoke.success

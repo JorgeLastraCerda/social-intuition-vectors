@@ -1,0 +1,62 @@
+--- Grid Engine ---
+Reserving GPUs @ scc214 ..
+Number of requested GPUS: 1
+GPU 0: NVIDIA RTX PRO 6000 Blackwell Server Edition (UUID: GPU-507970ca-1d83-07f5-7313-8794afdd8585)
+GPU 1: NVIDIA RTX PRO 6000 Blackwell Server Edition (UUID: GPU-ffa89324-cc75-4306-b653-c29c4dda1cdf)
+GPU 2: NVIDIA RTX PRO 6000 Blackwell Server Edition (UUID: GPU-bb1778b1-810c-451b-46f5-c60e94530810)
+GPU 3: NVIDIA RTX PRO 6000 Blackwell Server Edition (UUID: GPU-6ca202c9-9e24-bc3e-5a9e-514db7180d18)
+GPU 4: NVIDIA RTX PRO 6000 Blackwell Server Edition (UUID: GPU-1a96c05e-b1c1-872c-1610-c4412502b862)
+GPU 5: NVIDIA RTX PRO 6000 Blackwell Server Edition (UUID: GPU-86953032-21b6-1c61-d81c-dfb6d54de161)
+GPU 6: NVIDIA RTX PRO 6000 Blackwell Server Edition (UUID: GPU-391a19d5-ffde-82dc-4f71-f679faa836f0)
+GPU 7: NVIDIA RTX PRO 6000 Blackwell Server Edition (UUID: GPU-72a4de52-03aa-35bf-0c55-e25b5f57d678)
+Set SGE_GPU = 6
+Set CUDA_VISIBLE_DEVICES = 6
+--- Grid Engine ---
+[runtime] gpu='NVIDIA RTX PRO 6000 Blackwell Server Edition' free=94.47 GiB total=95.01 GiB
+[validated] smoke: 1 outputs absent
+{
+  "model": "google/gemma-4-31B-it",
+  "revision": "b9ea41a2887d8607f594846523f94c6cc75ac8a4",
+  "seed": 20260527,
+  "n_layers": 60,
+  "d_model": 5376,
+  "probe_layer": 39,
+  "hook": "blocks.39.hook_resid_post",
+  "activation_shape": [
+    1,
+    9,
+    5376
+  ],
+  "yes_token_id": 10784,
+  "no_token_id": 3771,
+  "bridge_hf_max_logit_diff": 0.0,
+  "baseline_margin": 25.75,
+  "steered_margin": 25.46875,
+  "peak_allocated_vram_gib": 58.50213813781738,
+  "prompt_format": "native-chat",
+  "runtime": {
+    "backend": "transformer-bridge",
+    "transformer_lens_version": "3.5.1",
+    "transformers_version": "5.13.0",
+    "torch_version": "2.13.0+cu130",
+    "dtype": "torch.bfloat16",
+    "execution_topology": "single-device",
+    "parameter_devices": [
+      "cuda:0"
+    ],
+    "hf_device_map": null,
+    "visible_cuda_devices": [
+      {
+        "index": 0,
+        "name": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+      }
+    ],
+    "model_revision_requested": "b9ea41a2887d8607f594846523f94c6cc75ac8a4",
+    "model_revision_resolved": "b9ea41a2887d8607f594846523f94c6cc75ac8a4",
+    "chat_template_sha256": "ae53464bf3be25802b3a5b37def7fd89667067d7577049b3b2d74c4d8de4c6d4",
+    "peak_allocated_vram_gib": 58.50213813781738,
+    "peak_reserved_vram_gib": 58.8671875
+  }
+}
+[validated] smoke: 1 outputs complete
+[success] run=smoke -> /work/emrecan.ulu/gemma4_remaining/20260718T140550Z_31b/31b_smoke.success
