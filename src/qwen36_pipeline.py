@@ -14,13 +14,32 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-import torch
 
-from src.layer_sweep import sweep_metrics_at_layer
-from src.qwen36_smoke import CONDITIONS, encode_raw_passage, mean_pool_after_token
+try:
+    import torch
+except ModuleNotFoundError:  # Stage 2 is deliberately CPU-only and torch-free.
+    torch = None  # type: ignore[assignment]
+
 from src.utils.config import ProjectConfig, load_config, require_model_name
-from src.utils.hooks import layer_from_fraction
-from src.validate_probes import probe_axis, projected_cv_accuracy
+from src.validate_probes import (
+    probe_axis,
+    projected_cv_accuracy,
+    topic_cross_axis_transfer_cv,
+)
+
+
+CONDITIONS = (
+    "high_warmth",
+    "low_warmth",
+    "high_competence",
+    "low_competence",
+)
+
+
+def layer_from_fraction(n_layers: int, fraction: float) -> int:
+    if not 0 <= fraction <= 1:
+        raise ValueError("Layer fraction must be between 0 and 1.")
+    return min(n_layers - 1, max(0, round((n_layers - 1) * fraction)))
 
 
 @dataclass(frozen=True)
@@ -100,7 +119,7 @@ def load_full_records(
 def _write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
+        writer = csv.DictWriter(handle, fieldnames=list(rows[0]), lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
 
@@ -128,7 +147,11 @@ def _validate_native_config(cfg: ProjectConfig, *, require_cuda: bool) -> None:
         raise ValueError("native_hf.label must start with 'qwen36_'.")
     if "transformer_lens" in sys.modules:
         raise RuntimeError("TransformerLens was imported in a native-HF process.")
-    if require_cuda and (not torch.cuda.is_available() or torch.cuda.device_count() != 1):
+    if require_cuda and (
+        torch is None
+        or not torch.cuda.is_available()
+        or torch.cuda.device_count() != 1
+    ):
         raise RuntimeError("A Qwen3.6 GPU stage requires exactly one visible CUDA GPU.")
 
 
@@ -136,6 +159,7 @@ def _load_model_and_verify(
     cfg: ProjectConfig,
     first_text: str,
 ) -> tuple[Any, Any, Any, Any, int, int, int, dict[str, float | int]]:
+    from src.qwen36_smoke import encode_raw_passage
     from transformers import AutoModelForMultimodalLM, AutoProcessor
 
     torch.manual_seed(cfg.probing.seed)
@@ -297,6 +321,8 @@ def _base_meta(
 
 
 def run_stage1(cfg: ProjectConfig, paths: StagePaths) -> None:
+    from src.qwen36_smoke import encode_raw_passage, mean_pool_after_token
+
     _validate_native_config(cfg, require_cuda=True)
     require_outputs_absent(paths, 1)
     stimuli = Path(cfg.paths.stimuli) / "concept_stories.jsonl"
@@ -380,9 +406,11 @@ def run_stage1(cfg: ProjectConfig, paths: StagePaths) -> None:
     )
 
 
-def run_stage2(cfg: ProjectConfig, paths: StagePaths) -> None:
+def compute_stage2_outputs(
+    cfg: ProjectConfig, paths: StagePaths
+) -> tuple[list[dict[str, Any]], dict[str, Any], str]:
+    """Compute the complete scientific Stage 2 payload without writing files."""
     _validate_native_config(cfg, require_cuda=False)
-    require_outputs_absent(paths, 2)
     stimuli = Path(cfg.paths.stimuli) / "concept_stories.jsonl"
     buckets, stimuli_sha256 = load_full_records(stimuli)
     meta = json.loads((paths.vectors_dir / "meta.json").read_text(encoding="utf-8"))
@@ -400,7 +428,6 @@ def run_stage2(cfg: ProjectConfig, paths: StagePaths) -> None:
         )
         for condition in CONDITIONS
     }
-    started = time.time()
     warmth_metrics = probe_axis(
         X["high_warmth"], X["low_warmth"], warmth, "warmth", cfg.probing.seed,
         groups["high_warmth"], groups["low_warmth"],
@@ -418,7 +445,28 @@ def run_stage2(cfg: ProjectConfig, paths: StagePaths) -> None:
     cross_c_on_w = projected_cv_accuracy(
         X["high_warmth"], X["low_warmth"], competence, cfg.probing.seed
     )
-    _write_csv(paths.probe_table, [warmth_metrics, competence_metrics])
+    transfer_w_to_c = topic_cross_axis_transfer_cv(
+        X["high_warmth"],
+        X["low_warmth"],
+        X["high_competence"],
+        X["low_competence"],
+        groups["high_warmth"],
+        groups["low_warmth"],
+        groups["high_competence"],
+        groups["low_competence"],
+        cfg.probing.seed,
+    )
+    transfer_c_to_w = topic_cross_axis_transfer_cv(
+        X["high_competence"],
+        X["low_competence"],
+        X["high_warmth"],
+        X["low_warmth"],
+        groups["high_competence"],
+        groups["low_competence"],
+        groups["high_warmth"],
+        groups["low_warmth"],
+        cfg.probing.seed,
+    )
     log = {
         "meta": meta,
         "warmth": warmth_metrics,
@@ -426,6 +474,22 @@ def run_stage2(cfg: ProjectConfig, paths: StagePaths) -> None:
         "axis_cosine": round(cosine, 6),
         "cross_warmth_on_competence_cv": round(cross_w_on_c, 6),
         "cross_competence_on_warmth_cv": round(cross_c_on_w, 6),
+        "cross_warmth_on_competence_calibrated_cv": round(cross_w_on_c, 6),
+        "cross_competence_on_warmth_calibrated_cv": round(cross_c_on_w, 6),
+        "cross_warmth_to_competence_topic_transfer_mean": round(
+            transfer_w_to_c[0], 6
+        ),
+        "cross_warmth_to_competence_topic_transfer_std": round(
+            transfer_w_to_c[1], 6
+        ),
+        "cross_warmth_to_competence_topic_transfer_folds": transfer_w_to_c[2],
+        "cross_competence_to_warmth_topic_transfer_mean": round(
+            transfer_c_to_w[0], 6
+        ),
+        "cross_competence_to_warmth_topic_transfer_std": round(
+            transfer_c_to_w[1], 6
+        ),
+        "cross_competence_to_warmth_topic_transfer_folds": transfer_c_to_w[2],
         "pass_warmth_cv": warmth_metrics["cv_mean"] > 0.8,
         "pass_competence_cv": competence_metrics["cv_mean"] > 0.8,
         "pass_orthogonality": abs(cosine) < 0.3,
@@ -433,6 +497,14 @@ def run_stage2(cfg: ProjectConfig, paths: StagePaths) -> None:
         "pass_competence_topic_cv": competence_metrics["topic_cv_mean"] > 0.8,
         "scientific_flags_are_non_gating": True,
     }
+    return [warmth_metrics, competence_metrics], log, stimuli_sha256
+
+
+def run_stage2(cfg: ProjectConfig, paths: StagePaths) -> None:
+    require_outputs_absent(paths, 2)
+    started = time.time()
+    rows, log, stimuli_sha256 = compute_stage2_outputs(cfg, paths)
+    _write_csv(paths.probe_table, rows)
     _write_json(paths.probe_log, log)
     _write_json(
         paths.technical_logs[2],
@@ -451,6 +523,9 @@ def run_stage2(cfg: ProjectConfig, paths: StagePaths) -> None:
 
 
 def run_stage3(cfg: ProjectConfig, paths: StagePaths) -> None:
+    from src.layer_sweep import sweep_metrics_at_layer
+    from src.qwen36_smoke import encode_raw_passage, mean_pool_after_token
+
     _validate_native_config(cfg, require_cuda=True)
     require_outputs_absent(paths, 3)
     stimuli = Path(cfg.paths.stimuli) / "concept_stories.jsonl"

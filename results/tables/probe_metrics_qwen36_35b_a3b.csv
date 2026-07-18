@@ -1,3 +1,3 @@
-axis,diff_norm,cosine_high_low,proj_high_mean,proj_high_std,proj_low_mean,proj_low_std,cohens_d,cv_mean,cv_std,cv_folds,topic_cv_mean,topic_cv_std,topic_cv_folds
-warmth,0.480083,0.990248,0.735587,0.08559,0.255504,0.065221,6.309371,1.0,0.0,"[1.0, 1.0, 1.0, 1.0, 1.0]",1.0,0.0,"[1.0, 1.0, 1.0, 1.0, 1.0]"
-competence,0.643543,0.983787,1.109602,0.092291,0.466059,0.082555,7.349901,1.0,0.0,"[1.0, 1.0, 1.0, 1.0, 1.0]",1.0,0.0,"[1.0, 1.0, 1.0, 1.0, 1.0]"
+axis,diff_norm,cosine_high_low,proj_high_mean,proj_high_std,proj_low_mean,proj_low_std,cohens_d,cv_mean,cv_std,cv_folds,topic_cv_mean,topic_cv_std,topic_cv_folds,direction_topic_cv_mean,direction_topic_cv_std,direction_topic_cv_folds
+warmth,0.480083,0.990248,0.735587,0.08559,0.255504,0.065221,6.309371,1.0,0.0,"[1.0, 1.0, 1.0, 1.0, 1.0]",1.0,0.0,"[1.0, 1.0, 1.0, 1.0, 1.0]",1.0,0.0,"[1.0, 1.0, 1.0, 1.0, 1.0]"
+competence,0.643543,0.983787,1.109602,0.092291,0.466059,0.082555,7.349901,1.0,0.0,"[1.0, 1.0, 1.0, 1.0, 1.0]",1.0,0.0,"[1.0, 1.0, 1.0, 1.0, 1.0]",1.0,0.0,"[1.0, 1.0, 1.0, 1.0, 1.0]"
