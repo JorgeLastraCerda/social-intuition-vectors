@@ -1357,3 +1357,13 @@
 - **Did:** Re-ran both Stage 3 validators and the 17 focused tests, registered the dated findings report in `paper/README.md`, and moved the submitter's no-op dry-run response before production collision checks.
 - **Findings:** Both empirical tables pass complete-row, ordered-layer, probe-layer, metadata, and finite-value gates. All 17 tests pass after the dry-run remains usable for plan inspection; the real submission path still refuses any existing manifest, state directory, CSV, or metadata target.
 - **Decision / rationale:** Preserve strict write-once behavior for production while allowing a mutation-free dry-run to describe the job topology after a completed run.
+
+---
+
+## 2026-07-18 · Step 7 — Implement Gemma 4 12B L40 Stage 3 retry
+- **Context:** Retry the unresolved Gemma 4 12B all-layer sweep after its RTX PRO 6000 model load failed despite 74.66 GiB reported free VRAM.
+- **Agent:** gpt-5-codex
+- **Did:** Added a dedicated held L40 runner and submitter plus a CPU-only validating finalizer; added device/headroom, write-once, commit-integrity, input-validation, scheduler-verification, manifest, and partial-submission cleanup gates with focused tests.
+- **Findings:** Gemma 4 12B previously loaded and completed smoke and Stage 1 on L40 at 22.99 and 23.22 GB maximum virtual memory. The new job requires exactly one L40 with at least 30 GiB free VRAM and requests `gpu=1,h_vmem=32G,h_rt=01:00:00` from `gpu@scc192,gpu@scc213`. Local verification passed 21 tests, shell syntax, Python compilation, dry-run inspection, and `git diff --check`.
+- **Decision / rationale:** Use the empirically validated single-L40 path rather than repeat the anomalous 12B Unified loader failure on Blackwell; keep Git synchronization outside the GPU job and prohibit automatic hardware substitution after failure.
+- **Next:** Push the implementation, fast-forward and preflight SCCKN, submit the L40 job held with its CPU finalizer, synchronize the manifest, then release and monitor it.
