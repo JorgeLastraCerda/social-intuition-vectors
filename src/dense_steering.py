@@ -471,6 +471,13 @@ def main() -> None:
     checkpoint: CheckpointStore | None = None
     if args.resume and not args.checkpoint_dir:
         raise ValueError("--resume requires --checkpoint-dir.")
+    if args.checkpoint_origin_commit and not args.resume:
+        raise ValueError("--checkpoint-origin-commit requires --resume.")
+    if args.checkpoint_origin_commit and (
+        len(args.checkpoint_origin_commit) != 40
+        or any(character not in "0123456789abcdef" for character in args.checkpoint_origin_commit)
+    ):
+        raise ValueError("--checkpoint-origin-commit must be a 40-character lowercase SHA.")
     if args.checkpoint_dir:
         input_paths = {
             "config": Path(args.config),
@@ -486,7 +493,7 @@ def main() -> None:
                 vectors_dir / "concept_vectors_denoised.npz"
             )
         fingerprint = {
-            "git_commit": git_commit(),
+            "git_commit": args.checkpoint_origin_commit or git_commit(),
             "model": model_name,
             "model_revision": cfg.model.revision,
             "probe_layer": layer,
@@ -777,6 +784,7 @@ def main() -> None:
         "scientific_gate": "descriptive-only",
         "checkpoint_dir": str(args.checkpoint_dir) if args.checkpoint_dir else None,
         "resumed": bool(args.resume),
+        "checkpoint_origin_commit": args.checkpoint_origin_commit,
         "rendered_prompt_example": rendered,
         "runtime": model_runtime_metadata(model),
         "raw_output": str(raw_path),
@@ -864,6 +872,13 @@ def parse_args() -> argparse.Namespace:
         "--resume",
         action="store_true",
         help="Resume a matching --checkpoint-dir; fingerprints must match exactly.",
+    )
+    parser.add_argument(
+        "--checkpoint-origin-commit",
+        help=(
+            "On resume only, use the checkpoint's original 40-character commit in "
+            "the fingerprint while retaining exact argument and input-hash checks."
+        ),
     )
     return parser.parse_args()
 

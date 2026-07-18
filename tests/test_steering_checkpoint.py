@@ -117,3 +117,11 @@ def test_ccu_remaining_queue_is_fail_closed_and_gate_driven() -> None:
     assert "local_full282 broad_full282 denoised_full282" in queue
     assert 'gate_decision "$gate26"' in queue
     assert 'gate_decision "$gate31"' in queue
+
+
+def test_scckn_resume_preserves_checkpoint_origin_commit() -> None:
+    runner = (ROOT / "jobs/sge/calibrated_steering_run.sh").read_text()
+    dense = (ROOT / "src/dense_steering.py").read_text()
+    assert '--checkpoint-origin-commit "$checkpoint_commit"' in runner
+    assert '"git_commit": args.checkpoint_origin_commit or git_commit()' in dense
+    assert "requires --resume" in dense
