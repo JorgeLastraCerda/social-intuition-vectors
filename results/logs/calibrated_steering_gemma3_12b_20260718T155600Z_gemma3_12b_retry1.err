@@ -1,0 +1,31 @@
+Loading weights:   0%|          | 0/1065 [00:00<?, ?it/s]Loading weights: 100%|██████████| 1065/1065 [00:00<00:00, 24737.69it/s]
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/data/scc/emrecan.ulu/normalcy-axis/src/dense_steering.py", line 753, in <module>
+    main()
+  File "/data/scc/emrecan.ulu/normalcy-axis/src/dense_steering.py", line 442, in main
+    model = load_hooked_model(cfg)
+            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/data/scc/emrecan.ulu/normalcy-axis/src/utils/model_loader.py", line 74, in load_hooked_model
+    model = TransformerBridge.boot_transformers(model_name, **load_kwargs)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scc/emrecan.ulu/.conda/envs/wc-tl/lib/python3.11/site-packages/transformer_lens/model_bridge/sources/transformers.py", line 716, in boot
+    bridge = TransformerBridge(hf_model, adapter, tokenizer)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scc/emrecan.ulu/.conda/envs/wc-tl/lib/python3.11/site-packages/transformer_lens/model_bridge/bridge.py", line 175, in __init__
+    set_original_components(self, self.adapter, original_model)
+  File "/home/scc/emrecan.ulu/.conda/envs/wc-tl/lib/python3.11/site-packages/transformer_lens/model_bridge/component_setup.py", line 58, in set_original_components
+    setup_components(component_mapping, bridge_module, architecture_adapter, original_model)
+  File "/home/scc/emrecan.ulu/.conda/envs/wc-tl/lib/python3.11/site-packages/transformer_lens/model_bridge/component_setup.py", line 179, in setup_components
+    setup_submodules(bridge_component, architecture_adapter, original_component)
+  File "/home/scc/emrecan.ulu/.conda/envs/wc-tl/lib/python3.11/site-packages/transformer_lens/model_bridge/component_setup.py", line 117, in setup_submodules
+    original_subcomponent = architecture_adapter.get_remote_component(
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scc/emrecan.ulu/.conda/envs/wc-tl/lib/python3.11/site-packages/transformer_lens/model_bridge/architecture_adapter.py", line 187, in get_remote_component
+    current = getattr(current, part)
+              ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/scc/emrecan.ulu/.conda/envs/wc-tl/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1967, in __getattr__
+    raise AttributeError(
+AttributeError: 'SiglipVisionModel' object has no attribute 'vision_model'
+ERROR conda.cli.main_run:execute(125): `conda run python -m src.dense_steering --config config/config.yaml --vectors-subdir concept_vectors --label gemma3_12b_calibrated --vector-kind raw --include-cross-axis --n-random-directions 99 --strengths=-0.1,-0.05,0,0.05,0.1 --prompt-format raw --control-scale sd_matched --interventions additive,norm_preserving` failed. (See above for error)

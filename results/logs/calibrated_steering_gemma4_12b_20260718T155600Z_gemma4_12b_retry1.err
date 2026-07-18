@@ -1,0 +1,13 @@
+Loading weights:   0%|          | 0/677 [00:00<?, ?it/s]Loading weights: 100%|██████████| 677/677 [00:00<00:00, 30325.34it/s]
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/data/scc/emrecan.ulu/normalcy-axis/src/validate_calibrated_steering.py", line 138, in <module>
+    main()
+  File "/data/scc/emrecan.ulu/normalcy-axis/src/validate_calibrated_steering.py", line 131, in main
+    validate(args.config, args.label, require_absent=args.require_absent),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data/scc/emrecan.ulu/normalcy-axis/src/validate_calibrated_steering.py", line 110, in validate
+    raise AssertionError(
+AssertionError: Norm-preserving drift 0.00562005 exceeds 5e-3.
+ERROR conda.cli.main_run:execute(125): `conda run python -m src.validate_calibrated_steering --config config/gemma4_12b.yaml --label gemma4_12b_calibrated` failed. (See above for error)
