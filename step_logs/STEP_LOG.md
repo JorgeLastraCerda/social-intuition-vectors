@@ -1937,3 +1937,13 @@
 - **Findings:** The CCU queue completed all tasks between 23:42 and 00:09 Europe/Berlin with 2,820 validated rows per run. In 26B-A4B, warmth remained monotone while competence was non-monotone in local, broad, and denoised-local regimes. In 31B, both axes were non-monotone and had negative positive-strength endpoints in all three regimes. CCU is now idle. SCCKN status could not be refreshed because the login host refused port 22; the last verified 31B calibrated state was a successful checkpoint resume with advancing shards.
 - **Decision / rationale:** Mark the full-282 matrix complete for both larger Gemma 4 models, but leave 31B calibrated status unresolved until SCCKN connectivity returns and its final sentinel can be checked.
 - **Next:** Commit the recovered artifacts, then recheck SCCKN and synchronize the 31B calibrated result if complete.
+
+---
+
+## 2026-07-19 · Step 2 — Record SSH outage after recovering CCU outputs
+- **Context:** Finalize the overnight status check after all CCU artifacts were secured locally.
+- **Agent:** gpt-5-codex
+- **Did:** Committed the five recovered full-282 result sets and reports locally as `c1f43c7`, checked repository divergence, and retried synchronization.
+- **Findings:** The local branch is one commit ahead of origin. Both SCCKN (`scc2.uni-konstanz.de:22`) and GitHub SSH (`github.com:22`) returned `Connection refused`, preventing a fresh 31B calibrated sentinel check and remote push. CCU access remains healthy, all required larger-model sentinels are present, and its H100 is idle.
+- **Decision / rationale:** Preserve the unpushed local commit and report 31B calibrated as externally unverified rather than inferring completion from elapsed time.
+- **Next:** Retry SCCKN and GitHub SSH after connectivity returns, then synchronize and report the 31B calibrated result.
