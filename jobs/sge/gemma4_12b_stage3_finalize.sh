@@ -15,6 +15,7 @@ set -euo pipefail
 : "${GIT_COMMIT:?GIT_COMMIT is required}"
 : "${SUCCESS_SENTINEL:?SUCCESS_SENTINEL is required}"
 : "${FINAL_SENTINEL:?FINAL_SENTINEL is required}"
+: "${OUTPUT_LABEL:=gemma4_12b}"
 
 module load conda  # ADJUST
 conda activate wc-tl-g4
@@ -40,7 +41,7 @@ fi
 python -m src.validate_gemma4_stage \
   --stage 3 \
   --model google/gemma-4-12B-it \
-  --label gemma4_12b \
+  --label "$OUTPUT_LABEL" \
   --vectors-subdir concept_vectors_gemma4_12b \
   --expected-layers 48 \
   --expected-d-model 3840
@@ -51,4 +52,4 @@ mkdir -p "$(dirname "$FINAL_SENTINEL")"
 sentinel_tmp="${FINAL_SENTINEL}.tmp.${JOB_ID:-$$}"
 : > "$sentinel_tmp"
 mv "$sentinel_tmp" "$FINAL_SENTINEL"
-echo "[success] Gemma 4 12B Stage 3 validated and synchronized"
+echo "[success] $OUTPUT_LABEL Stage 3 validated and synchronized"
