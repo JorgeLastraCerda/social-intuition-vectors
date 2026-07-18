@@ -1397,3 +1397,13 @@
 - **Findings:** The audit requires the exact runtime name `NVIDIA L40`, writes `layer_sweep_gemma4_12b_l40_repro.{csv,meta.json}`, and cannot overwrite the canonical L40S result. Both jobs passed Grid Engine resource verification before submission.
 - **Decision / rationale:** Release the audit only after its manifest and this entry are durable, then use the separately labeled table solely to quantify hardware/run reproducibility before final scientific reporting.
 - **Next:** Pull this entry on SCCKN, release `1144977`, confirm exact-L40 assignment, and compare its probe-layer and full-depth metrics against Stage 2 and the L40S sweep.
+
+---
+
+## 2026-07-18 · Step 11 — Complete Gemma 4 12B Stage 3 and hardware audit
+- **Context:** Finalize the 12B all-layer sweep after resolving the L40S cross-stage mismatch with a same-hardware L40 run.
+- **Agent:** gpt-5-codex
+- **Did:** Released and monitored jobs `1144977` and `1144978`, validated and synchronized the separately labeled exact-L40 table, compared both Stage 3 runs with Stage 2, and created `paper/2026-07-18_1244_gemma4_12b_stage3_l40_reproducibility.md`.
+- **Findings:** Both audit jobs finished with `failed=0,exit_status=0`; the L40 GPU sweep took 100 seconds and the CPU finalizer 56 seconds. At layer 31, exact L40 reproduces Stage 2 warmth d 8.633730, competence d 9.035413, and cos(W,C) 0.493539 with zero six-decimal difference. Warmth and competence d peak at layers 26 and 27 (10.563076 and 10.445699). The L40S run remains technically valid but differs by -0.171811/-0.052480 d and -0.000977 cosine at the probe layer.
+- **Decision / rationale:** Use the exact-L40 table as the cross-stage-consistent 12B Stage 3 result, preserve the L40S table as a reproducibility artifact, and report the device comparison as a one-run-per-device numerical warning rather than a fully isolated hardware effect.
+- **Next:** Decide separately whether the completed three-model Gemma 4 depth profiles should be added to the active manuscript and paper figures.
