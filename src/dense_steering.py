@@ -24,6 +24,9 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import os
+import subprocess
+import tempfile
 from dataclasses import replace
 from pathlib import Path
 
@@ -53,6 +56,7 @@ from src.steering_calibration import (
     paired_topic_difference_ci,
     standardized_shift,
 )
+from src.steering_checkpoint import CheckpointStore, atomic_json_write, sha256_file
 from src.utils.config import load_config
 from src.utils.hooks import residual_hook_name
 from src.utils.model_loader import load_hooked_model, model_runtime_metadata
@@ -60,6 +64,33 @@ from src.utils.prompting import decision_token_ids, encode_decision_prompt
 
 AXES = ("warmth", "competence")
 DEFAULT_STRENGTHS = "-0.1,-0.05,0,0.05,0.1"
+
+
+def git_commit() -> str:
+    """Return the checked-out commit for provenance without requiring Git."""
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], text=True, stderr=subprocess.DEVNULL
+        ).strip()
+    except (OSError, subprocess.CalledProcessError):
+        return "unavailable"
+
+
+def atomic_csv_write(path: Path, rows: list[dict]) -> None:
+    """Write a complete CSV and atomically publish it."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, temporary = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
+    temporary_path = Path(temporary)
+    try:
+        with os.fdopen(fd, "w", newline="", encoding="utf-8") as handle:
+            writer = csv.DictWriter(handle, fieldnames=list(rows[0].keys()))
+            writer.writeheader()
+            writer.writerows(rows)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary_path, path)
+    finally:
+        temporary_path.unlink(missing_ok=True)
 
 
 def orthogonal_random_directions(
@@ -437,6 +468,51 @@ def main() -> None:
         },
     }
 
+    checkpoint: CheckpointStore | None = None
+    if args.resume and not args.checkpoint_dir:
+        raise ValueError("--resume requires --checkpoint-dir.")
+    if args.checkpoint_dir:
+        input_paths = {
+            "config": Path(args.config),
+            "stimuli": Path(cfg.paths.stimuli) / "concept_stories.jsonl",
+            "meta": vectors_dir / "meta.json",
+            **{
+                f"activation_{condition}": vectors_dir / f"X_{condition}.npy"
+                for condition in CONDITIONS
+            },
+        }
+        if args.vector_kind == "denoised":
+            input_paths["denoised_vectors"] = (
+                vectors_dir / "concept_vectors_denoised.npz"
+            )
+        fingerprint = {
+            "git_commit": git_commit(),
+            "model": model_name,
+            "model_revision": cfg.model.revision,
+            "probe_layer": layer,
+            "seed": cfg.probing.seed,
+            "train_topics": train_topics.tolist(),
+            "test_topics": test_topics.tolist(),
+            "arguments": {
+                "label": args.label,
+                "vectors_subdir": args.vectors_subdir,
+                "vector_kind": args.vector_kind,
+                "include_cross_axis": args.include_cross_axis,
+                "n_random_directions": args.n_random_directions,
+                "strengths": list(strengths),
+                "prompt_format": args.prompt_format,
+                "control_scale": args.control_scale,
+                "interventions": list(interventions),
+                "n_test_topics": args.n_test_topics,
+            },
+            "input_sha256": {
+                name: sha256_file(path) for name, path in sorted(input_paths.items())
+            },
+        }
+        checkpoint = CheckpointStore(
+            Path(args.checkpoint_dir), fingerprint, resume=args.resume
+        )
+
     # --- load model ---
     print(f"[model] loading {model_name}", flush=True)
     model = load_hooked_model(cfg)
@@ -455,6 +531,7 @@ def main() -> None:
 
     # --- steering loop ---
     raw_rows: list[dict] = []
+    work_sequence = 0
 
     for axis in AXES:
         if enhanced:
@@ -485,41 +562,54 @@ def main() -> None:
                     test_records.append((record, label))
 
         # baseline
-        baseline_margins: dict[str, float] = {}
-        for idx, (record, label) in enumerate(test_records, start=1):
-            prompt = judgement_prompt(record["text"], axis)
-            margin = yes_no_margin(
-                model, prompt, hook_name, prompt_format=args.prompt_format
-            )
-            baseline_margins[record["id"]] = margin
-            raw_rows.append(
-                {
-                    "mode": "baseline",
-                    "axis": axis,
-                    "story_id": record["id"],
-                    "topic_idx": int(record["topic_idx"]),
-                    "condition": record["condition"],
-                    "label": label,
-                    "direction": "baseline",
-                    "strength": 0.0,
-                    "margin": margin,
-                    "delta_margin": 0.0,
-                    "judgment_axis": axis,
-                    "steering_axis": "",
-                    "direction_type": "baseline",
-                    "random_id": "",
-                    "vector_kind": args.vector_kind,
-                    "intervention": "baseline",
-                    "control_scale": args.control_scale,
-                    "direction_sd": "",
-                    "alpha_absolute": 0.0,
-                    "standardized_shift": 0.0,
-                    "max_relative_norm_drift": 0.0,
-                    "decision_flipped": False,
-                }
-            )
-            if idx % 10 == 0:
-                print(f"[baseline] {axis} {idx}/{len(test_records)}", flush=True)
+        baseline_key = {"mode": "baseline", "axis": axis}
+        baseline_rows = (
+            checkpoint.read(work_sequence, baseline_key) if checkpoint else None
+        )
+        if baseline_rows is None:
+            baseline_rows = []
+            for idx, (record, label) in enumerate(test_records, start=1):
+                prompt = judgement_prompt(record["text"], axis)
+                margin = yes_no_margin(
+                    model, prompt, hook_name, prompt_format=args.prompt_format
+                )
+                baseline_rows.append(
+                    {
+                        "mode": "baseline",
+                        "axis": axis,
+                        "story_id": record["id"],
+                        "topic_idx": int(record["topic_idx"]),
+                        "condition": record["condition"],
+                        "label": label,
+                        "direction": "baseline",
+                        "strength": 0.0,
+                        "margin": margin,
+                        "delta_margin": 0.0,
+                        "judgment_axis": axis,
+                        "steering_axis": "",
+                        "direction_type": "baseline",
+                        "random_id": "",
+                        "vector_kind": args.vector_kind,
+                        "intervention": "baseline",
+                        "control_scale": args.control_scale,
+                        "direction_sd": "",
+                        "alpha_absolute": 0.0,
+                        "standardized_shift": 0.0,
+                        "max_relative_norm_drift": 0.0,
+                        "decision_flipped": False,
+                    }
+                )
+                if idx % 10 == 0:
+                    print(f"[baseline] {axis} {idx}/{len(test_records)}", flush=True)
+            if checkpoint:
+                checkpoint.write(work_sequence, baseline_key, baseline_rows)
+        else:
+            print(f"[resume] baseline {axis}", flush=True)
+        raw_rows.extend(baseline_rows)
+        baseline_margins = {
+            str(row["story_id"]): float(row["margin"]) for row in baseline_rows
+        }
+        work_sequence += 1
 
         # steering
         for intervention in interventions:
@@ -530,6 +620,25 @@ def main() -> None:
                     direction_sd_value = direction_sds[axis]
                 target_sd = direction_sds[axis]
                 for strength in strengths:
+                    work_key = {
+                        "mode": "steering",
+                        "axis": axis,
+                        "intervention": intervention,
+                        "direction": direction_name,
+                        "strength": strength,
+                    }
+                    completed_rows = (
+                        checkpoint.read(work_sequence, work_key) if checkpoint else None
+                    )
+                    if completed_rows is not None:
+                        raw_rows.extend(completed_rows)
+                        print(
+                            f"[resume] {axis} {direction_name} {intervention} "
+                            f"strength={strength:+.2f}",
+                            flush=True,
+                        )
+                        work_sequence += 1
+                        continue
                     alpha = calibrated_alpha(
                         strength=strength,
                         mean_residual_norm=mean_resid_norm,
@@ -543,6 +652,7 @@ def main() -> None:
                         diagnostics = None
                     else:
                         hook, diagnostics = make_torch_hook(vector, alpha, intervention)
+                    work_rows: list[dict] = []
                     for record, label in test_records:
                         prompt = judgement_prompt(record["text"], axis)
                         margin = (
@@ -559,7 +669,7 @@ def main() -> None:
                         steering_axis, direction_type, random_id = direction_metadata(
                             axis, direction_name
                         )
-                        raw_rows.append(
+                        work_rows.append(
                             {
                                 "mode": "steering",
                                 "axis": axis,
@@ -592,11 +702,18 @@ def main() -> None:
                                 ),
                             }
                         )
+                    if checkpoint:
+                        checkpoint.write(work_sequence, work_key, work_rows)
+                    raw_rows.extend(work_rows)
                     print(
                         f"[steering] {axis} {direction_name} {intervention} "
                         f"strength={strength:+.2f} alpha={alpha:+.4f}",
                         flush=True,
                     )
+                    work_sequence += 1
+
+    if checkpoint:
+        raw_rows = checkpoint.consolidate(work_sequence)
 
     # --- summaries ---
     calibrated_run = args.control_scale == "sd_matched" or interventions != (
@@ -629,23 +746,14 @@ def main() -> None:
 
     # --- write outputs ---
     raw_path = table_dir / f"steering_dense_raw_{args.label}.csv"
-    with raw_path.open("w", newline="", encoding="utf-8") as fh:
-        writer = csv.DictWriter(fh, fieldnames=list(raw_rows[0].keys()))
-        writer.writeheader()
-        writer.writerows(raw_rows)
+    atomic_csv_write(raw_path, raw_rows)
     check_file_size(raw_path)
 
     summary_path = table_dir / f"steering_dense_{args.label}.csv"
-    with summary_path.open("w", newline="", encoding="utf-8") as fh:
-        writer = csv.DictWriter(fh, fieldnames=list(summary_rows[0].keys()))
-        writer.writeheader()
-        writer.writerows(summary_rows)
+    atomic_csv_write(summary_path, summary_rows)
     null_path = table_dir / f"steering_dense_null_{args.label}.csv"
     if null_rows:
-        with null_path.open("w", newline="", encoding="utf-8") as fh:
-            writer = csv.DictWriter(fh, fieldnames=list(null_rows[0].keys()))
-            writer.writeheader()
-            writer.writerows(null_rows)
+        atomic_csv_write(null_path, null_rows)
 
     log = {
         "label": args.label,
@@ -667,6 +775,8 @@ def main() -> None:
         "direction_sds_train_topics": direction_sds,
         "calibration_activation_rows": int(train_activations.shape[0]),
         "scientific_gate": "descriptive-only",
+        "checkpoint_dir": str(args.checkpoint_dir) if args.checkpoint_dir else None,
+        "resumed": bool(args.resume),
         "rendered_prompt_example": rendered,
         "runtime": model_runtime_metadata(model),
         "raw_output": str(raw_path),
@@ -674,7 +784,7 @@ def main() -> None:
         "null_output": str(null_path) if null_rows else None,
     }
     log_path = log_dir / f"steering_dense_{args.label}.json"
-    log_path.write_text(json.dumps(log, indent=2), encoding="utf-8")
+    atomic_json_write(log_path, log)
 
     print(f"[done] {raw_path}")
     print(f"[done] {summary_path}")
@@ -745,6 +855,15 @@ def parse_args() -> argparse.Namespace:
         type=int,
         default=10,
         help="Number of topics held out for testing (same split as gemma_scope_causality).",
+    )
+    parser.add_argument(
+        "--checkpoint-dir",
+        help="Optional directory for atomic per-work-unit checkpoint shards.",
+    )
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="Resume a matching --checkpoint-dir; fingerprints must match exactly.",
     )
     return parser.parse_args()
 
