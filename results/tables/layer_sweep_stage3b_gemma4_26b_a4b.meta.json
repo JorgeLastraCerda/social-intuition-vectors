@@ -1,0 +1,36 @@
+{
+  "model": "google/gemma-4-26B-A4B-it",
+  "n_layers": 30,
+  "d_model": 2816,
+  "probe_layer": 19,
+  "probe_layer_frac": 0.66,
+  "start_token": 50,
+  "seed": 20260527,
+  "n_stories": 200,
+  "label": "stage3b_gemma4_26b_a4b",
+  "timestamp": 1784378887,
+  "input_format": "raw-passage",
+  "runtime": {
+    "backend": "transformer-bridge",
+    "transformer_lens_version": "3.5.1",
+    "transformers_version": "5.13.0",
+    "torch_version": "2.13.0+cu130",
+    "dtype": "torch.bfloat16",
+    "execution_topology": "single-device",
+    "parameter_devices": [
+      "cuda:0"
+    ],
+    "hf_device_map": null,
+    "visible_cuda_devices": [
+      {
+        "index": 0,
+        "name": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+      }
+    ]
+  },
+  "analysis_profile": "stage3b",
+  "n_bootstrap": 1000,
+  "bootstrap_batch_size": 100,
+  "git_commit": "ddb61abe8807ab7af85d5af24766089e8fa04ac0",
+  "stimuli_sha256": "81c3b973e00f131e051a8250d6d076ef7a536974fd8a5fc5596af4b36b6ae916"
+}

@@ -1,0 +1,2 @@
+[start] 2026-07-18T12:47:25Z model=google/gemma-4-26B-A4B-it label=stage3b_gemma4_26b_a4b job=1145164
+Loading weights:   0%|          | 0/1013 [00:00<?, ?it/s]Loading weights: 100%|██████████| 1013/1013 [00:00<00:00, 29836.24it/s]
