@@ -1,0 +1,11 @@
+{
+  "model_label": "gemma4_12b",
+  "run_full_282": true,
+  "reasons": [
+    "broad:warmth:endpoint_slope_sign_mismatch",
+    "broad:warmth:non_monotone",
+    "broad:competence:endpoint_slope_sign_mismatch",
+    "broad:competence:non_monotone"
+  ],
+  "policy": "run all local, broad, and denoised-local regimes if any reason fires"
+}

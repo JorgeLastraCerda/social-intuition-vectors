@@ -1838,3 +1838,13 @@
 - **Did:** Checked CCU process, GPU, checkpoint, output, and sentinel state and both SCCKN jobs, accounting records, checkpoint roots, logs, and sentinels.
 - **Findings:** CCU 12B completed all 2,022 checkpoint shards and is CPU-bound at approximately 101% while consolidating or validating, with no success or error sentinel yet. SCCKN 26B-A4B has 1,030 of 2,022 shards (50.9%), and SCCKN 31B has 324 of 2,022 shards (16.0%); both jobs remain in state `r` with advancing accounting and no success or error sentinel.
 - **Next:** Wait for the 12B final validator and sentinel, then retrieve its artifacts while continuing to monitor both SCCKN runs.
+
+---
+
+## 2026-07-18 · Step 53 — Complete 12B calibrated and post-hoc tests and start full-282 expansion
+- **Context:** Use the freed CCU H100 immediately for the remaining Gemma 4 12B legacy-parity tests.
+- **Agent:** gpt-5-codex
+- **Did:** Retrieved and hash-verified the completed CCU calibrated artifacts; ran and validated CPU-only disparity, mediation, R4, and full-282 gate tests; added a write-once H100-only full-282 runner; passed 12 focused tests plus Ruff and shell checks; launched the independent local full-282 run; wrote `paper/2026-07-18_2314_gemma4_12b_ccu_calibrated_steering.md`, `paper/2026-07-18_2314_gemma4_12b_posthoc_hiring.md`, and `paper/2026-07-18_2314_gemma4_12b_full282_gate.md`.
+- **Findings:** The CCU calibrated run passed with 40,440 raw, 2,020 summary, and eight null rows and maximum norm drift 0.005823. Post-hoc validation produced all five required outputs; the competence-mediated race path was the only 95% interval excluding zero. The full-282 gate fired for broad-regime sign mismatch and non-monotonicity on both axes. Local full-282 selected 282 of 282 names and began model loading on the H100.
+- **Decision / rationale:** Run local, broad, and denoised-local full-282 expansions as separate write-once executions because the predeclared gate requires all three when any criterion fires. Do not substitute an SAE test because no compatible Gemma 4 SAE is available.
+- **Next:** Validate and report local full-282, then launch broad and denoised-local independently; continue monitoring SCCKN 26B-A4B and 31B calibrated runs.

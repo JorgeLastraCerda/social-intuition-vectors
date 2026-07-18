@@ -1,0 +1,23 @@
+{
+  "label": "gemma4_12b",
+  "audit_input": "results/tables/hiring_audit_gemma4_12b.csv",
+  "human_input": "data/raw/SocialPerceptions-Predict-Callback-main/0_data/published_data/df_all.csv",
+  "join": "lowercase first name plus exact study match",
+  "n_audit": 282,
+  "n_matched": 149,
+  "seed": 20260527,
+  "margin_diagnostic": {
+    "n": 149,
+    "n_unique": 106,
+    "sd": 0.19252815126399267,
+    "fraction_on_0.125_grid": 0.026845637583892617,
+    "quantisation_warning": false
+  },
+  "group_level_correlation": {
+    "pearson_r": -0.567381878077792,
+    "pearson_p": 0.43261812192220805,
+    "n_groups": 4
+  },
+  "group_output": "results/tables/hiring_group_r4_gemma4_12b.csv",
+  "name_level_output": "results/tables/hiring_name_level_gemma4_12b.csv"
+}

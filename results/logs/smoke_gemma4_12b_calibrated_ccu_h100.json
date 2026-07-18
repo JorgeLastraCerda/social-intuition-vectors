@@ -1,0 +1,44 @@
+{
+  "model": "google/gemma-4-12B-it",
+  "revision": "12ace6d648d72bd41519e140f1185f34d38c7e3d",
+  "seed": 20260527,
+  "n_layers": 48,
+  "d_model": 3840,
+  "probe_layer": 31,
+  "hook": "blocks.31.hook_resid_post",
+  "activation_shape": [
+    1,
+    9,
+    3840
+  ],
+  "yes_token_id": 10784,
+  "no_token_id": 3771,
+  "bridge_hf_max_logit_diff": 0.0,
+  "baseline_margin": 17.2890625,
+  "steered_margin": 17.423828125,
+  "peak_allocated_vram_gib": 22.52394676208496,
+  "prompt_format": "native-chat",
+  "runtime": {
+    "backend": "transformer-bridge",
+    "transformer_lens_version": "3.5.1",
+    "transformers_version": "5.13.0",
+    "torch_version": "2.6.0+cu124",
+    "dtype": "torch.bfloat16",
+    "execution_topology": "single-device",
+    "parameter_devices": [
+      "cuda:0"
+    ],
+    "hf_device_map": null,
+    "visible_cuda_devices": [
+      {
+        "index": 0,
+        "name": "NVIDIA H100 80GB HBM3"
+      }
+    ],
+    "model_revision_requested": "12ace6d648d72bd41519e140f1185f34d38c7e3d",
+    "model_revision_resolved": "12ace6d648d72bd41519e140f1185f34d38c7e3d",
+    "chat_template_sha256": "ae53464bf3be25802b3a5b37def7fd89667067d7577049b3b2d74c4d8de4c6d4",
+    "peak_allocated_vram_gib": 22.52394676208496,
+    "peak_reserved_vram_gib": 22.806640625
+  }
+}

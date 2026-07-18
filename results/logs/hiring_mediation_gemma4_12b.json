@@ -1,0 +1,70 @@
+{
+  "label": "gemma4_12b",
+  "n_matched": 269,
+  "n_race_subset": 227,
+  "n_boot": 5000,
+  "seed": 20260527,
+  "mediation": [
+    {
+      "a": -0.2597,
+      "b": -0.109,
+      "indirect_effect": 0.0283,
+      "ci_95_lo": -0.0027,
+      "ci_95_hi": 0.0691,
+      "total_effect": 0.0481,
+      "proportion_mediated": 0.5891,
+      "significant_95": false,
+      "n_boot": 5000,
+      "n": 227,
+      "grouping": "race(Black=1)",
+      "probe": "warmth",
+      "treatment_encoding": "race=1 for Black/Female, 0 for White/Male"
+    },
+    {
+      "a": -0.3271,
+      "b": -0.1187,
+      "indirect_effect": 0.0388,
+      "ci_95_lo": -0.0043,
+      "ci_95_hi": 0.0786,
+      "total_effect": 0.0891,
+      "proportion_mediated": 0.4355,
+      "significant_95": false,
+      "n_boot": 5000,
+      "n": 269,
+      "grouping": "gender(Female=1)",
+      "probe": "warmth",
+      "treatment_encoding": "gender=1 for Black/Female, 0 for White/Male"
+    },
+    {
+      "a": -0.5153,
+      "b": 0.2908,
+      "indirect_effect": -0.1498,
+      "ci_95_lo": -0.295,
+      "ci_95_hi": -0.019,
+      "total_effect": 0.0481,
+      "proportion_mediated": -3.1178,
+      "significant_95": true,
+      "n_boot": 5000,
+      "n": 227,
+      "grouping": "race(Black=1)",
+      "probe": "competence",
+      "treatment_encoding": "race=1 for Black/Female, 0 for White/Male"
+    },
+    {
+      "a": -0.0321,
+      "b": -0.0242,
+      "indirect_effect": 0.0008,
+      "ci_95_lo": -0.0149,
+      "ci_95_hi": 0.0113,
+      "total_effect": 0.0891,
+      "proportion_mediated": 0.0087,
+      "significant_95": false,
+      "n_boot": 5000,
+      "n": 269,
+      "grouping": "gender(Female=1)",
+      "probe": "competence",
+      "treatment_encoding": "gender=1 for Black/Female, 0 for White/Male"
+    }
+  ],
+  "disparity_output": "results/tables/hiring_disparity_gemma4_12b.csv"
+}
