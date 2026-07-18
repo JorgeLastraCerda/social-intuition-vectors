@@ -77,6 +77,15 @@
       1.0,
       1.0,
       1.0
+    ],
+    "direction_topic_cv_mean": 1.0,
+    "direction_topic_cv_std": 0.0,
+    "direction_topic_cv_folds": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
     ]
   },
   "competence": {
@@ -105,11 +114,40 @@
       1.0,
       1.0,
       1.0
+    ],
+    "direction_topic_cv_mean": 1.0,
+    "direction_topic_cv_std": 0.0,
+    "direction_topic_cv_folds": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
     ]
   },
   "axis_cosine": 0.579814,
   "cross_warmth_on_competence_cv": 0.99,
   "cross_competence_on_warmth_cv": 1.0,
+  "cross_warmth_on_competence_calibrated_cv": 0.99,
+  "cross_competence_on_warmth_calibrated_cv": 1.0,
+  "cross_warmth_to_competence_topic_transfer_mean": 0.97,
+  "cross_warmth_to_competence_topic_transfer_std": 0.06,
+  "cross_warmth_to_competence_topic_transfer_folds": [
+    0.85,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "cross_competence_to_warmth_topic_transfer_mean": 0.98,
+  "cross_competence_to_warmth_topic_transfer_std": 0.024495,
+  "cross_competence_to_warmth_topic_transfer_folds": [
+    0.95,
+    0.95,
+    1.0,
+    1.0,
+    1.0
+  ],
   "pass_warmth_cv": true,
   "pass_competence_cv": true,
   "pass_orthogonality": false,

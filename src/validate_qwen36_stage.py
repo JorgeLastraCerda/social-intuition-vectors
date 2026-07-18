@@ -102,12 +102,50 @@ def validate_stage2(cfg: ProjectConfig) -> None:
     table = pd.read_csv(paths.probe_table)
     if len(table) != 2 or set(table["axis"]) != {"warmth", "competence"}:
         raise AssertionError("Stage 2 must contain exactly warmth and competence rows.")
+    required_columns = {
+        "direction_topic_cv_mean",
+        "direction_topic_cv_std",
+        "direction_topic_cv_folds",
+    }
+    missing_columns = required_columns - set(table.columns)
+    if missing_columns:
+        raise AssertionError(
+            f"Stage 2 is missing strict direction columns: {sorted(missing_columns)}."
+        )
     numeric = table.drop(columns=["axis"]).select_dtypes(include=[np.number])
     _finite(numeric.to_numpy(float), str(paths.probe_table))
     log = json.loads(paths.probe_log.read_text(encoding="utf-8"))
     _match(log["meta"], _expected(cfg), f"{paths.probe_log}:meta")
     if log.get("scientific_flags_are_non_gating") is not True:
         raise AssertionError("Stage 2 scientific flags must be explicitly non-gating.")
+    for axis in ("warmth", "competence"):
+        payload = log.get(axis, {})
+        for key in ("direction_topic_cv_mean", "direction_topic_cv_std"):
+            _finite(np.asarray([payload.get(key)], dtype=float), f"{axis}:{key}")
+        folds = np.asarray(payload.get("direction_topic_cv_folds", []), dtype=float)
+        if folds.shape != (5,):
+            raise AssertionError(f"{axis}:direction_topic_cv_folds must have five folds.")
+        _finite(folds, f"{axis}:direction_topic_cv_folds")
+    strict_prefixes = (
+        "cross_warmth_to_competence_topic_transfer",
+        "cross_competence_to_warmth_topic_transfer",
+    )
+    for prefix in strict_prefixes:
+        _finite(
+            np.asarray([log.get(f"{prefix}_mean"), log.get(f"{prefix}_std")], dtype=float),
+            prefix,
+        )
+        folds = np.asarray(log.get(f"{prefix}_folds", []), dtype=float)
+        if folds.shape != (5,):
+            raise AssertionError(f"{prefix}_folds must have five folds.")
+        _finite(folds, f"{prefix}_folds")
+    aliases = (
+        ("cross_warmth_on_competence_cv", "cross_warmth_on_competence_calibrated_cv"),
+        ("cross_competence_on_warmth_cv", "cross_competence_on_warmth_calibrated_cv"),
+    )
+    for legacy, calibrated in aliases:
+        if log.get(legacy) != log.get(calibrated):
+            raise AssertionError(f"{calibrated} must equal its compatibility field {legacy}.")
     for key in (
         "pass_warmth_cv",
         "pass_competence_cv",

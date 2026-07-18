@@ -1,0 +1,72 @@
+{
+  "status": "pass",
+  "upgrade": "qwen36-stage2-strict-scientific-validation-v1",
+  "model": "Qwen/Qwen3.6-27B",
+  "revision": "6a9e13bd6fc8f0983b9b99948120bc37f49c13e9",
+  "label": "qwen36_27b",
+  "seed": 20260527,
+  "stimuli_sha256": "81c3b973e00f131e051a8250d6d076ef7a536974fd8a5fc5596af4b36b6ae916",
+  "backend": "numpy-scikit-learn-cpu",
+  "prior_values_preserved": true,
+  "before": {
+    "probe_table_sha256": "32fd957f35cdb3c180c6ddc94d7bcbdbac6054b63c219542002eaaef2f0361c0",
+    "probe_log_sha256": "d07249fc26c2d79d71caf7ca78726dd16ab751db5b00b109822929a28df2aadc"
+  },
+  "upgrade_input": {
+    "probe_table_sha256": "18183f4233e248dc12376c402ad76ed30439a1a1504442ec0d39313e9e6d70f1",
+    "probe_log_sha256": "66a46bdb08633f8daf8fa2b61233b7e14ba6d37bfcb403d3a9370d4571dce204"
+  },
+  "after": {
+    "probe_table_sha256": "9bb690272bd77b8b148acb8eb27236929484c01e165a01c54dc8966222bcfc7b",
+    "probe_log_sha256": "66a46bdb08633f8daf8fa2b61233b7e14ba6d37bfcb403d3a9370d4571dce204"
+  },
+  "direction_topic_cv": {
+    "warmth": {
+      "mean": 1.0,
+      "std": 0.0,
+      "folds": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "competence": {
+      "mean": 1.0,
+      "std": 0.0,
+      "folds": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    }
+  },
+  "strict_cross_axis_topic_transfer": {
+    "warmth_to_competence": {
+      "mean": 0.97,
+      "std": 0.06,
+      "folds": [
+        0.85,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "competence_to_warmth": {
+      "mean": 0.98,
+      "std": 0.024495,
+      "folds": [
+        0.95,
+        0.95,
+        1.0,
+        1.0,
+        1.0
+      ]
+    }
+  },
+  "elapsed_seconds": 0.209
+}

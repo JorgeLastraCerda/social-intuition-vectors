@@ -11,6 +11,7 @@ import pandas as pd
 
 from src.qwen36_pipeline import CONDITIONS, load_full_records, stage_paths
 from src.utils.config import load_config
+from src.upgrade_qwen36_stage2 import _additive_merge, _legacy_log, _merge_table
 from src.validate_qwen36_stage import (
     cross_stage_audit,
     validate_stage1,
@@ -109,11 +110,46 @@ def _write_outputs(cfg) -> None:
     )
 
     pd.DataFrame(
-        [{"axis": "warmth", "cohens_d": 1.0}, {"axis": "competence", "cohens_d": 2.0}]
+        [
+            {
+                "axis": "warmth",
+                "cohens_d": 1.0,
+                "direction_topic_cv_mean": 0.8,
+                "direction_topic_cv_std": 0.1,
+                "direction_topic_cv_folds": [0.8] * 5,
+            },
+            {
+                "axis": "competence",
+                "cohens_d": 2.0,
+                "direction_topic_cv_mean": 0.9,
+                "direction_topic_cv_std": 0.05,
+                "direction_topic_cv_folds": [0.9] * 5,
+            },
+        ]
     ).to_csv(paths.probe_table, index=False)
     probe_log = {
         "meta": meta,
         "axis_cosine": 0.25,
+        "warmth": {
+            "direction_topic_cv_mean": 0.8,
+            "direction_topic_cv_std": 0.1,
+            "direction_topic_cv_folds": [0.8] * 5,
+        },
+        "competence": {
+            "direction_topic_cv_mean": 0.9,
+            "direction_topic_cv_std": 0.05,
+            "direction_topic_cv_folds": [0.9] * 5,
+        },
+        "cross_warmth_on_competence_cv": 0.75,
+        "cross_competence_on_warmth_cv": 0.7,
+        "cross_warmth_on_competence_calibrated_cv": 0.75,
+        "cross_competence_on_warmth_calibrated_cv": 0.7,
+        "cross_warmth_to_competence_topic_transfer_mean": 0.65,
+        "cross_warmth_to_competence_topic_transfer_std": 0.1,
+        "cross_warmth_to_competence_topic_transfer_folds": [0.65] * 5,
+        "cross_competence_to_warmth_topic_transfer_mean": 0.6,
+        "cross_competence_to_warmth_topic_transfer_std": 0.1,
+        "cross_competence_to_warmth_topic_transfer_folds": [0.6] * 5,
         "scientific_flags_are_non_gating": True,
         "pass_warmth_cv": False,
         "pass_competence_cv": False,
@@ -172,6 +208,46 @@ def test_stage_validators_and_cross_stage_audit_accept_negative_scientific_flags
     audit = cross_stage_audit(cfg)
     assert audit["pass"] is True
     assert audit["non_gating_reproducibility_audit"] is True
+
+
+def test_stage2_validator_rejects_missing_strict_transfer(tmp_path) -> None:
+    cfg = _temporary_config(tmp_path)
+    _write_outputs(cfg)
+    paths = stage_paths(cfg)
+    payload = json.loads(paths.probe_log.read_text(encoding="utf-8"))
+    del payload["cross_warmth_to_competence_topic_transfer_mean"]
+    paths.probe_log.write_text(json.dumps(payload), encoding="utf-8")
+    with np.testing.assert_raises((TypeError, ValueError, AssertionError)):
+        validate_stage2(cfg)
+
+
+def test_stage2_upgrade_preserves_legacy_and_replaces_extension_fields() -> None:
+    old_rows = [
+        {
+            "axis": "warmth",
+            "cohens_d": "1.0",
+            "direction_topic_cv_mean": "0.5",
+        }
+    ]
+    new_rows = [
+        {"axis": "warmth", "cohens_d": 1.000001, "direction_topic_cv_mean": 1.0}
+    ]
+    merged_rows = _merge_table(old_rows, new_rows)
+    assert merged_rows[0]["cohens_d"] == "1.0"
+    assert merged_rows[0]["direction_topic_cv_mean"] == 1.0
+
+    old_log = {
+        "warmth": {"cv_mean": 1.0, "direction_topic_cv_mean": 0.5},
+        "cross_warmth_to_competence_topic_transfer_mean": 0.5,
+    }
+    new_log = {
+        "warmth": {"cv_mean": 1.0, "direction_topic_cv_mean": 1.0},
+        "cross_warmth_to_competence_topic_transfer_mean": 0.97,
+    }
+    merged_log = _additive_merge(_legacy_log(old_log), new_log)
+    assert merged_log["warmth"]["cv_mean"] == 1.0
+    assert merged_log["warmth"]["direction_topic_cv_mean"] == 1.0
+    assert merged_log["cross_warmth_to_competence_topic_transfer_mean"] == 0.97
 
 
 def test_submitters_are_independent_and_dry_runnable() -> None:

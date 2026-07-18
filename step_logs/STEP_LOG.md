@@ -1511,3 +1511,13 @@
 - **Decision / rationale:** Persist the held-job manifest and audit entry before releasing the GPU jobs together; retain `probe_layer_frac=0.66` and treat Stage 3B as validation rather than automatic layer selection.
 - **Next:** Pull this entry on SCCKN, release `1145163 1145164 1145165`, verify physical device assignments, and monitor through finalizer and provenance postflight.
 - **Decision / rationale:** Keep all six individual reports as execution-specific records and use the seventh report for direct model selection and subsequent steering design.
+
+---
+
+## 2026-07-18 · Step 23 — Add strict Qwen3.6 Stage 2 validation
+- **Context:** User requested immediate execution and separate reporting of the two technically unblocked Qwen-family tests omitted from the original full runs.
+- **Agent:** gpt-5-codex
+- **Did:** Extended the production Stage 2 path with fold-internal mean-difference direction reconstruction, strict source-only cross-axis topic transfer, compatibility aliases, an additive legacy-artifact upgrader, strengthened validators, and focused tests. Upgraded both canonical Qwen3.6 Stage 2 outputs, wrote per-model strict reports (`paper/2026-07-18_1453_qwen36_27b_strict_stage2_validation.md`, `paper/2026-07-18_1454_qwen36_35b_a3b_strict_stage2_validation.md`), and updated the comparison report and index.
+- **Findings:** Direction-specific topic CV was 1.00 for both axes and models. Strict warmth-to-competence and competence-to-warmth transfer was 0.97/0.98 for 27B and 0.99/0.93 for 35B-A3B. Every pre-existing Stage 2 value was retained; both strengthened validators and cross-stage audits passed with zero probe-layer drift. The full suite passed 66 tests, Ruff passed, and `git diff --check` passed. A NumPy 2.3.0 Apple Accelerate build emitted erroneous dot-product warnings and unstable fold scores; those provisional extension values were rejected, and the accepted results were reproduced warning-free with NumPy 2.5.1 and scikit-learn 1.9.0.
+- **Decision / rationale:** Treat fold-internal direction CV as the construction-specific generalization result and strict transfer as the construct-selectivity control. Keep the older target-calibrated cross-axis fields only for compatibility. Run future Qwen3.6 Stage 2 jobs through the complete schema automatically.
+- **Next:** Technical steering remains a separate GPU experiment; the two CPU validation omissions are now closed for both Qwen3.6 models.

@@ -9,7 +9,7 @@
 
 - **Scripts:** `src/qwen36_pipeline.py`, `src/validate_qwen36_stage.py`, `src/validate_qwen36_comparison.py`, `paper/figures/generate_figures.py`, `jobs/sge/qwen36_stage.sh`
 - **Inputs:** `config/qwen36_27b.yaml`, `config/qwen36_35b_a3b.yaml`, `data/stimuli/concept_stories.jsonl`, `data/processed/concept_vectors_qwen36_27b/`, `data/processed/concept_vectors_qwen36_35b_a3b/`
-- **Outputs:** `results/tables/probe_metrics_qwen36_27b.csv`, `results/tables/probe_metrics_qwen36_35b_a3b.csv`, `results/tables/layer_sweep_qwen36_27b.csv`, `results/tables/layer_sweep_qwen36_35b_a3b.csv`, `results/tables/qwen36_cross_model_agreement.csv`, `results/logs/qwen36_27b_stage{1,2,3}.json`, `results/logs/qwen36_35b_a3b_stage{1,2,3}.json`
+- **Outputs:** `results/tables/probe_metrics_qwen36_27b.csv`, `results/tables/probe_metrics_qwen36_35b_a3b.csv`, `results/tables/layer_sweep_qwen36_27b.csv`, `results/tables/layer_sweep_qwen36_35b_a3b.csv`, `results/tables/qwen36_cross_model_agreement.csv`, `results/logs/qwen36_27b_stage{1,2,3}.json`, `results/logs/qwen36_35b_a3b_stage{1,2,3}.json`, `results/logs/qwen36_27b_stage2_strict_audit.json`, `results/logs/qwen36_35b_a3b_stage2_strict_audit.json`
 - **Figures:** `paper/figures/qwen36_cross/fig5_cross_model.{png,pdf}`, `paper/figures/qwen36_cross/fig8_layer_emergence.{png,pdf}`
 
 ## Executive summary
@@ -49,3 +49,14 @@ All six stage jobs completed with `failed=0` and `exit_status=0`. Stage 1 and St
 ## Decision for subsequent work
 
 Both checkpoints are technically suitable for the planned full causal pipeline. The 27B model offers greater memory headroom and stronger probe-layer separation. The 35B-A3B model adds architectural diversity but uses about 14.2 GiB more reserved VRAM and has greater axis overlap. Any steering phase should retain the pinned revisions, native-HF parity gates, explicit-BOS input contract, target and non-target outcomes, and matched random-direction controls.
+
+## Strict Stage 2 extension
+
+The canonical Stage 2 artifacts were subsequently upgraded with fold-internal reconstruction of the exact mean-difference direction and source-only cross-axis topic transfer.
+
+| Model | Warmth direction topic CV | Competence direction topic CV | Warmth → competence strict transfer | Competence → warmth strict transfer |
+|---|---:|---:|---:|---:|
+| Qwen3.6-27B | 1.00 | 1.00 | 0.97 ± 0.06 | 0.98 ± 0.024 |
+| Qwen3.6-35B-A3B | 1.00 | 1.00 | 0.99 ± 0.02 | 0.93 ± 0.04 |
+
+Perfect direction-specific topic validation confirms that Stage 1's construction rule itself generalizes. Strict transfer remains high in every cell, so the stronger validation does not establish selective warmth and competence representations. The lowest cell, competence to warmth in 35B-A3B, still reaches 0.93. Separate reports `paper/2026-07-18_1453_qwen36_27b_strict_stage2_validation.md` and `paper/2026-07-18_1454_qwen36_35b_a3b_strict_stage2_validation.md` preserve model-specific folds, integrity checks, and interpretation.
