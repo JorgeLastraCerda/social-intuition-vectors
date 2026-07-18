@@ -1,0 +1,41 @@
+--- Grid Engine ---
+Reserving GPUs @ scc192 ..
+Number of requested GPUS: 1
+GPU 0: NVIDIA L40 (UUID: GPU-58427703-bce4-32fd-4b8a-f00823f1d59c)
+GPU 1: NVIDIA L40 (UUID: GPU-41e5380b-23f0-e6b0-6d0a-a44254ec8642)
+GPU 2: NVIDIA L40 (UUID: GPU-aa56efa3-44bb-3542-e797-a0b90a3d3978)
+GPU 3: NVIDIA L40 (UUID: GPU-52b7f36d-6004-78d2-75d7-91fd517911ae)
+Set SGE_GPU = 1
+Set CUDA_VISIBLE_DEVICES = 1
+--- Grid Engine ---
+[runtime] gpu='NVIDIA L40' free=44.00 GiB total=44.42 GiB
+[validated] audit: 2 outputs absent
+[meta] model=google/gemma-4-12B-it  layer=31  hook=blocks.31.hook_resid_post
+[names] 282 unique rated names
+[model] loading google/gemma-4-12B-it …
+[tokens] Yes=10784  No=3771  (continuation check passed)
+[audit] 20/282
+[audit] 40/282
+[audit] 60/282
+[audit] 80/282
+[audit] 100/282
+[audit] 120/282
+[audit] 140/282
+[audit] 160/282
+[audit] 180/282
+[audit] 200/282
+[audit] 220/282
+[audit] 240/282
+[audit] 260/282
+[audit] 280/282
+[audit] 282/282
+[done] results/tables/hiring_audit_gemma4_12b.csv  (282 rows)
+[corr] warmth                                    Spearman rho=+0.020  (p=0.74)
+[corr] competence                                Spearman rho=+0.222  (p=0.00017)
+[corr] callback_vs_model_warmth                  Spearman rho=-0.110  (p=0.066)
+[corr] callback_vs_model_competence              Spearman rho=-0.124  (p=0.038)
+[corr] callback_vs_human_warm                    Spearman rho=-0.001  (p=0.99)
+[corr] callback_vs_human_competent               Spearman rho=+0.110  (p=0.065)
+[done] results/logs/hiring_probe_vs_human_gemma4_12b.json
+[validated] audit: 2 outputs complete
+[success] run=audit -> /work/emrecan.ulu/gemma4_remaining/20260718T141249Z_12b_audit/12b_audit.success
