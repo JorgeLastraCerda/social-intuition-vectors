@@ -1500,4 +1500,14 @@
 - **Findings:** The legacy pipeline remains the default and comparable to the prior Gemma 3/Qwen/Llama sweeps. Focused tests passed 14 cases, the full suite passed 64 tests, Ruff and Python compilation passed, all shell scripts passed `bash -n`, the submitter dry-run described one exact-L40 and two independent RTX PRO 6000 jobs, and `git diff --check` passed.
 - **Decision / rationale:** Preserve all existing Stage 3 tables; write Stage 3B to separately labeled outputs and treat bootstrap peaks as uncertainty summaries rather than automatic layer-selection rules.
 - **Next:** Push the implementation, submit the three jobs held on SCCKN, synchronize the submission manifest, release together, and monitor through provenance postflight.
+
+---
+
+## 2026-07-18 · Step 21 — Submit held Gemma 4 Stage 3B jobs
+- **Context:** Execute the enhanced all-layer direction, transfer, and bootstrap audit on hardware matched to the canonical Stage 3 runs.
+- **Agent:** gpt-5-codex
+- **Did:** Fast-forwarded SCCKN to implementation commit `9579ce4`, synchronized the retained legacy Stage 3 raw logs, passed dependency and Stage 1/2 source validators, verified scheduler capacity, and submitted held GPU jobs `1145163` (12B exact L40), `1145164` (26B-A4B RTX PRO 6000), and `1145165` (31B RTX PRO 6000) plus CPU finalizer `1145166`. Synchronized `results/logs/gemma4_stage3b_submission_20260718T124416Z.json`.
+- **Findings:** All three GPU jobs are independent and user-held; the finalizer depends only on those three IDs. Outputs are separately labeled and write-once, with no overwrite of legacy Stage 3 tables. Preflight requires one exact NVIDIA L40 and two NVIDIA RTX PRO 6000 Blackwell Server Edition devices.
+- **Decision / rationale:** Persist the held-job manifest and audit entry before releasing the GPU jobs together; retain `probe_layer_frac=0.66` and treat Stage 3B as validation rather than automatic layer selection.
+- **Next:** Pull this entry on SCCKN, release `1145163 1145164 1145165`, verify physical device assignments, and monitor through finalizer and provenance postflight.
 - **Decision / rationale:** Keep all six individual reports as execution-specific records and use the seventh report for direct model selection and subsequent steering design.
