@@ -1957,3 +1957,13 @@
 - **Findings:** Gemma 4 31B passed with 40,440 raw rows, 2,020 summary rows, eight null rows, 58.69 GiB peak allocated VRAM, and 0.006368 maximum norm drift. Its target-minus-random paired-topic estimates were negative for both target axes. The Qwen defect is a selection and row-alignment bug caused by non-contiguous topic identifiers, not a model, memory, hook, or library limitation. Nine focused tests, Ruff, shell syntax, and both scheduler dry runs passed.
 - **Decision / rationale:** Preserve the rejected Qwen 27B artifact and write the corrected rerun to a new label. Run corrected Qwen 27B and first calibrated Qwen 35B-A3B as separate, unchained RTX PRO 6000 jobs.
 - **Next:** Commit and synchronize the fix, submit one held job per Qwen model, then release both only after their manifests are preserved.
+
+---
+
+## 2026-07-19 · Step 4 — Start corrected Qwen calibrated queue on CCU H100
+- **Context:** Route the corrected larger-model runs to available hardware after checking SCCKN RTX scheduling and CCU fallback capacity.
+- **Agent:** gpt-5-codex
+- **Did:** Preserved and released independent SCCKN manifests for Qwen3.6 27B and 35B-A3B, added and tested a serial fail-closed CCU H100 runner, cloned the Gemma environment into an isolated Qwen environment, upgraded it to Transformers 5.14.1, removed TransformerLens only from the clone, launched the corrected 27B then 35B-A3B queue, and removed the duplicate SCCKN jobs after the CCU execution was physically active.
+- **Findings:** Six pre-existing jobs occupied SCCKN's RTX host despite the host-level `qc:gpu=2` display. Both submitted SCCKN jobs transitioned from pending to running between status polls and were terminated as duplicates with exit 137 after CCU had begun loading 27B. The CCU H100 has 79.10 GiB total VRAM; prior measured peaks were 51.26 GiB for 27B and 65.52 GiB for 35B-A3B. The corrected 27B process downloaded all 15 model files, began loading 1,184 weight tensors, and occupied 52.72 GiB. Ten focused queue tests, shell syntax, package consistency, native-HF isolation, and write-once output gates passed.
+- **Decision / rationale:** Keep one authoritative execution path on CCU to prevent duplicate output labels. Run 27B and 35B-A3B serially because one H100 cannot host both models simultaneously; the fail-closed queue prevents 35B-A3B from starting if 27B fails.
+- **Next:** Validate and retrieve the 27B artifacts, allow the queue to advance immediately to 35B-A3B, then write one empirical report per model.
