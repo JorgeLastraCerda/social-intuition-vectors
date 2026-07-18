@@ -1,0 +1,2 @@
+[start] 2026-07-18T14:08:53Z run=smoke model=gemma4_12b job=1145318
+Loading weights:   0%|          | 0/677 [00:00<?, ?it/s]Loading weights: 100%|██████████| 677/677 [00:00<00:00, 6978.86it/s]

@@ -1,0 +1,44 @@
+{
+  "model": "google/gemma-4-31B-it",
+  "revision": "b9ea41a2887d8607f594846523f94c6cc75ac8a4",
+  "seed": 20260527,
+  "n_layers": 60,
+  "d_model": 5376,
+  "probe_layer": 39,
+  "hook": "blocks.39.hook_resid_post",
+  "activation_shape": [
+    1,
+    9,
+    5376
+  ],
+  "yes_token_id": 10784,
+  "no_token_id": 3771,
+  "bridge_hf_max_logit_diff": 0.0,
+  "baseline_margin": 25.75,
+  "steered_margin": 25.46875,
+  "peak_allocated_vram_gib": 58.50213813781738,
+  "prompt_format": "native-chat",
+  "runtime": {
+    "backend": "transformer-bridge",
+    "transformer_lens_version": "3.5.1",
+    "transformers_version": "5.13.0",
+    "torch_version": "2.13.0+cu130",
+    "dtype": "torch.bfloat16",
+    "execution_topology": "single-device",
+    "parameter_devices": [
+      "cuda:0"
+    ],
+    "hf_device_map": null,
+    "visible_cuda_devices": [
+      {
+        "index": 0,
+        "name": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+      }
+    ],
+    "model_revision_requested": "b9ea41a2887d8607f594846523f94c6cc75ac8a4",
+    "model_revision_resolved": "b9ea41a2887d8607f594846523f94c6cc75ac8a4",
+    "chat_template_sha256": "ae53464bf3be25802b3a5b37def7fd89667067d7577049b3b2d74c4d8de4c6d4",
+    "peak_allocated_vram_gib": 58.50213813781738,
+    "peak_reserved_vram_gib": 58.8671875
+  }
+}
