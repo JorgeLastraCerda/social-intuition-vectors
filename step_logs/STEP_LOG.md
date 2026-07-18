@@ -1427,3 +1427,22 @@
 - **Findings:** Local verification passed 56 tests, Ruff, shell syntax, Python compilation, both submitter dry-runs, both model/config dry-runs, and Qwen-scoped `git diff --check`. The configs fix 27B at 64 layers/5120 width/revision `6a9e13b` and 35B-A3B at 40 layers/2048 width/revision `995ad96`.
 - **Decision / rationale:** Keep Stage 1 and Stage 3 on one RTX PRO 6000 each, Stage 2 CPU-only, scientific thresholds non-gating, and all scheduler jobs independent; do not introduce automatic FP8 or hardware fallback.
 - **Next:** Fast-forward the clean SCCKN checkout, run environment and scheduler preflights, submit both Stage 1 jobs held, synchronize the manifest, release together, and monitor before independent follow-up stages.
+
+---
+
+## 2026-07-18 · Step 18 — Complete six full Qwen3.6 stage runs
+- **Context:** Execute the approved full 200-story Stage 1–3 plan for Qwen3.6-27B and Qwen3.6-35B-A3B on SCCKN without scheduler chaining.
+- **Agent:** gpt-5-codex
+- **Did:** Submitted and monitored independent GPU Stage 1 jobs `1145096`/`1145098`, CPU Stage 2 jobs `1145106`/`1145116`, and GPU Stage 3 jobs `1145108`/`1145118`; validated and synchronized every output plus both cross-stage audits.
+- **Findings:** All six jobs finished with `failed=0,exit_status=0`. Both models achieved 1.00 five-fold and topic-held-out accuracy for both axes. Probe-layer warmth/competence d and cos(W,C) were 7.983/8.986/0.580 for 27B and 6.309/7.350/0.619 for 35B-A3B. Stage 3 produced 64/40 finite layers and reproduced Stage 2 at the probe layer with zero difference at `1e-6`. Peak reserved RTX PRO 6000 memory was 51.348 GiB for 27B and 65.543 GiB for 35B-A3B.
+- **Decision / rationale:** Accept both pinned native-HF BF16 checkpoints for subsequent causal work. Preserve the fixed two-thirds-depth probe layer and require cross-axis controls because both models exceed the 0.30 overlap target.
+- **Next:** Produce the six run-specific reports, Qwen-only comparison report, and visually verified figures.
+
+---
+
+## 2026-07-18 · Step 19 — Report full Qwen3.6 stages and cross-model comparison
+- **Context:** Complete the requested per-model, per-stage evidence package after all full Qwen3.6 jobs passed.
+- **Agent:** gpt-5-codex
+- **Did:** Generated and visually inspected Stage 1–3 figures for each model and two Qwen-only comparison figures; made the Stage 3 figure title model-count-aware, added the tracked same-story agreement validator/table, created six stage reports plus `paper/2026-07-18_1421_qwen36_full_stage_comparison.md`, and registered them in `paper/README.md`.
+- **Findings:** The dense 27B checkpoint has stronger probe-layer effect sizes and 14.2 GiB more reserved-VRAM headroom; the 35B-A3B MoE checkpoint has slightly greater axis overlap. Cross-model story ranking is high overall (ρ=0.930 warmth, 0.957 competence) and lower within condition (ρ=0.685/0.630). Target separation peaks before frac=0.66 in both models.
+- **Decision / rationale:** Keep all six individual reports as execution-specific records and use the seventh report for direct model selection and subsequent steering design.

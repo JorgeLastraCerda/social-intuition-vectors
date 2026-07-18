@@ -1,0 +1,3 @@
+axis,model_a,model_b,n_stories,n_per_condition,overall_rho,within_condition_rho,high_warmth_rho,low_warmth_rho,high_competence_rho,low_competence_rho
+warmth,Qwen3.6-27B,Qwen3.6-35B-A3B,200,50,0.930145,0.684874,0.717551,0.752989,0.542281,0.726675
+competence,Qwen3.6-27B,Qwen3.6-35B-A3B,200,50,0.957067,0.62982,0.665594,0.635342,0.476014,0.742329
