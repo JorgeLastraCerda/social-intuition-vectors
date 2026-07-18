@@ -1,0 +1,61 @@
+{
+  "run_id": "20260718T124416Z",
+  "submitted_at_utc": "2026-07-18T12:44:38.702028+00:00",
+  "status": "gpu-jobs-user-held",
+  "git_commit": "ddb61abe8807ab7af85d5af24766089e8fa04ac0",
+  "repo_path": "/data/scc/emrecan.ulu/normalcy-axis",
+  "state_dir": "/work/emrecan.ulu/gemma4_stage3b/20260718T124416Z",
+  "release_command": "qrls 1145163 1145164 1145165",
+  "jobs": [
+    {
+      "model": "google/gemma-4-12B-it",
+      "label": "stage3b_gemma4_12b_l40",
+      "job_id": "1145163",
+      "queue": "gpu@scc192",
+      "resources": "gpu=1,h_vmem=32G,h_rt=02:00:00",
+      "success_sentinel": "/work/emrecan.ulu/gemma4_stage3b/20260718T124416Z/12b.success",
+      "outputs": [
+        "results/tables/layer_sweep_stage3b_gemma4_12b_l40.csv",
+        "results/tables/layer_sweep_stage3b_gemma4_12b_l40.meta.json",
+        "results/logs/validate_layer_sweep_stage3b_gemma4_12b_l40.json"
+      ]
+    },
+    {
+      "model": "google/gemma-4-26B-A4B-it",
+      "label": "stage3b_gemma4_26b_a4b",
+      "job_id": "1145164",
+      "queue": "gpu@scc214",
+      "resources": "gpu=1,rtx_6000=1,h_vmem=96G,h_rt=02:00:00",
+      "success_sentinel": "/work/emrecan.ulu/gemma4_stage3b/20260718T124416Z/26b.success",
+      "outputs": [
+        "results/tables/layer_sweep_stage3b_gemma4_26b_a4b.csv",
+        "results/tables/layer_sweep_stage3b_gemma4_26b_a4b.meta.json",
+        "results/logs/validate_layer_sweep_stage3b_gemma4_26b_a4b.json"
+      ]
+    },
+    {
+      "model": "google/gemma-4-31B-it",
+      "label": "stage3b_gemma4_31b",
+      "job_id": "1145165",
+      "queue": "gpu@scc214",
+      "resources": "gpu=1,rtx_6000=1,h_vmem=96G,h_rt=02:00:00",
+      "success_sentinel": "/work/emrecan.ulu/gemma4_stage3b/20260718T124416Z/31b.success",
+      "outputs": [
+        "results/tables/layer_sweep_stage3b_gemma4_31b.csv",
+        "results/tables/layer_sweep_stage3b_gemma4_31b.meta.json",
+        "results/logs/validate_layer_sweep_stage3b_gemma4_31b.json"
+      ]
+    },
+    {
+      "role": "finalizer",
+      "job_id": "1145166",
+      "queue": "scc",
+      "hold_job_ids": [
+        "1145163",
+        "1145164",
+        "1145165"
+      ],
+      "success_sentinel": "/work/emrecan.ulu/gemma4_stage3b/20260718T124416Z/final.success"
+    }
+  ]
+}
