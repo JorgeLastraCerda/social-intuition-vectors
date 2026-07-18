@@ -1829,3 +1829,12 @@
 - **Findings:** SCCKN 31B is running on `gpu@scc214` with hard resource `rtx_6000=1`, active accounting, 54.916 GiB virtual memory, and 17 checkpoint files shortly after startup. SCCKN 26B-A4B remains running with 766 checkpoint files. CCU 12B remains active with 24,156 MiB GPU allocation; its queue state now marks both 26B-A4B and 31B as `delegated_scckn`, and neither CCU coordinator nor handoff watcher remains. Thirteen focused tests, Ruff, shell syntax, dry-run, and `git diff --check` passed.
 - **Decision / rationale:** Cancel the CCU 31B launch path only after SCCKN provided physical execution evidence, exactly preserving the H100 fallback until that point. Distinct SCCKN labels and checkpoint roots prevent output collision.
 - **Next:** Monitor all three live models, validate each success artifact set, and create the required per-model empirical reports.
+
+---
+
+## 2026-07-18 · Step 52 — Confirm all three calibrated runs advancing
+- **Context:** Live progress check for the split CCU and SCCKN Gemma 4 calibrated execution.
+- **Agent:** gpt-5-codex
+- **Did:** Checked CCU process, GPU, checkpoint, output, and sentinel state and both SCCKN jobs, accounting records, checkpoint roots, logs, and sentinels.
+- **Findings:** CCU 12B completed all 2,022 checkpoint shards and is CPU-bound at approximately 101% while consolidating or validating, with no success or error sentinel yet. SCCKN 26B-A4B has 1,030 of 2,022 shards (50.9%), and SCCKN 31B has 324 of 2,022 shards (16.0%); both jobs remain in state `r` with advancing accounting and no success or error sentinel.
+- **Next:** Wait for the 12B final validator and sentinel, then retrieve its artifacts while continuing to monitor both SCCKN runs.
