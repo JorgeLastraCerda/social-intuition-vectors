@@ -1,0 +1,22 @@
+{
+  "run_id": "20260718T143500Z_31b_pca",
+  "submitted_at_utc": "2026-07-18T14:35:07.129806+00:00",
+  "status": "independent-job-user-held",
+  "git_commit": "3544616dded9958f3df61e40e6c5e5651f7b5944",
+  "hold_jid_used": false,
+  "availability_at_submission": "n/a",
+  "job": {
+    "job_id": "1145388",
+    "run": "pca",
+    "full282": false,
+    "model": "google/gemma-4-31B-it",
+    "revision": "b9ea41a2887d8607f594846523f94c6cc75ac8a4",
+    "config": "config/gemma4_31b.yaml",
+    "queue": "scc",
+    "resources": "h_vmem=32G,h_rt=02:00:00",
+    "expected_gpu_kind": "CPU",
+    "user_held": true,
+    "success_sentinel": "/work/emrecan.ulu/gemma4_remaining/20260718T143500Z_31b_pca/31b_pca.success"
+  },
+  "release_command": "qrls 1145388"
+}
