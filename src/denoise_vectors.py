@@ -52,8 +52,10 @@ def main() -> None:
     k = select_k(pca.explained_variance_ratio_, thr)
     comps = pca.components_[:k]  # orthonormal directions
     kept = float(pca.explained_variance_ratio_[:k].sum())
-    print(f"[pca] neutral n={Xn.shape[0]} d={Xn.shape[1]} -> k={k} components "
-          f"cover {kept:.3f} variance (threshold {thr})")
+    print(
+        f"[pca] neutral n={Xn.shape[0]} d={Xn.shape[1]} -> k={k} components "
+        f"cover {kept:.3f} variance (threshold {thr})"
+    )
 
     warm_d = project_out(warm, comps)
     comp_d = project_out(comp, comps)
@@ -64,8 +66,10 @@ def main() -> None:
         d_c = cohens_d(cond["high_competence"] @ cv, cond["low_competence"] @ cv)
         # valence-leak diagnostic: warmth vector separating the competence pairs
         leak = cohens_d(cond["high_competence"] @ wv, cond["low_competence"] @ wv)
-        print(f"  [{tag:8}] cos(w,c)={cw:+.3f}   d_warmth={d_w:5.2f}   "
-              f"d_competence={d_c:5.2f}   warmth-on-competence(leak)={leak:5.2f}")
+        print(
+            f"  [{tag:8}] cos(w,c)={cw:+.3f}   d_warmth={d_w:5.2f}   "
+            f"d_competence={d_c:5.2f}   warmth-on-competence(leak)={leak:5.2f}"
+        )
         return cw
 
     print("\nBEFORE vs AFTER denoising:")
@@ -74,19 +78,38 @@ def main() -> None:
 
     np.savez(
         vdir / "concept_vectors_denoised.npz",
-        warmth=warm_d, competence=comp_d, neutral_pca_components=comps,
-        k=k, variance_threshold=thr, cosine_before=cos_before, cosine_after=cos_after,
+        warmth=warm_d,
+        competence=comp_d,
+        neutral_pca_components=comps,
+        k=k,
+        variance_threshold=thr,
+        cosine_before=cos_before,
+        cosine_after=cos_after,
     )
     json.dump(
-        {"k": k, "variance_kept": kept, "cosine_before": cos_before, "cosine_after": cos_after},
-        (vdir / "denoise_summary.json").open("w"), indent=2,
+        {
+            "model": cfg.model.name,
+            "revision": cfg.model.revision,
+            "seed": cfg.probing.seed,
+            "k": k,
+            "variance_threshold": thr,
+            "variance_kept": kept,
+            "cosine_before": cos_before,
+            "cosine_after": cos_after,
+        },
+        (vdir / "denoise_summary.json").open("w"),
+        indent=2,
     )
-    print(f"\n[DONE] saved concept_vectors_denoised.npz "
-          f"(k={k}, cos {cos_before:+.3f} -> {cos_after:+.3f})")
+    print(
+        f"\n[DONE] saved concept_vectors_denoised.npz "
+        f"(k={k}, cos {cos_before:+.3f} -> {cos_after:+.3f})"
+    )
 
 
 def parse_args() -> argparse.Namespace:
-    ap = argparse.ArgumentParser(description="PCA valence-denoising of warmth/competence vectors.")
+    ap = argparse.ArgumentParser(
+        description="PCA valence-denoising of warmth/competence vectors."
+    )
     ap.add_argument("--config", default="config/config.yaml")
     ap.add_argument(
         "--vectors-subdir",
