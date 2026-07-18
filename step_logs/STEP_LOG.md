@@ -1761,3 +1761,13 @@
 - **Findings:** The environment passed exact version and H100 checks for PyTorch 2.6.0+cu124, torchvision 0.21.0+cu124, TransformerLens 3.5.1, Transformers 5.13.0, and Accelerate 1.14.0. The first 12B attempt stopped before model loading or output/checkpoint creation with exact error `ModuleNotFoundError: No module named 'scipy'`; 26B-A4B and 31B remained pending. The focused checkpoint/CCU suite passed five tests plus Ruff, shell syntax, and `git diff --check`.
 - **Decision / rationale:** Treat this as an environment-manifest omission, not a model or method failure. Pin both SciPy and scikit-learn because the imported Gemma causality module requires both at import time; retain the same clean model labels and serial order.
 - **Next:** Commit and deploy the dependency correction, rerun bootstrap, then restart the 12B-first queue.
+
+---
+
+## 2026-07-18 · Step 45 — Start corrected CCU Gemma 4 serial queue
+- **Context:** Restart the fail-closed CCU run after completing the pinned environment.
+- **Agent:** gpt-5-codex
+- **Did:** Fast-forwarded the CCU checkout to `04cf243`, reran the environment bootstrap successfully, and started `jobs/ccu/run_gemma4_calibrated_queue.sh` under background PID `1197` with durable state, logs, checkpoints, and sentinels under `/home/jovyan/work/normalcy-gemma4-state`.
+- **Findings:** The corrected environment passed all seven exact package-version checks and the H100 gate. The queue entered the 12B smoke stage, remained live after 33 seconds, and began downloading the pinned Gemma 4 checkpoint from Hugging Face; GPU allocation had not started yet. The prior SciPy traceback remains only as historical text in the append-only remote queue log.
+- **Decision / rationale:** Keep the remote checkout pinned at `04cf243` for checkpoint fingerprint stability during this queue. Preserve serial order 12B, 26B-A4B, 31B and stop only on a technical failure.
+- **Next:** Monitor the 12B smoke gate and full run, then retrieve, validate, and report each completed model before advancing the empirical synthesis.
