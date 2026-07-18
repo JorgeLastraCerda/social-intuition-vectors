@@ -1810,3 +1810,12 @@
 - **Findings:** SCCKN reports the 26B-A4B job in running state with active CPU and memory accounting and a 38.937 GiB maximum virtual-memory footprint during startup. CCU still reports coordinator PID `1197` stopped, 12B runner PID `1201` active, 24,156 MiB GPU memory allocated, and no 12B success sentinel yet; watcher PID `2318` survived terminal detachment and is waiting. Thirteen focused tests, Ruff, shell syntax, upload SHA-256 verification, and `git diff --check` passed.
 - **Decision / rationale:** Keep 12B and later 31B on the CCU H100 while executing 26B-A4B independently on one SCCKN RTX PRO 6000. Sentinel-gated handoff preserves the existing 12B checkpoint fingerprint and prevents both an accidental CCU 26B launch and premature 31B overlap.
 - **Next:** Monitor both active runs; after each success sentinel, retrieve and validate artifacts and write the required per-model empirical report.
+
+---
+
+## 2026-07-18 · Step 50 — Confirm concurrent CCU and SCCKN progress
+- **Context:** Live status check after splitting the calibrated Gemma 4 execution across CCU and SCCKN.
+- **Agent:** gpt-5-codex
+- **Did:** Checked CCU access, processes, GPU accounting, queue state, sentinels, checkpoint counts, and logs; checked SCCKN scheduler assignment, resource request, accounting, sentinel, and checkpoint count.
+- **Findings:** CCU Gemma 4 12B remains active on the H100 at 41% sampled utilization and 24,166 MiB allocated, with 1,317 of 2,022 checkpoint shards (65.1%) and no error or success sentinel. SCCKN job `1145460` remains running on `gpu@scc214` with the hard `rtx_6000=1` request, 425 checkpoint files (approximately 21.0%), active accounting, and no error or success sentinel. The detached CCU handoff watcher remains active; 31B has correctly not started. A direct nested SSH GPU query to `scc214` was denied by host authentication policy, but Grid Engine assignment and advancing checkpoints independently confirm execution.
+- **Next:** Continue monitoring 12B and 26B-A4B; allow the sentinel-gated watcher to start CCU 31B only after validated 12B completion.
