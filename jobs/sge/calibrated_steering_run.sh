@@ -39,7 +39,10 @@ case "$MODEL_KEY" in
     LABEL=gemma4_26b_a4b_calibrated_scckn_rtx6000
     CHECKPOINT_DIR="$(dirname "$SUCCESS_SENTINEL")/checkpoint"
     checkpoint_args=(--checkpoint-dir "$CHECKPOINT_DIR")
-    if [[ -f "$CHECKPOINT_DIR/manifest.json" ]]; then checkpoint_args+=(--resume); fi
+    if [[ -f "$CHECKPOINT_DIR/manifest.json" ]]; then
+      checkpoint_commit=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["fingerprint"]["git_commit"])' "$CHECKPOINT_DIR/manifest.json")
+      checkpoint_args+=(--resume --checkpoint-origin-commit "$checkpoint_commit")
+    fi
     COMMAND=(-m src.dense_steering --config "$CONFIG_PATH" \
       --vectors-subdir concept_vectors_gemma4_26b_a4b --label "$LABEL" --vector-kind raw \
       --include-cross-axis --n-random-directions 99 \
@@ -53,7 +56,10 @@ case "$MODEL_KEY" in
     LABEL=gemma4_31b_calibrated_scckn_rtx6000
     CHECKPOINT_DIR="$(dirname "$SUCCESS_SENTINEL")/checkpoint"
     checkpoint_args=(--checkpoint-dir "$CHECKPOINT_DIR")
-    if [[ -f "$CHECKPOINT_DIR/manifest.json" ]]; then checkpoint_args+=(--resume); fi
+    if [[ -f "$CHECKPOINT_DIR/manifest.json" ]]; then
+      checkpoint_commit=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["fingerprint"]["git_commit"])' "$CHECKPOINT_DIR/manifest.json")
+      checkpoint_args+=(--resume --checkpoint-origin-commit "$checkpoint_commit")
+    fi
     COMMAND=(-m src.dense_steering --config "$CONFIG_PATH" \
       --vectors-subdir concept_vectors_gemma4_31b --label "$LABEL" --vector-kind raw \
       --include-cross-axis --n-random-directions 99 \
