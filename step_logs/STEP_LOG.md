@@ -1367,3 +1367,13 @@
 - **Findings:** Gemma 4 12B previously loaded and completed smoke and Stage 1 on L40 at 22.99 and 23.22 GB maximum virtual memory. The new job requires exactly one L40 with at least 30 GiB free VRAM and requests `gpu=1,h_vmem=32G,h_rt=01:00:00` from `gpu@scc192,gpu@scc213`. Local verification passed 21 tests, shell syntax, Python compilation, dry-run inspection, and `git diff --check`.
 - **Decision / rationale:** Use the empirically validated single-L40 path rather than repeat the anomalous 12B Unified loader failure on Blackwell; keep Git synchronization outside the GPU job and prohibit automatic hardware substitution after failure.
 - **Next:** Push the implementation, fast-forward and preflight SCCKN, submit the L40 job held with its CPU finalizer, synchronize the manifest, then release and monitor it.
+
+---
+
+## 2026-07-18 · Step 8 — Submit held Gemma 4 12B L40 Stage 3 retry
+- **Context:** Launch the validated 12B all-layer sweep without repeating the anomalous RTX PRO 6000 load path.
+- **Agent:** gpt-5-codex
+- **Did:** Fast-forwarded SCCKN to `ee40495`, passed environment, shell, compile, input, collision, six-GPU L40 availability, and `qsub -w v` gates, then submitted held GPU job `1144961` and dependent CPU finalizer `1144962`; synchronized `results/logs/gemma4_stage3_retry_submission_12b_20260718T102845Z.json`.
+- **Findings:** The GPU job requests one GPU from `gpu@scc192,gpu@scc213` with `h_vmem=32G,h_rt=01:00:00`; it is user-held and the finalizer has only `1144961` as its predecessor. Stage 1 and Stage 2 validate, both canonical Stage 3 targets are absent, and `wc-tl-g4` reports PyTorch 2.13.0+cu130, Transformers 5.13.0, and TransformerLens 3.5.1.
+- **Decision / rationale:** Keep the GPU job held until the manifest and this audit entry are durable, then release only the GPU job and let Grid Engine release the CPU finalizer through its dependency.
+- **Next:** Pull this entry on SCCKN, release `1144961`, verify an L40 assignment with at least 30 GiB free VRAM, and monitor both jobs through validation and output synchronization.
