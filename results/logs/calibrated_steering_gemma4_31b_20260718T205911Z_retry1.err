@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/data/scc/emrecan.ulu/normalcy-axis/src/dense_steering.py", line 872, in <module>
+    main()
+  File "/data/scc/emrecan.ulu/normalcy-axis/src/dense_steering.py", line 512, in main
+    checkpoint = CheckpointStore(
+                 ^^^^^^^^^^^^^^^^
+  File "/data/scc/emrecan.ulu/normalcy-axis/src/steering_checkpoint.py", line 58, in __init__
+    raise ValueError(
+ValueError: Checkpoint fingerprint mismatch; refusing to mix incompatible runs.
+ERROR conda.cli.main_run:execute(125): `conda run python -m src.dense_steering --config config/gemma4_31b.yaml --vectors-subdir concept_vectors_gemma4_31b --label gemma4_31b_calibrated_scckn_rtx6000 --vector-kind raw --include-cross-axis --n-random-directions 99 --strengths=-0.1,-0.05,0,0.05,0.1 --prompt-format native-chat --control-scale sd_matched --interventions additive,norm_preserving --checkpoint-dir /work/emrecan.ulu/calibrated_steering/20260718T205911Z/checkpoint --resume` failed. (See above for error)
