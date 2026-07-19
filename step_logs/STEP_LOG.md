@@ -2195,3 +2195,13 @@
 - **Findings:** Validation passed 40,440 raw rows, 2,020 summary rows, and eight null rows. Maximum norm-preserving drift was 0.005176. Additive target-minus-random paired-topic effects were +0.816 warmth (95% CI [+0.619, +1.031]) and +1.469 competence (95% CI [+1.294, +1.675]); cross-axis effects were comparably large.
 - **Decision / rationale:** Accept the run as structurally and scientifically valid under its descriptive-only gate. Report causal sensitivity beyond random controls while withholding axis-specific causal claims.
 - **Next:** Commit and synchronize both calibrated result packages, then update the overall Gemma 4 versus Qwen completion matrix.
+
+---
+
+## 2026-07-19 · Step 28 — Reconcile local, SCCKN, CCU, and GitHub
+- **Context:** Perform a complete three-environment Git and artifact audit while excluding foundation-model caches and preserving experiment provenance.
+- **Agent:** gpt-5-codex
+- **Did:** Audited branch ancestry, upstreams, worktrees, dirty files, research weights, result tables, and model caches; hash-classified every remote dirty file; created recoverable external backups; fast-forwarded SCCKN and CCU active `main`; cleaned four pinned CCU provenance worktrees; wrote `paper/2026-07-19_1255_three_environment_git_audit.md`; propagated the audit commit to both remote active checkouts.
+- **Findings:** SCCKN contained 12 exact upstream duplicates. CCU contained 93 exact duplicates, 13 canonically identical CSVs, and two historical source versions already integrated into `main`; no unique unpushed result remained. Canonical Git tracks 504 result files and 98 concept-vector artifacts, with zero model checkpoint files. All backup hashes and Git object checks passed.
+- **Decision / rationale:** Keep the four clean detached CCU worktrees pinned for provenance, synchronize only the active `main` checkouts, and leave the 248 GiB CCU and 408 GiB SCCKN model caches outside Git.
+- **Next:** Use the synchronized active checkouts for any further Gemma or Qwen analysis; retain the dated external backups until the user chooses to remove them.
