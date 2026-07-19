@@ -2126,3 +2126,13 @@
 - **Findings:** The recovery validator accepted 282 unique names and created the missing sentinel without model loading. +0.10 effects were +0.963 (95% CI [0.932, 0.992]) for warmth and +0.447 (95% CI [0.425, 0.470]) for competence; both curves were monotone and closely matched the 60-name panel.
 - **Decision / rationale:** Accept the recovered result because both atomic final artifacts, all checkpoints, metadata counts, and structural contracts pass under the pinned fix.
 - **Next:** Complete, validate, and report broad full-282, then launch denoised-local full-282 independently.
+
+---
+
+## 2026-07-19 · Step 21 — Confirm Qwen 35B-A3B broad reversal on all names
+- **Context:** Determine whether the 60-name broad-range failure survives the predeclared full-name expansion.
+- **Agent:** gpt-5-codex
+- **Did:** Retrieved, locally validated, and summarized 2,820 broad full-name rows; wrote `paper/2026-07-19_1053_qwen36_35b_a3b_broad_full282.md`; launched denoised-local full-282 independently on the freed H100.
+- **Findings:** Warmth remained non-monotone but ended at +1.257 (95% CI [1.235, 1.278]). Competence reproduced the reversal at -1.094 (95% CI [-1.116, -1.070]), with R-squared 0.297, non-monotonicity, and endpoint-slope sign disagreement. The endpoint differs by less than 0.001 from the 60-name estimate.
+- **Decision / rationale:** Treat the competence reversal as a robust broad-intervention property rather than sampling noise.
+- **Next:** Complete and report denoised-local full-282, then close the 35B-A3B hiring expansion matrix.
