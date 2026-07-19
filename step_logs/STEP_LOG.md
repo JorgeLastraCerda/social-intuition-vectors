@@ -1997,3 +1997,32 @@
 - **Findings:** Both SCCKN jobs reached state `r` on `gpu@scc214` with separate RTX PRO 6000 allocations and advancing checkpoint shards. The H100 audit passed 282 unique names in 119.4 seconds at 51.04 GiB peak allocated VRAM. Spearman correlations were 0.1863 for model versus human warmth, 0.2499 for competence, 0.3017 for callback versus model warmth, and 0.2201 for callback versus model competence. All 282 audit shards and both final artifacts validated.
 - **Decision / rationale:** Keep both calibrated jobs authoritative on SCCKN and immediately reuse H100 for the non-duplicative 27B local hiring intervention. Preserve the CCU worktree separately from the older dirty result-producing checkout.
 - **Next:** Validate and report 27B local steering, then launch broad steering; continue monitoring both calibrated checkpoints and prepare neutral extraction/PCA.
+
+---
+
+## 2026-07-19 · Step 8 — Complete Qwen 27B local steering and keep H100 active
+- **Context:** Consume the first causal hiring result while preserving continuous use of the independent H100 lane.
+- **Agent:** gpt-5-codex
+- **Did:** Retrieved and hash-verified the 27B local steering artifacts, passed the local validator, generated the bootstrap summary, wrote `paper/2026-07-19_0953_qwen36_27b_local_hiring.md`, and launched the independent broad-strength run on the freed H100.
+- **Findings:** All 660 checkpoints and 600 raw rows passed. Warmth and competence were both monotone; +0.10 mean effects were +1.196 (95% CI [1.171, 1.219]) and +0.533 (95% CI [0.506, 0.560]). Peak allocated VRAM was 51.14 GiB. The broad run became physically active at approximately 53,088 MiB GPU memory.
+- **Decision / rationale:** Continue the predeclared robustness sequence without waiting for the two independent calibrated jobs; retain the quantization warning because all callback margins fall on the 0.125 grid.
+- **Next:** Retrieve and report broad steering, then start neutral extraction and denoising without duplicating any calibrated work.
+
+---
+
+## 2026-07-19 · Step 9 — Complete Qwen 27B posthoc hiring analyses
+- **Context:** Use the validated 282-name Qwen audit for GPU-free parity analyses while all three accelerators remain occupied.
+- **Agent:** gpt-5-codex
+- **Did:** Ran demographic disparity, 5,000-bootstrap mediation, group-level R4, and name-level R4; wrote `paper/2026-07-19_0953_qwen36_27b_posthoc_hiring.md`.
+- **Findings:** The disparity join matched 269 names and the exact study-name R4 join matched 149. Competence indirect effects excluded zero for race (-0.0488, 95% CI [-0.1035, -0.0106]) and gender (-0.1227, 95% CI [-0.2056, -0.0608]); warmth intervals included zero. Name-level model-human callback correlation was r=0.042 (p=0.614).
+- **Decision / rationale:** Treat mediation as associational decomposition and retain the group R4 result as descriptive because it contains only four groups.
+
+---
+
+## 2026-07-19 · Step 10 — Complete Qwen 27B broad steering and start neutral extraction
+- **Context:** Test whether the local causal effect survives larger raw-vector interventions while keeping the H100 lane continuously active.
+- **Agent:** gpt-5-codex
+- **Did:** Retrieved, hash-verified, validated, and summarized the 27B broad run; wrote `paper/2026-07-19_0955_qwen36_27b_broad_hiring.md`; created a separate clean CCU worktree pinned to commit `2e4102d`; launched resumable neutral-corpus extraction on the freed H100.
+- **Findings:** All 660 checkpoints and 600 rows passed. Warmth and competence remained monotone; +0.50 effects were +2.240 (95% CI [2.208, 2.273]) and +1.069 (95% CI [1.037, 1.102]). Peak allocated VRAM was 51.14 GiB. Neutral extraction loaded the model on the H100 from the exact later implementation commit.
+- **Decision / rationale:** Proceed to PCA denoising before the denoised-local intervention; keep neutral work isolated from the older clean worktree used by completed steering runs.
+- **Next:** Retrieve and validate the 1,500-row neutral matrix, run CPU PCA denoising, then launch denoised-local steering.
