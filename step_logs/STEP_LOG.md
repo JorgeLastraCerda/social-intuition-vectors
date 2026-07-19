@@ -1967,3 +1967,13 @@
 - **Findings:** Six pre-existing jobs occupied SCCKN's RTX host despite the host-level `qc:gpu=2` display. Both submitted SCCKN jobs transitioned from pending to running between status polls and were terminated as duplicates with exit 137 after CCU had begun loading 27B. The CCU H100 has 79.10 GiB total VRAM; prior measured peaks were 51.26 GiB for 27B and 65.52 GiB for 35B-A3B. The corrected 27B process downloaded all 15 model files, began loading 1,184 weight tensors, and occupied 52.72 GiB. Ten focused queue tests, shell syntax, package consistency, native-HF isolation, and write-once output gates passed.
 - **Decision / rationale:** Keep one authoritative execution path on CCU to prevent duplicate output labels. Run 27B and 35B-A3B serially because one H100 cannot host both models simultaneously; the fail-closed queue prevents 35B-A3B from starting if 27B fails.
 - **Next:** Validate and retrieve the 27B artifacts, allow the queue to advance immediately to 35B-A3B, then write one empirical report per model.
+
+---
+
+## 2026-07-19 · Step 5 — Confirm CCU shutdown interrupted Qwen 27B
+- **Context:** Recover the Qwen calibrated queue state after the personal CCU server was restarted.
+- **Agent:** gpt-5-codex
+- **Did:** Inspected the persistent queue state, sentinels, processes, GPU, logs, output paths, environment, and model cache after CCU access returned.
+- **Findings:** No Qwen process or success sentinel remains, and the H100 is idle. The 27B log reached competence `random_024` under additive steering, approximately 57% of the complete intervention loop, before shutdown. No partial result tables exist because the native-HF runner writes outputs only after completing all interventions. Qwen 35B-A3B remained pending and never started. The isolated Transformers 5.14.1 environment, downloaded weights, vectors, queue logs, and state files survived on persistent storage.
+- **Decision / rationale:** Treat the stale `running` queue-state value as interrupted rather than successful. Do not accept or report an empirical 27B result without the normal validator and success sentinel.
+- **Next:** Restart 27B from the beginning or add resumable checkpointing before relaunch, then run 35B-A3B.
