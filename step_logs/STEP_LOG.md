@@ -2146,3 +2146,33 @@
 - **Findings:** +0.10 effects were +0.996 (95% CI [0.968, 1.022]) for warmth and +0.431 (95% CI [0.410, 0.454]) for competence; both curves were monotone and closely reproduced the 60-name denoised panel. All 3,102 checkpoints and the normal success sentinel are present.
 - **Decision / rationale:** Close the 35B-A3B hiring expansion matrix. Stable local effects survive panel expansion and denoising, while the independently confirmed broad competence reversal remains the only range-specific failure.
 - **Next:** Wait for, validate, synchronize, and separately report the two still-running RTX calibrated steering jobs.
+
+---
+
+## 2026-07-19 · Step 23 — Expand Qwen 27B local steering to all names
+- **Context:** Run the user-approved balanced full-name comparison even though the original conditional expansion gate did not fire for Qwen3.6-27B.
+- **Agent:** gpt-5-codex
+- **Did:** Completed all 3,102 resumable native-HF work units on the CCU H100, retrieved both atomic outputs with exact SHA-256 parity, validated 2,820 rows locally, generated the 5,000-bootstrap summary, and wrote `paper/2026-07-19_1156_qwen36_27b_local_full282.md`.
+- **Findings:** Warmth and competence remained monotone. Their +0.10 effects were +1.193 (95% CI [1.180, 1.205]) and +0.519 (95% CI [0.507, 0.531]), closely matching the 60-name estimates. Hook parity, pinned revision, finite-output, name-count, and no-TransformerLens gates passed; peak allocated VRAM was 51.15 GiB.
+- **Decision / rationale:** Preserve the original `run_full_282=false` result and label this expansion as a post-hoc balanced-comparison replication.
+- **Next:** Complete the independently launched Qwen 27B broad full-name run, then run the denoised-local full-name condition.
+
+---
+
+## 2026-07-19 · Step 24 — Confirm Qwen 27B broad effects on all names
+- **Context:** Continue the post-hoc balanced full-name comparison with the independently launched broad-strength regime.
+- **Agent:** gpt-5-codex
+- **Did:** Completed, hash-retrieved, locally validated, and bootstrap-summarized 3,102 H100 work units; wrote `paper/2026-07-19_1205_qwen36_27b_broad_full282.md`; launched denoised-local full-282 independently after the H100 became free.
+- **Findings:** Warmth and competence remained monotone and positive-ended at +2.237 (95% CI [2.221, 2.253]) and +1.055 (95% CI [1.040, 1.071]). Both closely reproduce the 60-name results, and 27B does not exhibit the 35B model's broad competence reversal.
+- **Decision / rationale:** Treat the 27B versus 35B broad-response difference as robust to the name-panel expansion, while retaining post-hoc status for the 27B expansion.
+- **Next:** Complete and report denoised-local full-282, then synthesize the three 60-name versus 282-name comparisons.
+
+---
+
+## 2026-07-19 · Step 25 — Close Qwen 27B balanced full-name expansion
+- **Context:** Finish the third independent full-name regime and synthesize its sampling robustness against the original 60-name panels.
+- **Agent:** gpt-5-codex
+- **Did:** Completed, hash-retrieved, locally validated, and bootstrap-summarized denoised-local full-282; wrote its separate report at `paper/2026-07-19_1214_qwen36_27b_denoised_full282.md` and the comparison synthesis at `paper/2026-07-19_1215_qwen36_27b_full282_balanced_synthesis.md`.
+- **Findings:** Denoised +0.10 effects were +1.133 warmth (95% CI [1.121, 1.146]) and +0.409 competence (95% CI [0.397, 0.421]), both monotone. Across local, broad, and denoised-local, all six full-name endpoints differ from the 60-name estimates by less than 3%; every sign and monotonicity result is preserved.
+- **Decision / rationale:** Close the Qwen3.6-27B full-name matrix as a post-hoc balanced replication. Preserve the original negative expansion gate as the confirmatory protocol result.
+- **Next:** Synchronize the validated artifacts and reports, then use the balanced matrix in the cross-model Gemma 4 versus Qwen synthesis.
