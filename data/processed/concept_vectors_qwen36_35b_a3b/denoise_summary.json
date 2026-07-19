@@ -1,0 +1,10 @@
+{
+  "model": "Qwen/Qwen3.6-35B-A3B",
+  "revision": "995ad96eacd98c81ed38be0c5b274b04031597b0",
+  "seed": 20260527,
+  "k": 17,
+  "variance_threshold": 0.5,
+  "variance_kept": 0.5028281807899475,
+  "cosine_before": 0.6191798448562622,
+  "cosine_after": 0.5953891162484451
+}
