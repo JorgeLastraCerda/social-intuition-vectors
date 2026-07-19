@@ -36,7 +36,7 @@ def validate(
     label: str,
     *,
     require_absent: bool = False,
-    n_names: int = 60,
+    n_names: int | None = None,
 ) -> dict:
     cfg = load_config(config)
     paths = artifact_paths(config, task, label)
@@ -98,6 +98,15 @@ def validate(
         if len(meta.get("correlations", [])) != 6:
             raise AssertionError("Qwen hiring audit must report six correlations.")
         return {"status": "pass", "task": task, "label": label, "rows": 282}
+    metadata_names = meta.get("n_names_sampled")
+    if n_names is None:
+        if not isinstance(metadata_names, int) or metadata_names <= 0:
+            raise AssertionError("Qwen steering metadata lacks a valid name count.")
+        n_names = metadata_names
+    elif metadata_names != n_names:
+        raise AssertionError(
+            f"Qwen steering metadata expected {n_names} names; got {metadata_names}."
+        )
     expected = n_names * 2 * 5
     if len(table) != expected or table["name"].nunique() != n_names:
         raise AssertionError(
@@ -128,7 +137,7 @@ def main() -> None:
         "--task", choices=("audit", "steering", "neutral"), required=True
     )
     parser.add_argument("--label", required=True)
-    parser.add_argument("--n-names", type=int, default=60)
+    parser.add_argument("--n-names", type=int)
     parser.add_argument("--require-absent", action="store_true")
     args = parser.parse_args()
     print(

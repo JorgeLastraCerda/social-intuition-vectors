@@ -44,6 +44,24 @@ mkdir -p "$STATE_ROOT/checkpoints" "$STATE_ROOT/sentinels" "$STATE_ROOT/logs"
 CHECKPOINT_DIR="$STATE_ROOT/checkpoints/$LABEL"
 SENTINEL="$STATE_ROOT/sentinels/$LABEL.success"
 
+case "$RUN_TASK" in
+  audit)
+    OUTPUT_PATHS=("results/tables/hiring_audit_${LABEL}.csv" "results/logs/hiring_probe_vs_human_${LABEL}.json")
+    ;;
+  neutral)
+    OUTPUT_PATHS=("data/processed/concept_vectors_${BASE_LABEL}/X_neutral.npy" "data/processed/concept_vectors_${BASE_LABEL}/neutral_meta.json")
+    ;;
+  steering)
+    OUTPUT_PATHS=("results/tables/hiring_steering_raw_${LABEL}.csv" "results/logs/hiring_steering_${LABEL}.json")
+    ;;
+esac
+
+publish_sentinel() {
+  local sentinel_tmp="$SENTINEL.tmp.$$"
+  printf '%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$sentinel_tmp"
+  mv "$sentinel_tmp" "$SENTINEL"
+}
+
 read -r GPU_NAME FREE_GIB TOTAL_GIB < <("$PYTHON" - <<'PY'
 import torch
 if torch.cuda.device_count() != 1:
@@ -69,6 +87,17 @@ if [[ -f "$SENTINEL" ]]; then
   echo "[complete] $SENTINEL"
   exit 0
 fi
+existing_outputs=0
+for output_path in "${OUTPUT_PATHS[@]}"; do
+  [[ -f "$output_path" ]] && ((existing_outputs += 1))
+done
+if ((existing_outputs == ${#OUTPUT_PATHS[@]})); then
+  "$PYTHON" -m src.validate_qwen36_hiring --config "$CONFIG_PATH" \
+    --task "$RUN_TASK" --label "$LABEL"
+  publish_sentinel
+  echo "[recovered] validated published outputs and created $SENTINEL"
+  exit 0
+fi
 "$PYTHON" -m src.validate_qwen36_hiring --config "$CONFIG_PATH" \
   --task "$RUN_TASK" --label "$LABEL" --require-absent
 
@@ -85,7 +114,5 @@ fi
 "$PYTHON" -m src.validate_qwen36_hiring --config "$CONFIG_PATH" \
   --task "$RUN_TASK" --label "$LABEL"
 
-sentinel_tmp="$SENTINEL.tmp.$$"
-printf '%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$sentinel_tmp"
-mv "$sentinel_tmp" "$SENTINEL"
+publish_sentinel
 echo "[success] $LABEL"
