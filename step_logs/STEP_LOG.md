@@ -2116,3 +2116,13 @@
 - **Findings:** Model inference and output publication completed correctly at 2,820 rows and 282 unique names; only the legacy validator expectation failed. Four focused tests, Ruff, shell syntax, and whitespace checks passed.
 - **Decision / rationale:** Recover from final artifacts under the fixed validator rather than repeat 3,102 completed GPU work units. Preserve explicit name-count checking for callers that supply it and metadata inference for both legacy 60-name and full-282 runs.
 - **Next:** Pin the fixed commit on CCU, validate the existing output, create its sentinel through the recovery path, then launch broad full-282 independently.
+
+---
+
+## 2026-07-19 · Step 20 — Recover and validate Qwen 35B-A3B local full-282
+- **Context:** Accept the completed full-name result under the fixed validator and continue the independent expansion sequence.
+- **Agent:** gpt-5-codex
+- **Did:** Created a clean CCU worktree at fixed commit `b0f87b1`, copied the published artifact pair and generated vectors with exact hashes, exercised the runner's recovery path, retrieved and locally validated 2,820 rows, generated the bootstrap summary, wrote `paper/2026-07-19_1041_qwen36_35b_a3b_local_full282.md`, and launched broad full-282.
+- **Findings:** The recovery validator accepted 282 unique names and created the missing sentinel without model loading. +0.10 effects were +0.963 (95% CI [0.932, 0.992]) for warmth and +0.447 (95% CI [0.425, 0.470]) for competence; both curves were monotone and closely matched the 60-name panel.
+- **Decision / rationale:** Accept the recovered result because both atomic final artifacts, all checkpoints, metadata counts, and structural contracts pass under the pinned fix.
+- **Next:** Complete, validate, and report broad full-282, then launch denoised-local full-282 independently.
