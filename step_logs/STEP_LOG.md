@@ -2056,3 +2056,23 @@
 - **Findings:** All 660 denoised work units passed. +0.10 effects were +1.140 (95% CI [1.113, 1.165]) for warmth and +0.408 (95% CI [0.381, 0.438]) for competence; both were monotone. The gate returned `run_full_282=false` with zero reasons.
 - **Decision / rationale:** Do not run the three 282-name steering expansions because the predeclared conditional criteria did not fire. This is a protocol-defined stop, not a missing test.
 - **Next:** Complete the 35B-A3B raw local and broad runs, then extract neutral activations, denoise its vectors, and finish the second model's gate.
+
+---
+
+## 2026-07-19 · Step 14 — Complete Qwen 35B-A3B local steering
+- **Context:** Begin the second model's three-regime causal hiring matrix while calibrated jobs remain isolated on the two RTX GPUs.
+- **Agent:** gpt-5-codex
+- **Did:** Retrieved, locally validated, and summarized 35B-A3B local steering; wrote `paper/2026-07-19_1011_qwen36_35b_a3b_local_hiring.md`; launched broad steering immediately on the freed H100.
+- **Findings:** All 660 work units and 600 rows passed. +0.10 effects were +0.967 (95% CI [0.900, 1.033]) for warmth and +0.433 (95% CI [0.394, 0.477]) for competence; both response curves were monotone. The baseline margin diagnostic found seven unique values on the 0.125 grid.
+- **Decision / rationale:** Continue directly to the broad regime because the local result is structurally valid and no GPU or hook gate failed.
+- **Next:** Validate and report broad steering, then run the 35B-A3B neutral extraction and denoised-local condition.
+
+---
+
+## 2026-07-19 · Step 15 — Detect Qwen 35B-A3B broad-range reversal
+- **Context:** Evaluate broad intervention robustness before neutral-PCA denoising and conditional expansion.
+- **Agent:** gpt-5-codex
+- **Did:** Retrieved, locally validated, and summarized broad steering; wrote `paper/2026-07-19_1014_qwen36_35b_a3b_broad_hiring.md`; launched 1,500-passage neutral extraction on the freed H100.
+- **Findings:** Warmth ended at +1.233 (95% CI [1.188, 1.281]) but was non-monotone. Competence ended at -1.094 (95% CI [-1.131, -1.054]), was non-monotone, had R-squared 0.296, and disagreed in sign with its positive fitted slope. All technical execution gates passed.
+- **Decision / rationale:** Classify this as an empirical intervention-range reversal, not a technical failure. The result independently guarantees that the predeclared full-282 gate will fire once the denoised regime is available.
+- **Next:** Complete neutral extraction and denoised-local steering, formally evaluate the gate, then run all three 282-name regimes.
