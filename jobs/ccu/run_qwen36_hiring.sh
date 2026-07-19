@@ -3,7 +3,7 @@
 set -euo pipefail
 
 if [[ $# -ne 2 ]]; then
-  echo "usage: bash jobs/ccu/run_qwen36_hiring.sh {27b|35b_a3b} {audit|neutral|local|broad|denoised_local}" >&2
+  echo "usage: bash jobs/ccu/run_qwen36_hiring.sh {27b|35b_a3b} {audit|neutral|local|broad|denoised_local|local_full282|broad_full282|denoised_local_full282}" >&2
   exit 2
 fi
 
@@ -29,6 +29,12 @@ case "$TASK" in
     RUN_TASK=steering
     LABEL="${BASE_LABEL}_${TASK}"
     EXTRA_ARGS=(--regime "$TASK" --n-names 60)
+    ;;
+  local_full282|broad_full282|denoised_local_full282)
+    RUN_TASK=steering
+    REGIME=${TASK%_full282}
+    LABEL="${BASE_LABEL}_${TASK}"
+    EXTRA_ARGS=(--regime "$REGIME" --n-names 282)
     ;;
   *) echo "Unknown task: $TASK" >&2; exit 2 ;;
 esac
