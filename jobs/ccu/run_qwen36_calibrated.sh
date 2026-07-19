@@ -33,6 +33,7 @@ esac
 cd "$REPO_PATH"
 mkdir -p "$STATE_ROOT/sentinels" results/logs
 SENTINEL="$STATE_ROOT/sentinels/$LABEL.success"
+CHECKPOINT_DIR="$STATE_ROOT/checkpoints/$LABEL"
 
 read -r GPU_NAME FREE_GIB TOTAL_GIB < <("$PYTHON" - <<'PY'
 import torch
@@ -70,8 +71,17 @@ fi
 
 "$PYTHON" -m src.validate_calibrated_steering \
   --config "$CONFIG_PATH" --label "$LABEL" --require-absent
+checkpoint_args=(--checkpoint-dir "$CHECKPOINT_DIR")
+if [[ -f "$CHECKPOINT_DIR/manifest.json" ]]; then
+  checkpoint_commit=$(
+    "$PYTHON" -c 'import json,sys; print(json.load(open(sys.argv[1]))["fingerprint"]["git_commit"])' \
+      "$CHECKPOINT_DIR/manifest.json"
+  )
+  checkpoint_args+=(--resume --checkpoint-origin-commit "$checkpoint_commit")
+fi
 "$PYTHON" -m src.qwen36_calibrated_steering \
-  --config "$CONFIG_PATH" --label "$LABEL" --n-random-directions 99
+  --config "$CONFIG_PATH" --label "$LABEL" --n-random-directions 99 \
+  "${checkpoint_args[@]}"
 "$PYTHON" -m src.validate_calibrated_steering \
   --config "$CONFIG_PATH" --label "$LABEL"
 

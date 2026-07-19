@@ -102,6 +102,8 @@ def test_qwen_ccu_queue_is_serial_fail_closed_and_native_hf() -> None:
     assert "TransformerLens must be absent" in runner
     assert "MIN_FREE_GIB=60" in runner
     assert "MIN_FREE_GIB=72" in runner
+    assert "--checkpoint-dir" in runner
+    assert "--checkpoint-origin-commit" in runner
     for script in (
         "jobs/ccu/run_qwen36_calibrated.sh",
         "jobs/ccu/run_qwen36_calibrated_queue.sh",
@@ -140,6 +142,10 @@ def test_ccu_remaining_queue_is_fail_closed_and_gate_driven() -> None:
 def test_scckn_resume_preserves_checkpoint_origin_commit() -> None:
     runner = (ROOT / "jobs/sge/calibrated_steering_run.sh").read_text()
     dense = (ROOT / "src/dense_steering.py").read_text()
+    qwen = (ROOT / "src/qwen36_calibrated_steering.py").read_text()
     assert '--checkpoint-origin-commit "$checkpoint_commit"' in runner
     assert '"git_commit": args.checkpoint_origin_commit or git_commit()' in dense
     assert "requires --resume" in dense
+    assert '"git_commit": args.checkpoint_origin_commit or git_commit()' in qwen
+    assert "raw_rows = checkpoint.consolidate(work_sequence)" in qwen
+    assert runner.count("--checkpoint-origin-commit") >= 4

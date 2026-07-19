@@ -71,15 +71,27 @@ case "$MODEL_KEY" in
     ENV_NAME=wc-qwen36-hf
     CONFIG_PATH=config/qwen36_27b.yaml
     LABEL=qwen36_27b_calibrated_topicfix_scckn_rtx6000
+    CHECKPOINT_DIR="$(dirname "$SUCCESS_SENTINEL")/checkpoint"
+    checkpoint_args=(--checkpoint-dir "$CHECKPOINT_DIR")
+    if [[ -f "$CHECKPOINT_DIR/manifest.json" ]]; then
+      checkpoint_commit=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["fingerprint"]["git_commit"])' "$CHECKPOINT_DIR/manifest.json")
+      checkpoint_args+=(--resume --checkpoint-origin-commit "$checkpoint_commit")
+    fi
     COMMAND=(-m src.qwen36_calibrated_steering --config "$CONFIG_PATH" \
-      --label "$LABEL" --n-random-directions 99)
+      --label "$LABEL" --n-random-directions 99 "${checkpoint_args[@]}")
     ;;
   qwen36_35b_a3b)
     ENV_NAME=wc-qwen36-hf
     CONFIG_PATH=config/qwen36_35b_a3b.yaml
     LABEL=qwen36_35b_a3b_calibrated_scckn_rtx6000
+    CHECKPOINT_DIR="$(dirname "$SUCCESS_SENTINEL")/checkpoint"
+    checkpoint_args=(--checkpoint-dir "$CHECKPOINT_DIR")
+    if [[ -f "$CHECKPOINT_DIR/manifest.json" ]]; then
+      checkpoint_commit=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["fingerprint"]["git_commit"])' "$CHECKPOINT_DIR/manifest.json")
+      checkpoint_args+=(--resume --checkpoint-origin-commit "$checkpoint_commit")
+    fi
     COMMAND=(-m src.qwen36_calibrated_steering --config "$CONFIG_PATH" \
-      --label "$LABEL" --n-random-directions 99)
+      --label "$LABEL" --n-random-directions 99 "${checkpoint_args[@]}")
     ;;
   *) echo "Unknown MODEL_KEY=$MODEL_KEY" >&2; exit 2 ;;
 esac
@@ -91,6 +103,7 @@ if ! git merge-base --is-ancestor "$GIT_COMMIT" HEAD; then
 fi
 if ! git diff --quiet "$GIT_COMMIT" HEAD -- \
   "$CONFIG_PATH" src/steering_calibration.py src/dense_steering.py \
+  src/steering_checkpoint.py \
   src/qwen36_calibrated_steering.py src/validate_calibrated_steering.py \
   jobs/sge/calibrated_steering_run.sh; then
   echo "Critical calibrated-steering implementation changed after submission." >&2
