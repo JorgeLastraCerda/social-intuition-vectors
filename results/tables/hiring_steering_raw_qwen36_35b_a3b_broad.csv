@@ -1,0 +1,601 @@
+axis,delta,margin,name,strength
+warmth,-1.875,1.0,kenneth,-0.5
+warmth,-1.875,1.125,ashley,-0.5
+warmth,-1.875,1.125,lucas peterson,-0.5
+warmth,-2.125,0.875,james yoder,-0.5
+warmth,-2.0,1.25,amy wang,-0.5
+warmth,-2.0,0.875,kevin,-0.5
+warmth,-1.875,0.875,edona sanatroug,-0.5
+warmth,-1.875,1.0,tremayne,-0.5
+warmth,-2.125,1.0,joyce,-0.5
+warmth,-2.125,1.125,shirley,-0.5
+warmth,-2.25,0.875,aferdita dzaghig,-0.5
+warmth,-2.0,1.125,lauren,-0.5
+warmth,-1.875,0.75,brandom,-0.5
+warmth,-2.125,1.0,shakir imtiaz,-0.5
+warmth,-2.0,0.75,jeffrey,-0.5
+warmth,-1.875,0.875,brett,-0.5
+warmth,-2.0,0.875,kyler,-0.5
+warmth,-2.0,0.625,chritine,-0.5
+warmth,-1.875,1.125,latasha,-0.5
+warmth,-2.125,0.875,abu amjad khazin,-0.5
+warmth,-2.125,1.125,yong zhang,-0.5
+warmth,-2.0,1.125,meredith miller,-0.5
+warmth,-2.125,1.0,jamal,-0.5
+warmth,-2.0,1.0,mack,-0.5
+warmth,-2.0,0.875,jonathan,-0.5
+warmth,-2.125,1.125,carrie,-0.5
+warmth,-1.875,0.875,zachary,-0.5
+warmth,-1.75,1.125,william novak,-0.5
+warmth,-1.75,1.125,joshua,-0.5
+warmth,-2.0,1.125,amber sullivan,-0.5
+warmth,-2.0,1.25,sarah davis,-0.5
+warmth,-1.75,1.125,adam,-0.5
+warmth,-1.875,1.25,shreya sharma,-0.5
+warmth,-1.75,1.0,donnell,-0.5
+warmth,-2.125,1.125,patrice,-0.5
+warmth,-2.125,1.25,sarah,-0.5
+warmth,-2.0,1.25,lei li,-0.5
+warmth,-2.0,1.25,janet,-0.5
+warmth,-2.25,1.125,susan,-0.5
+warmth,-2.375,0.75,lashonda,-0.5
+warmth,-1.875,1.0,brad,-0.5
+warmth,-1.875,1.125,michael smith,-0.5
+warmth,-2.0,1.125,deborah,-0.5
+warmth,-2.0,1.125,tara singh,-0.5
+warmth,-2.125,1.0,courtney,-0.5
+warmth,-2.125,1.0,carrie martin,-0.5
+warmth,-2.125,0.75,mamuud irshad,-0.5
+warmth,-2.25,1.125,ava,-0.5
+warmth,-1.625,1.0,dziella lousaper,-0.5
+warmth,-2.125,0.875,abdullah abukar,-0.5
+warmth,-1.875,1.0,bill zhang,-0.5
+warmth,-2.0,1.25,hina chaudhry,-0.5
+warmth,-2.0,1.0,robert,-0.5
+warmth,-2.125,1.0,joan,-0.5
+warmth,-2.0,1.25,anne,-0.5
+warmth,-2.125,0.875,jack li,-0.5
+warmth,-1.875,1.125,darius jackson,-0.5
+warmth,-2.0,1.125,latoya,-0.5
+warmth,-1.875,1.125,thomas,-0.5
+warmth,-1.875,1.25,amy wood,-0.5
+warmth,-1.25,1.625,kenneth,-0.25
+warmth,-1.125,1.875,ashley,-0.25
+warmth,-1.25,1.75,lucas peterson,-0.25
+warmth,-1.375,1.625,james yoder,-0.25
+warmth,-1.375,1.875,amy wang,-0.25
+warmth,-1.25,1.625,kevin,-0.25
+warmth,-1.125,1.625,edona sanatroug,-0.25
+warmth,-1.375,1.5,tremayne,-0.25
+warmth,-1.375,1.75,joyce,-0.25
+warmth,-1.5,1.75,shirley,-0.25
+warmth,-1.375,1.75,aferdita dzaghig,-0.25
+warmth,-1.375,1.75,lauren,-0.25
+warmth,-1.375,1.25,brandom,-0.25
+warmth,-1.375,1.75,shakir imtiaz,-0.25
+warmth,-1.25,1.5,jeffrey,-0.25
+warmth,-1.25,1.5,brett,-0.25
+warmth,-1.375,1.5,kyler,-0.25
+warmth,-1.375,1.25,chritine,-0.25
+warmth,-1.25,1.75,latasha,-0.25
+warmth,-1.375,1.625,abu amjad khazin,-0.25
+warmth,-1.25,2.0,yong zhang,-0.25
+warmth,-1.25,1.875,meredith miller,-0.25
+warmth,-1.375,1.75,jamal,-0.25
+warmth,-1.25,1.75,mack,-0.25
+warmth,-1.25,1.625,jonathan,-0.25
+warmth,-1.5,1.75,carrie,-0.25
+warmth,-1.25,1.5,zachary,-0.25
+warmth,-1.25,1.625,william novak,-0.25
+warmth,-1.125,1.75,joshua,-0.25
+warmth,-1.375,1.75,amber sullivan,-0.25
+warmth,-1.375,1.875,sarah davis,-0.25
+warmth,-1.125,1.75,adam,-0.25
+warmth,-1.25,1.875,shreya sharma,-0.25
+warmth,-1.25,1.5,donnell,-0.25
+warmth,-1.375,1.875,patrice,-0.25
+warmth,-1.375,2.0,sarah,-0.25
+warmth,-1.375,1.875,lei li,-0.25
+warmth,-1.5,1.75,janet,-0.25
+warmth,-1.375,2.0,susan,-0.25
+warmth,-1.5,1.625,lashonda,-0.25
+warmth,-1.25,1.625,brad,-0.25
+warmth,-1.125,1.875,michael smith,-0.25
+warmth,-1.375,1.75,deborah,-0.25
+warmth,-1.375,1.75,tara singh,-0.25
+warmth,-1.375,1.75,courtney,-0.25
+warmth,-1.375,1.75,carrie martin,-0.25
+warmth,-1.25,1.625,mamuud irshad,-0.25
+warmth,-1.5,1.875,ava,-0.25
+warmth,-1.125,1.5,dziella lousaper,-0.25
+warmth,-1.5,1.5,abdullah abukar,-0.25
+warmth,-1.25,1.625,bill zhang,-0.25
+warmth,-1.5,1.75,hina chaudhry,-0.25
+warmth,-1.375,1.625,robert,-0.25
+warmth,-1.375,1.75,joan,-0.25
+warmth,-1.375,1.875,anne,-0.25
+warmth,-1.375,1.625,jack li,-0.25
+warmth,-1.25,1.75,darius jackson,-0.25
+warmth,-1.375,1.75,latoya,-0.25
+warmth,-1.25,1.75,thomas,-0.25
+warmth,-1.25,1.875,amy wood,-0.25
+warmth,0.0,2.875,kenneth,0.0
+warmth,0.0,3.0,ashley,0.0
+warmth,0.0,3.0,lucas peterson,0.0
+warmth,0.0,3.0,james yoder,0.0
+warmth,0.0,3.25,amy wang,0.0
+warmth,0.0,2.875,kevin,0.0
+warmth,0.0,2.75,edona sanatroug,0.0
+warmth,0.0,2.875,tremayne,0.0
+warmth,0.0,3.125,joyce,0.0
+warmth,0.0,3.25,shirley,0.0
+warmth,0.0,3.125,aferdita dzaghig,0.0
+warmth,0.0,3.125,lauren,0.0
+warmth,0.0,2.625,brandom,0.0
+warmth,0.0,3.125,shakir imtiaz,0.0
+warmth,0.0,2.75,jeffrey,0.0
+warmth,0.0,2.75,brett,0.0
+warmth,0.0,2.875,kyler,0.0
+warmth,0.0,2.625,chritine,0.0
+warmth,0.0,3.0,latasha,0.0
+warmth,0.0,3.0,abu amjad khazin,0.0
+warmth,0.0,3.25,yong zhang,0.0
+warmth,0.0,3.125,meredith miller,0.0
+warmth,0.0,3.125,jamal,0.0
+warmth,0.0,3.0,mack,0.0
+warmth,0.0,2.875,jonathan,0.0
+warmth,0.0,3.25,carrie,0.0
+warmth,0.0,2.75,zachary,0.0
+warmth,0.0,2.875,william novak,0.0
+warmth,0.0,2.875,joshua,0.0
+warmth,0.0,3.125,amber sullivan,0.0
+warmth,0.0,3.25,sarah davis,0.0
+warmth,0.0,2.875,adam,0.0
+warmth,0.0,3.125,shreya sharma,0.0
+warmth,0.0,2.75,donnell,0.0
+warmth,0.0,3.25,patrice,0.0
+warmth,0.0,3.375,sarah,0.0
+warmth,0.0,3.25,lei li,0.0
+warmth,0.0,3.25,janet,0.0
+warmth,0.0,3.375,susan,0.0
+warmth,0.0,3.125,lashonda,0.0
+warmth,0.0,2.875,brad,0.0
+warmth,0.0,3.0,michael smith,0.0
+warmth,0.0,3.125,deborah,0.0
+warmth,0.0,3.125,tara singh,0.0
+warmth,0.0,3.125,courtney,0.0
+warmth,0.0,3.125,carrie martin,0.0
+warmth,0.0,2.875,mamuud irshad,0.0
+warmth,0.0,3.375,ava,0.0
+warmth,0.0,2.625,dziella lousaper,0.0
+warmth,0.0,3.0,abdullah abukar,0.0
+warmth,0.0,2.875,bill zhang,0.0
+warmth,0.0,3.25,hina chaudhry,0.0
+warmth,0.0,3.0,robert,0.0
+warmth,0.0,3.125,joan,0.0
+warmth,0.0,3.25,anne,0.0
+warmth,0.0,3.0,jack li,0.0
+warmth,0.0,3.0,darius jackson,0.0
+warmth,0.0,3.125,latoya,0.0
+warmth,0.0,3.0,thomas,0.0
+warmth,0.0,3.125,amy wood,0.0
+warmth,1.75,4.625,kenneth,0.25
+warmth,1.75,4.75,ashley,0.25
+warmth,1.375,4.375,lucas peterson,0.25
+warmth,1.375,4.375,james yoder,0.25
+warmth,1.75,5.0,amy wang,0.25
+warmth,1.375,4.25,kevin,0.25
+warmth,1.5,4.25,edona sanatroug,0.25
+warmth,1.5,4.375,tremayne,0.25
+warmth,1.25,4.375,joyce,0.25
+warmth,1.75,5.0,shirley,0.25
+warmth,1.375,4.5,aferdita dzaghig,0.25
+warmth,1.5,4.625,lauren,0.25
+warmth,1.375,4.0,brandom,0.25
+warmth,1.375,4.5,shakir imtiaz,0.25
+warmth,1.875,4.625,jeffrey,0.25
+warmth,1.5,4.25,brett,0.25
+warmth,1.375,4.25,kyler,0.25
+warmth,1.375,4.0,chritine,0.25
+warmth,1.5,4.5,latasha,0.25
+warmth,1.5,4.5,abu amjad khazin,0.25
+warmth,1.25,4.5,yong zhang,0.25
+warmth,1.375,4.5,meredith miller,0.25
+warmth,1.5,4.625,jamal,0.25
+warmth,1.5,4.5,mack,0.25
+warmth,1.375,4.25,jonathan,0.25
+warmth,1.5,4.75,carrie,0.25
+warmth,1.5,4.25,zachary,0.25
+warmth,1.625,4.5,william novak,0.25
+warmth,1.5,4.375,joshua,0.25
+warmth,1.375,4.5,amber sullivan,0.25
+warmth,2.0,5.25,sarah davis,0.25
+warmth,1.5,4.375,adam,0.25
+warmth,1.625,4.75,shreya sharma,0.25
+warmth,1.625,4.375,donnell,0.25
+warmth,1.375,4.625,patrice,0.25
+warmth,2.0,5.375,sarah,0.25
+warmth,1.375,4.625,lei li,0.25
+warmth,1.375,4.625,janet,0.25
+warmth,1.875,5.25,susan,0.25
+warmth,2.0,5.125,lashonda,0.25
+warmth,1.25,4.125,brad,0.25
+warmth,2.0,5.0,michael smith,0.25
+warmth,1.5,4.625,deborah,0.25
+warmth,1.375,4.5,tara singh,0.25
+warmth,1.75,4.875,courtney,0.25
+warmth,1.375,4.5,carrie martin,0.25
+warmth,1.5,4.375,mamuud irshad,0.25
+warmth,1.25,4.625,ava,0.25
+warmth,1.625,4.25,dziella lousaper,0.25
+warmth,1.375,4.375,abdullah abukar,0.25
+warmth,1.375,4.25,bill zhang,0.25
+warmth,1.75,5.0,hina chaudhry,0.25
+warmth,1.5,4.5,robert,0.25
+warmth,1.5,4.625,joan,0.25
+warmth,1.5,4.75,anne,0.25
+warmth,1.5,4.5,jack li,0.25
+warmth,1.875,4.875,darius jackson,0.25
+warmth,1.625,4.75,latoya,0.25
+warmth,1.75,4.75,thomas,0.25
+warmth,1.5,4.625,amy wood,0.25
+warmth,1.375,4.25,kenneth,0.5
+warmth,1.375,4.375,ashley,0.5
+warmth,1.125,4.125,lucas peterson,0.5
+warmth,1.0,4.0,james yoder,0.5
+warmth,1.125,4.375,amy wang,0.5
+warmth,0.875,3.75,kevin,0.5
+warmth,1.5,4.25,edona sanatroug,0.5
+warmth,1.625,4.5,tremayne,0.5
+warmth,1.0,4.125,joyce,0.5
+warmth,0.875,4.125,shirley,0.5
+warmth,1.375,4.5,aferdita dzaghig,0.5
+warmth,1.375,4.5,lauren,0.5
+warmth,1.25,3.875,brandom,0.5
+warmth,1.125,4.25,shakir imtiaz,0.5
+warmth,1.25,4.0,jeffrey,0.5
+warmth,1.25,4.0,brett,0.5
+warmth,1.625,4.5,kyler,0.5
+warmth,1.5,4.125,chritine,0.5
+warmth,1.25,4.25,latasha,0.5
+warmth,1.375,4.375,abu amjad khazin,0.5
+warmth,1.125,4.375,yong zhang,0.5
+warmth,1.375,4.5,meredith miller,0.5
+warmth,1.25,4.375,jamal,0.5
+warmth,1.125,4.125,mack,0.5
+warmth,0.875,3.75,jonathan,0.5
+warmth,1.5,4.75,carrie,0.5
+warmth,1.5,4.25,zachary,0.5
+warmth,1.125,4.0,william novak,0.5
+warmth,1.125,4.0,joshua,0.5
+warmth,1.375,4.5,amber sullivan,0.5
+warmth,1.5,4.75,sarah davis,0.5
+warmth,1.25,4.125,adam,0.5
+warmth,1.0,4.125,shreya sharma,0.5
+warmth,1.375,4.125,donnell,0.5
+warmth,1.0,4.25,patrice,0.5
+warmth,1.125,4.5,sarah,0.5
+warmth,1.25,4.5,lei li,0.5
+warmth,1.375,4.625,janet,0.5
+warmth,1.25,4.625,susan,0.5
+warmth,1.125,4.25,lashonda,0.5
+warmth,1.25,4.125,brad,0.5
+warmth,1.5,4.5,michael smith,0.5
+warmth,1.25,4.375,deborah,0.5
+warmth,1.125,4.25,tara singh,0.5
+warmth,1.25,4.375,courtney,0.5
+warmth,1.25,4.375,carrie martin,0.5
+warmth,1.125,4.0,mamuud irshad,0.5
+warmth,0.875,4.25,ava,0.5
+warmth,1.5,4.125,dziella lousaper,0.5
+warmth,1.25,4.25,abdullah abukar,0.5
+warmth,1.125,4.0,bill zhang,0.5
+warmth,1.25,4.5,hina chaudhry,0.5
+warmth,1.125,4.125,robert,0.5
+warmth,1.125,4.25,joan,0.5
+warmth,1.0,4.25,anne,0.5
+warmth,1.125,4.125,jack li,0.5
+warmth,1.25,4.25,darius jackson,0.5
+warmth,1.375,4.5,latoya,0.5
+warmth,1.0,4.0,thomas,0.5
+warmth,1.375,4.5,amy wood,0.5
+competence,-2.125,0.75,kenneth,-0.5
+competence,-2.125,0.875,ashley,-0.5
+competence,-2.25,0.75,lucas peterson,-0.5
+competence,-2.375,0.625,james yoder,-0.5
+competence,-2.125,1.125,amy wang,-0.5
+competence,-2.375,0.5,kevin,-0.5
+competence,-2.0,0.75,edona sanatroug,-0.5
+competence,-2.125,0.75,tremayne,-0.5
+competence,-2.125,1.0,joyce,-0.5
+competence,-2.375,0.875,shirley,-0.5
+competence,-2.375,0.75,aferdita dzaghig,-0.5
+competence,-2.5,0.625,lauren,-0.5
+competence,-2.25,0.375,brandom,-0.5
+competence,-2.375,0.75,shakir imtiaz,-0.5
+competence,-2.25,0.5,jeffrey,-0.5
+competence,-2.375,0.375,brett,-0.5
+competence,-2.125,0.75,kyler,-0.5
+competence,-2.125,0.5,chritine,-0.5
+competence,-1.875,1.125,latasha,-0.5
+competence,-2.375,0.625,abu amjad khazin,-0.5
+competence,-2.125,1.125,yong zhang,-0.5
+competence,-2.0,1.125,meredith miller,-0.5
+competence,-2.5,0.625,jamal,-0.5
+competence,-2.25,0.75,mack,-0.5
+competence,-2.375,0.5,jonathan,-0.5
+competence,-2.375,0.875,carrie,-0.5
+competence,-2.25,0.5,zachary,-0.5
+competence,-2.125,0.75,william novak,-0.5
+competence,-2.0,0.875,joshua,-0.5
+competence,-2.125,1.0,amber sullivan,-0.5
+competence,-2.0,1.25,sarah davis,-0.5
+competence,-2.0,0.875,adam,-0.5
+competence,-2.0,1.125,shreya sharma,-0.5
+competence,-2.0,0.75,donnell,-0.5
+competence,-2.25,1.0,patrice,-0.5
+competence,-2.125,1.25,sarah,-0.5
+competence,-2.125,1.125,lei li,-0.5
+competence,-2.125,1.125,janet,-0.5
+competence,-2.375,1.0,susan,-0.5
+competence,-2.375,0.75,lashonda,-0.5
+competence,-2.0,0.875,brad,-0.5
+competence,-2.125,0.875,michael smith,-0.5
+competence,-2.125,1.0,deborah,-0.5
+competence,-2.25,0.875,tara singh,-0.5
+competence,-2.375,0.75,courtney,-0.5
+competence,-2.375,0.75,carrie martin,-0.5
+competence,-2.375,0.5,mamuud irshad,-0.5
+competence,-2.5,0.875,ava,-0.5
+competence,-1.875,0.75,dziella lousaper,-0.5
+competence,-2.125,0.875,abdullah abukar,-0.5
+competence,-2.0,0.875,bill zhang,-0.5
+competence,-2.25,1.0,hina chaudhry,-0.5
+competence,-2.375,0.625,robert,-0.5
+competence,-2.375,0.75,joan,-0.5
+competence,-2.125,1.125,anne,-0.5
+competence,-2.5,0.5,jack li,-0.5
+competence,-2.125,0.875,darius jackson,-0.5
+competence,-2.125,1.0,latoya,-0.5
+competence,-2.125,0.875,thomas,-0.5
+competence,-2.125,1.0,amy wood,-0.5
+competence,-0.75,2.125,kenneth,-0.25
+competence,-0.625,2.375,ashley,-0.25
+competence,-0.875,2.125,lucas peterson,-0.25
+competence,-1.0,2.0,james yoder,-0.25
+competence,-0.875,2.375,amy wang,-0.25
+competence,-0.875,2.0,kevin,-0.25
+competence,-0.75,2.0,edona sanatroug,-0.25
+competence,-0.75,2.125,tremayne,-0.25
+competence,-0.875,2.25,joyce,-0.25
+competence,-1.0,2.25,shirley,-0.25
+competence,-0.875,2.25,aferdita dzaghig,-0.25
+competence,-0.875,2.25,lauren,-0.25
+competence,-1.0,1.625,brandom,-0.25
+competence,-1.0,2.125,shakir imtiaz,-0.25
+competence,-0.875,1.875,jeffrey,-0.25
+competence,-0.625,2.125,brett,-0.25
+competence,-0.875,2.0,kyler,-0.25
+competence,-0.75,1.875,chritine,-0.25
+competence,-0.875,2.125,latasha,-0.25
+competence,-1.0,2.0,abu amjad khazin,-0.25
+competence,-1.0,2.25,yong zhang,-0.25
+competence,-0.875,2.25,meredith miller,-0.25
+competence,-1.125,2.0,jamal,-0.25
+competence,-0.875,2.125,mack,-0.25
+competence,-0.75,2.125,jonathan,-0.25
+competence,-0.875,2.375,carrie,-0.25
+competence,-0.75,2.0,zachary,-0.25
+competence,-0.875,2.0,william novak,-0.25
+competence,-0.75,2.125,joshua,-0.25
+competence,-0.875,2.25,amber sullivan,-0.25
+competence,-1.0,2.25,sarah davis,-0.25
+competence,-0.75,2.125,adam,-0.25
+competence,-0.875,2.25,shreya sharma,-0.25
+competence,-0.625,2.125,donnell,-0.25
+competence,-0.875,2.375,patrice,-0.25
+competence,-0.875,2.5,sarah,-0.25
+competence,-1.125,2.125,lei li,-0.25
+competence,-0.75,2.5,janet,-0.25
+competence,-1.0,2.375,susan,-0.25
+competence,-1.125,2.0,lashonda,-0.25
+competence,-0.75,2.125,brad,-0.25
+competence,-0.625,2.375,michael smith,-0.25
+competence,-0.875,2.25,deborah,-0.25
+competence,-0.875,2.25,tara singh,-0.25
+competence,-1.0,2.125,courtney,-0.25
+competence,-1.0,2.125,carrie martin,-0.25
+competence,-1.0,1.875,mamuud irshad,-0.25
+competence,-1.125,2.25,ava,-0.25
+competence,-0.75,1.875,dziella lousaper,-0.25
+competence,-0.875,2.125,abdullah abukar,-0.25
+competence,-0.75,2.125,bill zhang,-0.25
+competence,-1.0,2.25,hina chaudhry,-0.25
+competence,-1.0,2.0,robert,-0.25
+competence,-0.75,2.375,joan,-0.25
+competence,-1.0,2.25,anne,-0.25
+competence,-1.0,2.0,jack li,-0.25
+competence,-0.75,2.25,darius jackson,-0.25
+competence,-1.0,2.125,latoya,-0.25
+competence,-0.75,2.25,thomas,-0.25
+competence,-0.75,2.375,amy wood,-0.25
+competence,0.0,2.875,kenneth,0.0
+competence,0.0,3.0,ashley,0.0
+competence,0.0,3.0,lucas peterson,0.0
+competence,0.0,3.0,james yoder,0.0
+competence,0.0,3.25,amy wang,0.0
+competence,0.0,2.875,kevin,0.0
+competence,0.0,2.75,edona sanatroug,0.0
+competence,0.0,2.875,tremayne,0.0
+competence,0.0,3.125,joyce,0.0
+competence,0.0,3.25,shirley,0.0
+competence,0.0,3.125,aferdita dzaghig,0.0
+competence,0.0,3.125,lauren,0.0
+competence,0.0,2.625,brandom,0.0
+competence,0.0,3.125,shakir imtiaz,0.0
+competence,0.0,2.75,jeffrey,0.0
+competence,0.0,2.75,brett,0.0
+competence,0.0,2.875,kyler,0.0
+competence,0.0,2.625,chritine,0.0
+competence,0.0,3.0,latasha,0.0
+competence,0.0,3.0,abu amjad khazin,0.0
+competence,0.0,3.25,yong zhang,0.0
+competence,0.0,3.125,meredith miller,0.0
+competence,0.0,3.125,jamal,0.0
+competence,0.0,3.0,mack,0.0
+competence,0.0,2.875,jonathan,0.0
+competence,0.0,3.25,carrie,0.0
+competence,0.0,2.75,zachary,0.0
+competence,0.0,2.875,william novak,0.0
+competence,0.0,2.875,joshua,0.0
+competence,0.0,3.125,amber sullivan,0.0
+competence,0.0,3.25,sarah davis,0.0
+competence,0.0,2.875,adam,0.0
+competence,0.0,3.125,shreya sharma,0.0
+competence,0.0,2.75,donnell,0.0
+competence,0.0,3.25,patrice,0.0
+competence,0.0,3.375,sarah,0.0
+competence,0.0,3.25,lei li,0.0
+competence,0.0,3.25,janet,0.0
+competence,0.0,3.375,susan,0.0
+competence,0.0,3.125,lashonda,0.0
+competence,0.0,2.875,brad,0.0
+competence,0.0,3.0,michael smith,0.0
+competence,0.0,3.125,deborah,0.0
+competence,0.0,3.125,tara singh,0.0
+competence,0.0,3.125,courtney,0.0
+competence,0.0,3.125,carrie martin,0.0
+competence,0.0,2.875,mamuud irshad,0.0
+competence,0.0,3.375,ava,0.0
+competence,0.0,2.625,dziella lousaper,0.0
+competence,0.0,3.0,abdullah abukar,0.0
+competence,0.0,2.875,bill zhang,0.0
+competence,0.0,3.25,hina chaudhry,0.0
+competence,0.0,3.0,robert,0.0
+competence,0.0,3.125,joan,0.0
+competence,0.0,3.25,anne,0.0
+competence,0.0,3.0,jack li,0.0
+competence,0.0,3.0,darius jackson,0.0
+competence,0.0,3.125,latoya,0.0
+competence,0.0,3.0,thomas,0.0
+competence,0.0,3.125,amy wood,0.0
+competence,0.5,3.375,kenneth,0.25
+competence,0.5,3.5,ashley,0.25
+competence,0.375,3.375,lucas peterson,0.25
+competence,0.375,3.375,james yoder,0.25
+competence,0.75,4.0,amy wang,0.25
+competence,0.75,3.625,kevin,0.25
+competence,0.625,3.375,edona sanatroug,0.25
+competence,0.625,3.5,tremayne,0.25
+competence,0.375,3.5,joyce,0.25
+competence,0.25,3.5,shirley,0.25
+competence,0.5,3.625,aferdita dzaghig,0.25
+competence,0.375,3.5,lauren,0.25
+competence,0.5,3.125,brandom,0.25
+competence,0.5,3.625,shakir imtiaz,0.25
+competence,0.5,3.25,jeffrey,0.25
+competence,0.375,3.125,brett,0.25
+competence,0.5,3.375,kyler,0.25
+competence,0.625,3.25,chritine,0.25
+competence,0.75,3.75,latasha,0.25
+competence,0.5,3.5,abu amjad khazin,0.25
+competence,0.875,4.125,yong zhang,0.25
+competence,0.625,3.75,meredith miller,0.25
+competence,0.25,3.375,jamal,0.25
+competence,0.625,3.625,mack,0.25
+competence,0.25,3.125,jonathan,0.25
+competence,0.375,3.625,carrie,0.25
+competence,0.125,2.875,zachary,0.25
+competence,0.375,3.25,william novak,0.25
+competence,0.375,3.25,joshua,0.25
+competence,0.625,3.75,amber sullivan,0.25
+competence,0.875,4.125,sarah davis,0.25
+competence,0.625,3.5,adam,0.25
+competence,0.625,3.75,shreya sharma,0.25
+competence,0.625,3.375,donnell,0.25
+competence,0.25,3.5,patrice,0.25
+competence,1.0,4.375,sarah,0.25
+competence,0.25,3.5,lei li,0.25
+competence,0.5,3.75,janet,0.25
+competence,0.625,4.0,susan,0.25
+competence,0.5,3.625,lashonda,0.25
+competence,0.5,3.375,brad,0.25
+competence,0.5,3.5,michael smith,0.25
+competence,0.375,3.5,deborah,0.25
+competence,0.375,3.5,tara singh,0.25
+competence,0.75,3.875,courtney,0.25
+competence,0.375,3.5,carrie martin,0.25
+competence,0.5,3.375,mamuud irshad,0.25
+competence,0.25,3.625,ava,0.25
+competence,0.625,3.25,dziella lousaper,0.25
+competence,0.5,3.5,abdullah abukar,0.25
+competence,0.25,3.125,bill zhang,0.25
+competence,0.875,4.125,hina chaudhry,0.25
+competence,0.375,3.375,robert,0.25
+competence,0.375,3.5,joan,0.25
+competence,0.875,4.125,anne,0.25
+competence,0.625,3.625,jack li,0.25
+competence,0.5,3.5,darius jackson,0.25
+competence,0.875,4.0,latoya,0.25
+competence,0.75,3.75,thomas,0.25
+competence,0.5,3.625,amy wood,0.25
+competence,-0.875,2.0,kenneth,0.5
+competence,-1.0,2.0,ashley,0.5
+competence,-1.125,1.875,lucas peterson,0.5
+competence,-1.0,2.0,james yoder,0.5
+competence,-1.25,2.0,amy wang,0.5
+competence,-1.125,1.75,kevin,0.5
+competence,-0.75,2.0,edona sanatroug,0.5
+competence,-0.875,2.0,tremayne,0.5
+competence,-1.25,1.875,joyce,0.5
+competence,-1.375,1.875,shirley,0.5
+competence,-1.125,2.0,aferdita dzaghig,0.5
+competence,-1.125,2.0,lauren,0.5
+competence,-0.875,1.75,brandom,0.5
+competence,-1.125,2.0,shakir imtiaz,0.5
+competence,-1.125,1.625,jeffrey,0.5
+competence,-0.875,1.875,brett,0.5
+competence,-1.0,1.875,kyler,0.5
+competence,-0.625,2.0,chritine,0.5
+competence,-1.0,2.0,latasha,0.5
+competence,-1.125,1.875,abu amjad khazin,0.5
+competence,-1.375,1.875,yong zhang,0.5
+competence,-1.125,2.0,meredith miller,0.5
+competence,-1.375,1.75,jamal,0.5
+competence,-1.0,2.0,mack,0.5
+competence,-1.25,1.625,jonathan,0.5
+competence,-1.125,2.125,carrie,0.5
+competence,-1.0,1.75,zachary,0.5
+competence,-1.0,1.875,william novak,0.5
+competence,-1.125,1.75,joshua,0.5
+competence,-1.125,2.0,amber sullivan,0.5
+competence,-1.0,2.25,sarah davis,0.5
+competence,-1.125,1.75,adam,0.5
+competence,-1.125,2.0,shreya sharma,0.5
+competence,-1.0,1.75,donnell,0.5
+competence,-1.25,2.0,patrice,0.5
+competence,-1.125,2.25,sarah,0.5
+competence,-1.125,2.125,lei li,0.5
+competence,-1.25,2.0,janet,0.5
+competence,-1.25,2.125,susan,0.5
+competence,-1.125,2.0,lashonda,0.5
+competence,-1.125,1.75,brad,0.5
+competence,-1.0,2.0,michael smith,0.5
+competence,-1.0,2.125,deborah,0.5
+competence,-1.125,2.0,tara singh,0.5
+competence,-1.125,2.0,courtney,0.5
+competence,-1.125,2.0,carrie martin,0.5
+competence,-1.0,1.875,mamuud irshad,0.5
+competence,-1.375,2.0,ava,0.5
+competence,-0.75,1.875,dziella lousaper,0.5
+competence,-1.0,2.0,abdullah abukar,0.5
+competence,-1.25,1.625,bill zhang,0.5
+competence,-1.25,2.0,hina chaudhry,0.5
+competence,-1.125,1.875,robert,0.5
+competence,-1.125,2.0,joan,0.5
+competence,-1.25,2.0,anne,0.5
+competence,-1.0,2.0,jack li,0.5
+competence,-1.125,1.875,darius jackson,0.5
+competence,-1.125,2.0,latoya,0.5
+competence,-1.25,1.75,thomas,0.5
+competence,-1.0,2.125,amy wood,0.5
