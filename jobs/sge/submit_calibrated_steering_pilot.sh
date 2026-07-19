@@ -44,6 +44,7 @@ fi
 
 critical_paths=(
   "$CONFIG_PATH" src/steering_calibration.py src/dense_steering.py
+  src/steering_checkpoint.py
   src/qwen36_calibrated_steering.py src/validate_calibrated_steering.py
   jobs/sge/calibrated_steering_run.sh jobs/sge/submit_calibrated_steering_pilot.sh
 )

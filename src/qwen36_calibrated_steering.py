@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import argparse
 import csv
-import json
+import os
+import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
 from typing import Any, Sequence
@@ -31,6 +33,7 @@ from src.steering_calibration import (
     standardized_shift,
     unit,
 )
+from src.steering_checkpoint import CheckpointStore, atomic_json_write, sha256_file
 from src.utils.config import load_config, require_model_name
 
 AXES = ("warmth", "competence")
@@ -133,12 +136,31 @@ def direction_metadata(judgment_axis: str, name: str) -> tuple[str, str, str]:
     return "", "random", name.removeprefix("random_")
 
 
+def git_commit() -> str:
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], text=True, stderr=subprocess.DEVNULL
+        ).strip()
+    except (OSError, subprocess.CalledProcessError):
+        return "unavailable"
+
+
 def _write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=list(rows[0]), lineterminator="\n")
-        writer.writeheader()
-        writer.writerows(rows)
+    fd, temporary = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
+    temporary_path = Path(temporary)
+    try:
+        with os.fdopen(fd, "w", newline="", encoding="utf-8") as handle:
+            writer = csv.DictWriter(
+                handle, fieldnames=list(rows[0]), lineterminator="\n"
+            )
+            writer.writeheader()
+            writer.writerows(rows)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary_path, path)
+    finally:
+        temporary_path.unlink(missing_ok=True)
 
 
 def summarize(rows: list[dict[str, Any]], seed: int) -> list[dict[str, Any]]:
@@ -347,6 +369,54 @@ def main() -> None:
         for name, vector in named_vectors.items()
     }
 
+    if args.resume and not args.checkpoint_dir:
+        raise ValueError("--resume requires --checkpoint-dir.")
+    if args.checkpoint_origin_commit and not args.resume:
+        raise ValueError("--checkpoint-origin-commit requires --resume.")
+    if args.checkpoint_origin_commit and (
+        len(args.checkpoint_origin_commit) != 40
+        or any(
+            character not in "0123456789abcdef"
+            for character in args.checkpoint_origin_commit
+        )
+    ):
+        raise ValueError(
+            "--checkpoint-origin-commit must be a 40-character lowercase SHA."
+        )
+    checkpoint: CheckpointStore | None = None
+    if args.checkpoint_dir:
+        input_paths = {
+            "config": Path(args.config),
+            "stimuli": Path(cfg.paths.stimuli) / "concept_stories.jsonl",
+            "meta": vectors_dir / "meta.json",
+            **{
+                f"activation_{condition}": vectors_dir / f"X_{condition}.npy"
+                for condition in CONDITIONS
+            },
+        }
+        fingerprint = {
+            "git_commit": args.checkpoint_origin_commit or git_commit(),
+            "model": require_model_name(cfg),
+            "model_revision": cfg.model.revision,
+            "probe_layer_frac": cfg.probing.probe_layer_frac,
+            "seed": cfg.probing.seed,
+            "train_topics": train_topics.tolist(),
+            "test_topics": test_topics.tolist(),
+            "arguments": {
+                "label": label,
+                "n_random_directions": args.n_random_directions,
+                "strengths": list(STRENGTHS),
+                "control_scale": "sd_matched",
+                "interventions": ["additive", "norm_preserving"],
+            },
+            "input_sha256": {
+                name: sha256_file(path) for name, path in sorted(input_paths.items())
+            },
+        }
+        checkpoint = CheckpointStore(
+            Path(args.checkpoint_dir), fingerprint, resume=args.resume
+        )
+
     first_text = buckets["high_warmth"][0]["text"]
     started = time.time()
     model, base, language, tokenizer, n_layers, d_model, layer, counters = (
@@ -358,6 +428,7 @@ def main() -> None:
     yes_id, no_id = continuation_ids(tokenizer, rendered_check)
     language_layers = language.layers
     raw_rows: list[dict[str, Any]] = []
+    work_sequence = 0
 
     def margin(prompt: str, hook=None) -> float:
         rendered = render_native_chat(tokenizer, prompt)
@@ -381,40 +452,71 @@ def main() -> None:
             for record in buckets[condition]
             if int(record["topic_idx"]) in set(test_topics.tolist())
         ]
+        baseline_key = {"mode": "baseline", "axis": axis}
+        baseline_rows = (
+            checkpoint.read(work_sequence, baseline_key) if checkpoint else None
+        )
+        if baseline_rows is None:
+            baseline_rows = []
+            for record, label_value in records:
+                value = margin(judgement_prompt(record["text"], axis))
+                baseline_rows.append(
+                    {
+                        "mode": "baseline",
+                        "axis": axis,
+                        "story_id": record["id"],
+                        "topic_idx": int(record["topic_idx"]),
+                        "condition": record["condition"],
+                        "label": label_value,
+                        "direction": "baseline",
+                        "strength": 0.0,
+                        "margin": value,
+                        "delta_margin": 0.0,
+                        "judgment_axis": axis,
+                        "steering_axis": "",
+                        "direction_type": "baseline",
+                        "random_id": "",
+                        "vector_kind": "raw",
+                        "intervention": "baseline",
+                        "control_scale": "sd_matched",
+                        "direction_sd": "",
+                        "alpha_absolute": 0.0,
+                        "standardized_shift": 0.0,
+                        "max_relative_norm_drift": 0.0,
+                        "decision_flipped": False,
+                    }
+                )
+            if checkpoint:
+                checkpoint.write(work_sequence, baseline_key, baseline_rows)
+        else:
+            print(f"[resume] baseline {axis}", flush=True)
+        raw_rows.extend(baseline_rows)
         baselines = {
-            record["id"]: margin(judgement_prompt(record["text"], axis))
-            for record, _ in records
+            str(row["story_id"]): float(row["margin"]) for row in baseline_rows
         }
-        for record, label_value in records:
-            raw_rows.append(
-                {
-                    "mode": "baseline",
-                    "axis": axis,
-                    "story_id": record["id"],
-                    "topic_idx": int(record["topic_idx"]),
-                    "condition": record["condition"],
-                    "label": label_value,
-                    "direction": "baseline",
-                    "strength": 0.0,
-                    "margin": baselines[record["id"]],
-                    "delta_margin": 0.0,
-                    "judgment_axis": axis,
-                    "steering_axis": "",
-                    "direction_type": "baseline",
-                    "random_id": "",
-                    "vector_kind": "raw",
-                    "intervention": "baseline",
-                    "control_scale": "sd_matched",
-                    "direction_sd": "",
-                    "alpha_absolute": 0.0,
-                    "standardized_shift": 0.0,
-                    "max_relative_norm_drift": 0.0,
-                    "decision_flipped": False,
-                }
-            )
+        work_sequence += 1
         for intervention in ("additive", "norm_preserving"):
             for direction_name, vector in named_vectors.items():
                 for strength in STRENGTHS:
+                    work_key = {
+                        "mode": "steering",
+                        "axis": axis,
+                        "intervention": intervention,
+                        "direction": direction_name,
+                        "strength": strength,
+                    }
+                    completed_rows = (
+                        checkpoint.read(work_sequence, work_key) if checkpoint else None
+                    )
+                    if completed_rows is not None:
+                        raw_rows.extend(completed_rows)
+                        print(
+                            f"[resume] {axis} {direction_name} {intervention} "
+                            f"{strength:+.2f}",
+                            flush=True,
+                        )
+                        work_sequence += 1
+                        continue
                     alpha = calibrated_alpha(
                         strength=strength,
                         mean_residual_norm=mean_residual_norm,
@@ -446,6 +548,7 @@ def main() -> None:
                             return (changed, *output[1:])
                         return changed
 
+                    work_rows: list[dict[str, Any]] = []
                     for record, label_value in records:
                         value = (
                             baselines[record["id"]]
@@ -455,7 +558,7 @@ def main() -> None:
                         steering_axis, direction_type, random_id = direction_metadata(
                             axis, direction_name
                         )
-                        raw_rows.append(
+                        work_rows.append(
                             {
                                 "mode": "steering",
                                 "axis": axis,
@@ -486,10 +589,17 @@ def main() -> None:
                                 ),
                             }
                         )
+                    if checkpoint:
+                        checkpoint.write(work_sequence, work_key, work_rows)
+                    raw_rows.extend(work_rows)
                     print(
                         f"[steering] {axis} {direction_name} {intervention} {strength:+.2f}",
                         flush=True,
                     )
+                    work_sequence += 1
+
+    if checkpoint:
+        raw_rows = checkpoint.consolidate(work_sequence)
 
     summary_rows = summarize(raw_rows, cfg.probing.seed)
     null_rows = null_summary(summary_rows, raw_rows, cfg.probing.seed)
@@ -498,34 +608,34 @@ def main() -> None:
     _write_csv(summary_path, summary_rows)
     _write_csv(null_path, null_rows)
     log_path.parent.mkdir(parents=True, exist_ok=True)
-    log_path.write_text(
-        json.dumps(
-            {
-                "status": "pass",
-                "label": label,
-                "model": require_model_name(cfg),
-                "revision": cfg.model.revision,
-                "probe_layer": layer,
-                "seed": cfg.probing.seed,
-                "stimuli_sha256": stimuli_hash,
-                "train_topics": train_topics.tolist(),
-                "test_topics": test_topics.tolist(),
-                "mean_residual_norm": mean_residual_norm,
-                "direction_sds_train_topics": direction_sds,
-                "control_scale": "sd_matched",
-                "interventions": ["additive", "norm_preserving"],
-                "n_random_directions": args.n_random_directions,
-                "strengths": list(STRENGTHS),
-                "yes_token_id": yes_id,
-                "no_token_id": no_id,
-                "transformer_lens_imported": "transformer_lens" in sys.modules,
-                "scientific_gate": "descriptive-only",
-                "runtime": runtime,
-                "outputs": [str(raw_path), str(summary_path), str(null_path)],
-            },
-            indent=2,
-        ),
-        encoding="utf-8",
+    atomic_json_write(
+        log_path,
+        {
+            "status": "pass",
+            "label": label,
+            "model": require_model_name(cfg),
+            "revision": cfg.model.revision,
+            "probe_layer": layer,
+            "seed": cfg.probing.seed,
+            "stimuli_sha256": stimuli_hash,
+            "train_topics": train_topics.tolist(),
+            "test_topics": test_topics.tolist(),
+            "mean_residual_norm": mean_residual_norm,
+            "direction_sds_train_topics": direction_sds,
+            "control_scale": "sd_matched",
+            "interventions": ["additive", "norm_preserving"],
+            "n_random_directions": args.n_random_directions,
+            "strengths": list(STRENGTHS),
+            "yes_token_id": yes_id,
+            "no_token_id": no_id,
+            "transformer_lens_imported": "transformer_lens" in sys.modules,
+            "scientific_gate": "descriptive-only",
+            "checkpoint_dir": args.checkpoint_dir,
+            "resumed": bool(args.resume),
+            "checkpoint_origin_commit": args.checkpoint_origin_commit,
+            "runtime": runtime,
+            "outputs": [str(raw_path), str(summary_path), str(null_path)],
+        },
     )
     print(f"[done] {log_path}")
 
@@ -535,6 +645,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--config", required=True)
     parser.add_argument("--label")
     parser.add_argument("--n-random-directions", type=int, default=99)
+    parser.add_argument("--checkpoint-dir")
+    parser.add_argument("--resume", action="store_true")
+    parser.add_argument("--checkpoint-origin-commit")
     return parser.parse_args()
 
 

@@ -1977,3 +1977,13 @@
 - **Findings:** No Qwen process or success sentinel remains, and the H100 is idle. The 27B log reached competence `random_024` under additive steering, approximately 57% of the complete intervention loop, before shutdown. No partial result tables exist because the native-HF runner writes outputs only after completing all interventions. Qwen 35B-A3B remained pending and never started. The isolated Transformers 5.14.1 environment, downloaded weights, vectors, queue logs, and state files survived on persistent storage.
 - **Decision / rationale:** Treat the stale `running` queue-state value as interrupted rather than successful. Do not accept or report an empirical 27B result without the normal validator and success sentinel.
 - **Next:** Restart 27B from the beginning or add resumable checkpointing before relaunch, then run 35B-A3B.
+
+---
+
+## 2026-07-19 · Step 6 — Implement resumable three-GPU Qwen pipeline
+- **Context:** Prepare two corrected calibrated runs and an independent hiring audit for parallel RTX PRO 6000 and H100 execution after the interrupted CCU run.
+- **Agent:** gpt-5-codex
+- **Did:** Added atomic fingerprinted checkpoints to native-HF calibrated steering; added native-HF 282-name hiring audit and local, broad, and denoised-local steering with per-name checkpoints; added validators and independent SCCKN/CCU runner support; wrote `paper/2026-07-19_0944_qwen36_resumable_parallel_pipeline.md`.
+- **Findings:** Resume now preserves completed baselines and steering work units and rejects changed commits, arguments, revisions, topic splits, or input hashes. The hiring path retains raw explicit-BOS name activations, native-chat callback decisions, one-token Yes/No checks, zero vision calls, and no TransformerLens import. Twenty-two focused tests plus Ruff, Python compilation, shell syntax, and whitespace checks passed.
+- **Decision / rationale:** Launch corrected 27B and 35B-A3B calibrated steering independently on the two SCCKN RTX resources and use CCU H100 for the non-duplicative 27B hiring audit. Keep the rejected historical 27B artifact unchanged.
+- **Next:** Commit and synchronize the implementation, preserve held SCCKN manifests, release both RTX jobs, then start and verify the H100 audit.
