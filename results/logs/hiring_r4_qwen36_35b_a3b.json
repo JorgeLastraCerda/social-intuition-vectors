@@ -1,0 +1,23 @@
+{
+  "label": "qwen36_35b_a3b",
+  "audit_input": "results/tables/hiring_audit_qwen36_35b_a3b.csv",
+  "human_input": "data/raw/SocialPerceptions-Predict-Callback-main/0_data/published_data/df_all.csv",
+  "join": "lowercase first name plus exact study match",
+  "n_audit": 282,
+  "n_matched": 149,
+  "seed": 20260527,
+  "margin_diagnostic": {
+    "n": 149,
+    "n_unique": 12,
+    "sd": 0.27708467300933093,
+    "fraction_on_0.125_grid": 1.0,
+    "quantisation_warning": false
+  },
+  "group_level_correlation": {
+    "pearson_r": -0.38989859505978597,
+    "pearson_p": 0.610101404940214,
+    "n_groups": 4
+  },
+  "group_output": "results/tables/hiring_group_r4_qwen36_35b_a3b.csv",
+  "name_level_output": "results/tables/hiring_name_level_qwen36_35b_a3b.csv"
+}

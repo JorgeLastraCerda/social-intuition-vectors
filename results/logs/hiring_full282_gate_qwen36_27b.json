@@ -1,0 +1,6 @@
+{
+  "model_label": "qwen36_27b",
+  "run_full_282": false,
+  "reasons": [],
+  "policy": "run all local, broad, and denoised-local regimes if any reason fires"
+}
