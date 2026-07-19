@@ -2136,3 +2136,13 @@
 - **Findings:** Warmth remained non-monotone but ended at +1.257 (95% CI [1.235, 1.278]). Competence reproduced the reversal at -1.094 (95% CI [-1.116, -1.070]), with R-squared 0.297, non-monotonicity, and endpoint-slope sign disagreement. The endpoint differs by less than 0.001 from the 60-name estimate.
 - **Decision / rationale:** Treat the competence reversal as a robust broad-intervention property rather than sampling noise.
 - **Next:** Complete and report denoised-local full-282, then close the 35B-A3B hiring expansion matrix.
+
+---
+
+## 2026-07-19 · Step 22 — Complete the Qwen 35B-A3B hiring expansion matrix
+- **Context:** Finish the final gate-required full-name robustness condition on the H100.
+- **Agent:** gpt-5-codex
+- **Did:** Retrieved, locally validated, and summarized all 2,820 denoised-local full-name rows; wrote `paper/2026-07-19_1105_qwen36_35b_a3b_denoised_full282.md`; confirmed the H100 is idle after all planned Qwen hiring tasks.
+- **Findings:** +0.10 effects were +0.996 (95% CI [0.968, 1.022]) for warmth and +0.431 (95% CI [0.410, 0.454]) for competence; both curves were monotone and closely reproduced the 60-name denoised panel. All 3,102 checkpoints and the normal success sentinel are present.
+- **Decision / rationale:** Close the 35B-A3B hiring expansion matrix. Stable local effects survive panel expansion and denoising, while the independently confirmed broad competence reversal remains the only range-specific failure.
+- **Next:** Wait for, validate, synchronize, and separately report the two still-running RTX calibrated steering jobs.
