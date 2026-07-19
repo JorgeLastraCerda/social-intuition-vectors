@@ -2106,3 +2106,13 @@
 - **Findings:** Denoised +0.10 effects were +1.004 (95% CI [0.944, 1.065]) for warmth and +0.438 (95% CI [0.390, 0.483]) for competence; both were monotone. The gate fired on four broad-regime criteria and requires all three 282-name expansions.
 - **Decision / rationale:** Run local, broad, and denoised-local full-name tasks independently, preserving separate checkpoints and sentinels; do not chain their launch.
 - **Next:** Validate and report local full-282, then launch broad full-282 and denoised-local full-282 in turn or on the first freed independent GPU.
+
+---
+
+## 2026-07-19 · Step 19 — Fix full-282 validation without recomputation
+- **Context:** Recover the completed 35B-A3B local full-name output after its post-run validator retained a 60-name default.
+- **Agent:** gpt-5-codex
+- **Did:** Preserved all 3,102 checkpoints and both final artifacts, changed steering validation to infer and cross-check the metadata name count, added a runner branch that validates complete published outputs before atomically creating a missing sentinel, added a 2,820-row regression test, and wrote `paper/2026-07-19_1039_qwen36_full282_validator_fix.md`.
+- **Findings:** Model inference and output publication completed correctly at 2,820 rows and 282 unique names; only the legacy validator expectation failed. Four focused tests, Ruff, shell syntax, and whitespace checks passed.
+- **Decision / rationale:** Recover from final artifacts under the fixed validator rather than repeat 3,102 completed GPU work units. Preserve explicit name-count checking for callers that supply it and metadata inference for both legacy 60-name and full-282 runs.
+- **Next:** Pin the fixed commit on CCU, validate the existing output, create its sentinel through the recovery path, then launch broad full-282 independently.
