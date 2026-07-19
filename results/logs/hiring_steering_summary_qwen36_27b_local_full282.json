@@ -1,0 +1,35 @@
+{
+  "label": "qwen36_27b_local_full282",
+  "seed": 20260527,
+  "raw_input": "results/tables/hiring_steering_raw_qwen36_27b_local_full282.csv",
+  "summary_output": "results/tables/hiring_steering_qwen36_27b_local_full282.csv",
+  "axes": {
+    "warmth": {
+      "slope": 12.162234042553191,
+      "r_squared": 0.9993639541005805,
+      "monotone_non_decreasing": true,
+      "positive_endpoint": 0.1,
+      "endpoint_mean_delta": 1.1932624113475176,
+      "endpoint_ci_95_low": 1.1804078014184398,
+      "endpoint_ci_95_high": 1.2052304964539007,
+      "endpoint_sign_matches_slope": true
+    },
+    "competence": {
+      "slope": 7.3554964539007095,
+      "r_squared": 0.9721275469269001,
+      "monotone_non_decreasing": true,
+      "positive_endpoint": 0.1,
+      "endpoint_mean_delta": 0.5186170212765957,
+      "endpoint_ci_95_low": 0.5066489361702128,
+      "endpoint_ci_95_high": 0.5305851063829787,
+      "endpoint_sign_matches_slope": true
+    }
+  },
+  "margin_diagnostic": {
+    "n": 282,
+    "n_unique": 16,
+    "sd": 0.24961954595023364,
+    "fraction_on_0.125_grid": 1.0,
+    "quantisation_warning": true
+  }
+}
