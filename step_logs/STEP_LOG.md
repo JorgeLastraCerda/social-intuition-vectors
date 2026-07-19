@@ -2176,3 +2176,22 @@
 - **Findings:** Denoised +0.10 effects were +1.133 warmth (95% CI [1.121, 1.146]) and +0.409 competence (95% CI [0.397, 0.421]), both monotone. Across local, broad, and denoised-local, all six full-name endpoints differ from the 60-name estimates by less than 3%; every sign and monotonicity result is preserved.
 - **Decision / rationale:** Close the Qwen3.6-27B full-name matrix as a post-hoc balanced replication. Preserve the original negative expansion gate as the confirmatory protocol result.
 - **Next:** Synchronize the validated artifacts and reports, then use the balanced matrix in the cross-model Gemma 4 versus Qwen synthesis.
+
+---
+
+## 2026-07-19 · Step 26 — Accept topic-corrected Qwen 27B calibrated steering
+- **Context:** Retrieve and report the completed SCCKN RTX calibrated run after the earlier non-contiguous-topic pilot was rejected.
+- **Agent:** gpt-5-codex
+- **Did:** Retrieved the raw, summary, null, runtime, scheduler, and submission artifacts with exact remote-to-local SHA-256 parity; passed the local validator; wrote `paper/2026-07-19_1223_qwen36_27b_calibrated_steering.md`.
+- **Findings:** Validation passed 40,440 raw rows, 2,020 summary rows, and eight null rows. Maximum norm-preserving drift was 0.006003. Additive target-minus-random paired-topic effects were +0.681 warmth (95% CI [+0.575, +0.788]) and +0.300 competence (95% CI [+0.163, +0.481]); cross-axis effects were also positive and resolved.
+- **Decision / rationale:** Accept the topic-corrected artifact as the authoritative 27B calibrated result while retaining the old rejected pilot solely as a bug audit trail. Interpret the result as causal sensitivity beyond random controls, not clean axis specificity.
+
+---
+
+## 2026-07-19 · Step 27 — Accept Qwen 35B-A3B calibrated steering
+- **Context:** Retrieve and report the second independent SCCKN RTX calibrated run.
+- **Agent:** gpt-5-codex
+- **Did:** Retrieved the raw, summary, null, runtime, scheduler, and submission artifacts with exact remote-to-local SHA-256 parity; passed the local validator; wrote `paper/2026-07-19_1224_qwen36_35b_a3b_calibrated_steering.md`.
+- **Findings:** Validation passed 40,440 raw rows, 2,020 summary rows, and eight null rows. Maximum norm-preserving drift was 0.005176. Additive target-minus-random paired-topic effects were +0.816 warmth (95% CI [+0.619, +1.031]) and +1.469 competence (95% CI [+1.294, +1.675]); cross-axis effects were comparably large.
+- **Decision / rationale:** Accept the run as structurally and scientifically valid under its descriptive-only gate. Report causal sensitivity beyond random controls while withholding axis-specific causal claims.
+- **Next:** Commit and synchronize both calibrated result packages, then update the overall Gemma 4 versus Qwen completion matrix.
