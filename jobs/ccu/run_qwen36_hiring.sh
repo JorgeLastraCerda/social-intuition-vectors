@@ -3,7 +3,7 @@
 set -euo pipefail
 
 if [[ $# -ne 2 ]]; then
-  echo "usage: bash jobs/ccu/run_qwen36_hiring.sh {27b|35b_a3b} {audit|local|broad|denoised_local}" >&2
+  echo "usage: bash jobs/ccu/run_qwen36_hiring.sh {27b|35b_a3b} {audit|neutral|local|broad|denoised_local}" >&2
   exit 2
 fi
 
@@ -24,6 +24,7 @@ case "$MODEL_KEY" in
 esac
 case "$TASK" in
   audit) RUN_TASK=audit; LABEL=$BASE_LABEL; EXTRA_ARGS=() ;;
+  neutral) RUN_TASK=neutral; LABEL="${BASE_LABEL}_neutral"; EXTRA_ARGS=() ;;
   local|broad|denoised_local)
     RUN_TASK=steering
     LABEL="${BASE_LABEL}_${TASK}"

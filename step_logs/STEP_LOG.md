@@ -1987,3 +1987,13 @@
 - **Findings:** Resume now preserves completed baselines and steering work units and rejects changed commits, arguments, revisions, topic splits, or input hashes. The hiring path retains raw explicit-BOS name activations, native-chat callback decisions, one-token Yes/No checks, zero vision calls, and no TransformerLens import. Twenty-two focused tests plus Ruff, Python compilation, shell syntax, and whitespace checks passed.
 - **Decision / rationale:** Launch corrected 27B and 35B-A3B calibrated steering independently on the two SCCKN RTX resources and use CCU H100 for the non-duplicative 27B hiring audit. Keep the rejected historical 27B artifact unchanged.
 - **Next:** Commit and synchronize the implementation, preserve held SCCKN manifests, release both RTX jobs, then start and verify the H100 audit.
+
+---
+
+## 2026-07-19 · Step 7 — Start three-GPU wave and complete Qwen 27B audit
+- **Context:** Execute the first parallel wave of the resumable Qwen3.6 parity plan.
+- **Agent:** gpt-5-codex
+- **Did:** Submitted and released independent corrected calibrated jobs `1145640` and `1145641` on SCCKN; created a clean detached CCU worktree at commit `ac1c643`; completed, retrieved, and locally validated the H100 27B audit; launched 27B local hiring steering on the freed H100; added resumable native-HF neutral extraction for later PCA denoising.
+- **Findings:** Both SCCKN jobs reached state `r` on `gpu@scc214` with separate RTX PRO 6000 allocations and advancing checkpoint shards. The H100 audit passed 282 unique names in 119.4 seconds at 51.04 GiB peak allocated VRAM. Spearman correlations were 0.1863 for model versus human warmth, 0.2499 for competence, 0.3017 for callback versus model warmth, and 0.2201 for callback versus model competence. All 282 audit shards and both final artifacts validated.
+- **Decision / rationale:** Keep both calibrated jobs authoritative on SCCKN and immediately reuse H100 for the non-duplicative 27B local hiring intervention. Preserve the CCU worktree separately from the older dirty result-producing checkout.
+- **Next:** Validate and report 27B local steering, then launch broad steering; continue monitoring both calibrated checkpoints and prepare neutral extraction/PCA.
