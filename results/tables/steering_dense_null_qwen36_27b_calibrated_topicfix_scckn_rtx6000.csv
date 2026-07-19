@@ -1,0 +1,9 @@
+judgment_axis,steering_axis,direction_type,intervention,control_scale,endpoint_strength,endpoint_effect,slope,n_random_directions,endpoint_signed_percentile,endpoint_absolute_percentile,endpoint_random_median,endpoint_target_minus_random_median,slope_signed_percentile,slope_absolute_percentile,slope_random_median,slope_target_minus_random_median,paired_topic_difference,paired_topic_ci_low,paired_topic_ci_high
+warmth,warmth,target,additive,sd_matched,0.1,0.69375,6.4624999999999995,99,1.0,1.0,0.00625,0.6875,1.0,1.0,-0.012500000000000004,6.475,0.68125,0.575,0.7875
+warmth,competence,cross_axis,additive,sd_matched,0.1,0.21875,1.9000000000000001,99,1.0,1.0,0.00625,0.2125,1.0,1.0,-0.012500000000000004,1.9125,0.20625,0.125,0.2875
+competence,warmth,cross_axis,additive,sd_matched,0.1,0.6375,5.012499999999999,99,1.0,1.0,0.0125,0.625,1.0,1.0,-0.02500000000000003,5.0375,0.63125,0.46875,0.8375
+competence,competence,target,additive,sd_matched,0.1,0.30625,3.5125,99,1.0,1.0,0.0125,0.29375,1.0,1.0,-0.02500000000000003,3.5375,0.3,0.1625,0.48125
+warmth,warmth,target,norm_preserving,sd_matched,0.1,0.66875,6.387500000000001,99,1.0,1.0,0.00625,0.6625,1.0,1.0,-0.012500000000000004,6.400000000000001,0.65625,0.55625,0.7625
+warmth,competence,cross_axis,norm_preserving,sd_matched,0.1,0.19375,1.7625,99,1.0,1.0,0.00625,0.1875,1.0,1.0,-0.012500000000000004,1.775,0.18125,0.125,0.24375
+competence,warmth,cross_axis,norm_preserving,sd_matched,0.1,0.6375,5.05,99,1.0,1.0,0.0125,0.625,1.0,1.0,-0.02500000000000003,5.075,0.63125,0.45625,0.84375
+competence,competence,target,norm_preserving,sd_matched,0.1,0.26875,3.5499999999999994,99,1.0,1.0,0.0125,0.25625,1.0,1.0,-0.02500000000000003,3.5749999999999993,0.2625,0.10625,0.45
