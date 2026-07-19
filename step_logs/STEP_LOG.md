@@ -2026,3 +2026,33 @@
 - **Findings:** All 660 checkpoints and 600 rows passed. Warmth and competence remained monotone; +0.50 effects were +2.240 (95% CI [2.208, 2.273]) and +1.069 (95% CI [1.037, 1.102]). Peak allocated VRAM was 51.14 GiB. Neutral extraction loaded the model on the H100 from the exact later implementation commit.
 - **Decision / rationale:** Proceed to PCA denoising before the denoised-local intervention; keep neutral work isolated from the older clean worktree used by completed steering runs.
 - **Next:** Retrieve and validate the 1,500-row neutral matrix, run CPU PCA denoising, then launch denoised-local steering.
+
+---
+
+## 2026-07-19 · Step 11 — Complete Qwen 27B neutral extraction and PCA denoising
+- **Context:** Produce a resumable, SAE-free nuisance-removal control without idling the H100 before the second model's audit.
+- **Agent:** gpt-5-codex
+- **Did:** Completed and locally validated 1,500 neutral activation shards, hash-reconstructed the 30 MiB matrix from a compressed CCU transfer, ran neutral PCA on CPU, wrote separate extraction and denoising reports, and started the independent Qwen3.6-35B-A3B audit on the H100.
+- **Findings:** The finite matrix is 1500×5120, took 353.3 seconds, and peaked at 51.38 GiB. Twenty-seven PCA components covered 50.23% variance; concept-vector cosine fell from 0.580 to 0.560, while warmth-on-competence leakage increased from d=5.44 to 5.90. The 35B-A3B audit became physically active at approximately 67,738 MiB and began producing checkpoints.
+- **Decision / rationale:** Do not interpret PCA as axis disentanglement; use the denoised vector only as a causal robustness condition. Run the 35B-A3B audit while the CPU denoising result is prepared, then return to 27B denoised-local steering.
+- **Next:** Validate and report the 35B-A3B audit, then launch 27B denoised-local steering and evaluate its conditional expansion gate.
+
+---
+
+## 2026-07-19 · Step 12 — Complete Qwen 35B-A3B audit and posthoc analyses
+- **Context:** Establish observational hiring parity for the second Qwen3.6 model while the two calibrated RTX runs continue independently.
+- **Agent:** gpt-5-codex
+- **Did:** Retrieved and locally validated the 282-name audit, ran the disparity, 5,000-bootstrap mediation, group R4, and name-level R4 analyses, wrote one report for the audit and one for posthoc results, and launched 27B denoised-local steering on the freed H100.
+- **Findings:** The audit took 193.7 seconds and peaked at 65.46 GiB. Model-human Spearman correlations were 0.2109 for warmth and 0.1313 for competence; callback-versus-model correlations were 0.3444 and 0.1968. The posthoc join matched 269 names, with three of four probe-mediation intervals excluding zero; model-human name-level callback r was -0.013 (p=0.879).
+- **Decision / rationale:** Keep observational and causal claims separate. Return the H100 to the nearly prepared 27B robustness condition before starting the 35B-A3B intervention sequence.
+- **Next:** Complete and report 27B denoised-local steering and its gate, then run 35B-A3B local, broad, neutral, and denoised-local conditions.
+
+---
+
+## 2026-07-19 · Step 13 — Complete Qwen 27B denoised steering and close its expansion gate
+- **Context:** Finish the three-regime 60-name causal matrix and apply the predeclared conditional full-name policy.
+- **Agent:** gpt-5-codex
+- **Did:** Retrieved, validated, and summarized denoised-local steering; evaluated the gate across local, broad, and denoised-local summaries; wrote one result report and one gate report; started 35B-A3B local steering on the freed H100.
+- **Findings:** All 660 denoised work units passed. +0.10 effects were +1.140 (95% CI [1.113, 1.165]) for warmth and +0.408 (95% CI [0.381, 0.438]) for competence; both were monotone. The gate returned `run_full_282=false` with zero reasons.
+- **Decision / rationale:** Do not run the three 282-name steering expansions because the predeclared conditional criteria did not fire. This is a protocol-defined stop, not a missing test.
+- **Next:** Complete the 35B-A3B raw local and broad runs, then extract neutral activations, denoise its vectors, and finish the second model's gate.
