@@ -77,7 +77,7 @@ def test_qwen_hiring_source_is_resumable_and_native_hf() -> None:
     assert "TransformerLens was imported" in source
     assert "register_forward_hook" in source
     runner = (ROOT / "jobs/ccu/run_qwen36_hiring.sh").read_text(encoding="utf-8")
-    assert "audit|local|broad|denoised_local" in runner
+    assert "audit|neutral|local|broad|denoised_local" in runner
     assert "--checkpoint-origin-commit" in runner
     assert "Expected H100" in runner
     subprocess.run(

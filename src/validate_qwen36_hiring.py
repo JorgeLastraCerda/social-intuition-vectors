@@ -21,6 +21,9 @@ def artifact_paths(config: str, task: str, label: str) -> tuple[Path, ...]:
             tables / f"hiring_audit_{label}.csv",
             logs / f"hiring_probe_vs_human_{label}.json",
         )
+    if task == "neutral":
+        vectors = Path(cfg.paths.processed) / f"concept_vectors_{cfg.native_hf.label}"
+        return vectors / "X_neutral.npy", vectors / "neutral_meta.json"
     return (
         tables / f"hiring_steering_raw_{label}.csv",
         logs / f"hiring_steering_{label}.json",
@@ -47,7 +50,6 @@ def validate(
     missing = [str(path) for path in paths if not path.exists()]
     if missing:
         raise FileNotFoundError(f"Missing Qwen hiring outputs: {missing}")
-    table = pd.read_csv(paths[0])
     meta = json.loads(paths[1].read_text(encoding="utf-8"))
     if (
         meta.get("model") != cfg.model.name
@@ -58,7 +60,25 @@ def validate(
     if runtime.get("model_revision_resolved") != cfg.model.revision:
         raise AssertionError("Qwen hiring resolved revision mismatch.")
     if meta.get("transformer_lens_imported") is not False:
-        raise AssertionError("Native-HF Qwen hiring imported TransformerLens.")
+        if task != "neutral":
+            raise AssertionError("Native-HF Qwen hiring imported TransformerLens.")
+    if task == "neutral":
+        matrix = np.load(paths[0], mmap_mode="r")
+        expected = (cfg.neutral.n_texts, cfg.native_hf.expected_d_model)
+        if matrix.shape != expected or not np.isfinite(matrix).all():
+            raise AssertionError(
+                f"Qwen neutral matrix failed contract: {matrix.shape}."
+            )
+        if meta.get("seed") != cfg.probing.seed:
+            raise AssertionError("Qwen neutral seed mismatch.")
+        return {
+            "status": "pass",
+            "task": task,
+            "label": label,
+            "rows": matrix.shape[0],
+            "d_model": matrix.shape[1],
+        }
+    table = pd.read_csv(paths[0])
     if task == "audit":
         required = {
             "name",
@@ -104,7 +124,9 @@ def validate(
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", required=True)
-    parser.add_argument("--task", choices=("audit", "steering"), required=True)
+    parser.add_argument(
+        "--task", choices=("audit", "steering", "neutral"), required=True
+    )
     parser.add_argument("--label", required=True)
     parser.add_argument("--n-names", type=int, default=60)
     parser.add_argument("--require-absent", action="store_true")

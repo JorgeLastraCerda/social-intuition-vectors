@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
+import tempfile
 import time
 from pathlib import Path
 from typing import Any
@@ -187,6 +189,47 @@ def _name_activation(base, language, tokenizer, layer: int, name: str) -> np.nda
     if activation is None or activation.shape[1] <= 1:
         raise AssertionError("Name activation hook did not produce non-BOS tokens.")
     return activation[0, 1:].mean(0).float().cpu().numpy()
+
+
+def _passage_activation(
+    base, language, tokenizer, layer: int, text: str, start_token: int
+) -> np.ndarray:
+    text_cfg = base.config.text_config
+    encoded = encode_raw_passage(
+        tokenizer, text, bos_token_id=int(text_cfg.bos_token_id)
+    )
+    if int(encoded["input_ids"].shape[1]) <= start_token:
+        raise ValueError("Neutral passage is too short for the configured start token.")
+    encoded = {key: value.to("cuda:0") for key, value in encoded.items()}
+    captured: dict[str, torch.Tensor] = {}
+
+    def capture(_module, _inputs, output):
+        captured["activation"] = output[0] if isinstance(output, tuple) else output
+
+    handle = language.layers[layer].register_forward_hook(capture)
+    try:
+        with torch.inference_mode():
+            base(**encoded, use_cache=False, return_dict=True)
+    finally:
+        handle.remove()
+    activation = captured.get("activation")
+    if activation is None:
+        raise AssertionError("Neutral activation hook did not fire.")
+    return activation[0, start_token:].mean(0).float().cpu().numpy()
+
+
+def _atomic_npy(path: Path, array: np.ndarray) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, temporary = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
+    temporary_path = Path(temporary)
+    try:
+        with os.fdopen(fd, "wb") as handle:
+            np.save(handle, array)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary_path, path)
+    finally:
+        temporary_path.unlink(missing_ok=True)
 
 
 def run_audit(args: argparse.Namespace) -> None:
@@ -465,10 +508,108 @@ def run_steering(args: argparse.Namespace) -> None:
     print(f"[done] {log_path}")
 
 
+def run_neutral(args: argparse.Namespace) -> None:
+    cfg = load_config(args.config)
+    _validate_native_config(cfg, require_cuda=True)
+    vectors_dir = stage_paths(cfg).vectors_dir
+    corpus_path = Path(cfg.neutral.corpus_path)
+    output_path = vectors_dir / "X_neutral.npy"
+    meta_path = vectors_dir / "neutral_meta.json"
+    collisions = [path for path in (output_path, meta_path) if path.exists()]
+    if collisions:
+        raise FileExistsError(
+            f"Refusing to overwrite Qwen neutral outputs: {collisions}"
+        )
+    texts = [
+        json.loads(line)["text"]
+        for line in corpus_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    if len(texts) != cfg.neutral.n_texts:
+        raise ValueError(
+            f"Expected {cfg.neutral.n_texts} neutral texts; got {len(texts)}."
+        )
+    if args.resume and not args.checkpoint_dir:
+        raise ValueError("--resume requires --checkpoint-dir.")
+    if args.checkpoint_origin_commit and not args.resume:
+        raise ValueError("--checkpoint-origin-commit requires --resume.")
+    checkpoint = None
+    if args.checkpoint_dir:
+        fingerprint = {
+            "git_commit": args.checkpoint_origin_commit or git_commit(),
+            "task": "neutral",
+            "model": require_model_name(cfg),
+            "model_revision": cfg.model.revision,
+            "probe_layer_frac": cfg.probing.probe_layer_frac,
+            "start_token": cfg.probing.start_token,
+            "seed": cfg.probing.seed,
+            "input_sha256": {
+                "config": sha256_file(Path(args.config)),
+                "corpus": sha256_file(corpus_path),
+                "meta": sha256_file(vectors_dir / "meta.json"),
+            },
+        }
+        checkpoint = CheckpointStore(
+            Path(args.checkpoint_dir), fingerprint, resume=args.resume
+        )
+    started = time.time()
+    model, base, language, tokenizer, n_layers, d_model, layer, counters = _runtime(
+        cfg, texts[0]
+    )
+    rows: list[dict[str, Any]] = []
+    for sequence, text in enumerate(texts):
+        key = {"task": "neutral", "index": sequence}
+        completed = checkpoint.read(sequence, key) if checkpoint else None
+        if completed is None:
+            activation = _passage_activation(
+                base,
+                language,
+                tokenizer,
+                layer,
+                text,
+                cfg.probing.start_token,
+            )
+            completed = [{"index": sequence, "activation": activation.tolist()}]
+            if checkpoint:
+                checkpoint.write(sequence, key, completed)
+        rows.extend(completed)
+        if (sequence + 1) % 25 == 0 or sequence + 1 == len(texts):
+            print(f"[neutral] {sequence + 1}/{len(texts)}", flush=True)
+    if checkpoint:
+        rows = checkpoint.consolidate(len(texts))
+    matrix = np.asarray([row["activation"] for row in rows], dtype=np.float32)
+    if matrix.shape != (len(texts), d_model) or not np.isfinite(matrix).all():
+        raise AssertionError(f"Invalid neutral activation matrix {matrix.shape}.")
+    runtime = _finish_runtime(cfg, model, base, language, tokenizer, counters, started)
+    _atomic_npy(output_path, matrix)
+    atomic_json_write(
+        meta_path,
+        {
+            "status": "pass",
+            "n_neutral": len(texts),
+            "probe_layer": layer,
+            "d_model": d_model,
+            "start_token": cfg.probing.start_token,
+            "corpus": str(corpus_path),
+            "seed": cfg.probing.seed,
+            "model": require_model_name(cfg),
+            "revision": cfg.model.revision,
+            "input_format": "raw-passage-explicit-bos",
+            "checkpoint_dir": args.checkpoint_dir,
+            "resumed": bool(args.resume),
+            "runtime": runtime,
+        },
+    )
+    print(f"[done] {output_path}")
+    print(f"[done] {meta_path}")
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", required=True)
-    parser.add_argument("--task", choices=("audit", "steering"), required=True)
+    parser.add_argument(
+        "--task", choices=("audit", "steering", "neutral"), required=True
+    )
     parser.add_argument("--label")
     parser.add_argument(
         "--regime",
@@ -486,8 +627,10 @@ def main() -> None:
     args = parse_args()
     if args.task == "audit":
         run_audit(args)
-    else:
+    elif args.task == "steering":
         run_steering(args)
+    else:
+        run_neutral(args)
 
 
 if __name__ == "__main__":
