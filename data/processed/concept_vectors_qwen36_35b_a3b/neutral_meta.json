@@ -1,0 +1,43 @@
+{
+  "checkpoint_dir": "/home/jovyan/work/normalcy-qwen36-hiring-state/checkpoints/qwen36_35b_a3b_neutral",
+  "corpus": "data/stimuli/neutral_corpus.jsonl",
+  "d_model": 2048,
+  "input_format": "raw-passage-explicit-bos",
+  "model": "Qwen/Qwen3.6-35B-A3B",
+  "n_neutral": 1500,
+  "probe_layer": 26,
+  "resumed": false,
+  "revision": "995ad96eacd98c81ed38be0c5b274b04031597b0",
+  "runtime": {
+    "accelerate_version": "1.14.0",
+    "backend": "huggingface-native",
+    "base_model_class": "Qwen3_5MoeModel",
+    "cuda_device_name": "NVIDIA H100 80GB HBM3",
+    "cuda_total_vram_gib": 79.096619,
+    "dtype": "torch.bfloat16",
+    "elapsed_seconds": 449.214,
+    "hook_backend": "torch-forward-hook+transformers-hidden-states",
+    "hook_hidden_max_diff": 0.0,
+    "language_model_class": "Qwen3_5MoeTextModel",
+    "model_class": "Qwen3_5MoeForConditionalGeneration",
+    "model_revision_requested": "995ad96eacd98c81ed38be0c5b274b04031597b0",
+    "model_revision_resolved": "995ad96eacd98c81ed38be0c5b274b04031597b0",
+    "parameter_devices": [
+      "cuda:0"
+    ],
+    "passive_hook_max_logit_diff": 0.0,
+    "peak_allocated_vram_gib": 65.551919,
+    "peak_reserved_vram_fraction": 0.83047166,
+    "peak_reserved_vram_gib": 65.6875,
+    "tokenizer_class": "Qwen2Tokenizer",
+    "torch_version": "2.6.0+cu124",
+    "torchvision_version": "0.21.0+cu124",
+    "transformer_lens_imported": false,
+    "transformer_lens_version": "not-installed",
+    "transformers_version": "5.14.1",
+    "vision_forward_calls": 0
+  },
+  "seed": 20260527,
+  "start_token": 50,
+  "status": "pass"
+}

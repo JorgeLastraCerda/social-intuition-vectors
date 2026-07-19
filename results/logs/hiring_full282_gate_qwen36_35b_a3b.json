@@ -1,0 +1,11 @@
+{
+  "model_label": "qwen36_35b_a3b",
+  "run_full_282": true,
+  "reasons": [
+    "broad:warmth:non_monotone",
+    "broad:competence:r_squared_below_0.50",
+    "broad:competence:endpoint_slope_sign_mismatch",
+    "broad:competence:non_monotone"
+  ],
+  "policy": "run all local, broad, and denoised-local regimes if any reason fires"
+}

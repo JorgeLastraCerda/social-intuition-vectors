@@ -2086,3 +2086,23 @@
 - **Findings:** Each task selects 282 names and retains a separate label, checkpoint directory, validator, log, and sentinel. Three focused tests and shell syntax passed.
 - **Decision / rationale:** Keep expansions manual and independent so a failure or interruption in one regime cannot launch, suppress, or invalidate another.
 - **Next:** Pin the updated runner in a clean CCU worktree before launching the gate-required 35B-A3B expansions.
+
+---
+
+## 2026-07-19 · Step 17 — Complete Qwen 35B-A3B neutral extraction and denoising
+- **Context:** Build the second model's SAE-free nuisance-removal condition before formal gate evaluation.
+- **Agent:** gpt-5-codex
+- **Did:** Completed and locally validated all neutral activation shards, transferred binary artifacts with exact hash parity, ran PCA denoising on CPU, wrote separate extraction and denoising reports, and launched denoised-local steering on the H100.
+- **Findings:** The finite matrix is 1500×2048, took 449.2 seconds, and peaked at 65.55 GiB. Seventeen components covered 50.28% variance; vector cosine decreased from 0.619 to 0.595, while warmth-on-competence leakage increased from d=5.49 to 6.72.
+- **Decision / rationale:** Treat the denoised vectors as a robustness condition rather than evidence of axis disentanglement.
+- **Next:** Complete denoised-local steering, evaluate the already-implicated gate, then launch each required full-282 regime independently.
+
+---
+
+## 2026-07-19 · Step 18 — Complete Qwen 35B-A3B denoised steering and fire expansion gate
+- **Context:** Close the second model's 60-name causal matrix and apply the predeclared expansion policy.
+- **Agent:** gpt-5-codex
+- **Did:** Retrieved, validated, and summarized denoised-local steering; formally evaluated the gate; copied generated vectors into the clean full-name worktree with exact hash parity; wrote separate result and gate reports; launched local full-282 on the H100 from commit `44b05c3`.
+- **Findings:** Denoised +0.10 effects were +1.004 (95% CI [0.944, 1.065]) for warmth and +0.438 (95% CI [0.390, 0.483]) for competence; both were monotone. The gate fired on four broad-regime criteria and requires all three 282-name expansions.
+- **Decision / rationale:** Run local, broad, and denoised-local full-name tasks independently, preserving separate checkpoints and sentinels; do not chain their launch.
+- **Next:** Validate and report local full-282, then launch broad full-282 and denoised-local full-282 in turn or on the first freed independent GPU.
