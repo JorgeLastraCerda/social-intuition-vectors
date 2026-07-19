@@ -78,6 +78,8 @@ def test_qwen_hiring_source_is_resumable_and_native_hf() -> None:
     assert "register_forward_hook" in source
     runner = (ROOT / "jobs/ccu/run_qwen36_hiring.sh").read_text(encoding="utf-8")
     assert "audit|neutral|local|broad|denoised_local" in runner
+    assert "local_full282|broad_full282|denoised_local_full282" in runner
+    assert 'EXTRA_ARGS=(--regime "$REGIME" --n-names 282)' in runner
     assert "--checkpoint-origin-commit" in runner
     assert "Expected H100" in runner
     subprocess.run(

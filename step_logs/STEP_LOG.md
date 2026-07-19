@@ -2076,3 +2076,13 @@
 - **Findings:** Warmth ended at +1.233 (95% CI [1.188, 1.281]) but was non-monotone. Competence ended at -1.094 (95% CI [-1.131, -1.054]), was non-monotone, had R-squared 0.296, and disagreed in sign with its positive fitted slope. All technical execution gates passed.
 - **Decision / rationale:** Classify this as an empirical intervention-range reversal, not a technical failure. The result independently guarantees that the predeclared full-282 gate will fire once the denoised regime is available.
 - **Next:** Complete neutral extraction and denoised-local steering, formally evaluate the gate, then run all three 282-name regimes.
+
+---
+
+## 2026-07-19 · Step 16 — Add independent Qwen full-282 runner tasks
+- **Context:** Prepare the expansion work required by the 35B-A3B broad-range robustness failure without introducing chained jobs.
+- **Agent:** gpt-5-codex
+- **Did:** Extended the CCU runner with `local_full282`, `broad_full282`, and `denoised_local_full282` tasks for both Qwen models; added focused assertions; wrote `paper/2026-07-19_1017_qwen36_full282_runner.md`.
+- **Findings:** Each task selects 282 names and retains a separate label, checkpoint directory, validator, log, and sentinel. Three focused tests and shell syntax passed.
+- **Decision / rationale:** Keep expansions manual and independent so a failure or interruption in one regime cannot launch, suppress, or invalidate another.
+- **Next:** Pin the updated runner in a clean CCU worktree before launching the gate-required 35B-A3B expansions.
