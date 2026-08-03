@@ -126,7 +126,7 @@ Cross-model figures:
 | `fig11_gemma_scope_ablation.{png,pdf}` | Error-preserving ablation of target, shared, other-axis, and random 65k feature sets |
 | `fig12_gemma_scope_feature_matching.{png,pdf}` | One-to-one 12B↔27B feature-profile matches compared with a 500-permutation row-shuffle null |
 | `fig13_dense_steering_doseresponse.{png,pdf}` | 2-row × 4-col grid: raw_dense (solid) and random (dashed) dose-response for all four models; free per-panel y-axis (raw logit effects span ~100×) |
-| `fig14_dense_steering_normalized.{png,pdf}` | 1×2 (warmth \| competence): cross-model steerability normalized by baseline concept gap; 12B steepest, 27B flattest; shared y-axis |
+| `fig14_dense_steering_normalized.{png,pdf}` | 1×2 (warmth \| competence): additive target-direction steerability across nine models, normalized by the model-axis baseline concept gap; legend reports each series' maximum positive steering coefficient; shared y-axis |
 | `fig15_dense_steering_signal_vs_control.{png,pdf}` | 1×2 grouped bars at peak strength (α=+0.10): raw_dense vs random direction; ⚠ annotation where 27B competence random effect dominates signal |
 | `fig16_hiring_probe_vs_human.{png,pdf}` | Grouped bars of Spearman ρ (model probe score vs. human rating) for 4 models × {warmth, competence}; negative bars for Llama/Qwen warmth show anti-alignment |
 | `fig17_hiring_steering_callback.{png,pdf}` | 2 rows × 4 cols: mean Δcallback-margin over 60 names ± 95% CI for warmth and competence steering across all models |
@@ -138,9 +138,18 @@ Paper-draft figures (prefixed `paper_figure*`; produced 2026-06-24 for superviso
 
 | File | Description |
 |------|-------------|
-| `paper_figure1_axis_arrows.{png,pdf}` | 2×2 panels: warmth/competence story clouds with real-angle direction arrows; oblique basis preserves true inter-axis angle per model (Gemma ~41–45°, Qwen/Llama ~57–59°) |
-| `paper_figure2_layer_emergence.{png,pdf}` | Single-panel layer sweep: Cohen's d vs layer fraction for warmth (solid) and competence (dotted) across all 4 models; probe-layer marker at frac=0.66; d=0.80 reference line |
+| `paper_figure1_axis_arrows.{png,pdf}` | 3×3 panels: raw probe-layer warmth/competence story clouds for 9 models in a shared-scale oblique basis; equal x/y scaling preserves the true 41.5°–60.4° inter-axis angles |
+| `paper_figure2_layer_emergence.{png,pdf}` | 3×2 layer-sweep grid: warmth and competence Cohen's d vs layer fraction for 9 models, grouped into earlier models, Gemma 4, and Qwen 3.6; fixed probe-layer marker at frac=0.66 |
 | `paper_figure3_diverging_steering.{png,pdf}` | Position + boundary chart: x = absolute Yes/No logit margin; x=0 = decision boundary; bull's-eye dot = baseline (no steering); line+arrow = steerable range at ±0.10 × mean residual norm; every row crosses the boundary (steering is sufficient to flip the answer); Gemma-3-12B & 27B, raw_dense direction |
+| `paper_figure4_hiring_bidirectional_examples.{png,pdf,py}` | Main-text 2×2 matched Gemma-3 examples showing positive warmth and competence steering moving mean callback decisions from No to Yes or Yes to No under the same α=+0.10 contract |
+| `paper_figure4_hiring_warmth_transitions.{png,pdf,py}` | Supporting 3×3 warmth transition grid across nine models; retained for provenance but no longer included in the manuscript |
+| `supp_figure1_hiring_competence_transitions.{png,pdf,py}` | Supporting 3×3 competence transition grid across nine models; retained for provenance but no longer included in the manuscript |
+| `pilot_steering_flip_{deflection,boundary,split_flow}.{png,pdf,py}` | Three data-grounded pilot designs for the Gemma-3-12B warmth callback flip at α=+0.05; selection pending and not yet included in the manuscript |
+| `pilot_steering_flip_contact_sheet.{png,pdf,py}` | Stacked A-C comparison of the three steering-flip pilot designs |
+| `pilot_steering_boundary_{kink,hinge,vector_addition}.{png,pdf,py}` | Three decision-boundary refinements showing the baseline No direction, warmth intervention, zero-margin crossing, and steered Yes result without treating arrow angle as empirical |
+| `pilot_steering_boundary_refinements.{png,pdf,py}` | Stacked A-C comparison of the refined decision-boundary pilots |
+| `pilot_steering_lane_switch_{diagonal,step,smooth}.{png,pdf,py}` | Three schematic lane-switch pilots: a shared neutral flow reaches the warmth-steering gate, the steered path moves to Yes, and the dashed unsteered counterfactual moves to No |
+| `pilot_steering_lane_switch_variants.{png,pdf,py}` | Stacked A-C comparison of the diagonal, right-angle, and smooth lane-switch pilots |
 
 ## Current reports
 
@@ -236,3 +245,12 @@ Paper-draft figures (prefixed `paper_figure*`; produced 2026-06-24 for superviso
 | `2026-07-19_1223_qwen36_27b_calibrated_steering.md` | 2026-07-19 12:23 | Qwen3.6-27B | Topic-corrected SD-matched target, cross-axis, and 99-direction random-control steering | Complete; target directions exceed the random null, while strong cross-axis effects limit axis-specific interpretation. |
 | `2026-07-19_1224_qwen36_35b_a3b_calibrated_steering.md` | 2026-07-19 12:24 | Qwen3.6-35B-A3B | SD-matched target, cross-axis, and 99-direction random-control steering | Complete; strong target and cross-axis effects exceed the random null under both intervention geometries. |
 | `2026-07-19_1255_three_environment_git_audit.md` | 2026-07-19 12:55 | Gemma and Qwen workspace | Local, SCCKN, CCU, and GitHub artifact reconciliation | Complete; active checkouts synchronized, all remote dirty artifacts accounted for, research weights tracked, and model caches excluded. |
+| `2026-07-19_1456_nine_model_axis_geometry.md` | 2026-07-19 14:56 | 9 Gemma, Qwen, and Llama checkpoints | Raw probe-layer warmth/competence angle and oblique projection synthesis | Complete; 3×3 main-text figure uses shared limits and true visual angle scaling. |
+| `2026-07-19_1706_steering_flip_pilot_designs.md` | 2026-07-19 17:06 | Gemma-3-12B-it | Three data-grounded visual designs for a No-to-Yes warmth-steering callback flip | Pilot set complete; selection pending and manuscript unchanged. |
+| `2026-07-19_1721_steering_boundary_refinements.md` | 2026-07-19 17:21 | Gemma-3-12B-it | Three refinements of the decision-boundary No-to-Yes steering visual | Pilot comparison complete; selection pending and manuscript unchanged. |
+| `2026-07-19_1744_steering_lane_switch_pilots.md` | 2026-07-19 17:44 | Gemma-3-12B-it | Three schematic Neutral-to-No/Yes lane-switch visualizations for warmth steering | Pilot comparison complete; selection pending and manuscript unchanged. |
+| `2026-07-19_2101_nine_model_steering_transitions.md` | 2026-07-19 21:01 | 9 Gemma, Qwen, and Llama checkpoints | Empirical warmth and competence callback-transition synthesis on the shared 60-name panel | Complete; warmth integrated in the main text and competence in the appendix. |
+| `2026-07-19_2145_matched_steering_examples.md` | 2026-07-19 21:45 | 9 Gemma, Qwen, and Llama checkpoints | Matched bidirectional main-text examples plus complete nine-model appendix transition census | Complete; one 2×2 figure retained in the main text and all 18 endpoints tabulated in the appendix. |
+| `2026-07-20_0919_nine_model_normalized_steerability.md` | 2026-07-20 09:19 | 9 Gemma, Qwen, and Llama checkpoints | Common-grid normalized target-direction steerability synthesis | Complete; Figure 14 and active manuscript explanation updated, with specificity limitations retained. |
+| `2026-07-20_1935_probe_human_result_tables.md` | 2026-07-20 19:35 | 9 Gemma, Qwen, and Llama checkpoints | Consolidated probe-vs-human correlation and race/gender disparity tables added to the manuscript, plus a probe-layer-selection Limitations addition | Complete; one main-text table and two appendix tables added, regression-gated against pre-existing per-model outputs. |
+| `2026-07-20_2015_nine_model_mediation.md` | 2026-07-20 20:15 | 9 Gemma, Qwen, and Llama checkpoints | Bootstrap mediation for the five newer checkpoints, already on disk, consolidated into a nine-model appendix table with a main-text forward reference | Complete; steerability-paradox claim kept in the main text and qualified in the appendix. |

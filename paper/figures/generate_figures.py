@@ -35,6 +35,16 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 import style as _style  # noqa: E402 — sibling file
+from _steering_transition_flow_common import (  # noqa: E402
+    SUMMARY_PATH as TRANSITION_SUMMARY_PATH,
+    SUMMARY_TEX_PATH as TRANSITION_SUMMARY_TEX_PATH,
+    build_summaries as build_transition_summaries,
+    configure_style as configure_transition_style,
+    create_matched_figure as create_matched_transition_figure,
+    save_figure as save_transition_figure,
+    write_summary_csv as write_transition_summary_csv,
+    write_summary_tex as write_transition_summary_tex,
+)
 from src.validate_probes import projected_cv_accuracy  # noqa: E402
 
 # Module-level defaults — overridden at runtime by parse_args().
@@ -1230,60 +1240,199 @@ def fig13_dense_steering_doseresponse(
 # Figure 14 — Dense steering: normalized cross-model steerability
 # ---------------------------------------------------------------------------
 
+
+def _concept_baseline_gap(rows: list[dict], path: Path, axis_name: str) -> float:
+    baseline_rows = [
+        row
+        for row in rows
+        if row["mode"] == "baseline"
+        and row["axis"] == axis_name
+        and row["direction"] == "high_low_margin_gap"
+    ]
+    if baseline_rows:
+        return float(baseline_rows[0]["effect"])
+
+    raw_name = path.name.replace("steering_dense_", "steering_dense_raw_", 1)
+    raw_path = path.with_name(raw_name)
+    if not raw_path.exists():
+        raise FileNotFoundError(
+            f"{path}: missing baseline rows and companion raw table {raw_path}"
+        )
+    raw_rows = _read_csv(raw_path)
+    baseline = [
+        row
+        for row in raw_rows
+        if row["mode"] == "baseline" and row["axis"] == axis_name
+    ]
+    high = [
+        float(row["margin"])
+        for row in baseline
+        if row["condition"] == f"high_{axis_name}"
+    ]
+    low = [
+        float(row["margin"])
+        for row in baseline
+        if row["condition"] == f"low_{axis_name}"
+    ]
+    if not high or not low:
+        raise ValueError(f"{raw_path}: incomplete {axis_name} baseline conditions")
+    return float(np.mean(high) - np.mean(low))
+
+
+def _target_steering_rows(rows: list[dict], axis_name: str) -> list[dict]:
+    selected = [
+        row
+        for row in rows
+        if row["mode"] == "steering"
+        and row["axis"] == axis_name
+        and row["direction"] in {"raw_dense", axis_name}
+        and row.get("intervention", "additive") == "additive"
+    ]
+    selected.sort(key=lambda row: float(row["strength"]))
+    strengths = [float(row["strength"]) for row in selected]
+    expected = [-0.10, -0.05, 0.0, 0.05, 0.10]
+    if len(strengths) != len(expected) or not np.allclose(strengths, expected):
+        raise ValueError(
+            f"{axis_name}: expected additive target strengths {expected}, got {strengths}"
+        )
+    return selected
+
+
 def fig14_dense_steering_normalized(
     dense_paths: list[Path],
     model_labels: list[str],
 ) -> None:
-    """1×2 (warmth | competence): effect / baseline_gap per model, shared y-axis.
+    """Plot target effect / baseline gap for all available model checkpoints.
 
-    Normalizing by the baseline high_low_margin_gap makes raw logit effects
-    comparable across models despite their very different mean_resid_norm scales.
+    The legacy summaries contain baseline gaps directly. Calibrated native-HF
+    summaries use their same-run raw tables to reconstruct the held-out high-low
+    margin gap. Only additive target-direction rows enter the comparison.
     """
-    colors_models = ["#1b7837", "#762a83", "#4575b4", "#d6604d"]
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4.5), sharey=True)
+    model_styles = {
+        "Gemma-3-12B": ("#003B73", "o", "-"),
+        "Gemma-3-27B": ("#4F7FA8", "s", "--"),
+        "Llama-3.1-8B": ("#C74600", "P", "-."),
+        "Qwen3-14B": ("#5E2A84", "X", "-"),
+        "Gemma-4-12B": ("#0077B6", "^", "-"),
+        "Gemma-4-26B-A4B": ("#269BC5", "D", "--"),
+        "Gemma-4-31B": ("#65B9D8", "v", ":"),
+        "Qwen3.6-27B": ("#B01872", "h", "--"),
+        "Qwen3.6-35B-A3B": ("#D64D98", "*", "-."),
+    }
+    unknown = sorted(set(model_labels).difference(model_styles))
+    if unknown:
+        raise ValueError(f"Missing Figure 14 style for models: {unknown}")
+
+    summary_rows: list[dict[str, str | float]] = []
+    fig, axes = plt.subplots(1, 2, figsize=(11.5, 5.7), sharey=True)
     for axis_i, axis_name in enumerate(("warmth", "competence")):
         ax = axes[axis_i]
-        for model_i, (path, model_label) in enumerate(zip(dense_paths, model_labels)):
+        for path, model_label in zip(dense_paths, model_labels):
             rows = _read_csv(path)
-            # Baseline gap for this model × axis
-            baseline_rows = [
-                r for r in rows
-                if r["mode"] == "baseline"
-                and r["axis"] == axis_name
-                and r["direction"] == "high_low_margin_gap"
-            ]
-            if not baseline_rows:
-                continue
-            baseline_gap = float(baseline_rows[0]["effect"])
+            baseline_gap = _concept_baseline_gap(rows, path, axis_name)
             if abs(baseline_gap) < 1e-9:
-                continue
-            steer_rows = sorted(
-                (
-                    r for r in rows
-                    if r["mode"] == "steering"
-                    and r["axis"] == axis_name
-                    and r["direction"] == "raw_dense"
-                ),
-                key=lambda r: float(r["strength"]),
+                raise ValueError(f"{path}: near-zero {axis_name} baseline gap")
+            steer_rows = _target_steering_rows(rows, axis_name)
+            x = np.array([float(row["strength"]) for row in steer_rows])
+            effects = np.array([float(row["effect"]) for row in steer_rows])
+            y = effects / baseline_gap
+            color, marker, linestyle = model_styles[model_label]
+            ax.plot(
+                x,
+                y,
+                marker=marker,
+                markersize=4.2,
+                linewidth=1.55,
+                color=color,
+                linestyle=linestyle,
+                label=f"{model_label}  (max {x.max():+.2f})",
             )
-            if not steer_rows:
-                continue
-            x = np.array([float(r["strength"]) for r in steer_rows])
-            y = np.array([float(r["effect"]) for r in steer_rows]) / baseline_gap
-            color = colors_models[model_i % len(colors_models)]
-            ax.plot(x, y, marker="o", color=color, label=model_label)
+            for strength, effect, normalized in zip(x, effects, y):
+                summary_rows.append(
+                    {
+                        "model": model_label,
+                        "axis": axis_name,
+                        "strength": float(strength),
+                        "effect": float(effect),
+                        "baseline_gap": baseline_gap,
+                        "normalized_steerability": float(normalized),
+                        "input_path": str(path),
+                    }
+                )
         ax.axhline(0, color="black", linewidth=0.8)
         ax.axvline(0, color="gray", linewidth=0.8, linestyle=":")
-        ax.set_title(f"{axis_name.capitalize()} — normalized steerability")
-        ax.set_xlabel("Steering strength × mean residual norm")
+        ax.set_title(axis_name.capitalize())
         ax.grid(axis="y", alpha=0.2)
-    axes[0].set_ylabel("Steering effect / baseline concept gap")
-    axes[0].legend(fontsize=9, framealpha=0.9)
-    fig.suptitle(
-        "Cross-model steerability (effect normalized by baseline concept separation)",
-        fontsize=12,
+    axes[0].set_ylabel("Δ concept margin / baseline high-low gap")
+    fig.supxlabel("Steering coefficient α (× mean residual norm)", fontsize=11)
+
+    legend_order = [
+        "Gemma-3-12B", "Gemma-3-27B", "Llama-3.1-8B",
+        "Gemma-4-12B", "Gemma-4-26B-A4B", "Gemma-4-31B",
+        "Qwen3-14B", "Qwen3.6-27B", "Qwen3.6-35B-A3B",
+    ]
+    handles, labels = axes[0].get_legend_handles_labels()
+    label_to_handle = dict(zip(labels, handles))
+    ordered_labels = [
+        next(label for label in labels if label.startswith(name))
+        for name in legend_order
+    ]
+    ordered_handles = [label_to_handle[label] for label in ordered_labels]
+    fig.legend(
+        ordered_handles,
+        ordered_labels,
+        loc="upper center",
+        bbox_to_anchor=(0.5, 0.94),
+        ncol=3,
+        frameon=False,
+        fontsize=7.8,
+        handlelength=2.5,
+        columnspacing=1.25,
     )
-    fig.tight_layout()
+    fig.subplots_adjust(left=0.075, right=0.99, bottom=0.14, top=0.78, wspace=0.08)
+
+    endpoint_expected = {
+        ("Gemma-3-12B", "warmth"): 0.2362509682,
+        ("Gemma-3-12B", "competence"): 0.1405141129,
+        ("Gemma-3-27B", "warmth"): 0.0395371263,
+        ("Gemma-3-27B", "competence"): 0.0089898782,
+        ("Llama-3.1-8B", "warmth"): 0.0287988964,
+        ("Llama-3.1-8B", "competence"): 0.0235199518,
+        ("Qwen3-14B", "warmth"): 0.1219822109,
+        ("Qwen3-14B", "competence"): 0.1037296037,
+        ("Gemma-4-12B", "warmth"): 0.0459478827,
+        ("Gemma-4-12B", "competence"): 0.0687635912,
+        ("Gemma-4-26B-A4B", "warmth"): 0.0010172995,
+        ("Gemma-4-26B-A4B", "competence"): -0.0016045890,
+        ("Gemma-4-31B", "warmth"): 0.0084277956,
+        ("Gemma-4-31B", "competence"): -0.0011115639,
+        ("Qwen3.6-27B", "warmth"): 0.0352163423,
+        ("Qwen3.6-27B", "competence"): 0.0165540541,
+        ("Qwen3.6-35B-A3B", "warmth"): 0.0428622642,
+        ("Qwen3.6-35B-A3B", "competence"): 0.0895056045,
+    }
+    observed_endpoints = {
+        (str(row["model"]), str(row["axis"])): float(
+            row["normalized_steerability"]
+        )
+        for row in summary_rows
+        if np.isclose(float(row["strength"]), 0.10)
+    }
+    if set(observed_endpoints) == set(endpoint_expected):
+        for key, expected_value in endpoint_expected.items():
+            if not np.isclose(observed_endpoints[key], expected_value, atol=1e-6):
+                raise ValueError(
+                    f"Figure 14 endpoint drift for {key}: "
+                    f"expected {expected_value}, got {observed_endpoints[key]}"
+                )
+
+    summary_path = ROOT / "results/tables/concept_steerability_normalized_9model.csv"
+    summary_path.parent.mkdir(parents=True, exist_ok=True)
+    with summary_path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(summary_rows[0]))
+        writer.writeheader()
+        writer.writerows(summary_rows)
+    print(f"  saved {summary_path}")
     save("fig14_dense_steering_normalized")
 
 
@@ -1877,195 +2026,277 @@ def fig20_pca_denoising(vec_dirs: list[Path], model_labels: list[str]) -> None:
 # ---------------------------------------------------------------------------
 
 def paper_figure1_axis_arrows(vec_dirs: list[Path], model_labels: list[str]) -> None:
-    """2×2 panels: warmth–competence story cloud + real-angle direction arrows.
+    """3×3 panels: warmth–competence story clouds + real-angle arrows.
 
     For each model the story activations are projected onto both axes and then
     displayed in an *oblique* coordinate system whose horizontal axis is the
     warmth direction and whose second axis is the competence direction, drawn at
     the true inter-axis angle theta = arccos(cos(W,C)).  This preserves the
-    geometric relationship discovered in the analysis: Gemma models have an
-    elevated cos(W,C) (~0.71-0.75, i.e. ~41-45°) while Qwen/Llama are closer to
-    orthogonal (~0.51-0.54, i.e. ~57-59°).
+    geometric relationship discovered in the analysis. Shared data limits and
+    equal x/y scaling make both the story clouds and displayed arrow angles
+    directly comparable across models.
 
     Coordinate transform (oblique basis):
         x_plot = z_w + z_c * cos(theta)
         y_plot = z_c * sin(theta)
     where z_w and z_c are model-internal z-scores of the projections.
     """
+    from matplotlib.offsetbox import AnchoredOffsetbox, HPacker, TextArea
+
     _style.apply()
 
-    n_models = len(vec_dirs)
-    fig, axes = plt.subplots(2, 2, figsize=(6.75, 5.25))
-    axes_flat = axes.flatten()
+    row_specs = [
+        (
+            "Earlier baselines",
+            ["Gemma-3-12B", "Gemma-3-27B", "Llama-3.1-8B"],
+        ),
+        (
+            "Gemma 4",
+            ["Gemma-4-12B", "Gemma-4-26B-A4B", "Gemma-4-31B"],
+        ),
+        (
+            "Qwen lineage",
+            ["Qwen3-14B", "Qwen3.6-27B", "Qwen3.6-35B-A3B"],
+        ),
+    ]
+    expected_labels = {label for _, labels in row_specs for label in labels}
+    supplied_labels = set(model_labels)
+    if supplied_labels != expected_labels or len(model_labels) != len(expected_labels):
+        missing = sorted(expected_labels - supplied_labels)
+        unexpected = sorted(supplied_labels - expected_labels)
+        raise ValueError(
+            "paper figure 1 requires the canonical nine-model set; "
+            f"missing={missing}, unexpected={unexpected}"
+        )
+    if len(vec_dirs) != len(model_labels):
+        raise ValueError("vec_dirs and model_labels must have equal lengths")
+
+    vec_dirs_by_label = dict(zip(model_labels, vec_dirs))
+    fig, axes = plt.subplots(3, 3, figsize=(8.25, 5.6))
 
     # Color per condition (from PALETTE) + arrow colours
     ARROW_W_COLOR = "#1A5276"   # deep blue — warmth
     ARROW_C_COLOR = "#7D6608"   # deep gold — competence
     SCATTER_ALPHA = 0.55
-    SCATTER_SIZE  = 18
+    SCATTER_SIZE = 10
+    X_LIMITS = (-4.6, 4.4)
+    Y_LIMITS = (-2.0, 2.6)
+    FAMILY_TITLE_COLORS = {
+        "Gemma-3": "#003B73",
+        "Gemma-4": "#0077B6",
+        "Llama-3.1": "#C74600",
+        "Qwen3": "#5E2A84",
+        "Qwen3.6": "#B01872",
+    }
+    TITLE_SUFFIX_COLOR = "#262626"
 
-    for i_m, (vd, label) in enumerate(zip(vec_dirs, model_labels)):
-        ax = axes_flat[i_m]
+    def _add_family_title(ax, label: str) -> None:
+        family = next(
+            prefix
+            for prefix in ("Qwen3.6", "Llama-3.1", "Gemma-3", "Gemma-4", "Qwen3")
+            if label.startswith(prefix)
+        )
+        suffix = label[len(family):]
+        family_text = TextArea(
+            family,
+            textprops={
+                "color": FAMILY_TITLE_COLORS[family],
+                "fontsize": 8,
+                "fontweight": "normal",
+            },
+        )
+        suffix_text = TextArea(
+            suffix,
+            textprops={
+                "color": TITLE_SUFFIX_COLOR,
+                "fontsize": 8,
+                "fontweight": "normal",
+            },
+        )
+        title_box = HPacker(
+            children=[family_text, suffix_text],
+            align="baseline",
+            pad=0,
+            sep=0,
+        )
+        ax.add_artist(
+            AnchoredOffsetbox(
+                loc="lower center",
+                child=title_box,
+                bbox_to_anchor=(0.5, 1.02),
+                bbox_transform=ax.transAxes,
+                frameon=False,
+                borderpad=0,
+                pad=0,
+            )
+        )
 
-        # Load vectors
-        wv = unit(np.load(vd / "warmth_vec.npy").astype(np.float64))
-        cv = unit(np.load(vd / "competence_vec.npy").astype(np.float64))
-        axis_cosine = float(np.dot(wv, cv))
-        theta = float(np.arccos(np.clip(axis_cosine, -1.0, 1.0)))
-        theta_deg = np.degrees(theta)
+    for row_index, (_, row_labels) in enumerate(row_specs):
+        for column_index, label in enumerate(row_labels):
+            ax = axes[row_index, column_index]
+            vd = vec_dirs_by_label[label]
 
-        # Collect projections for all 200 stories
-        all_proj_w, all_proj_c = [], []
-        cond_projs: dict[str, tuple[np.ndarray, np.ndarray]] = {}
-        for cond in CONDITIONS:
-            X = np.load(vd / f"X_{cond}.npy").astype(np.float64)
-            pw = X @ wv
-            pc = X @ cv
-            all_proj_w.append(pw)
-            all_proj_c.append(pc)
-            cond_projs[cond] = (pw, pc)
+            # Load vectors
+            wv = unit(np.load(vd / "warmth_vec.npy").astype(np.float64))
+            cv = unit(np.load(vd / "competence_vec.npy").astype(np.float64))
+            axis_cosine = float(np.dot(wv, cv))
+            theta = float(np.arccos(np.clip(axis_cosine, -1.0, 1.0)))
+            theta_deg = np.degrees(theta)
 
-        all_w = np.concatenate(all_proj_w)
-        all_c = np.concatenate(all_proj_c)
-        mu_w, sig_w = all_w.mean(), all_w.std() + 1e-12
-        mu_c, sig_c = all_c.mean(), all_c.std() + 1e-12
+            # Collect projections for all 200 stories
+            all_proj_w, all_proj_c = [], []
+            cond_projs: dict[str, tuple[np.ndarray, np.ndarray]] = {}
+            for cond in CONDITIONS:
+                X = np.load(vd / f"X_{cond}.npy").astype(np.float64)
+                pw = X @ wv
+                pc = X @ cv
+                all_proj_w.append(pw)
+                all_proj_c.append(pc)
+                cond_projs[cond] = (pw, pc)
 
-        # Compute oblique-basis coordinates for all stories (to determine axis limits)
-        all_xp, all_yp = [], []
-        for cond in CONDITIONS:
-            pw, pc = cond_projs[cond]
-            zw = (pw - mu_w) / sig_w
-            zc = (pc - mu_c) / sig_c
-            all_xp.append(zw + zc * np.cos(theta))
-            all_yp.append(zc * np.sin(theta))
-        all_xp_arr = np.concatenate(all_xp)
-        all_yp_arr = np.concatenate(all_yp)
+            all_w = np.concatenate(all_proj_w)
+            all_c = np.concatenate(all_proj_c)
+            mu_w, sig_w = all_w.mean(), all_w.std() + 1e-12
+            mu_c, sig_c = all_c.mean(), all_c.std() + 1e-12
 
-        # Plot story clouds in oblique coordinates
-        for cond in CONDITIONS:
-            pw, pc = cond_projs[cond]
-            zw = (pw - mu_w) / sig_w
-            zc = (pc - mu_c) / sig_c
-            xp = zw + zc * np.cos(theta)
-            yp = zc * np.sin(theta)
-            ax.scatter(
-                xp, yp,
-                c=_style.PALETTE[cond],
-                s=SCATTER_SIZE,
-                alpha=SCATTER_ALPHA,
-                linewidths=0,
-                label=_style.LABELS[cond],
+            # Plot story clouds in oblique coordinates
+            for cond in CONDITIONS:
+                pw, pc = cond_projs[cond]
+                zw = (pw - mu_w) / sig_w
+                zc = (pc - mu_c) / sig_c
+                xp = zw + zc * np.cos(theta)
+                yp = zc * np.sin(theta)
+                ax.scatter(
+                    xp, yp,
+                    c=_style.PALETTE[cond],
+                    s=SCATTER_SIZE,
+                    alpha=SCATTER_ALPHA,
+                    linewidths=0,
+                    label=_style.LABELS[cond],
+                )
+
+            # Direction arrows (unit length in z-score units, scaled visually)
+            ARROW_LEN = 2.0
+            cx_end = ARROW_LEN * np.cos(theta)
+            cy_end = ARROW_LEN * np.sin(theta)
+            ax.set_xlim(*X_LIMITS)
+            ax.set_ylim(*Y_LIMITS)
+            ax.set_aspect("equal", adjustable="box")
+            ax.set_anchor("C")
+
+            # Warmth arrow: along horizontal axis in oblique basis
+            ax.annotate(
+                "", xy=(ARROW_LEN, 0), xytext=(0, 0),
+                arrowprops=dict(
+                    arrowstyle="-|>",
+                    color=ARROW_W_COLOR,
+                    lw=1.7,
+                    mutation_scale=12,
+                ),
+                annotation_clip=False,
+                zorder=5,
+            )
+            ax.text(
+                X_LIMITS[1] - 0.12, 0.05, "Warmth +",
+                color=ARROW_W_COLOR, fontsize=6.8, fontweight="normal",
+                ha="right", va="bottom", clip_on=False,
             )
 
-        # Direction arrows (unit length in z-score units, scaled visually)
-        ARROW_LEN = 2.0
-        cx_end = ARROW_LEN * np.cos(theta)
-        cy_end = ARROW_LEN * np.sin(theta)
+            # Competence arrow: drawn at the true inter-axis angle
+            ax.annotate(
+                "", xy=(cx_end, cy_end), xytext=(0, 0),
+                arrowprops=dict(
+                    arrowstyle="-|>",
+                    color=ARROW_C_COLOR,
+                    lw=1.7,
+                    mutation_scale=12,
+                ),
+                annotation_clip=False,
+                zorder=5,
+            )
+            ax.text(
+                cx_end + 0.08, Y_LIMITS[1] - 0.12, "Competence +",
+                color=ARROW_C_COLOR, fontsize=6.8, fontweight="normal",
+                ha="left", va="top", clip_on=False,
+            )
 
-        # FIX: set axis limits BEFORE drawing arrows so the arrows are
-        # guaranteed visible even when cy_end > scatter y-range.
-        # Include arrow endpoints + label clearance (0.4 units top/right).
-        x_lo = float(all_xp_arr.min()) - 0.3
-        x_hi = max(float(all_xp_arr.max()), ARROW_LEN) + 0.6
-        y_lo = float(all_yp_arr.min()) - 0.3
-        y_hi = max(float(all_yp_arr.max()), cy_end) + 0.55  # room for "Competence +"
-        ax.set_xlim(x_lo, x_hi)
-        ax.set_ylim(y_lo, y_hi)
+            # Arc showing angle between directions
+            arc_r = 0.55
+            arc_angles = np.linspace(0, theta, 60)
+            arc_x = arc_r * np.cos(arc_angles)
+            arc_y = arc_r * np.sin(arc_angles)
+            ax.plot(arc_x, arc_y, color="#555555", linewidth=0.8, linestyle="--")
+            mid_angle = theta / 2
+            angle_x_offset = 0.28 if theta_deg < 50 else 0.18
+            ax.text(
+                (arc_r + 0.18) * np.cos(mid_angle) + angle_x_offset,
+                (arc_r + 0.18) * np.sin(mid_angle),
+                f"{theta_deg:.0f}°",
+                ha="center", va="center", fontsize=6.5, color="#333333",
+                bbox=dict(boxstyle="round,pad=0.12", fc="white", ec="none", alpha=0.85),
+            )
 
-        # Warmth arrow: along horizontal axis in oblique basis
-        ax.annotate(
-            "", xy=(ARROW_LEN, 0), xytext=(0, 0),
-            arrowprops=dict(
-                arrowstyle="-|>",
-                color=ARROW_W_COLOR,
-                lw=2.4,
-                mutation_scale=18,
-            ),
-            annotation_clip=False,   # FIX: never clip arrows at axes boundary
-            zorder=5,
-        )
-        ax.text(ARROW_LEN + 0.12, 0.05, "Warmth +",
-                color=ARROW_W_COLOR, fontsize=9, fontweight="bold",
-                clip_on=False)
+            # Origin crosshairs
+            ax.axhline(0, color="lightgray", linewidth=0.6, zorder=0)
+            ax.axvline(0, color="lightgray", linewidth=0.6, zorder=0)
 
-        # Competence arrow: drawn at oblique angle
-        ax.annotate(
-            "", xy=(cx_end, cy_end), xytext=(0, 0),
-            arrowprops=dict(
-                arrowstyle="-|>",
-                color=ARROW_C_COLOR,
-                lw=2.4,
-                mutation_scale=18,
-            ),
-            annotation_clip=False,   # FIX: never clip arrows at axes boundary
-            zorder=5,
-        )
-        ax.text(cx_end + 0.08, cy_end + 0.12, "Competence +",
-                color=ARROW_C_COLOR, fontsize=9, fontweight="bold",
-                clip_on=False)
+            # Annotation box: cosine and angle
+            ax.text(
+                0.03, 0.97,
+                f"cos(W,C) = {axis_cosine:.3f}\nθ = {theta_deg:.1f}°",
+                transform=ax.transAxes,
+                va="top", ha="left",
+                fontsize=5.8,
+                bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="#CCCCCC", alpha=0.85),
+            )
 
-        # Arc showing angle between directions
-        arc_r = 0.55
-        n_arc = 60
-        arc_angles = np.linspace(0, theta, n_arc)
-        arc_x = arc_r * np.cos(arc_angles)
-        arc_y = arc_r * np.sin(arc_angles)
-        ax.plot(arc_x, arc_y, color="#555555", linewidth=1.0, linestyle="--")
-        mid_angle = theta / 2
-        ax.text(
-            (arc_r + 0.18) * np.cos(mid_angle) + (0.32 if i_m in {0, 1} else 0.20),
-            (arc_r + 0.18) * np.sin(mid_angle),
-            f"{theta_deg:.0f}°",
-            ha="center", va="center", fontsize=9, color="#333333",
-            bbox=dict(boxstyle="round,pad=0.15", fc="white", ec="none", alpha=0.85),
-        )
+            _add_family_title(ax, label)
+            ax.tick_params(labelsize=6.5)
 
-        # Origin crosshairs
-        ax.axhline(0, color="lightgray", linewidth=0.6, zorder=0)
-        ax.axvline(0, color="lightgray", linewidth=0.6, zorder=0)
+            ax.set_xlabel("")
+            ax.set_ylabel("")
 
-        # Annotation box: cos and angle
-        ax.text(
-            0.03, 0.97,
-            f"cos(W,C) = {axis_cosine:.3f}\nθ = {theta_deg:.1f}°",
-            transform=ax.transAxes,
-            va="top", ha="left",
-            fontsize=8.5,
-            bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="#CCCCCC", alpha=0.85),
-        )
-
-        ax.set_title(label, fontsize=11, fontweight="bold")
-
-        # FIX: x-label only on bottom row (i_m 2,3); y-label only on left column (i_m 0,2)
-        ax.set_xlabel("Warmth axis (z-score)" if i_m in {2, 3} else "", fontsize=9)
-        ax.set_ylabel("Competence axis (z-score, oblique)" if i_m in {0, 2} else "",
-                      fontsize=9)
-
-        # FIX: legend only on bottom-right panel (Llama, i_m == 3)
-        if i_m == 3:
-            ax.legend(loc="lower right", fontsize=6, framealpha=0.92,
-                      markerscale=1.2, handletextpad=0.3)
-
-    fig.suptitle(
-        "Warmth and competence axes in representation space\n"
-        "Arrow angle = true geometric angle between direction vectors",
-        fontsize=12, fontweight="bold", y=1.01,
+    handles, labels = axes[0, 0].get_legend_handles_labels()
+    fig.legend(
+        handles, labels, loc="upper center", bbox_to_anchor=(0.5, 0.97),
+        ncol=4, fontsize=6.5, framealpha=0.92, markerscale=1.2,
+        handletextpad=0.3, columnspacing=1.2,
     )
-    fig.tight_layout()
+
+    fig.tight_layout(rect=(0.075, 0.075, 0.995, 0.94), h_pad=1.0, w_pad=0.25)
+    fig.canvas.draw()
+    fig.set_layout_engine("none")  # freeze positions before adding sup-labels
+
+    # Center the shared labels on the actual axes grid, not the full figure.
+    y_top = axes[0, 0].get_position().y1
+    y_bottom = axes[-1, 0].get_position().y0
+    x_left = axes[0, 0].get_position().x0
+    x_right = axes[0, -1].get_position().x1
+
+    fig.supylabel(
+        "Competence axis (z-score, oblique)", fontsize=7.5,
+        x=x_left - 0.065, y=(y_top + y_bottom) / 2,
+    )
+    fig.supxlabel(
+        "Warmth axis (z-score)", fontsize=7.5,
+        x=(x_left + x_right) / 2, y=y_bottom - 0.075,
+    )
     save("paper_figure1_axis_arrows")
 
 
 # ---------------------------------------------------------------------------
-# paper_figure2 — Layer emergence: Cohen's d vs depth, 4 models (single panel)
+# paper_figure2 — Layer emergence: Cohen's d vs depth, 9 models (3 × 2 grid)
 # ---------------------------------------------------------------------------
 
 def paper_figure2_layer_emergence(
     sweep_csv_paths: list[Path],
     model_labels: list[str],
 ) -> None:
-    """Two side-by-side panels: warmth (left) and competence (right) emergence.
+    """Three model-group rows of warmth/competence emergence panels.
 
-    Cohen's d (y) vs layer fraction (x) for all four models in each panel.
+    Cohen's d (y) vs layer fraction (x) for nine models grouped into the
+    original comparison suite, Gemma 4, and Qwen 3.6. Each row preserves the
+    same warmth-left, competence-right visual structure.
     Each curve ends with a colour-matched label showing total layer count and
     residual-stream dimension: e.g. "48L · d3840".  This contextualises the
     normalised x-axis: models with more layers spread the same frac range
@@ -2089,16 +2320,46 @@ def paper_figure2_layer_emergence(
     model_colors = ["#1b7837", "#006d6d", "#762a83", "#d6604d"]
     model_ls     = ["-", (0, (3, 1, 1, 1)), "--", "-."]
 
+    row_specs = [
+        (
+            "Earlier models",
+            ["Gemma-3-12B", "Gemma-3-27B", "Qwen3-14B", "Llama-3.1-8B"],
+        ),
+        (
+            "Gemma 4",
+            ["Gemma-4-12B", "Gemma-4-26B-A4B", "Gemma-4-31B"],
+        ),
+        (
+            "Qwen 3.6",
+            ["Qwen3.6-27B", "Qwen3.6-35B-A3B"],
+        ),
+    ]
+
     # d_model per label (residual-stream width; verified from X_*.npy shapes).
     D_MODEL: dict[str, int] = {
         "Gemma-3-12B":  3840,
         "Gemma-3-27B":  5376,
         "Qwen3-14B":    5120,
         "Llama-3.1-8B": 4096,
+        "Gemma-4-12B": 3840,
+        "Gemma-4-26B-A4B": 2816,
+        "Gemma-4-31B": 5376,
+        "Qwen3.6-27B": 5120,
+        "Qwen3.6-35B-A3B": 2048,
     }
 
-    sweeps: list[dict[str, list]] = []
-    for path in sweep_csv_paths:
+    expected_labels = {label for _, labels in row_specs for label in labels}
+    supplied_labels = set(model_labels)
+    if supplied_labels != expected_labels or len(model_labels) != len(expected_labels):
+        missing = sorted(expected_labels - supplied_labels)
+        unexpected = sorted(supplied_labels - expected_labels)
+        raise ValueError(
+            "paper figure 2 requires the canonical nine-model set; "
+            f"missing={missing}, unexpected={unexpected}"
+        )
+
+    sweeps_by_label: dict[str, dict[str, list]] = {}
+    for path, label in zip(sweep_csv_paths, model_labels):
         rows: dict[str, list] = {"frac": [], "warmth_d": [], "comp_d": []}
         with path.open(newline="", encoding="utf-8") as f:
             reader = _csv.DictReader(f)
@@ -2106,36 +2367,18 @@ def paper_figure2_layer_emergence(
                 rows["frac"].append(float(row["frac"]))
                 rows["warmth_d"].append(float(row["warmth_cohens_d"]))
                 rows["comp_d"].append(float(row["comp_cohens_d"]))
-        sweeps.append(rows)
+        sweeps_by_label[label] = rows
         print(f"  [paper_fig2] {path.name}: {len(rows['frac'])} layers")
 
-    all_d = [v for sw in sweeps for k in ("warmth_d", "comp_d") for v in sw[k]]
+    all_d = [
+        value
+        for sweep in sweeps_by_label.values()
+        for key in ("warmth_d", "comp_d")
+        for value in sweep[key]
+    ]
     y_max = max(all_d) * 1.05
 
-    fig, (axL, axR) = plt.subplots(1, 2, figsize=(8.25, 3.4), sharey=True)
-
-    for ax in (axL, axR):
-        ax.set_xlim(0, 1)
-        ax.set_ylim(0, y_max)
-
-    # Collect terminal (y, text, color) per panel for de-cluttered end labels.
-    end_labels_W: list[tuple[float, str, str]] = []
-    end_labels_C: list[tuple[float, str, str]] = []
-
-    for i_m, (sweep, label) in enumerate(zip(sweeps, model_labels)):
-        c        = model_colors[i_m % len(model_colors)]
-        ls       = model_ls[i_m % len(model_ls)]
-        n_layers = len(sweep["frac"])
-        dm       = D_MODEL.get(label, None)
-        tag      = f"{n_layers}L · d{dm}" if dm else f"{n_layers}L"
-
-        axL.plot(sweep["frac"], sweep["warmth_d"], color=c, linestyle=ls,
-                 linewidth=2.0, label=label, zorder=3)
-        axR.plot(sweep["frac"], sweep["comp_d"],   color=c, linestyle=ls,
-                 linewidth=2.0, zorder=3)
-
-        end_labels_W.append((sweep["warmth_d"][-1], tag, c))
-        end_labels_C.append((sweep["comp_d"][-1],   tag, c))
+    fig, axes = plt.subplots(3, 2, figsize=(8.25, 9.2), sharey=True)
 
     def _draw_end_labels(ax, labels: list[tuple[float, str, str]]) -> None:
         """Render colour-matched line-end labels with vertical de-cluttering."""
@@ -2151,29 +2394,69 @@ def paper_figure2_layer_emergence(
                     fontsize=7, ha="left", va="center",
                     clip_on=False, zorder=6)
 
-    _draw_end_labels(axR, end_labels_C)
+    for row_index, (_row_title, row_labels) in enumerate(row_specs):
+        axL, axR = axes[row_index]
+        end_labels_C: list[tuple[float, str, str]] = []
 
-    # Probe-layer vertical line — labelled on figure, not in legend.
-    for ax in (axL, axR):
-        ax.axvline(0.66, color="gray", linestyle=":", linewidth=1.2, zorder=1)
-        trans = _mtrans.blended_transform_factory(ax.transData, ax.transAxes)
-        ax.text(0.67, 0.97, "probe layer\nfrac = 0.66",
+        for model_index, label in enumerate(row_labels):
+            sweep = sweeps_by_label[label]
+            color = model_colors[model_index]
+            linestyle = model_ls[model_index]
+            n_layers = len(sweep["frac"])
+            tag = f"{n_layers}L · d{D_MODEL[label]}"
+
+            axL.plot(
+                sweep["frac"], sweep["warmth_d"], color=color,
+                linestyle=linestyle, linewidth=2.0, label=label, zorder=3,
+            )
+            axR.plot(
+                sweep["frac"], sweep["comp_d"], color=color,
+                linestyle=linestyle, linewidth=2.0, zorder=3,
+            )
+            end_labels_C.append((sweep["comp_d"][-1], tag, color))
+
+        _draw_end_labels(axR, end_labels_C)
+
+        for ax in (axL, axR):
+            ax.set_xlim(0, 1)
+            ax.set_ylim(0, y_max)
+            ax.axvline(0.66, color="gray", linestyle=":", linewidth=1.2, zorder=1)
+            trans = _mtrans.blended_transform_factory(ax.transData, ax.transAxes)
+            ax.text(
+                0.67, 0.97, "probe layer\nfrac = 0.66",
                 transform=trans, fontsize=7.5, color="gray",
-                va="top", ha="left", zorder=2)
-        ax.set_xlabel("Layer fraction (layer index / n_layers)", fontsize=11)
-
-    axL.set_ylabel("Cohen's d", fontsize=11)
-    axL.set_title("Warmth",     fontsize=12, fontweight="bold")
-    axR.set_title("Competence", fontsize=12, fontweight="bold")
-    axL.legend(fontsize=5.5, loc="upper left", ncol=1, framealpha=0.92)
+                va="top", ha="left", zorder=2,
+            )
+        if row_index == 0:
+            axL.set_title("Warmth", fontsize=12)
+            axR.set_title("Competence", fontsize=12)
+        axL.legend(
+            fontsize=5.5, loc="upper left", ncol=1, framealpha=0.92,
+        )
 
     fig.suptitle(
         "Warmth and competence representations emerge with depth\n"
-        "(topic-holdout CV = 1.00 at every layer; four open-weights models)",
-        fontsize=10, y=1.02,
+        "(nine open-weights models grouped by model family and generation)",
+        fontsize=10, y=0.995,
     )
-    fig.tight_layout()
+    fig.tight_layout(rect=(0.065, 0.06, 1, 0.975), h_pad=1.6)
     fig.subplots_adjust(wspace=0.12)
+    fig.canvas.draw()
+    fig.set_layout_engine("none")  # freeze positions before adding sup-labels
+
+    # Center the shared labels on the actual axes grid, not the full figure
+    # (the multi-line suptitle above the grid would otherwise pull a
+    # figure-centered label upward relative to the plotted rows).
+    y_top = axes[0, 0].get_position().y1
+    y_bottom = axes[-1, 0].get_position().y0
+    x_left = axes[0, 0].get_position().x0
+    x_right = axes[0, 1].get_position().x1
+
+    fig.supylabel("Cohen's d", fontsize=11, x=x_left - 0.055, y=(y_top + y_bottom) / 2)
+    fig.supxlabel(
+        "Layer fraction (layer index / n_layers)", fontsize=11,
+        x=(x_left + x_right) / 2, y=y_bottom - 0.055,
+    )
     save("paper_figure2_layer_emergence")
 
 
@@ -2582,7 +2865,7 @@ def main() -> None:
 
     _style.apply()
 
-    # Parse --fig: supports integers (1-20) and paper-figure tokens p1/p2/p3.
+    # Parse --fig: supports integers (1-20) and paper-figure tokens p1/p2/p3/p4.
     paper_selected: set[int] = set()
     if args.fig == "all":
         selected = {1, 2, 3, 4}
@@ -2592,8 +2875,10 @@ def main() -> None:
             tok = tok.strip()
             if tok.lower().startswith("p"):
                 paper_fig = int(tok[1:])
-                if paper_fig not in {1, 2, 3}:
-                    parser.error(f"Unknown paper figure token '{tok}'; supported: p1, p2, p3")
+                if paper_fig not in {1, 2, 3, 4}:
+                    parser.error(
+                        f"Unknown paper figure token '{tok}'; supported: p1, p2, p3, p4"
+                    )
                 paper_selected.add(paper_fig)
             else:
                 selected.add(int(tok))
@@ -2713,7 +2998,7 @@ def main() -> None:
         )
 
     # ------------------------------------------------------------------
-    # Paper-draft figures (p1, p2, p3)
+    # Paper-draft figures (p1, p2, p3, p4)
     # p1 → --vec-dirs + --labels
     # p2 → --sweep-csvs + --labels  (layer emergence; does NOT need --vec-dirs)
     # p3 → --steering-slopes        (diverging dot-arrow; no vec-dirs needed)
@@ -2741,6 +3026,24 @@ def main() -> None:
         if not args.steering_slopes:
             parser.error("--fig p3 requires --steering-slopes")
         paper_figure3_diverging_steering(Path(args.steering_slopes))
+
+    if 4 in paper_selected:
+        print("paper_figure4: matched bidirectional hiring transitions …")
+        configure_transition_style()
+        transition_summaries = build_transition_summaries()
+        write_transition_summary_csv(
+            transition_summaries,
+            TRANSITION_SUMMARY_PATH,
+        )
+        write_transition_summary_tex(
+            transition_summaries,
+            TRANSITION_SUMMARY_TEX_PATH,
+        )
+        save_transition_figure(
+            create_matched_transition_figure(transition_summaries),
+            OUT_DIR,
+            "paper_figure4_hiring_bidirectional_examples",
+        )
 
     if selected & {13, 14, 15}:
         if not args.dense_csvs or not model_labels:

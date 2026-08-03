@@ -548,3 +548,13 @@ almost entirely — consistent with the encapsulation hypothesis above.
    Gallo & Hausladen meta-analytic sample). This is a dataset-level property, not a
    universal finding; readers should consult the individual-study breakdown in the
    original paper.
+
+## Follow-up (2026-07-20)
+
+Extended to nine models: the same bootstrap-mediation procedure, already run for
+five newer checkpoints (Gemma-4-12B, Gemma-4-26B-A4B, Gemma-4-31B, Qwen3.6-27B,
+Qwen3.6-35B-A3B) and sitting unused in `results/logs/`, was consolidated into a
+manuscript appendix table (36 tests total). The five new checkpoints show
+significant mediation on the competence axis in particular (all three Gemma-4
+models), which the earlier four-model subset did not show at all for Gemma. See
+`paper/2026-07-20_2015_nine_model_mediation.md` for the full breakdown.

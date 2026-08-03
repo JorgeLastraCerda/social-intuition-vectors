@@ -2474,3 +2474,29 @@
 - **Findings:** Old README was 453 lines; new README is a full replacement with no `REPLACE_ME`, no `NotImplementedError` stub claim, and no "smoke tests complete / Phase 4 pending" framing. Only `README.md` was changed in the working tree for this step.
 - **Decision / rationale:** Followed the user's explicit answers to remove the stale pilot content outright (matches the 2026-07-23 manuscript decision to cut the same "stale pilot/tiering" framing there) and to keep headline result numbers in the README rather than deferring everything to `paper/`.
 - **Next:** None; README rewrite is complete. Future manuscript changes (Introduction/Results redesign, anonymized submission prep) remain tracked in the 2026-07-23 entry's Next list.
+
+## 2026-07-29 · Step 1 — Make the SCM motivation source-faithful
+- **Context:** Revise the active manuscript's "Why Warmth and Competence" paragraph while preserving its definition-to-evidence-to-methodological-choice structure.
+- **Agent:** GPT-5 Codex
+- **Did:** Replaced the unsupported claim that warmth and competence explain a substantial share of evaluative variance with a cautious statement that evidence across cultural contexts identifies them as recurring dimensions of interpersonal impressions and perceptions of social groups; retained the existing Fiske et al. (2007) and Cuddy et al. (2008) citations and rebuilt `paper/paper/Ulu_Lastra.pdf`.
+- **Findings:** The LaTeX build completed at 19 pages with no undefined references or citations, overfull boxes, compilation errors, or targeted prose-pattern violations.
+- **Decision / rationale:** Use a source-faithful centrality claim rather than an unquantified variance claim, while keeping the paragraph's original argumentative structure.
+- **Anti-formulaic self-check:** Re-read the full paragraph; sentence openings and lengths vary, the transition carries the methodological rationale, and no em-dash, repeated causal frame, or signal-only transition was introduced.
+- **Next:** Audit "The Link to Hiring" before revising its treatment of the rating corpus and callback meta-analysis.
+
+## 2026-07-29 · Step 2 — Separate the ratings corpus from the callback analysis
+- **Context:** Revise the Introduction placeholder and the manuscript's link from warmth and competence to hiring outcomes.
+- **Agent:** GPT-5 Codex
+- **Did:** Added a visible work-in-progress marker under the Introduction heading; revised `paper/paper/Ulu_Lastra.tex` to distinguish the ten-source-study ratings corpus from the eight correspondence studies with usable callback data; described the callback result as a qualified association involving the first principal component of warmth and competence; scoped the novelty claim; changed the dataset attribution to Gallo et al.; rebuilt and visually inspected the manuscript PDF.
+- **Findings:** The manuscript compiles to 19 pages with no undefined citations or references, overfull boxes, or LaTeX compilation errors. The Introduction marker renders cleanly on page 1, and targeted prose checks found no prohibited em-dash punctuation or repeated formulaic frames.
+- **Decision / rationale:** Preserve the paragraph's narrative role while representing the two samples and the substantial between-study uncertainty accurately. Exact inferential statistics remain outside the main paragraph to keep the bridge concise.
+- **Anti-formulaic self-check:** Re-read the revised passage; sentence openings and lengths vary, no adjacent paragraph shares an opener frame, and no em-dash punctuation, repeated causal template, or signal-only transition remains.
+- **Next:** Audit and revise the passage beginning with “Concept Stories Without Identity.”
+
+## 2026-08-03 · Step 1 — Prepare documented manuscript work for Git synchronization
+- **Context:** Synchronize the latest safe local research and manuscript work with the configured `origin/main` upstream.
+- **Agent:** GPT-5 Codex
+- **Did:** Fetched and compared both sides of the configured upstream, reviewed tracked and untracked files, and selected the documented manuscript, report, table, figure, and generating-script changes from 19–29 July for commit.
+- **Findings:** Before synchronization, `main` was 1 commit ahead and 0 behind `origin/main`; the remote had no new work to merge. Graphify indexes, LaTeX intermediates, `tmp/`, the separate `ccu/` workspace and its machine-local configuration, and an unrelated presentation export were excluded from staging.
+- **Decision / rationale:** Publish only research artifacts supported by the append-only log and report artifact inventories; retain local caches, intermediate files, private machine configuration, and unrelated workspace material outside the repository history.
+- **Next:** Validate the selected files, commit them with the existing README commit, push `main`, and verify 0 ahead / 0 behind.
