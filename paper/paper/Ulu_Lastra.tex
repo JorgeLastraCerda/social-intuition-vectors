@@ -304,13 +304,18 @@ by Topic, gives more detail about the stories: the full topic list, an
 assigned domain category for each, and per-topic word-count ranges.
 
 \paragraph{Building the Warmth and Competence Vectors.}
-We used TransformerLens \citep{nanda2022transformerlens} to extract
-residual-stream activations from nine open-weights instruction-tuned models
-spanning three model families and two version generations each for Gemma and
-Qwen: Gemma-3-12B-it and Gemma-3-27B-it \citep{gemmateam2025gemma3},
-Gemma-4-12B, Gemma-4-26B-A4B, and Gemma-4-31B; Qwen3-14B
-\citep{qwen2025qwen3}, Qwen3.6-27B, and Qwen3.6-35B-A3B; and
-Llama-3.1-8B-Instruct \citep{grattafiori2024llama3}.
+We extracted residual-stream activations from nine open-weights
+instruction-tuned models spanning three model families and two version
+generations each for Gemma and Qwen: Gemma-3-12B-it and Gemma-3-27B-it
+\citep{gemmateam2025gemma3}, Gemma-4-12B, Gemma-4-26B-A4B, and Gemma-4-31B;
+Qwen3-14B \citep{qwen2025qwen3}, Qwen3.6-27B, and Qwen3.6-35B-A3B; and
+Llama-3.1-8B-Instruct \citep{grattafiori2024llama3}. Activations were read
+with TransformerLens \citep{nanda2022transformerlens} for the Gemma-3,
+Qwen3-14B, and Llama-3.1 checkpoints, with its Bridge interface for the
+three Gemma-4 checkpoints, and with a native Hugging Face backend for the
+two Qwen3.6 checkpoints, which the released TransformerLens build does not
+yet support. The \textit{Backend} column of \autoref{tab:models} lists the
+tool used for each checkpoint.
 \citet{sofroniew2026emotion}, whose emotion-vector method motivates our
 approach, describe a progression from token-level emotional connotations in
 early layers to context-integrated representations in middle-to-late layers.
@@ -348,23 +353,24 @@ used the same stories, pooling rule, and prespecified seed
 
 \begin{table}[t]
 \centering
-\small
+\footnotesize
 \captionsetup{font=footnotesize}
+\setlength{\tabcolsep}{3pt}
 \begin{tabular}{lcccc}
 \toprule
-Model & $d_\mathrm{model}$ & Probe layer & $\bar{\|h\|}$ \\
+Model & $d_\mathrm{model}$ & Probe layer & $\bar{\|h\|}$ & Backend \\
 \midrule
-Gemma-3-12B-it          & 3840 & 31/48 & 79{,}722 \\
-Gemma-3-27B-it          & 5376 & 40/62 & 61{,}576 \\
-Gemma-4-12B             & 3840 & 31/48 & 97.8     \\
-Gemma-4-26B-A4B         & 2816 & 19/30 & 68.4     \\
-Gemma-4-31B             & 5376 & 39/60 & 188.5    \\
+Gemma-3-12B-it          & 3840 & 31/48 & 79{,}722 & TL     \\
+Gemma-3-27B-it          & 5376 & 40/62 & 61{,}576 & TL     \\
+Gemma-4-12B             & 3840 & 31/48 & 97.8     & Bridge \\
+Gemma-4-26B-A4B         & 2816 & 19/30 & 68.4     & Bridge \\
+Gemma-4-31B             & 5376 & 39/60 & 188.5    & Bridge \\
 \addlinespace
-Qwen3-14B               & 5120 & 26/40 & 206.6    \\
-Qwen3.6-27B             & 5120 & 42/64 & 71.9     \\
-Qwen3.6-35B-A3B         & 2048 & 26/40 & 3.6      \\
+Qwen3-14B               & 5120 & 26/40 & 206.6    & TL     \\
+Qwen3.6-27B             & 5120 & 42/64 & 71.9     & HF     \\
+Qwen3.6-35B-A3B         & 2048 & 26/40 & 3.6      & HF     \\
 \addlinespace
-Llama-3.1-8B-Instruct   & 4096 & 20/32 & 11.4     \\
+Llama-3.1-8B-Instruct   & 4096 & 20/32 & 11.4     & TL     \\
 \bottomrule
 \end{tabular}
 \caption{%
@@ -376,7 +382,10 @@ Llama-3.1-8B-Instruct   & 4096 & 20/32 & 11.4     \\
   of 200 stories, token activations are averaged and the resulting vector's
   length is measured; the table reports the mean of these lengths. This value
   calibrates steering to each model's own scale, so larger values do not imply
-  better or stronger models.
+  better or stronger models. Backend is the tool used to read activations: TL
+  is TransformerLens, Bridge is its Hugging Face Bridge interface, and HF a
+  native Hugging Face backend used for the Qwen3.6 checkpoints that
+  TransformerLens does not yet support.
 }
 \label{tab:models}
 \end{table}
@@ -493,7 +502,10 @@ cleanly, the same kind of breakdown at high steering strength that
 generally; the narrower range was then applied uniformly to all nine
 models. For each strength, the direction is applied to 10 held-out
 topics it was never built from, separate from the 40 topics used to
-build it.
+build it. For the Gemma-4 and Qwen3.6 checkpoints this yes-or-no question
+is presented through each model's native chat template; the other four
+models receive it as raw text, matching how each checkpoint was run
+throughout.
 
 We record how much more the model favors Yes over No at each
 strength, the next-token logit margin:
@@ -503,7 +515,10 @@ strength, the next-token logit margin:
 where $\mathrm{logit}(\text{Yes})$ and $\mathrm{logit}(\text{No})$ are the
 model's raw output scores for the two answer tokens before any softmax
 normalization, so a positive $\Delta$ means the model favors Yes and a
-larger $\Delta$ means a stronger preference.
+larger $\Delta$ means a stronger preference. Throughout, the raw dense
+directions define the primary causal comparisons reported here; the
+PCA-denoised vectors serve as a robustness check (Supplementary, PCA
+Denoising).
 
 A single steering result does not tell us whether the effect is specific
 to warmth or competence, or whether it would show up for almost any
@@ -572,28 +587,32 @@ Illustrative synthetic activations, not measured data.}
 \end{figure}
 
 \paragraph{Steering Hiring Decisions.}
-The hiring prompt pairs each of the 282 applicant first names from
-\citet{gallo2024warmth} with an otherwise identical, fixed
-administrative-assistant application (same education, experience, and
-skills in every trial), so the name is the only signal that varies.
-The model answers ``would you recommend calling this candidate back for an
-interview? Answer with a single word: Yes or No.'' The outcome is the
-callback margin:
+The concept-level test shows the model will move its stated judgment when
+pushed; whether that carries over to an actual hiring decision is a separate
+question. To answer it, we bring the callback task into the same steering
+setup. The hiring prompt pairs each of the 282 applicant first names from
+\citet{gallo2024warmth} with one fixed administrative-assistant application,
+identical in education, experience, and skills across every trial, so the
+name is the only signal that changes. The model reads the application and
+answers a single question, ``would you recommend calling this candidate back
+for an interview? Answer with a single word: Yes or No.'' We score that
+answer with the callback margin,
 \begin{equation*}
   \Delta_{\text{callback}} = \mathrm{logit}(\text{Yes}) - \mathrm{logit}(\text{No}),
 \end{equation*}
-the same logit difference used at the concept level, now computed on the
-hiring prompt instead of the concept-judgment prompt.
-Race and gender labels are never shown to the model; they are assigned
-afterward from the \citet{gallo2024warmth} coding, mirroring the design of
-human correspondence studies \citep{bertrand2004emily}.
+the same Yes-versus-No logit difference used at the concept level, now read
+from the hiring prompt rather than the concept-judgment prompt.
+Demographic labels stay out of the prompt. Race and gender are never shown
+to the model; each name is tagged afterward from the \citet{gallo2024warmth}
+coding, mirroring how human correspondence studies read group membership
+from names alone \citep{bertrand2004emily}.
 We then apply the same steering hooks used at the concept level while the
-model processes these resume-evaluation prompts over a 60-name subset of
-the applicant roster, using a broad sweep at $\alpha \in
-\{\pm 0.25,\,\pm 0.50\}$ and a local-regime follow-up at
-$\{\pm 0.05,\,\pm 0.10\}$ for the two Gemma models, so that a push on the
-warmth or competence direction can be traced directly to a shift in the
-callback margin.
+model works through these applications, over a 60-name subset of the
+roster. Strength is swept broadly at $\alpha \in \{\pm 0.25,\,\pm 0.50\}$ on
+all nine models and refined at $\{\pm 0.05,\,\pm 0.10\}$ on every checkpoint
+except Llama-3.1-8B and Qwen3-14B, so that a push on the warmth or
+competence direction can be traced directly to a shift in the callback
+margin.
 
 \paragraph{Names, Human Ratings, and Disparity.}
 Independently of the hiring prompt, each applicant name is embedded in a
