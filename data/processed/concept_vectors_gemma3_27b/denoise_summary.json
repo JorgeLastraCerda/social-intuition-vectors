@@ -1,6 +1,10 @@
 {
+  "model": "google/gemma-3-27b-it",
+  "revision": null,
+  "seed": 20260527,
   "k": 43,
-  "variance_kept": 0.5024797916412354,
+  "variance_threshold": 0.5,
+  "variance_kept": 0.5024797320365906,
   "cosine_before": 0.7077974677085876,
-  "cosine_after": 0.48698295194423263
+  "cosine_after": 0.4869829744417604
 }
