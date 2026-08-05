@@ -13,17 +13,22 @@ def load_hooked_model(
     *,
     n_devices: int | None = None,
 ):
-    """Load raw Hugging Face weights through TransformerLens 3 Bridge.
+    """Load a hooked model per ``config.model.backend``.
 
-    Full compatibility mode is intentionally not enabled: Gemma 4's PLE/MoE
-    topology is not safe for legacy weight folding.  The returned bridge retains
-    the HookedTransformer-style run_with_cache/run_with_hooks interface and hook
-    aliases used by the pipeline.
+    ``"transformer-bridge"`` (default) loads raw Hugging Face weights through
+    TransformerLens 3 Bridge. Full compatibility mode is intentionally not
+    enabled: Gemma 4's PLE/MoE topology is not safe for legacy weight folding.
+    The returned bridge retains the HookedTransformer-style
+    run_with_cache/run_with_hooks interface and hook aliases used by the
+    pipeline. ``"transformer-lens"`` loads a plain ``HookedTransformer`` instead,
+    for models run with the pre-Bridge native-TL loader.
     """
     model_name = require_model_name(config)
+    if config.model.backend == "transformer-lens":
+        return _load_native_transformer_lens(config, model_name)
     if config.model.backend != "transformer-bridge":
         raise ValueError(
-            "model.backend must be 'transformer-bridge' for production probing; "
+            "model.backend must be 'transformer-bridge' or 'transformer-lens'; "
             f"got {config.model.backend!r}."
         )
 
@@ -113,6 +118,33 @@ def load_hooked_model(
         if template is not None
         else None
     )
+    model._normalcy_backend = "transformer-bridge"
+    return model
+
+
+def _load_native_transformer_lens(config: ProjectConfig, model_name: str):
+    """Load a model with plain TransformerLens (pre-Bridge era loader).
+
+    Mirrors the loader used for the June broad-regime hiring-steering runs on
+    Gemma-3, Llama-3.1-8B, and Qwen3-14B (git 0e0547a), kept alongside the Bridge
+    path so later local-regime runs on the same models stay on identical footing.
+    """
+    try:
+        from transformer_lens import HookedTransformer
+    except ImportError as exc:
+        raise ImportError(
+            "Install transformer-lens before loading HookedTransformer models."
+        ) from exc
+
+    model = HookedTransformer.from_pretrained_no_processing(
+        model_name,
+        device=config.model.device,
+        dtype=config.model.dtype,
+    )
+    model._normalcy_revision_requested = config.model.revision
+    model._normalcy_revision_resolved = None
+    model._normalcy_chat_template_sha256 = None
+    model._normalcy_backend = "transformer-lens"
     return model
 
 
@@ -146,7 +178,7 @@ def model_runtime_metadata(model) -> dict[str, object]:
         ]
 
     return {
-        "backend": "transformer-bridge",
+        "backend": getattr(model, "_normalcy_backend", "transformer-bridge"),
         "transformer_lens_version": version("transformer-lens"),
         "transformers_version": version("transformers"),
         "torch_version": torch.__version__,
