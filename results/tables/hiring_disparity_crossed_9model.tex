@@ -3,8 +3,6 @@
 % Regression-gated against results/tables/hiring_group_r4_<label>.csv for the five labels where that file already existed.
 \begin{table}[htbp]
 \centering
-\caption{\textbf{Name-level warmth/competence and callback margin by crossed race $\times$ gender group.} Applicant names are joined to \citet{gallo2024warmth}'s published race/gender labels by lowercase first name and matching study (\texttt{src/hiring\_r4.py}). Model warmth/competence are raw projections and are not comparable in magnitude across models; only within-model comparisons across the four cells are meaningful.}
-\label{tab:disparity_crossed}
 \scriptsize
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{@{}llrrrr@{}}
@@ -58,4 +56,6 @@ Qwen3.6-35B-A3B & Black-Female & 9 & 0.065 & 3.167 & 0.17 / 0.39 \\
 \addlinespace
 \bottomrule
 \end{tabular}
+\caption{\textbf{Name-level warmth/competence and callback margin by crossed race $\times$ gender group.} Applicant names are joined to \citet{gallo2024warmth}'s published race/gender labels by lowercase first name and matching study (\texttt{src/hiring\_r4.py}). Model warmth/competence are raw projections and are not comparable in magnitude across models; only within-model comparisons across the four cells are meaningful.}
+\label{tab:disparity_crossed}
 \end{table}

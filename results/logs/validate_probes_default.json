@@ -22,10 +22,10 @@
     "diff_norm": 2837.621582,
     "cosine_high_low": 0.999647,
     "proj_high_mean": 54546.34375,
-    "proj_high_std": 1099.170654,
-    "proj_low_mean": 51708.730469,
-    "proj_low_std": 1001.267944,
-    "cohens_d": 2.698994,
+    "proj_high_std": 1099.169067,
+    "proj_low_mean": 51708.726562,
+    "proj_low_std": 1001.269897,
+    "cohens_d": 2.698998,
     "cv_mean": 1.0,
     "cv_std": 0.0,
     "cv_folds": [
@@ -43,17 +43,26 @@
       1.0,
       1.0,
       1.0
+    ],
+    "direction_topic_cv_mean": 0.9,
+    "direction_topic_cv_std": 0.044721,
+    "direction_topic_cv_folds": [
+      0.95,
+      0.85,
+      0.95,
+      0.85,
+      0.9
     ]
   },
   "competence": {
     "axis": "competence",
     "diff_norm": 3389.776123,
-    "cosine_high_low": 0.999559,
-    "proj_high_mean": 58713.148438,
-    "proj_high_std": 1286.745361,
-    "proj_low_mean": 55323.386719,
-    "proj_low_std": 1103.788696,
-    "cohens_d": 2.827718,
+    "cosine_high_low": 0.999558,
+    "proj_high_mean": 58713.160156,
+    "proj_high_std": 1286.74585,
+    "proj_low_mean": 55323.390625,
+    "proj_low_std": 1103.789673,
+    "cohens_d": 2.827722,
     "cv_mean": 1.0,
     "cv_std": 0.0,
     "cv_folds": [
@@ -71,14 +80,43 @@
       1.0,
       1.0,
       1.0
+    ],
+    "direction_topic_cv_mean": 0.9,
+    "direction_topic_cv_std": 0.070711,
+    "direction_topic_cv_folds": [
+      1.0,
+      0.95,
+      0.85,
+      0.8,
+      0.9
     ]
   },
   "axis_cosine": 0.748953,
   "cross_warmth_on_competence_cv": 0.87,
   "cross_competence_on_warmth_cv": 0.82,
+  "cross_warmth_on_competence_calibrated_cv": 0.87,
+  "cross_competence_on_warmth_calibrated_cv": 0.82,
   "pass_warmth_cv": true,
   "pass_competence_cv": true,
   "pass_orthogonality": false,
   "pass_warmth_topic_cv": true,
-  "pass_competence_topic_cv": true
+  "pass_competence_topic_cv": true,
+  "cross_warmth_to_competence_topic_transfer_mean": 0.77,
+  "cross_warmth_to_competence_topic_transfer_std": 0.04,
+  "cross_warmth_to_competence_topic_transfer_folds": [
+    0.8,
+    0.8,
+    0.7,
+    0.8,
+    0.75
+  ],
+  "cross_competence_to_warmth_topic_transfer_mean": 0.82,
+  "cross_competence_to_warmth_topic_transfer_std": 0.04,
+  "cross_competence_to_warmth_topic_transfer_folds": [
+    0.85,
+    0.75,
+    0.85,
+    0.85,
+    0.8
+  ]
 }

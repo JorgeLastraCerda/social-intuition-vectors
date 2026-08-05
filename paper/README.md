@@ -68,6 +68,14 @@ Per-model figures for Qwen3-14B and Llama-3.1-8B in subdirectories:
 | `llama31_8b/fig2_random_baseline.{png,pdf}` | Random baseline (z=15.0/15.1) — Llama-3.1-8B |
 | `llama31_8b/fig3_lorenz_concentration.{png,pdf}` | Lorenz concentration — Llama-3.1-8B |
 
+Gemma-3-27B was missing its Cohen's d random-baseline figure until 2026-08-04
+(found during a five-checks manuscript audit; all other eight models already
+had it):
+
+| Path | Description |
+|------|-------------|
+| `gemma3_27b/fig2_random_baseline.{png,pdf}` | Random baseline (z=4.3/4.5) — Gemma-3-27B-it |
+
 Per-model figures for the three Gemma 4 models (Stage 1 extraction geometry):
 
 | Path | Description |
@@ -159,7 +167,7 @@ Paper-draft figures (prefixed `paper_figure*`; produced 2026-06-24 for superviso
 | `2026-06-19_1808_cross_model_concept_findings.md` | 2026-06-19 18:08 | Gemma-3-12B + Qwen3-14B + Llama-3.1-8B | Phase 4+5: three-model replication + cross-model agreement analysis | Complete — Phase B expansions (layer sweep, 27B, topic-holdout) to follow |
 | `2026-06-20_1137_layer_sweep_topic_holdout.md` | 2026-06-20 11:37 | Gemma-3-12B + Qwen3-14B + Llama-3.1-8B | Phase B1+B2: topic-holdout CV + layer-sweep emergence and geometry | Complete; cross-axis interpretation corrected |
 | `2026-06-20_1303_gemma_scale_paradox.md` | 2026-06-20 13:03 | Gemma-3-27B vs Gemma-3-12B | Phase B3: within-family scale test — Gemma depth-wise geometry persists at 27B | Corrected; filename retained for history |
-| `2026-06-20_1337_cross_axis_metric_correction.md` | 2026-06-20 13:37 | Four models | Reproducibility correction for unscaled 1-D cross-axis logistic regression | Complete |
+| `2026-06-20_1337_cross_axis_metric_correction.md` | 2026-06-20 13:37 (updated 2026-08-04) | 9 Gemma, Qwen, and Llama checkpoints | Reproducibility correction for unscaled 1-D cross-axis logistic regression; 2026-08-04 update extends both the recalibrated and zero-shot cross-axis metrics to all nine models | Complete |
 | `2026-06-20_1451_gemma_scope2_feature_causality.md` | 2026-06-20 14:51 | Gemma-3-12B + Gemma-3-27B | Gemma Scope 2 sparse decomposition, cross-scale feature matching, concept steering, and feature ablation | Complete for direct concept causality; hiring evaluation remains future work |
 | `2026-06-24_1136_hiring_causality_results.md` | 2026-06-24 11:36 | Gemma-3-12B-it | Phase 6+7: hiring-callback causal sweep and probe-vs-human validation | Historical single-model report; final interpretation superseded by the four-model Phase 7 report. |
 | `2026-06-24_1300_hiring_causality_27b_results.md` | 2026-06-24 13:00 | Gemma-3-27B-it | Phase 6+7 replication at 27B: steering non-monotone/fragile (not inert), reversed baseline association, stronger probe-vs-human alignment | Historical single-model report; broad-regime "warmth inert" interpretation superseded by local-regime non-monotone/fragile result. |
@@ -254,3 +262,7 @@ Paper-draft figures (prefixed `paper_figure*`; produced 2026-06-24 for superviso
 | `2026-07-20_0919_nine_model_normalized_steerability.md` | 2026-07-20 09:19 | 9 Gemma, Qwen, and Llama checkpoints | Common-grid normalized target-direction steerability synthesis | Complete; Figure 14 and active manuscript explanation updated, with specificity limitations retained. |
 | `2026-07-20_1935_probe_human_result_tables.md` | 2026-07-20 19:35 | 9 Gemma, Qwen, and Llama checkpoints | Consolidated probe-vs-human correlation and race/gender disparity tables added to the manuscript, plus a probe-layer-selection Limitations addition | Complete; one main-text table and two appendix tables added, regression-gated against pre-existing per-model outputs. |
 | `2026-07-20_2015_nine_model_mediation.md` | 2026-07-20 20:15 | 9 Gemma, Qwen, and Llama checkpoints | Bootstrap mediation for the five newer checkpoints, already on disk, consolidated into a nine-model appendix table with a main-text forward reference | Complete; steerability-paradox claim kept in the main text and qualified in the appendix. |
+| `2026-08-04_1432_split_half_stability_reproduced.md` | 2026-08-04 14:32 | 9 Gemma, Qwen, and Llama checkpoints | Split-half cosine stability check reproduced with new code after an audit found no prior implementation anywhere in the repo or its git history | Complete; new `src/compute_split_half_stability.py`, nine-model results logged to `results/logs/split_half_stability_<label>.json`. |
+| `2026-08-04_1455_five_checks_coverage_verification.md` | 2026-08-04 14:55 | 9 Gemma, Qwen, and Llama checkpoints | Systematic per-check, per-model coverage audit of the five probe-validation checks; found and closed a missing Gemma-3-27B Cohen's d random-baseline figure | Complete; all five checks now confirmed present for all nine models. |
+| `2026-08-04_1544_nine_model_cross_model_agreement.md` | 2026-08-04 15:44 | 9 Gemma, Qwen, and Llama checkpoints | Cross-model Spearman agreement extended from 4 of 36 possible model pairs (all within-family) to all 36 pairs, including every cross-family comparison | Complete; new `results/tables/cross_model_agreement_9model.csv`, all pairs positive on both metrics for both axes. |
+| `2026-08-04_1610_pca_denoising_verification_and_gap_closure.md` | 2026-08-04 16:10 | 9 Gemma, Qwen, and Llama checkpoints | Independently verified seven models' PCA-denoising outputs, traced why Llama-3.1-8B and Qwen3-14B were missing, queued SGE jobs to close the gap | In progress; jobs `1204966`/`1204967` queued on SCCKN (scc213/scc214), not yet complete. |

@@ -2,8 +2,6 @@
 % Source: results/logs/hiring_mediation_<label>.json for all nine models (src/hiring_disparity.py::bootstrap_mediation; CPU-only, no re-run here).
 \begin{table}[htbp]
 \centering
-\caption{\textbf{Bootstrap mediation of name-group callback disparities through warmth and competence probe scores, all nine models.} Path: name group $\to$ probe score $\to$ callback margin, standardized coefficients, Baron--Kenny/Preacher--Hayes bootstrap (5,000 resamples, seed 20260527, $n=269$, race subset $n=227$). $a$ is the coefficient of group on probe score; $b$ is the coefficient of probe score on callback margin, controlling for group; IE $= a \times b$ is the indirect (mediated) effect. $^{\dagger}$ marks a 95\% bootstrap CI that excludes zero. 14 of 36 tests are significant at this uncorrected threshold; only the Llama-3.1-8B race--warmth path (main text) survives a Bonferroni correction across all 36 tests ($\alpha = 0.05/36$), so the remaining paths listed here, including all newer-model paths, should be read as suggestive rather than confirmed.}
-\label{tab:mediation_9model}
 \scriptsize
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{@{}lllrrrl@{}}
@@ -57,4 +55,6 @@ Qwen3.6-35B-A3B & Race (Black=1) & Warmth & -0.228 & +0.454 & -0.103$^{\dagger}$
 \addlinespace
 \bottomrule
 \end{tabular}
+\caption{\textbf{Bootstrap mediation of name-group callback disparities through warmth and competence probe scores, all nine models.} Path: name group $\to$ probe score $\to$ callback margin, standardized coefficients, Baron--Kenny/Preacher--Hayes bootstrap (5,000 resamples, seed 20260527, $n=269$, race subset $n=227$). $a$ is the coefficient of group on probe score; $b$ is the coefficient of probe score on callback margin, controlling for group; IE $= a \times b$ is the indirect (mediated) effect. $^{\dagger}$ marks a 95\% bootstrap CI that excludes zero. 14 of 36 tests are significant at this uncorrected threshold; only the Llama-3.1-8B race--warmth path (main text) survives a Bonferroni correction across all 36 tests ($\alpha = 0.05/36$), so the remaining paths listed here, including all newer-model paths, should be read as suggestive rather than confirmed.}
+\label{tab:mediation_9model}
 \end{table}

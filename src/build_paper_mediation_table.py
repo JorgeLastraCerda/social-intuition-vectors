@@ -118,24 +118,6 @@ def build_table(log_dir: Path, out_path: Path) -> None:
         "(src/hiring_disparity.py::bootstrap_mediation; CPU-only, no re-run here).",
         r"\begin{table}[htbp]",
         r"\centering",
-        r"\caption{\textbf{Bootstrap mediation of name-group callback disparities "
-        r"through warmth and competence probe scores, all nine models.} "
-        r"Path: name group $\to$ probe score $\to$ callback margin, standardized "
-        f"coefficients, Baron--Kenny/Preacher--Hayes bootstrap ({n_boot:,} resamples, "
-        f"seed {seed}"
-        + (f", $n={n_matched}$, race subset $n={n_race}$" if n_matched and n_race else "")
-        + r"). "
-        r"$a$ is the coefficient of group on probe score; $b$ is the coefficient of "
-        r"probe score on callback margin, controlling for group; IE $= a \times b$ is "
-        r"the indirect (mediated) effect. "
-        r"$^{\dagger}$ marks a 95\% bootstrap CI that excludes zero. "
-        f"{n_sig} of {n_total} tests are significant at this uncorrected threshold; "
-        r"only the Llama-3.1-8B race--warmth path (main text) survives a "
-        f"Bonferroni correction across all {n_total} tests "
-        r"($\alpha = 0.05/" + str(n_total) + r"$), so the remaining paths listed here, "
-        r"including all newer-model paths, should be read as suggestive rather than "
-        r"confirmed.}",
-        r"\label{tab:mediation_9model}",
         r"\scriptsize",
         r"\setlength{\tabcolsep}{4pt}",
         r"\begin{tabular}{@{}lllrrrl@{}}",
@@ -155,7 +137,30 @@ def build_table(log_dir: Path, out_path: Path) -> None:
                 f"{entry['a']:+.3f} & {entry['b']:+.3f} & {ie_cell} & {ci_cell} \\\\"
             )
         lines.append(r"\addlinespace")
-    lines += [r"\bottomrule", r"\end{tabular}", r"\end{table}", ""]
+    lines += [
+        r"\bottomrule",
+        r"\end{tabular}",
+        r"\caption{\textbf{Bootstrap mediation of name-group callback disparities "
+        r"through warmth and competence probe scores, all nine models.} "
+        r"Path: name group $\to$ probe score $\to$ callback margin, standardized "
+        f"coefficients, Baron--Kenny/Preacher--Hayes bootstrap ({n_boot:,} resamples, "
+        f"seed {seed}"
+        + (f", $n={n_matched}$, race subset $n={n_race}$" if n_matched and n_race else "")
+        + r"). "
+        r"$a$ is the coefficient of group on probe score; $b$ is the coefficient of "
+        r"probe score on callback margin, controlling for group; IE $= a \times b$ is "
+        r"the indirect (mediated) effect. "
+        r"$^{\dagger}$ marks a 95\% bootstrap CI that excludes zero. "
+        f"{n_sig} of {n_total} tests are significant at this uncorrected threshold; "
+        r"only the Llama-3.1-8B race--warmth path (main text) survives a "
+        f"Bonferroni correction across all {n_total} tests "
+        r"($\alpha = 0.05/" + str(n_total) + r"$), so the remaining paths listed here, "
+        r"including all newer-model paths, should be read as suggestive rather than "
+        r"confirmed.}",
+        r"\label{tab:mediation_9model}",
+        r"\end{table}",
+        "",
+    ]
     out_path.write_text("\n".join(lines), encoding="utf-8")
     print(f"[mediation_table] wrote {out_path} ({len(MODEL_ORDER)} models, "
           f"{n_total} rows, {n_sig} significant, seed={seed}, n_boot={n_boot})")

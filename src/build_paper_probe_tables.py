@@ -143,20 +143,6 @@ def build_table1(cfg, log_dir: Path, out_path: Path) -> None:
         "% would overflow into the adjacent column.",
         r"\begin{table*}[t]",
         r"\centering",
-        r"\caption{\textbf{Name-level correlation between probed warmth/competence and "
-        r"human ratings.} For each of the "
-        f"{n_names}"
-        r" rated applicant names, the model's residual-stream activation at "
-        r"the probe layer is projected onto the warmth and competence direction "
-        r"vectors. ``Probe layer'' gives the selected layer index and its resolved "
-        r"fraction of total depth (targeted $\mathrm{probe\_layer\_frac}=0.66$; the "
-        r"reported fraction is the integer-rounded layer divided by model depth). "
-        r"Warmth/competence "
-        r"columns correlate the probe projection with human warmth/competence "
-        r"ratings; callback columns correlate the probe projection with the "
-        r"model's own unsteered callback margin. All correlations are Spearman "
-        r"$\rho$. $^{*}p<.05$, $^{**}p<.01$, $^{***}p<.001$, n.s. not significant.}",
-        r"\label{tab:probe_human}",
         r"\small",
         r"\setlength{\tabcolsep}{4pt}",
         r"\resizebox{\textwidth}{!}{%",
@@ -171,7 +157,27 @@ def build_table1(cfg, log_dir: Path, out_path: Path) -> None:
             f"{row['model']} & {row['layer']} & {row['warmth']} & {row['comp']} & "
             f"{row['cb_warmth']} & {row['cb_comp']} \\\\"
         )
-    lines += [r"\bottomrule", r"\end{tabular}%", r"}", r"\end{table*}", ""]
+    lines += [
+        r"\bottomrule",
+        r"\end{tabular}%",
+        r"}",
+        r"\caption{\textbf{Name-level correlation between probed warmth/competence and "
+        r"human ratings.} For each of the "
+        f"{n_names}"
+        r" rated applicant names, the model's residual-stream activation at "
+        r"the probe layer is projected onto the warmth and competence direction "
+        r"vectors. ``Probe layer'' gives the selected layer index and its resolved "
+        r"fraction of total depth (targeted $\mathrm{probe\_layer\_frac}=0.66$; the "
+        r"reported fraction is the integer-rounded layer divided by model depth). "
+        r"Warmth/competence "
+        r"columns correlate the probe projection with human warmth/competence "
+        r"ratings; callback columns correlate the probe projection with the "
+        r"model's own unsteered callback margin. All correlations are Spearman "
+        r"$\rho$. $^{*}p<.05$, $^{**}p<.01$, $^{***}p<.001$, n.s. not significant.}",
+        r"\label{tab:probe_human}",
+        r"\end{table*}",
+        "",
+    ]
     out_path.write_text("\n".join(lines), encoding="utf-8")
     print(f"[table1] wrote {out_path} ({len(rows)} models)")
 
@@ -186,13 +192,6 @@ def build_table2(table_dir: Path, out_path: Path) -> None:
         "% Source: results/tables/hiring_disparity_<label>.csv.",
         r"\begin{table}[htbp]",
         r"\centering",
-        r"\caption{\textbf{Name-level warmth/competence and callback margin by marginal "
-        r"demographic group.} Race (Black/White) and gender (Female/Male) are treated as "
-        r"separate marginal axes, following Gallo and Hausladen's own grouping convention. "
-        r"Model warmth/competence are raw (unnormalized) projections onto the concept "
-        r"direction and are not comparable in magnitude across models; only within-model "
-        r"group differences are meaningful.}",
-        r"\label{tab:disparity_marginal}",
         r"\scriptsize",
         r"\setlength{\tabcolsep}{4pt}",
         r"\begin{tabular}{@{}llrrrr@{}}",
@@ -210,7 +209,19 @@ def build_table2(table_dir: Path, out_path: Path) -> None:
                 f"{row['model_warmth']:.2f} / {row['model_competence']:.2f} \\\\"
             )
         lines.append(r"\addlinespace")
-    lines += [r"\bottomrule", r"\end{tabular}", r"\end{table}", ""]
+    lines += [
+        r"\bottomrule",
+        r"\end{tabular}",
+        r"\caption{\textbf{Name-level warmth/competence and callback margin by marginal "
+        r"demographic group.} Race (Black/White) and gender (Female/Male) are treated as "
+        r"separate marginal axes, following Gallo and Hausladen's own grouping convention. "
+        r"Model warmth/competence are raw (unnormalized) projections onto the concept "
+        r"direction and are not comparable in magnitude across models; only within-model "
+        r"group differences are meaningful.}",
+        r"\label{tab:disparity_marginal}",
+        r"\end{table}",
+        "",
+    ]
     out_path.write_text("\n".join(lines), encoding="utf-8")
     print(f"[table2] wrote {out_path} ({len(MODEL_ORDER)} models)")
 
@@ -281,13 +292,6 @@ def build_table3(cfg, table_dir: Path, out_path: Path) -> None:
         "for the five labels where that file already existed.",
         r"\begin{table}[htbp]",
         r"\centering",
-        r"\caption{\textbf{Name-level warmth/competence and callback margin by crossed "
-        r"race $\times$ gender group.} Applicant names are joined to "
-        r"\citet{gallo2024warmth}'s published race/gender labels by lowercase first name "
-        r"and matching study (\texttt{src/hiring\_r4.py}). Model warmth/"
-        r"competence are raw projections and are not comparable in magnitude across "
-        r"models; only within-model comparisons across the four cells are meaningful.}",
-        r"\label{tab:disparity_crossed}",
         r"\scriptsize",
         r"\setlength{\tabcolsep}{4pt}",
         r"\begin{tabular}{@{}llrrrr@{}}",
@@ -317,7 +321,19 @@ def build_table3(cfg, table_dir: Path, out_path: Path) -> None:
                 f"{r['model_warmth']:.2f} / {r['model_competence']:.2f} \\\\"
             )
         lines.append(r"\addlinespace")
-    lines += [r"\bottomrule", r"\end{tabular}", r"\end{table}", ""]
+    lines += [
+        r"\bottomrule",
+        r"\end{tabular}",
+        r"\caption{\textbf{Name-level warmth/competence and callback margin by crossed "
+        r"race $\times$ gender group.} Applicant names are joined to "
+        r"\citet{gallo2024warmth}'s published race/gender labels by lowercase first name "
+        r"and matching study (\texttt{src/hiring\_r4.py}). Model warmth/"
+        r"competence are raw projections and are not comparable in magnitude across "
+        r"models; only within-model comparisons across the four cells are meaningful.}",
+        r"\label{tab:disparity_crossed}",
+        r"\end{table}",
+        "",
+    ]
     out_path.write_text("\n".join(lines), encoding="utf-8")
     print(f"[table3] wrote {out_path} ({len(MODEL_ORDER)} models)")
 

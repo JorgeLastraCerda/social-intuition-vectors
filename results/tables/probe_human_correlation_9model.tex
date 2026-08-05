@@ -5,8 +5,6 @@
 % would overflow into the adjacent column.
 \begin{table*}[t]
 \centering
-\caption{\textbf{Name-level correlation between probed warmth/competence and human ratings.} For each of the 282 rated applicant names, the model's residual-stream activation at the probe layer is projected onto the warmth and competence direction vectors. ``Probe layer'' gives the selected layer index and its resolved fraction of total depth (targeted $\mathrm{probe\_layer\_frac}=0.66$; the reported fraction is the integer-rounded layer divided by model depth). Warmth/competence columns correlate the probe projection with human warmth/competence ratings; callback columns correlate the probe projection with the model's own unsteered callback margin. All correlations are Spearman $\rho$. $^{*}p<.05$, $^{**}p<.01$, $^{***}p<.001$, n.s. not significant.}
-\label{tab:probe_human}
 \small
 \setlength{\tabcolsep}{4pt}
 \resizebox{\textwidth}{!}{%
@@ -26,4 +24,6 @@ Qwen3.6-35B-A3B & 26 (0.65) & +0.211*** & +0.131* & +0.344*** & +0.197*** \\
 \bottomrule
 \end{tabular}%
 }
+\caption{\textbf{Name-level correlation between probed warmth/competence and human ratings.} For each of the 282 rated applicant names, the model's residual-stream activation at the probe layer is projected onto the warmth and competence direction vectors. ``Probe layer'' gives the selected layer index and its resolved fraction of total depth (targeted $\mathrm{probe\_layer\_frac}=0.66$; the reported fraction is the integer-rounded layer divided by model depth). Warmth/competence columns correlate the probe projection with human warmth/competence ratings; callback columns correlate the probe projection with the model's own unsteered callback margin. All correlations are Spearman $\rho$. $^{*}p<.05$, $^{**}p<.01$, $^{***}p<.001$, n.s. not significant.}
+\label{tab:probe_human}
 \end{table*}
