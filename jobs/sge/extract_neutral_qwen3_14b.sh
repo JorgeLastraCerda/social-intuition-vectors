@@ -58,6 +58,7 @@ python src/extract_neutral.py \
 echo "[job] Step 2: PCA denoise warmth/competence vectors (CPU)"
 python src/denoise_vectors.py \
     --config config/config.yaml \
+    --model Qwen/Qwen3-14B \
     --vectors-subdir concept_vectors_qwen3_14b
 
 echo "[job] Step 3: Sync outputs to git (additive — never force-pushes)"

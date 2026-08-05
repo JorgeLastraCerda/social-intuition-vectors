@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from dataclasses import replace
 from pathlib import Path
 
 import numpy as np
@@ -40,6 +41,8 @@ def select_k(explained_variance_ratio: np.ndarray, threshold: float) -> int:
 def main() -> None:
     args = parse_args()
     cfg = load_config(args.config)
+    if args.model is not None:
+        cfg = replace(cfg, model=replace(cfg.model, name=args.model))
     vdir = Path(cfg.paths.processed) / args.vectors_subdir
 
     Xn = np.load(vdir / "X_neutral.npy")
@@ -111,6 +114,7 @@ def parse_args() -> argparse.Namespace:
         description="PCA valence-denoising of warmth/competence vectors."
     )
     ap.add_argument("--config", default="config/config.yaml")
+    ap.add_argument("--model", default=None, help="Override cfg.model.name (used only for the recorded summary label).")
     ap.add_argument(
         "--vectors-subdir",
         default="concept_vectors",

@@ -58,6 +58,7 @@ python src/extract_neutral.py \
 echo "[job] Step 2: PCA denoise warmth/competence vectors (CPU)"
 python src/denoise_vectors.py \
     --config config/config.yaml \
+    --model meta-llama/Llama-3.1-8B-Instruct \
     --vectors-subdir concept_vectors_llama31_8b
 
 echo "[job] Step 3: Sync outputs to git (additive — never force-pushes)"
