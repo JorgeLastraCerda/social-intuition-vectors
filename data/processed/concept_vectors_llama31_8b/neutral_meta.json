@@ -1,0 +1,35 @@
+{
+  "n_neutral": 1500,
+  "probe_layer": 20,
+  "d_model": 4096,
+  "start_token": 50,
+  "corpus": "data/stimuli/neutral_corpus.jsonl",
+  "seed": 20260527,
+  "timestamp": 1785931756,
+  "model": "meta-llama/Llama-3.1-8B-Instruct",
+  "hook": "blocks.20.hook_resid_post",
+  "input_format": "raw-passage",
+  "runtime": {
+    "backend": "transformer-bridge",
+    "transformer_lens_version": "3.3.0",
+    "transformers_version": "5.10.2",
+    "torch_version": "2.12.0+cu130",
+    "dtype": "torch.bfloat16",
+    "execution_topology": "single-device",
+    "parameter_devices": [
+      "cuda:0"
+    ],
+    "hf_device_map": null,
+    "visible_cuda_devices": [
+      {
+        "index": 0,
+        "name": "NVIDIA L40S"
+      }
+    ],
+    "model_revision_requested": null,
+    "model_revision_resolved": "0e9e39f249a16976918f6564b8830bc894c89659",
+    "chat_template_sha256": "e10ca381b1ccc5cf9db52e371f3b6651576caee0a630b452e2816b2d404d4b65",
+    "peak_allocated_vram_gib": 15.439902782440186,
+    "peak_reserved_vram_gib": 15.953125
+  }
+}
