@@ -3,13 +3,15 @@
 **Produced:** 2026-06-27 17:57 (Europe/Berlin)
 **Model(s):** Gemma-3-12B-it · Gemma-3-27B-it · Llama-3.1-8B-Instruct · Qwen3-14B
 **Scope:** Data-quality audit for Phase-7 Test 2: model warmth/competence probe scores vs. human name-level warmth/competence ratings
-**Status:** Complete; data accepted for the current paper analyses
+**Status:** Corrected 2026-08-06 (flake_leasure/kline bug fix, see below); data accepted for the current paper analyses
 
 ## Artifacts
 
 - **Scripts:**
   - `src/hiring_audit.py` — creates the probe-vs-human audit tables and logs
   - `src/extract_vectors.py` — creates the model-specific warmth/competence direction vectors used as probe axes
+  - `src/utils/human_ratings.py` — fixed ratings loader (drops the `flake_leasure` duplicate rows)
+  - `src/build_probe_human_data_audit_stats.py` — recomputes every table in this report from the fixed loader (new, 2026-08-06)
 - **Inputs:**
   - `data/raw/SocialPerceptions-Predict-Callback-main/0_data/ratings/names/df_all.csv`
   - `data/raw/SocialPerceptions-Predict-Callback-main/README.md`
@@ -30,6 +32,22 @@
 - **Figures:**
   - `paper/figures/fig16_hiring_probe_vs_human.{png,pdf}`
 
+> **Correction (2026-08-06):** `ratings/names/df_all.csv`'s `flake_leasure`
+> study label was a byte-for-byte duplicate of `kline`, caused by a
+> copy-paste bug in Carina Hausladen's own `0_data/ratings/names/code.R`
+> (lines 160-175). This inflated the total rating-row count (24,220 →
+> 16,557 after dropping the duplicate rows), the reported source-study count
+> (10 → 9, the `flake_leasure` row in Section 2's table below no longer
+> appears), and slightly biased the per-name mean warmth/competence used
+> throughout this audit for any name also rated under a second real study.
+> Every table in this report has been recomputed from the fixed loader
+> (`src/utils/human_ratings.py`, `src/build_probe_human_data_audit_stats.py`)
+> and reflects the corrected numbers; see `step_logs/STEP_LOG.md`
+> (2026-08-06) for the discovery and verification trail. No conclusion in
+> this report changes: the headline ρ values shift by 0.001-0.015, no sign
+> flips, and the robustness-to-better-rated-names pattern (Section 5) is
+> unchanged in direction.
+
 ---
 
 ## Summary
@@ -38,9 +56,9 @@ The data used for Test 2 are suitable for the current paper. The audit score is:
 
 **Overall score: 8.0 / 10.**
 
-This is a solid external-validation dataset: it comes from a published labor-market meta-analysis, includes 24,220 human rater rows over 282 first names, has almost no missingness, and is directly aligned with the paper's warmth/competence construct. The model-side inputs are also complete: all four concept-vector directories contain balanced concept activations, finite vectors, model metadata, and no missing or duplicate names in the produced audit tables.
+This is a solid external-validation dataset: it comes from a published labor-market meta-analysis, includes 16,557 human rater rows over 282 first names, has almost no missingness, and is directly aligned with the paper's warmth/competence construct. The model-side inputs are also complete: all four concept-vector directories contain balanced concept activations, finite vectors, model metadata, and no missing or duplicate names in the produced audit tables.
 
-The main weakness is not data provenance or file integrity. The main weakness is **uneven human-rating reliability by name**: some names have 300+ ratings, while 44 names have only one rating. The current Spearman correlation treats every name equally, so a one-rating name and a 300-rating name have the same weight. This must be disclosed as a limitation.
+The main weakness is not data provenance or file integrity. The main weakness is **uneven human-rating reliability by name**: some names have 200+ ratings, while 44 names have only one rating. The current Spearman correlation treats every name equally, so a one-rating name and a 200-rating name have the same weight. This must be disclosed as a limitation.
 
 Despite that caveat, the data are usable. Filtering to better-rated names does not weaken the headline patterns; it generally strengthens them. This indicates that low-rater names are adding noise rather than creating the reported effects.
 
@@ -83,13 +101,14 @@ The human ratings come from the public replication repository for:
 
 The local source repository identifies the project as a meta-analysis of North American labor-market discrimination and states that the `ratings` directory contains warmth and competence ratings collected via Prolific for names and categories. The local R construction script `0_data/ratings/names/code.R` builds `df_all.csv` by extracting, cleaning, and combining warmth/competence name ratings across the underlying correspondence-study name lists.
 
-The source studies represented in the ratings file are:
+The source studies represented in the ratings file are (the `flake_leasure`
+label from the original audit is gone: it was a byte-for-byte duplicate of
+`kline`, not a real ninth-and-tenth study; see the correction note above):
 
 | Study | Rows | Unique names | Unique raters |
 |-------|-----:|-------------:|--------------:|
 | bertrand | 3,784 | 36 | 108 |
 | farber | 1,200 | 12 | 100 |
-| flake_leasure | 7,663 | 76 | 101 |
 | gorzig | 706 | 14 | 200 |
 | jacquemet | 1,114 | 17 | 264 |
 | kline | 7,663 | 76 | 101 |
@@ -106,14 +125,14 @@ The model-side vectors come from the project's own Phase 4-5 extraction pipeline
 
 | Dimension | Value | Assessment |
 |-----------|------:|------------|
-| Human rating rows | 24,220 | Strong |
+| Human rating rows | 16,557 | Strong |
 | Unique names | 282 | Good coverage for name-level audit |
 | Unique raters | 787 | Strong |
-| Source studies | 10 | Strong provenance |
+| Source studies | 9 | Strong provenance |
 | Human warmth scale | 0-100 | Good continuous range |
 | Human competence scale | 0-100 | Good continuous range |
 | Missing `warm` values | 0 | Clean |
-| Missing `competent` values | 16 / 24,220 | Negligible |
+| Missing `competent` values | 8 / 16,557 | Negligible |
 | Audit output rows per model | 282 | Complete |
 | Duplicate names in audit outputs | 0 | Clean |
 | Missing values in audit outputs | 0 | Clean |
@@ -124,15 +143,15 @@ Human rating distributions:
 
 | Variable | Min | Max | Mean | SD |
 |----------|----:|----:|-----:|---:|
-| `warm` | 0 | 100 | 54.58 | 22.28 |
-| `competent` | 0 | 100 | 56.35 | 22.71 |
+| `warm` | 0 | 100 | 54.71 | 22.70 |
+| `competent` | 0 | 100 | 57.35 | 22.77 |
 
 The human warmth and competence ratings are correlated at the name level:
 
 | Correlation | Value |
 |-------------|------:|
-| Pearson | +0.612 |
-| Spearman | +0.610 |
+| Pearson | +0.609 |
+| Spearman | +0.603 |
 
 This is not a data flaw. It means human name perceptions of warmth and competence are partially coupled, which is consistent with the broader Stereotype Content Model framing.
 
@@ -144,17 +163,17 @@ The largest limitation is the uneven number of human ratings per name.
 
 | Per-name rater count | Value |
 |----------------------|------:|
-| Mean | 85.9 |
+| Mean | 58.7 |
 | Median | 16.5 |
 | Minimum | 1 |
-| Maximum | 309 |
+| Maximum | 208 |
 | Names with 1 rating | 44 |
 | Names with <5 ratings | 102 |
 | Names with <10 ratings | 116 |
 | Names with <20 ratings | 146 |
-| Names with >=200 ratings | 76 |
+| Names with >=200 ratings | 39 |
 
-This matters because `src/hiring_audit.py` computes one average human warmth score and one average human competence score per name, then correlates names equally. A name with one human rating receives the same rank-correlation weight as a name with more than 300 ratings.
+This matters because `src/hiring_audit.py` computes one average human warmth score and one average human competence score per name, then correlates names equally. A name with one human rating receives the same rank-correlation weight as a name with more than 200 ratings.
 
 This does not invalidate the analysis, but it limits how strongly we can interpret individual low-rater names. The correct interpretation is at the aggregate pattern level, not at the level of any single sparse-rated name.
 
@@ -168,41 +187,41 @@ The most important audit finding is that the headline correlations are not creat
 
 | Filter | N names | Warmth rho | Competence rho |
 |--------|--------:|-----------:|---------------:|
-| all names | 282 | +0.366 | +0.239 |
-| n >= 5 | 180 | +0.591 | +0.460 |
-| n >= 10 | 166 | +0.614 | +0.472 |
-| n >= 20 | 136 | +0.691 | +0.591 |
-| n >= 100 | 97 | +0.771 | +0.661 |
+| all names | 282 | +0.357 | +0.237 |
+| n >= 5 | 180 | +0.576 | +0.463 |
+| n >= 10 | 166 | +0.596 | +0.476 |
+| n >= 20 | 136 | +0.676 | +0.596 |
+| n >= 100 | 97 | +0.755 | +0.662 |
 
 ### Gemma-3-27B
 
 | Filter | N names | Warmth rho | Competence rho |
 |--------|--------:|-----------:|---------------:|
-| all names | 282 | +0.396 | +0.272 |
-| n >= 5 | 180 | +0.619 | +0.450 |
-| n >= 10 | 166 | +0.643 | +0.471 |
-| n >= 20 | 136 | +0.710 | +0.534 |
-| n >= 100 | 97 | +0.684 | +0.567 |
+| all names | 282 | +0.388 | +0.271 |
+| n >= 5 | 180 | +0.608 | +0.452 |
+| n >= 10 | 166 | +0.628 | +0.472 |
+| n >= 20 | 136 | +0.696 | +0.537 |
+| n >= 100 | 97 | +0.660 | +0.566 |
 
 ### Llama-3.1-8B
 
 | Filter | N names | Warmth rho | Competence rho |
 |--------|--------:|-----------:|---------------:|
-| all names | 282 | -0.300 | -0.063 |
-| n >= 5 | 180 | -0.554 | -0.157 |
-| n >= 10 | 166 | -0.589 | -0.165 |
-| n >= 20 | 136 | -0.640 | -0.243 |
-| n >= 100 | 97 | -0.571 | -0.247 |
+| all names | 282 | -0.287 | -0.057 |
+| n >= 5 | 180 | -0.535 | -0.150 |
+| n >= 10 | 166 | -0.568 | -0.160 |
+| n >= 20 | 136 | -0.619 | -0.236 |
+| n >= 100 | 97 | -0.537 | -0.230 |
 
 ### Qwen3-14B
 
 | Filter | N names | Warmth rho | Competence rho |
 |--------|--------:|-----------:|---------------:|
-| all names | 282 | -0.193 | +0.465 |
-| n >= 5 | 180 | -0.443 | +0.598 |
-| n >= 10 | 166 | -0.462 | +0.607 |
-| n >= 20 | 136 | -0.525 | +0.525 |
-| n >= 100 | 97 | -0.548 | +0.499 |
+| all names | 282 | -0.178 | +0.465 |
+| n >= 5 | 180 | -0.420 | +0.600 |
+| n >= 10 | 166 | -0.436 | +0.610 |
+| n >= 20 | 136 | -0.493 | +0.527 |
+| n >= 100 | 97 | -0.506 | +0.509 |
 
 Interpretation: low-rater names add noise. They do not explain away the positive Gemma alignment, the Llama/Qwen warmth anti-alignment, or the strong Qwen competence alignment.
 
@@ -214,11 +233,11 @@ Interpretation: low-rater names add noise. They do not explain away the positive
 |-----------|------:|-----------|
 | Source provenance | 9/10 | Published PLOS ONE paper; public repository; local code reconstructs the rating file |
 | Construct relevance | 9/10 | Direct human warmth and competence ratings for the same names used in the hiring benchmark |
-| Coverage | 8/10 | 282 names is strong for name-level validation; 10 source studies represented |
-| Missingness / file integrity | 9/10 | No missing warmth values; only 16 missing competence rows; model audit outputs are complete |
+| Coverage | 8/10 | 282 names is strong for name-level validation; 9 source studies represented |
+| Missingness / file integrity | 9/10 | No missing warmth values; only 8 missing competence rows; model audit outputs are complete |
 | Model-side input integrity | 9/10 | Concept-vector files are present, balanced, finite, and metadata-linked for all four models |
 | Rating-count balance | 5/10 | Serious imbalance: 44 names have one rating; 102 names have fewer than five |
-| Cross-study consistency | 7/10 | 82 names appear in multiple studies; aggregation is useful but loses some study-specific structure |
+| Cross-study consistency | 7/10 | 56 names appear in multiple studies; aggregation is useful but loses some study-specific structure |
 | Statistical robustness | 8/10 | Filtering to better-rated names strengthens the main findings |
 | Cultural / domain generality | 7/10 | Strong for North American labor-market name perceptions; limited for broader cultural generalization |
 | Interpretability of benchmark | 8/10 | Measures perceived name warmth/competence, not true personal traits; this is appropriate but must be stated |

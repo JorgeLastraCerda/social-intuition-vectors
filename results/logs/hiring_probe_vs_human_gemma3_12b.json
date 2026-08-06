@@ -11,20 +11,20 @@
       "pair": "warmth",
       "col_x": "model_warmth",
       "col_y": "human_warm",
-      "spearman_rho": 0.366,
-      "spearman_p": 2.2965280046627294e-10,
-      "pearson_r": 0.3171,
-      "pearson_p": 5.2382087349027566e-08,
+      "spearman_rho": 0.3568,
+      "spearman_p": 6.828657481253181e-10,
+      "pearson_r": 0.3109,
+      "pearson_p": 9.816087442504867e-08,
       "n": 282
     },
     {
       "pair": "competence",
       "col_x": "model_competence",
       "col_y": "human_competent",
-      "spearman_rho": 0.239,
-      "spearman_p": 5.019889552645924e-05,
-      "pearson_r": 0.2188,
-      "pearson_p": 0.00021319297444048418,
+      "spearman_rho": 0.2367,
+      "spearman_p": 5.9392614808136736e-05,
+      "pearson_r": 0.2159,
+      "pearson_p": 0.0002599415329620502,
       "n": 282
     },
     {
@@ -32,9 +32,9 @@
       "col_x": "callback_margin",
       "col_y": "model_warmth",
       "spearman_rho": 0.1501,
-      "spearman_p": 0.011599685410592848,
+      "spearman_p": 0.011599685410592846,
       "pearson_r": 0.2591,
-      "pearson_p": 1.0480109994104567e-05,
+      "pearson_p": 1.0480109994104683e-05,
       "n": 282
     },
     {
@@ -42,31 +42,32 @@
       "col_x": "callback_margin",
       "col_y": "model_competence",
       "spearman_rho": 0.1488,
-      "spearman_p": 0.012387879430938654,
+      "spearman_p": 0.012387879430938652,
       "pearson_r": 0.2624,
-      "pearson_p": 7.987239519939511e-06,
+      "pearson_p": 7.987239519939667e-06,
       "n": 282
     },
     {
       "pair": "callback_vs_human_warm",
       "col_x": "callback_margin",
       "col_y": "human_warm",
-      "spearman_rho": 0.2399,
-      "spearman_p": 4.685186353449282e-05,
-      "pearson_r": 0.2506,
-      "pearson_p": 2.064910113071941e-05,
+      "spearman_rho": 0.242,
+      "spearman_p": 3.995407831944923e-05,
+      "pearson_r": 0.2515,
+      "pearson_p": 1.929994555409375e-05,
       "n": 282
     },
     {
       "pair": "callback_vs_human_competent",
       "col_x": "callback_margin",
       "col_y": "human_competent",
-      "spearman_rho": 0.2399,
-      "spearman_p": 4.703222560266257e-05,
-      "pearson_r": 0.214,
-      "pearson_p": 0.000294823428764636,
+      "spearman_rho": 0.2412,
+      "spearman_p": 4.262819473952473e-05,
+      "pearson_r": 0.2145,
+      "pearson_p": 0.00028590269538984633,
       "n": 282
     }
   ],
-  "output_table": "results/tables/hiring_audit_gemma3_12b.csv"
+  "output_table": "results/tables/hiring_audit_gemma3_12b.csv",
+  "flake_leasure_fix_note": "human_warm/human_competent/study/n_raters recomputed after dropping the flake_leasure duplicate rows (kline mislabeled bug in Carina Hausladen's own ratings/names/code.R); model_warmth/model_competence/callback_margin unchanged (GPU-derived, verified byte-identical)."
 }

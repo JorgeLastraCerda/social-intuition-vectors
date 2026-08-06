@@ -60,7 +60,7 @@ After applying the fix and re-running notebooks 06 and 07, **margins are still o
 - `results/tables/hiring_steering_raw_*.csv` — per-name steering delta-margins
 - `results/tables/hiring_disparity_*.csv` — group-level disparity gaps
 - `results/logs/hiring_mediation_*.json` — bootstrap indirect effects
-- `results/tables/hiring_audit_concept_vectors*.csv` — notebook 07 outputs
+- `results/tables/hiring_audit_concept_vectors*.csv` — notebook 07 outputs (deleted 2026-08-06, superseded by the canonical `hiring_audit_gemma3_12b.csv`/`hiring_audit_gemma3_27b.csv`)
 - `paper/2026-06-24_1136_hiring_causality_results.md` — 12B Phase 6+7
 - `paper/2026-06-24_1300_hiring_causality_27b_results.md` — 27B Phase 6+7
 - `paper/2026-06-27_1446_dense_steering_4model.md` — dense steering (all models)

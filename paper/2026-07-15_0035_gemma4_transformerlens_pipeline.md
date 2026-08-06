@@ -28,8 +28,9 @@ single standalone tokens.
 Both models are configured to receive the existing tests without architecture-specific
 extensions: concept extraction, held-out validation, all-layer sweep, raw dense steering,
 neutral-corpus PCA denoising, broad and local hiring steering, denoised local hiring
-steering, the 282-name audit, disparity, bootstrap mediation, and the 149-name R4 join and
-OLS analysis. Router/expert analyses, Gemma Scope, and SAE experiments are excluded.
+steering, the 282-name audit, disparity, bootstrap mediation, and the 246-observation
+(186-name) R4 join and OLS analysis. Router/expert analyses, Gemma Scope, and SAE
+experiments are excluded.
 
 ## SCCKN gates
 

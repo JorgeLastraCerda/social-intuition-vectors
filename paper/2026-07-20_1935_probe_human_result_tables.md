@@ -3,17 +3,46 @@
 - **Produced:** 2026-07-20 19:35 Europe/Berlin
 - **Model:** Nine Gemma, Qwen, and Llama checkpoints
 - **Scope:** Manuscript integration of existing name-level probe-vs-human results as three tables, plus a Limitations addition on probe-layer selection
-- **Status:** Complete
+- **Status:** Corrected 2026-08-06 (see below); filename retained for history
 
 ## Artifacts
 
 - **Scripts:** `src/build_paper_probe_tables.py` (new); reuses `src/hiring_r4.py::load_and_join`
-- **Inputs:** `results/logs/hiring_probe_vs_human_<label>.json` (9 files), `data/processed/<vectors_subdir>/meta.json` (9 files), `results/tables/hiring_disparity_<label>.csv` (9 files), `results/tables/hiring_audit_<label>.csv` (9 files), `data/raw/SocialPerceptions-Predict-Callback-main/0_data/published_data/df_all.csv`, `results/tables/hiring_group_r4_<label>.csv` (5 files, used only as a regression gate)
+- **Inputs:** `results/logs/hiring_probe_vs_human_<label>.json` (9 files), `data/processed/<vectors_subdir>/meta.json` (9 files), `results/tables/hiring_disparity_<label>.csv` (9 files), `results/tables/hiring_audit_<label>.csv` (9 files), `data/raw/SocialPerceptions-Predict-Callback-main/0_data/published_data/df_all.csv`, `results/tables/hiring_group_r4_<label>.csv` (9 files, used as a regression gate)
 - **Outputs:**
   `results/tables/probe_human_correlation_9model.tex` (Table 1, main text),
   `results/tables/hiring_disparity_marginal_9model.tex` (Table S.2, appendix),
   `results/tables/hiring_disparity_crossed_9model.tex` (Table S.3, appendix, re-derived)
 - **Figures:** none (tables only)
+
+> **Correction (2026-08-06):** `0_data/ratings/names/df_all.csv` (from Carina
+> Hausladen's `SocialPerceptions-Predict-Callback` repository) has a
+> copy-paste bug in her own `0_data/ratings/names/code.R` (lines 160-175):
+> the block meant to build the `flake_leasure` study label from the
+> newly-extracted Leasure survey columns instead reuses the earlier
+> `df_temp_k` (Kline) variable. The result is that `flake_leasure` is a
+> byte-for-byte duplicate of `kline` (verified against a fresh clone and an
+> independent `raw.githubusercontent.com` download, both byte-identical to
+> our local copy), and the five genuine Flake (2019) and Leasure (2020) name
+> ratings were never produced. This double-weighted Kline's contribution to
+> the collapsed per-name human rating for any name also rated under a second
+> real study, and caused the exact `(name, study)` match in `hiring_r4.py` to
+> silently drop 37 genuine Kline names mislabeled `flake_leasure`.
+>
+> Both are now fixed in `src/utils/human_ratings.py` (drops the
+> `flake_leasure` duplicate rows) and a rewritten `src/hiring_r4.py` join
+> (keeps every valid `(name, study)` pair as its own row rather than
+> collapsing or discarding one when a name is rated under more than one
+> study). Table 1's Spearman ρ values below shift by 0.001-0.015 for every
+> model (no sign flips, no qualitative conclusion changes). Table 3 (the
+> crossed race × gender table) grows from 149 to 186 distinct names (246
+> matched name-study observations) and gains `study` as an explicit third
+> breakdown dimension, since callback rates differ meaningfully by study and
+> blending them was the actual problem. See `step_logs/STEP_LOG.md`
+> (2026-08-06) for the full discovery and verification trail, and
+> `paper/paper/Ulu_Lastra.tex` for the corrected manuscript numbers. The
+> numbers in the body of this report below are the **original, pre-correction**
+> values and are retained for historical reference only.
 
 ## What was added
 

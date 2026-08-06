@@ -3,7 +3,7 @@
 - **Produced:** 2026-07-18 23:35 Europe/Berlin
 - **Model:** `google/gemma-4-31B-it`
 - **Scope:** Demographic disparity, bootstrap mediation, group-level R4, and name-level R4 analyses
-- **Status:** Complete and validated
+- **Status:** Complete and validated; R4 paragraph corrected 2026-08-06 (flake_leasure/kline bug fix, see `step_logs/STEP_LOG.md`)
 
 ## Artifacts
 
@@ -17,4 +17,4 @@ The disparity and mediation join matched 269 names. Mean model callback margins 
 
 The race-through-competence indirect path was the only interval excluding zero, at -0.2300 (95% CI [-0.4835, -0.0486]). The warmth race path and both gender paths were not significant at the 95% interval level.
 
-The R4 join matched 149 names. Model competence correlated with callback margin at r = 0.482 (p = 4.74e-10); model warmth and human callback did not. The multivariable standardized coefficients were 1.469 for competence, -0.980 for warmth, and -0.018 for human callback, with R2 = 0.407. The opposing probe coefficients warrant interpretation alongside their correlation and collinearity structure.
+The R4 join matched 246 name-study observations across 186 distinct names. Model competence correlated with callback margin at r = 0.367 (p = 2.9e-9); model warmth and human callback did not. The multivariable standardized coefficients were 1.098 for competence, -0.846 for warmth, and 0.136 for human callback, with R2 = 0.300. The opposing probe coefficients warrant interpretation alongside their correlation and collinearity structure.

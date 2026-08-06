@@ -14,7 +14,7 @@
 
 - **Scripts:** `notebooks/06_hiring_steering_causality.ipynb`, `notebooks/07_hiring_audit.ipynb`; steering helpers from `src/gemma_scope_causality.py`
 - **Inputs:** `data/processed/concept_vectors/`, `data/raw/SocialPerceptions-Predict-Callback-main/0_data/ratings/names/df_all.csv`
-- **Outputs:** `results/tables/hiring_steering_raw_concept_vectors.csv` (600 rows), `results/tables/hiring_audit_concept_vectors.csv` (282 rows)
+- **Outputs:** `results/tables/hiring_steering_raw_concept_vectors.csv` (600 rows), `results/tables/hiring_audit_concept_vectors.csv` (282 rows, deleted 2026-08-06, superseded by the canonical `hiring_audit_gemma3_12b.csv`)
 - **Figures:** `results/figures/hiring_steering_concept_vectors.{png,pdf}`, `results/figures/hiring_probe_vs_human_concept_vectors.png`
 
 ---

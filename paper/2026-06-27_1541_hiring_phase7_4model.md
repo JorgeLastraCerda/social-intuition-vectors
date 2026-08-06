@@ -4,8 +4,25 @@
 **Model(s):** Gemma-3-12B-it · Gemma-3-27B-it · Llama-3.1-8B-Instruct · Qwen3-14B
 **Scope:** Phase 7 — probe-vs-human validation, causal steering sweep, demographic disparity,
 and bootstrap mediation for all four models; consolidated report with steerability-paradox analysis
-**Status:** Complete — B1 caveat documented; SCCKN hiring re-runs completed 2026-07-02 with no content changes; 27B steering interpretation updated 2026-06-30
+**Status:** Complete — B1 caveat documented; SCCKN hiring re-runs completed 2026-07-02 with no content changes; 27B steering interpretation updated 2026-06-30; C1 probe-vs-human/R4 correction added 2026-08-06
 
+> **C1 — flake_leasure/kline duplication bug (2026-08-06):** Carina Hausladen's own
+> `0_data/ratings/names/code.R` (lines 160-175) has a copy-paste bug: the block meant
+> to build the `flake_leasure` study label from the Leasure survey columns instead
+> reuses the earlier Kline variable, so `flake_leasure` is a byte-for-byte duplicate
+> of `kline` in `ratings/names/df_all.csv` (verified against a fresh clone and an
+> independent download of her repository). This double-weighted Kline's contribution
+> to each name's collapsed human rating for any name rated under a second real study,
+> shifting the probe-vs-human Spearman ρ values below by 0.001-0.015 for all four
+> models (no sign flips), and caused `hiring_r4.py`'s exact `(name, study)` match to
+> silently drop 37 genuine Kline names mislabeled `flake_leasure`. Both are now fixed
+> in `src/utils/human_ratings.py` and a rewritten `src/hiring_r4.py` join that keeps
+> every valid `(name, study)` pair as its own row instead of collapsing or discarding
+> one when a name is rated under more than one study. See `step_logs/STEP_LOG.md`
+> (2026-08-06) for the full trail and `paper/paper/Ulu_Lastra.tex` for the corrected
+> numbers. The ρ values and R4/disparity numbers below are the **original,
+> pre-correction** values, retained for historical reference only.
+>
 > **B1 caveat:** Callback margins are still subject to bf16 logit quantisation. The
 > `.float()` subtraction fix is applied in `src/gemma_scope_causality.py`, but the
 > individual Yes/No logits are produced by bf16 inference before subtraction. SCCKN
@@ -139,11 +156,13 @@ no probe-direction flipping is applied.
 ### Human warmth/competence ratings
 
 - `data/raw/SocialPerceptions-Predict-Callback-main/0_data/ratings/names/df_all.csv`
-  — **24,220 rater-rows × 5 columns** (`ResponseId`, `name`, `warm`, `study`,
-  `competent`).
-- **787 unique raters**, **282 unique first-names**, across **10 source studies**
-  (Bertrand, Farber, Flake/Leasure, Gorzig, Jacquemet, Kline, Neumark, Nunley,
-  Oreopoulos, Widner). Aggregated per name to produce `human_warm` and
+  — **16,557 rater-rows × 5 columns** (`ResponseId`, `name`, `warm`, `study`,
+  `competent`) after dropping the `flake_leasure` duplicate rows (see the C1
+  correction note above).
+- **787 unique raters**, **282 unique first-names**, across **9 source studies**
+  (Bertrand, Farber, Gorzig, Jacquemet, Kline, Neumark, Nunley, Oreopoulos,
+  Widner; `flake_leasure` was a mislabeled duplicate of Kline, not a real
+  tenth study). Aggregated per name to produce `human_warm` and
   `human_competent` ratings used in the probe-vs-human audit.
 
 ### Human callback benchmark
@@ -156,7 +175,7 @@ no probe-direction flipping is applied.
 ### Model evaluation datasets
 
 - **Probe-vs-human audit** (`hiring_audit_<label>.csv`): **282 names × 8 columns**;
-  `n_raters` per name ranges 1–309.
+  `n_raters` per name ranges 1–208.
 - **Steering sweep** (`hiring_steering_raw_<label>.csv`): **600 rows = 60 names
   × 2 axes × 5 strengths** {−0.50, −0.25, 0.00, +0.25, +0.50} × mean_resid_norm,
   5 columns (`axis`, `strength`, `name`, `margin`, `delta`).
@@ -186,7 +205,7 @@ This audit is the name-level validity check for the concept probes. For each of 
 282 names, `src/hiring_audit.py` combines two pieces of information:
 
 1. **Human side:** the Gallo & Hausladen et al. name-rating data
-   (`ratings/names/df_all.csv`), containing 24,220 rater rows over 282 names. These
+   (`ratings/names/df_all.csv`), containing 16,557 rater rows over 282 names. These
    ratings are aggregated per name into `human_warm` and `human_competent`.
 2. **Model side:** the model's warmth and competence probe scores for the same names,
    computed from the previously extracted concept-vector directories

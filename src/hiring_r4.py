@@ -1,4 +1,26 @@
-"""Reproducible name-level and race-by-gender R4 hiring analysis."""
+"""Reproducible name-level and race-by-gender R4 hiring analysis.
+
+Join granularity
+----------------
+Prior versions of this script collapsed each rated name to a single row
+(``.groupby("name").agg(study=("study", "first"))`` upstream in
+``hiring_audit.py``) before requiring an exact (name, study) match against
+Carina Hausladen's published callback data. That combination silently
+dropped 37 genuine Kline names mislabeled ``flake_leasure`` by a bug in her
+own data-prep code (see ``src/utils/human_ratings.py``), and arbitrarily
+discarded the second study for any of the 56 names rated under more than one
+real study (e.g. "aisha" under both Bertrand, callback 0.022, and Kline,
+callback 0.246 — very different numbers, not interchangeable).
+
+This version keeps every valid (name, study) pair as its own row: a name
+rated under two studies contributes two rows, matched against that study's
+own callback rate, never blended or arbitrarily reduced to one. Carina's own
+``published_data/code.R`` groups some studies by age as well as name
+(Neumark: ``group_by(name, age, gender)``; Farber: ``group_by(name, age)``),
+but our ratings have no age dimension (raters were never asked to rate by
+age), so age is averaged away within each (name, study) pair before the
+join — there is no finer information on our side to preserve.
+"""
 
 from __future__ import annotations
 
@@ -13,24 +35,49 @@ from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import StandardScaler
 
 from src.utils.config import load_config
+from src.utils.human_ratings import (
+    add_zscores,
+    full_distribution_stats,
+    load_name_study_ratings,
+)
 
 PREDICTORS = ("human_callback", "model_warmth", "model_competence")
 
 
-def load_and_join(audit_csv: Path, human_csv: Path) -> pd.DataFrame:
-    audit = pd.read_csv(audit_csv)
-    human = pd.read_csv(human_csv)
-    audit["first"] = audit["name"].str.lower().str.split().str[0]
-    human["first"] = human["name"].str.lower()
-    merged = audit.merge(
-        human[["first", "race", "gender", "callback", "study"]].rename(
-            columns={"callback": "human_callback", "study": "human_study"}
-        ),
-        on="first",
-        how="left",
+def load_and_join(audit_csv: Path, raw_data_dir: Path) -> pd.DataFrame:
+    """One row per matched (name, study) pair. See module docstring."""
+    audit = pd.read_csv(audit_csv)[
+        ["name", "model_warmth", "model_competence", "callback_margin"]
+    ]
+
+    ratings = load_name_study_ratings(raw_data_dir)
+    ratings["first"] = ratings["name"].str.lower().str.split().str[0]
+
+    human_csv = (
+        raw_data_dir
+        / "SocialPerceptions-Predict-Callback-main"
+        / "0_data"
+        / "published_data"
+        / "df_all.csv"
     )
-    matched = merged[merged["study"] == merged["human_study"]].copy()
-    return matched.drop_duplicates(subset=["name"]).reset_index(drop=True)
+    human = pd.read_csv(human_csv)
+    human["first"] = human["name"].str.lower()
+    # Average within (first, study): collapses Neumark/Farber's own internal
+    # age-condition rows, since our ratings carry no age dimension to match
+    # them against.
+    human_by_study = (
+        human.groupby(["first", "study"])
+        .agg(
+            human_callback=("callback", "mean"),
+            race=("race", "first"),
+            gender=("gender", "first"),
+        )
+        .reset_index()
+    )
+
+    matched = ratings.merge(human_by_study, on=["first", "study"], how="inner")
+    matched = matched.merge(audit, on="name", how="left")
+    return matched.reset_index(drop=True)
 
 
 def margin_diagnostic(values: pd.Series) -> dict:
@@ -47,14 +94,35 @@ def margin_diagnostic(values: pd.Series) -> dict:
     }
 
 
-def group_statistics(matched: pd.DataFrame, label: str) -> pd.DataFrame:
+def group_statistics(
+    matched: pd.DataFrame, label: str, group_cols: list[str] | None = None
+) -> pd.DataFrame:
+    """Group ``matched`` by any subset of ``["race", "gender", "study"]``
+    (default: all three, i.e. race x gender x study cells, not collapsed
+    across study, since callback rates genuinely differ by study and
+    blending them is the problem the (name, study) join redesign fixes).
+    ``n_names`` counts (name, study) observations in the cell, not distinct
+    names; use ``n_distinct_names`` for the latter.
+
+    Includes human warmth/competence alongside the model's own, and callback
+    margin/rate — the data for all four was already present in ``matched``
+    (human warmth/competence flow in from ``load_name_study_ratings``), this
+    just aggregates them instead of leaving them unused.
+    """
+    if group_cols is None:
+        group_cols = ["race", "gender", "study"]
     grouped = (
-        matched.groupby(["race", "gender"], dropna=False)
+        matched.groupby(group_cols, dropna=False)
         .agg(
             model_margin_mean=("callback_margin", "mean"),
             model_margin_se=("callback_margin", lambda values: values.sem()),
+            model_warmth_mean=("model_warmth", "mean"),
+            model_competence_mean=("model_competence", "mean"),
+            human_warm_mean=("human_warm", "mean"),
+            human_competent_mean=("human_competent", "mean"),
             human_callback=("human_callback", "mean"),
             n_names=("name", "size"),
+            n_distinct_names=("name", "nunique"),
         )
         .reset_index()
     )
@@ -96,15 +164,20 @@ def main() -> None:
     table_dir = Path(cfg.paths.results) / "tables"
     log_dir = Path(cfg.paths.logs)
     audit_csv = table_dir / f"hiring_audit_{args.label}.csv"
-    human_csv = (
-        Path(cfg.paths.raw_data)
-        / "SocialPerceptions-Predict-Callback-main"
-        / "0_data"
-        / "published_data"
-        / "df_all.csv"
-    )
-    matched = load_and_join(audit_csv, human_csv)
+    raw_data_dir = Path(cfg.paths.raw_data)
+    matched = load_and_join(audit_csv, raw_data_dir)
     group = group_statistics(matched, args.label)
+    dist_stats = full_distribution_stats(audit_csv, raw_data_dir)
+    group = add_zscores(
+        group,
+        dist_stats,
+        {
+            "model_warmth": "model_warmth_mean",
+            "model_competence": "model_competence_mean",
+            "human_warm": "human_warm_mean",
+            "human_competent": "human_competent_mean",
+        },
+    )
     name_level, diagnostic = name_level_statistics(matched, args.label)
     if len(group) >= 3:
         group_r, group_p = stats.pearsonr(
@@ -128,10 +201,21 @@ def main() -> None:
             {
                 "label": args.label,
                 "audit_input": str(audit_csv),
-                "human_input": str(human_csv),
-                "join": "lowercase first name plus exact study match",
+                "human_input": str(
+                    raw_data_dir
+                    / "SocialPerceptions-Predict-Callback-main"
+                    / "0_data"
+                    / "published_data"
+                    / "df_all.csv"
+                ),
+                "join": (
+                    "lowercase first name plus exact study match; one row per "
+                    "(name, study) pair, no dedup on name; age averaged away "
+                    "within (first, study) on the published-data side"
+                ),
                 "n_audit": int(len(pd.read_csv(audit_csv))),
                 "n_matched": int(len(matched)),
+                "n_distinct_names_matched": int(matched["name"].nunique()),
                 "seed": cfg.probing.seed,
                 "margin_diagnostic": diagnostic,
                 "group_level_correlation": group_correlation,
@@ -142,7 +226,10 @@ def main() -> None:
         ),
         encoding="utf-8",
     )
-    print(f"[done] {len(matched)} matched names -> {group_path}, {name_path}")
+    print(
+        f"[done] {len(matched)} matched (name, study) rows "
+        f"({matched['name'].nunique()} distinct names) -> {group_path}, {name_path}"
+    )
 
 
 def parse_args() -> argparse.Namespace:

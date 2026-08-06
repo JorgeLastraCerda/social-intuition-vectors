@@ -34,6 +34,7 @@ import time
 from pathlib import Path
 
 from src.utils.config import load_config, ProjectConfig
+from src.utils.human_ratings import load_name_ratings_collapsed
 
 # ---------------------------------------------------------------------------
 # Conditions and forbidden words
@@ -439,22 +440,23 @@ HIRING_PROMPT_TEMPLATE = (
 
 def write_hiring_prompts(config: ProjectConfig, output_path: Path) -> None:
     """Write hiring prompt stubs — one per social signal from Carina's data."""
-    import csv
-
-    raw_dir = config.paths.raw_data / "SocialPerceptions-Predict-Callback-main"
-    names_path = raw_dir / "0_data" / "ratings" / "names" / "df_all.csv"
+    names_path = (
+        config.paths.raw_data
+        / "SocialPerceptions-Predict-Callback-main"
+        / "0_data"
+        / "ratings"
+        / "names"
+        / "df_all.csv"
+    )
 
     signals = []
     if names_path.exists():
-        with names_path.open(encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            seen = set()
-            for row in reader:
-                name = row["name"].strip()
-                study = row["study"].strip()
-                if name and name not in seen:
-                    seen.add(name)
-                    signals.append({"name": name, "study": study, "signal_type": "name"})
+        ratings = load_name_ratings_collapsed(config.paths.raw_data)
+        for row in ratings.itertuples(index=False):
+            name = str(row.name).strip()
+            study = str(row.study).strip()
+            if name:
+                signals.append({"name": name, "study": study, "signal_type": "name"})
 
     if not signals:
         # Fallback if the data file isn't found

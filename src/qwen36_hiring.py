@@ -33,6 +33,7 @@ from src.qwen36_smoke import encode_raw_passage
 from src.steering_calibration import intervene_tensor, unit
 from src.steering_checkpoint import CheckpointStore, atomic_json_write, sha256_file
 from src.utils.config import load_config, require_model_name
+from src.utils.human_ratings import load_name_ratings_collapsed
 
 AXES = ("warmth", "competence")
 LOCAL_STRENGTHS = (-0.1, -0.05, 0.0, 0.05, 0.1)
@@ -56,27 +57,18 @@ def hiring_prompt(name: str) -> str:
 
 
 def load_name_ratings(cfg) -> tuple[pd.DataFrame, Path]:
+    raw_data_dir = Path(cfg.paths.raw_data)
+    ratings = load_name_ratings_collapsed(raw_data_dir)
+    if len(ratings) != 282 or ratings["name"].duplicated().any():
+        raise ValueError(f"Expected 282 unique rated names; got {len(ratings)}.")
     path = (
-        Path(cfg.paths.raw_data)
+        raw_data_dir
         / "SocialPerceptions-Predict-Callback-main"
         / "0_data"
         / "ratings"
         / "names"
         / "df_all.csv"
     )
-    ratings = (
-        pd.read_csv(path)
-        .groupby("name")
-        .agg(
-            human_warm=("warm", "mean"),
-            human_competent=("competent", "mean"),
-            study=("study", "first"),
-            n_raters=("warm", "size"),
-        )
-        .reset_index()
-    )
-    if len(ratings) != 282 or ratings["name"].duplicated().any():
-        raise ValueError(f"Expected 282 unique rated names; got {len(ratings)}.")
     return ratings, path
 
 

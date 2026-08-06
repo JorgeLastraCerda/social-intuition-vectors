@@ -2,64 +2,64 @@
   "checkpoint_dir": "/home/jovyan/work/normalcy-qwen36-hiring-state/checkpoints/qwen36_27b",
   "correlations": [
     {
+      "pair": "warmth",
       "col_x": "model_warmth",
       "col_y": "human_warm",
-      "n": 282,
-      "pair": "warmth",
-      "pearson_p": 0.007211819702400954,
-      "pearson_r": 0.1597,
-      "spearman_p": 0.0016807573646396357,
-      "spearman_rho": 0.1863
+      "spearman_rho": 0.1921,
+      "spearman_p": 0.0011880471559469637,
+      "pearson_r": 0.1629,
+      "pearson_p": 0.0061044387103662045,
+      "n": 282
     },
     {
+      "pair": "competence",
       "col_x": "model_competence",
       "col_y": "human_competent",
-      "n": 282,
-      "pair": "competence",
-      "pearson_p": 0.00023948560705855485,
-      "pearson_r": 0.2171,
-      "spearman_p": 2.174453082260682e-05,
-      "spearman_rho": 0.2499
+      "spearman_rho": 0.2472,
+      "spearman_p": 2.6893539375830453e-05,
+      "pearson_r": 0.213,
+      "pearson_p": 0.00031562097988996097,
+      "n": 282
     },
     {
+      "pair": "callback_vs_model_warmth",
       "col_x": "callback_margin",
       "col_y": "model_warmth",
-      "n": 282,
-      "pair": "callback_vs_model_warmth",
-      "pearson_p": 1.5346806877234121e-12,
+      "spearman_rho": 0.3017,
+      "spearman_p": 2.417328861109904e-07,
       "pearson_r": 0.4047,
-      "spearman_p": 2.4173288611099045e-07,
-      "spearman_rho": 0.3017
+      "pearson_p": 1.534680687723417e-12,
+      "n": 282
     },
     {
+      "pair": "callback_vs_model_competence",
       "col_x": "callback_margin",
       "col_y": "model_competence",
-      "n": 282,
-      "pair": "callback_vs_model_competence",
-      "pearson_p": 4.309024234259185e-07,
+      "spearman_rho": 0.2201,
+      "spearman_p": 0.0001950408262589536,
       "pearson_r": 0.2956,
-      "spearman_p": 0.00019504082625895362,
-      "spearman_rho": 0.2201
+      "pearson_p": 4.3090242342592446e-07,
+      "n": 282
     },
     {
+      "pair": "callback_vs_human_warm",
       "col_x": "callback_margin",
       "col_y": "human_warm",
-      "n": 282,
-      "pair": "callback_vs_human_warm",
-      "pearson_p": 1.6084972775302955e-06,
-      "pearson_r": 0.2811,
-      "spearman_p": 2.508687470891587e-05,
-      "spearman_rho": 0.2481
+      "spearman_rho": 0.2561,
+      "spearman_p": 1.3396449628697163e-05,
+      "pearson_r": 0.2852,
+      "pearson_p": 1.1178955048935735e-06,
+      "n": 282
     },
     {
+      "pair": "callback_vs_human_competent",
       "col_x": "callback_margin",
       "col_y": "human_competent",
-      "n": 282,
-      "pair": "callback_vs_human_competent",
-      "pearson_p": 0.0007771516404538287,
-      "pearson_r": 0.199,
-      "spearman_p": 0.0018734876788768556,
-      "spearman_rho": 0.1844
+      "spearman_rho": 0.1914,
+      "spearman_p": 0.0012406539045810364,
+      "pearson_r": 0.2044,
+      "pearson_p": 0.0005524804206309156,
+      "n": 282
     }
   ],
   "label": "qwen36_27b",
@@ -105,5 +105,6 @@
   "status": "pass",
   "transformer_lens_imported": false,
   "vectors_subdir": "concept_vectors_qwen36_27b",
-  "yes_token_id": 9175
+  "yes_token_id": 9175,
+  "flake_leasure_fix_note": "human_warm/human_competent/study/n_raters recomputed after dropping the flake_leasure duplicate rows (kline mislabeled bug in Carina Hausladen's own ratings/names/code.R); model_warmth/model_competence/callback_margin unchanged (GPU-derived, verified byte-identical)."
 }

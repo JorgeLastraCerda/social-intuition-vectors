@@ -1,0 +1,24 @@
+{
+  "label": "gemma3_12b",
+  "audit_input": "results/tables/hiring_audit_gemma3_12b.csv",
+  "human_input": "data/raw/SocialPerceptions-Predict-Callback-main/0_data/published_data/df_all.csv",
+  "join": "lowercase first name plus exact study match; one row per (name, study) pair, no dedup on name; age averaged away within (first, study) on the published-data side",
+  "n_audit": 282,
+  "n_matched": 246,
+  "n_distinct_names_matched": 186,
+  "seed": 20260527,
+  "margin_diagnostic": {
+    "n": 246,
+    "n_unique": 7,
+    "sd": 0.1394120380731686,
+    "fraction_on_0.125_grid": 1.0,
+    "quantisation_warning": true
+  },
+  "group_level_correlation": {
+    "pearson_r": -0.26221945684993025,
+    "pearson_p": 0.4360080162255032,
+    "n_groups": 11
+  },
+  "group_output": "results/tables/hiring_group_r4_gemma3_12b.csv",
+  "name_level_output": "results/tables/hiring_name_level_gemma3_12b.csv"
+}

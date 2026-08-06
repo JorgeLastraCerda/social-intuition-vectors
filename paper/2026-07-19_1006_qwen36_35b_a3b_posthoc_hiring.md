@@ -3,7 +3,7 @@
 - **Produced:** 2026-07-19 10:06 Europe/Berlin
 - **Model:** `Qwen/Qwen3.6-35B-A3B`
 - **Scope:** Demographic disparity, probe mediation, group-level R4, and name-level R4
-- **Status:** Complete from the validated 282-name audit
+- **Status:** Complete from the validated 282-name audit; R4 paragraph corrected 2026-08-06 (flake_leasure/kline bug fix, see `step_logs/STEP_LOG.md`)
 
 ## Artifacts
 
@@ -17,4 +17,4 @@ The disparity and mediation join matched 269 audited names. Mean model callback 
 
 The warmth indirect effect excluded zero for race (-0.1033, 95% bootstrap CI [-0.1685, -0.0459]) and gender (+0.0639, 95% CI [0.0266, 0.1131]). The competence race interval included zero, while the gender effect was small and barely resolved (+0.0289, 95% CI [0.0009, 0.0671]). These are associational decompositions, not randomized causal mediation estimates.
 
-The exact study-and-name R4 join retained 149 names. Across four race-by-gender groups, model and human means correlated at r=-0.390 (p=0.610). Name-level callback margin was unrelated to human callback rate (r=-0.013, p=0.879) but positively correlated with the model warmth projection (r=0.507) and model competence projection (r=0.397). In their joint regression, warmth retained a positive standardized coefficient (+0.186), while competence was slightly negative (-0.051), reflecting shared probe variance.
+The exact study-and-name R4 join retained 246 name-study observations across 186 distinct names. Across eleven race-gender-study groups, model and human means correlated at r=-0.229 (p=0.498). Name-level callback margin was weakly negatively correlated with human callback rate (r=-0.156, p=0.014) and positively correlated with the model warmth projection (r=0.442, p=3.5e-13) and model competence projection (r=0.281, p=7.9e-6). In their joint regression, warmth retained a positive standardized coefficient (+0.164), while competence was slightly negative (-0.064), reflecting shared probe variance; human callback contributed a small negative coefficient (-0.026).

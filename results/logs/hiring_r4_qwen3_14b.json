@@ -1,0 +1,24 @@
+{
+  "label": "qwen3_14b",
+  "audit_input": "results/tables/hiring_audit_qwen3_14b.csv",
+  "human_input": "data/raw/SocialPerceptions-Predict-Callback-main/0_data/published_data/df_all.csv",
+  "join": "lowercase first name plus exact study match; one row per (name, study) pair, no dedup on name; age averaged away within (first, study) on the published-data side",
+  "n_audit": 282,
+  "n_matched": 246,
+  "n_distinct_names_matched": 186,
+  "seed": 20260527,
+  "margin_diagnostic": {
+    "n": 246,
+    "n_unique": 16,
+    "sd": 0.3581547801216332,
+    "fraction_on_0.125_grid": 1.0,
+    "quantisation_warning": false
+  },
+  "group_level_correlation": {
+    "pearson_r": -0.287125678579779,
+    "pearson_p": 0.3919480471724335,
+    "n_groups": 11
+  },
+  "group_output": "results/tables/hiring_group_r4_qwen3_14b.csv",
+  "name_level_output": "results/tables/hiring_name_level_qwen3_14b.csv"
+}

@@ -42,6 +42,7 @@ from src.gemma_scope_causality import (
 )
 from src.utils.config import load_config
 from src.utils.hooks import residual_hook_name
+from src.utils.human_ratings import load_name_ratings_collapsed
 from src.utils.model_loader import load_hooked_model, model_runtime_metadata
 from src.utils.prompting import decision_token_ids, encode_decision_prompt
 
@@ -113,25 +114,7 @@ def main() -> None:
     )
 
     # --- rated names ---
-    names_csv = (
-        Path(cfg.paths.raw_data)
-        / "SocialPerceptions-Predict-Callback-main"
-        / "0_data"
-        / "ratings"
-        / "names"
-        / "df_all.csv"
-    )
-    name_ratings = (
-        pd.read_csv(names_csv)
-        .groupby("name")
-        .agg(
-            human_warm=("warm", "mean"),
-            human_competent=("competent", "mean"),
-            study=("study", "first"),
-            n_raters=("warm", "size"),
-        )
-        .reset_index()
-    )
+    name_ratings = load_name_ratings_collapsed(Path(cfg.paths.raw_data))
     n_total = len(name_ratings)
 
     n_names = args.n_names if args.n_names > 0 else n_total

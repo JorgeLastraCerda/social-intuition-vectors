@@ -1,0 +1,24 @@
+{
+  "label": "llama31_8b",
+  "audit_input": "results/tables/hiring_audit_llama31_8b.csv",
+  "human_input": "data/raw/SocialPerceptions-Predict-Callback-main/0_data/published_data/df_all.csv",
+  "join": "lowercase first name plus exact study match; one row per (name, study) pair, no dedup on name; age averaged away within (first, study) on the published-data side",
+  "n_audit": 282,
+  "n_matched": 246,
+  "n_distinct_names_matched": 186,
+  "seed": 20260527,
+  "margin_diagnostic": {
+    "n": 246,
+    "n_unique": 10,
+    "sd": 0.1040444363339009,
+    "fraction_on_0.125_grid": 0.43902439024390244,
+    "quantisation_warning": false
+  },
+  "group_level_correlation": {
+    "pearson_r": -0.032175432836113724,
+    "pearson_p": 0.9251792606841505,
+    "n_groups": 11
+  },
+  "group_output": "results/tables/hiring_group_r4_llama31_8b.csv",
+  "name_level_output": "results/tables/hiring_name_level_llama31_8b.csv"
+}

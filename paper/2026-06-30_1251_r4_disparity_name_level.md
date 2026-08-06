@@ -4,21 +4,47 @@
 **Model(s):** Gemma-3-12B-it · Gemma-3-27B-it (Jorge notebook run)
 **Scope:** Notebook 09 — group-level and name-level disparity analysis joining model
 callback margins with the Gallo & Hausladen published callback benchmark
-**Status:** Complete for 12B and 27B (Jorge side); four-model Phase 7 outputs verified separately with no post-rerun content changes.
+**Status:** Complete for 12B and 27B (Jorge side); four-model Phase 7 outputs verified separately with no post-rerun content changes. Superseded 2026-08-06 (see correction note below); filename retained for history.
 
 ---
 
 ## Artifacts
 
 - **Scripts:** `notebooks/09_hiring_disparity_R4.ipynb`
-- **Inputs:** `results/tables/hiring_audit_concept_vectors.csv` (12B, 282 names),
-  `results/tables/hiring_audit_concept_vectors_gemma3_27b.csv` (27B, 282 names),
+- **Inputs:** `results/tables/hiring_audit_concept_vectors.csv` (12B, 282 names,
+  deleted 2026-08-06, see correction note below),
+  `results/tables/hiring_audit_concept_vectors_gemma3_27b.csv` (27B, 282 names,
+  deleted 2026-08-06),
   `data/raw/SocialPerceptions-Predict-Callback-main/0_data/published_data/df_all.csv`
   (human benchmark)
 - **Outputs:** `results/tables/r4_group_disparity.csv`,
   `results/figures/r4_model_vs_human_disparity.{png,svg}`,
   `results/figures/r4_margin_distribution.png`
 - **Figures:** `results/figures/r4_model_vs_human_disparity.png`
+
+> **Correction (2026-08-06):** The 149-name R4 join used throughout this report
+> (and its `hiring_audit_concept_vectors*.csv` inputs) predates the fix for a
+> duplication bug in Carina Hausladen's own `0_data/ratings/names/code.R`
+> (the `flake_leasure` study label was a byte-for-byte duplicate of `kline`;
+> see `src/utils/human_ratings.py` and `step_logs/STEP_LOG.md`, 2026-08-06).
+> This report's own inputs (`hiring_audit_concept_vectors.csv`,
+> `hiring_audit_concept_vectors_gemma3_27b.csv`) were legacy artifacts from an
+> early notebook run, genuinely different from the canonical
+> `hiring_audit_gemma3_12b.csv` / `hiring_audit_gemma3_27b.csv` files used
+> everywhere else in the project (different `model_warmth`, different
+> `callback_margin`); rather than patch them, they were deleted 2026-08-06
+> (recoverable from git history), consistent with this report's own header,
+> which already frames it as superseded by the
+> four-model Phase 7 pipeline. The current, corrected source of truth is
+> `paper/2026-06-27_1541_hiring_phase7_4model.md` (also corrected 2026-08-06)
+> and the canonical `results/tables/hiring_group_r4_gemma3_12b.csv`,
+> `hiring_group_r4_gemma3_27b.csv`, `hiring_name_level_gemma3_12b.csv`, and
+> `hiring_name_level_gemma3_27b.csv` (all regenerated 2026-08-06 with the
+> fixed join: 246 matched name-study observations across 186 distinct names,
+> up from 149, with `study` as an explicit breakdown dimension rather than
+> race x gender alone). The numbers in Sections 3-4 below are the **original,
+> pre-correction** values from this legacy 149-name join, retained as
+> historical record only.
 
 ---
 

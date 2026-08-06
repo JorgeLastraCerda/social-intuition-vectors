@@ -20,12 +20,6 @@ results/tables/hiring_audit_<label>.csv
 results/logs/hiring_probe_vs_human_<label>.json
     Correlation table and provenance metadata.
 
-Regression gate (Gemma-3-12B)
-------------------------------
-When run with ``--vectors-subdir concept_vectors --label gemma3_12b``, the
-probe-vs-human Spearman rho must agree with the notebook-produced
-``hiring_audit_concept_vectors.csv`` values (warmth ρ≈0.355, competence ρ≈0.230)
-to within GPU float non-determinism noise.
 """
 from __future__ import annotations
 
@@ -44,6 +38,7 @@ from src.gemma_scope_causality import (
 )
 from src.utils.config import load_config
 from src.utils.hooks import residual_hook_name
+from src.utils.human_ratings import load_name_ratings_collapsed
 from src.utils.model_loader import load_hooked_model, model_runtime_metadata
 from src.utils.prompting import decision_token_ids, encode_decision_prompt, encode_passage
 
@@ -105,25 +100,7 @@ def main() -> None:
     )
 
     # --- rated names ---
-    names_csv = (
-        Path(cfg.paths.raw_data)
-        / "SocialPerceptions-Predict-Callback-main"
-        / "0_data"
-        / "ratings"
-        / "names"
-        / "df_all.csv"
-    )
-    name_ratings = (
-        pd.read_csv(names_csv)
-        .groupby("name")
-        .agg(
-            human_warm=("warm", "mean"),
-            human_competent=("competent", "mean"),
-            study=("study", "first"),
-            n_raters=("warm", "size"),
-        )
-        .reset_index()
-    )
+    name_ratings = load_name_ratings_collapsed(Path(cfg.paths.raw_data))
     print(f"[names] {len(name_ratings)} unique rated names", flush=True)
 
     # --- load model ---

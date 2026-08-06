@@ -35,6 +35,8 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
+from src.utils.human_ratings import add_zscores, full_distribution_stats
+
 
 # ---------------------------------------------------------------------------
 # Bootstrap mediation helpers
@@ -179,6 +181,8 @@ def main() -> None:
                 model_callback_margin=("callback_margin", "mean"),
                 model_warmth=("model_warmth", "mean"),
                 model_competence=("model_competence", "mean"),
+                human_warm=("human_warm", "mean"),
+                human_competent=("human_competent", "mean"),
                 human_callback=("human_callback", "mean"),
                 n=("name", "size"),
             )
@@ -193,6 +197,8 @@ def main() -> None:
                     "model_callback_margin": round(float(row["model_callback_margin"]), 4),
                     "model_warmth": round(float(row["model_warmth"]), 4),
                     "model_competence": round(float(row["model_competence"]), 4),
+                    "human_warm": round(float(row["human_warm"]), 4),
+                    "human_competent": round(float(row["human_competent"]), 4),
                     "human_callback": round(float(row["human_callback"]), 4),
                 }
             )
@@ -206,6 +212,17 @@ def main() -> None:
             )
 
     disp_df = pd.DataFrame(disparity_rows)
+    dist_stats = full_distribution_stats(audit_csv, Path(cfg.paths.raw_data))
+    disp_df = add_zscores(
+        disp_df,
+        dist_stats,
+        {
+            "model_warmth": "model_warmth",
+            "model_competence": "model_competence",
+            "human_warm": "human_warm",
+            "human_competent": "human_competent",
+        },
+    )
     disp_path = table_dir / f"hiring_disparity_{args.label}.csv"
     disp_df.to_csv(disp_path, index=False)
     print(f"\n[done] {disp_path}", flush=True)
