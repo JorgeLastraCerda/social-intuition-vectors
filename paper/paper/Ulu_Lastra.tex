@@ -645,7 +645,9 @@ answer turns on a single applicant name set against a fixed, neutral
 application, and the model already leans one way before any push, so
 steering at $\pm 0.50$ scales that existing leaning up or down rather
 than locking the answer, and the response stays close to linear across
-the broad grid. Refining to $\pm 0.05$ and $\pm 0.10$ then resolves the
+the broad grid for roughly a third of model-axis combinations, though
+several checkpoints depart from it (Results reports the per-model fit).
+Refining to $\pm 0.05$ and $\pm 0.10$ then resolves the
 smaller, near-baseline shifts that the wider grid steps over. Per-model
 steering curves and slopes are reported in the Results.
 
@@ -695,11 +697,8 @@ gaps, using four analyses:
   along the path name group~$\to$ probe score~$\to$ callback margin
   (5{,}000 resamples, seed 20260527, $n = 269$ names with complete data,
   race subset $n = 227$), reporting indirect effects with 95\% confidence
-  intervals. The main text reports this for four models (Gemma-3-12B,
-  Gemma-3-27B, Llama-3.1-8B, Qwen3-14B), sixteen combinations in total; the
-  Supplementary Materials (Bootstrap Mediation, All Nine Models) extend the
-  identical procedure to the remaining five models, thirty-six
-  combinations across all nine.
+  intervals. Results reports this procedure for all nine models and both
+  race and gender groupings, thirty-six combinations in total.
 \end{itemize}
 
 % ─────────────────────────────────────────────────────────────────────────────
@@ -711,6 +710,18 @@ described in Methods was run on all nine checkpoints, and none flags a
 direction as an artifact of the specific stories used to build it.
 
 \input{../../results/tables/probe_validation_9model.tex}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{paper_figure1_axis_arrows.pdf}
+\caption{\textbf{Warmth and competence directions share model-dependent geometry.}
+Each panel projects the same 200 synthetic stories onto raw dense probe-layer
+directions in an oblique basis. The arrow angle equals
+{\boldmath$\arccos[\cos(v_W,v_C)]$}, so smaller angles indicate stronger geometric
+alignment. All panels use model-internal z-scores, shared axis limits, and
+equal x/y scaling.}
+\label{fig:paper_figure1_axis_arrows}
+\end{figure*}
 
 \autoref{tab:probe_validation} collects four of the five single-model
 checks; 5-fold cross-validated and topic-holdout accuracy are not columns
@@ -770,6 +781,15 @@ high-competence from low-competence stories cleanly in the checks above. A
 model can encode a concept strongly while still responding weakly to an
 additive push along its own mean-difference direction.
 
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{paper_figure2_layer_emergence.pdf}
+\caption{\textbf{Warmth and competence directions emerge robustly across depth.}
+Layer-wise Cohen's~$d$ across nine open-weights models. The dotted vertical
+line marks the fixed probe-layer fraction of 0.66.}
+\label{fig:paper_figure2_layer_emergence}
+\end{figure*}
+
 \input{../../results/tables/concept_saturation.tex}
 
 Wide strengths tell a partly different story.
@@ -818,75 +838,31 @@ alone does not establish specificity for that family. Extending the
 99-direction control to the four legacy checkpoints needs new GPU runs and
 is deliberately left for later rather than closed here.
 
-% ─────────────────────────────────────────────────────────────────────────────
-% Results — to be redesigned collaboratively (next round).
-% Parked figures/tables below: environments and labels are kept in place so
-% existing \autoref pointers elsewhere in the document (including the
-% Supplementary) keep resolving, and so the redesign can reposition or
-% recaption them without regenerating any plots.
+\paragraph{Steering Hiring Decisions, All Nine Models.}
+Pushing the warmth or competence direction while the model reads a hiring
+application shifts the callback margin
+$\Delta_{\text{callback}}$ in every model, tested on the same 60-name
+subset at the broad strength grid $\alpha\in\{\pm0.25,\pm0.50\}$, chosen
+here uniformly across all nine models so the comparison sits on one shared
+scale rather than mixing the per-model preferred endpoints used by
+\autoref{tab:hiring_transition_census}.
 
-% parked figures for redesign
-\begin{figure*}[t]
-\centering
-\includegraphics[width=\textwidth]{paper_figure1_axis_arrows.pdf}
-\caption{\textbf{Warmth and competence directions share model-dependent geometry.}
-Each panel projects the same 200 synthetic stories onto raw dense probe-layer
-directions in an oblique basis. The arrow angle equals
-{\boldmath$\arccos[\cos(v_W,v_C)]$}, so smaller angles indicate stronger geometric
-alignment. All panels use model-internal z-scores, shared axis limits, and
-equal x/y scaling.}
-\label{fig:paper_figure1_axis_arrows}
-\end{figure*}
+\input{../../results/tables/hiring_steering_slopes_9model.tex}
 
-\begin{figure*}[t]
-\centering
-\includegraphics[width=\textwidth]{paper_figure2_layer_emergence.pdf}
-\caption{\textbf{Warmth and competence directions emerge robustly across depth.}
-Layer-wise Cohen's~$d$ across nine open-weights models. The dotted vertical
-line marks the fixed probe-layer fraction of 0.66.}
-\label{fig:paper_figure2_layer_emergence}
-\end{figure*}
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=\textwidth]{fig14_dense_steering_normalized.pdf}
-\caption{\textbf{Normalized concept-level steerability varies across nine
-checkpoints.} Each curve shows the change in the held-out concept margin
-{\boldmath$\Delta$} (the Yes-versus-No logit difference defined in Methods)
-produced by target-direction steering, divided by the baseline
-high-versus-low gap in {\boldmath$\Delta$} for the same model and axis.
-Parentheses in the legend report the maximum
-positive steering coefficient, $\alpha=+0.10$, expressed relative to the mean
-residual norm. Normalization reduces raw logit-scale differences but does not
-establish direction specificity; calibrated random and cross-axis controls are
-interpreted in the text.}
-\label{fig:fig14_dense_steering_normalized}
-\end{figure*}
-
-\input{../../results/tables/probe_human_correlation_9model.tex}
-
-\autoref{tab:disparity_marginal} asks the same alignment question at the
-group level: does a group's model-internal warmth or competence lean the
-same direction as that group's human rating? Race (Black/White) and gender
-(Female/Male) are treated as separate marginal axes, following
-\citet{gallo2024warmth}'s own grouping convention. Model warmth/competence
-and human warmth/competence live on different raw scales (human ratings are
-0-100 Likert averages, model values are unbounded residual-stream
-projections), so both are standardized to $z$-scores against the full
-282-name distribution before being placed side by side; a positive value in
-both the model and human column for a group means the two lean the same
-direction. Raw, study-broken values are in
-\autoref{tab:disparity_marginal_raw}.
-
-\input{../../results/tables/hiring_disparity_marginal_9model.tex}
-
-\autoref{tab:disparity_race_gender} crosses race and gender into four joint
-groups (Black-Female, Black-Male, White-Female, White-Male), recovering the
-interaction structure the marginal breakdown above collapses, using the same
-standardized comparison. The study-broken raw values behind this table are
-in \autoref{tab:disparity_crossed}.
-
-\input{../../results/tables/hiring_disparity_race_gender_9model.tex}
+\autoref{tab:hiring_steering_slopes} fits a line through each model-axis
+response and reports the slope alongside $R^2$. The fit is close to linear
+in only 7 of the 18 rows, Gemma-3-12B warmth, both Llama-3.1-8B axes,
+Gemma-4-26B-A4B warmth, and both Qwen3.6-27B and Qwen3.6-35B-A3B warmth
+axes; the remaining eleven depart from a straight line, most visibly
+Gemma-3-27B, where $R^2$ stays below 0.35 on both axes and the endpoint
+delta at $\alpha=+0.50$ is actually negative despite a positive slope
+estimate. Slopes vary in sign and size as well as fit quality: Gemma-3-12B
+warmth has the steepest response (+12.91 per unit $\alpha$), and Qwen3-14B
+competence is the only row with a negative slope (-0.11), effectively flat.
+The categorical Yes/No transitions behind this same steering intervention,
+including how often it crosses the decision boundary rather than only
+scaling an existing lean, are reported in full in
+\autoref{tab:hiring_transition_census}.
 
 \begin{figure*}[t]
 \centering
@@ -904,6 +880,109 @@ are empirical; connector geometry is schematic. Complete results for all nine
 models and both axes appear in \autoref{tab:hiring_transition_census}.}
 \label{fig:hiring_bidirectional_examples}
 \end{figure*}
+
+% ─────────────────────────────────────────────────────────────────────────────
+% Results — to be redesigned collaboratively (next round).
+% fig14 is kept in its original position and environment so its \autoref
+% pointer from "Steering the Concept Vectors, All Nine Models" keeps
+% resolving; only its physical placement is parked here for the later
+% redesign, not touched by this edit.
+
+% parked figures for redesign
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{fig14_dense_steering_normalized.pdf}
+\caption{\textbf{Normalized concept-level steerability varies across nine
+checkpoints.} Each curve shows the change in the held-out concept margin
+{\boldmath$\Delta$} (the Yes-versus-No logit difference defined in Methods)
+produced by target-direction steering, divided by the baseline
+high-versus-low gap in {\boldmath$\Delta$} for the same model and axis.
+Parentheses in the legend report the maximum
+positive steering coefficient, $\alpha=+0.10$, expressed relative to the mean
+residual norm. Normalization reduces raw logit-scale differences but does not
+establish direction specificity; calibrated random and cross-axis controls are
+interpreted in the text.}
+\label{fig:fig14_dense_steering_normalized}
+\end{figure*}
+
+% ─────────────────────────────────────────────────────────────────────────────
+
+\paragraph{Names, Human Ratings, and Disparity, All Nine Models.}
+Beyond the causal steering test, four analyses ask whether the probed
+representations track real human perception and real-world demographic
+callback gaps.
+
+Independently of the hiring prompt, each of the 282 rated applicant names
+is embedded in the neutral carrier sentence ``The job applicant's name is
+\{Name\}.'', and the resulting residual-stream activation is projected onto
+the raw warmth and competence directions to yield a per-name probe score.
+\autoref{tab:probe_human} correlates these scores with the aggregated human
+ratings behind them (16{,}557 rater judgments from 787 raters across nine
+source studies) using Spearman rank correlation. Warmth alignment ranges
+from $\rho = -0.287$ (Llama-3.1-8B) to $+0.388$ (Gemma-3-27B); competence
+alignment ranges from $\rho = -0.058$, not significant (Llama-3.1-8B), to
+$+0.466$ (Qwen3-14B). Competence tracks human perception more consistently
+than warmth: four of the nine models show a warmth correlation that is
+either negative or not significant, while every model's competence
+correlation is positive, and all but one reach significance. The same
+table's callback columns report a separate quantity, the correlation
+between each model's own probe projection and its own unsteered callback
+margin, which is not a human-alignment measure.
+
+\input{../../results/tables/probe_human_correlation_9model.tex}
+
+\autoref{tab:disparity_marginal} asks the same alignment question at the
+group level: does a group's model-internal warmth or competence lean the
+same direction as that group's human rating? Race (Black/White) and gender
+(Female/Male) are treated as separate marginal axes, following
+\citet{gallo2024warmth}'s own grouping convention. Model warmth/competence
+and human warmth/competence live on different raw scales (human ratings are
+0-100 Likert averages, model values are unbounded residual-stream
+projections), so both are standardized to $z$-scores against the full
+282-name distribution before being placed side by side; a positive value in
+both the model and human column for a group means the two lean the same
+direction. Raw, study-broken values are in
+\autoref{tab:disparity_marginal_raw}. The human-side numbers in this table
+come from published per-name callback rates, matched by first name and
+source study rather than by first name alone, since the same first name can
+carry a different callback rate in each source study; averaging across age
+where a study varies it yields 246 name-study observations across 186
+distinct names.
+
+\input{../../results/tables/hiring_disparity_marginal_9model.tex}
+
+\autoref{tab:disparity_race_gender} crosses race and gender into four joint
+groups (Black-Female, Black-Male, White-Female, White-Male), recovering the
+interaction structure the marginal breakdown above collapses, using the same
+standardized comparison. The study-broken raw values behind this table are
+in \autoref{tab:disparity_crossed}.
+
+\input{../../results/tables/hiring_disparity_race_gender_9model.tex}
+
+The last analysis asks whether the probed representations actually carry
+the name-group signal into the callback decision, rather than merely
+correlating with it. \autoref{tab:mediation_9model} tests this with
+bootstrap mediation along the path name group~$\to$ probe score~$\to$
+callback margin, run separately for race and gender and for warmth and
+competence, thirty-six tests across the nine models. Fourteen of the
+thirty-six indirect effects exclude zero at the uncorrected 95\% level;
+under a Bonferroni threshold across all thirty-six ($\alpha = 0.05/36$),
+only the Llama-3.1-8B race--warmth path survives
+($\mathrm{IE} = +0.190$, 95\% CI $[+0.111, +0.292]$), so every other entry
+should be read as suggestive rather than confirmed. The two Gemma-3
+checkpoints show no significant mediation path on either grouping or
+probe, consistent with representations that steer cleanly but do not
+themselves drive the hiring decision. The later checkpoints complicate that
+picture: all three Gemma-4 models show a significant race--competence
+indirect effect, Gemma-4-26B-A4B additionally shows a significant
+gender--warmth path, and the two Qwen3.6 checkpoints show a comparable
+spread of significant warmth and competence paths, matching the pattern
+already present in Qwen3-14B. Read together, the absence of mediation looks
+like a property of the Gemma-3 generation specifically rather than a
+general feature of models whose concept directions steer well.
+
+\input{../../results/tables/mediation_9model.tex}
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section*{Discussion and Conclusion}
@@ -1423,39 +1502,6 @@ adequately powered group comparisons.
 
 \input{../../results/tables/hiring_disparity_crossed_9model.tex}
 
-\subsection*{Bootstrap Mediation, All Nine Models}
-
-The main text reports bootstrap mediation for four models (Gemma-3-12B,
-Gemma-3-27B, Llama-3.1-8B, Qwen3-14B) and builds the steerability-paradox
-argument on those sixteen tests.
-\autoref{tab:mediation_9model} extends the identical procedure, same
-bootstrap resamples, same seed, same standardization, to the remaining five
-models (Gemma-4-12B, Gemma-4-26B-A4B, Gemma-4-31B, Qwen3.6-27B,
-Qwen3.6-35B-A3B), for a combined thirty-six tests across all nine models.
-Fourteen of the thirty-six indirect effects exclude zero at the uncorrected
-95\% level; under a Bonferroni threshold across all thirty-six
-($\alpha = 0.05/36$), only the Llama-3.1-8B race--warmth path from the main
-text survives, so every other entry in this table, old or new, remains
-suggestive rather than confirmed.
-
-Beyond those four models, the remaining five complicate the paradox in one
-specific way. Both Gemma-3 models showed no significant mediation path on
-either axis, which the main text reads as evidence that Gemma's cleanly
-steerable representations bypass the hiring decision rather than driving it.
-Gemma-4 breaks that pattern: all three Gemma-4 checkpoints show a significant
-race--competence indirect effect, and Gemma-4-26B-A4B additionally shows a
-significant gender--warmth path. Qwen3.6 shows a comparable spread of
-significant competence and warmth paths across its two checkpoints,
-consistent with the mediation profile already observed in Qwen3-14B. Read
-together, these results suggest that the absence of hiring-level mediation
-may be a property of the
-Gemma-3 generation specifically rather than of architectures with high
-concept-steerability in general; the four-model steerability paradox in the
-main text should be understood as scoped to that subset rather than as a
-claim about steerable models at large.
-
-\input{../../results/tables/mediation_9model.tex}
-
 \end{appendices}
 
 \clearpage
@@ -1502,12 +1548,11 @@ following Results-facing artifacts still use their old broad-regime
   concept steering and hiring steering). Consider adding the flag and
   re-running for all nine models, mirroring the denoised local
   hiring-steering sweep added in Step 31.
-  \item \textbf{Supplementary mediation cross-references orphaned by the
-  parked Discussion}: the ``Bootstrap Mediation, All Nine Models''
-  subsection references the steerability-paradox argument and the
-  four-model main-text framing, both of which currently sit in the parked
-  Discussion. Re-check and realign these cross-references when the
-  Discussion is rebuilt.
+  \item \textbf{Mediation prose references a parked Discussion argument}:
+  the Results mediation paragraph frames the Gemma-3 null as a
+  steerability-paradox observation; the fuller version of that argument
+  currently sits in the parked Discussion. Re-check and realign this
+  cross-reference when the Discussion is rebuilt.
 \end{itemize}
 
 \end{document}

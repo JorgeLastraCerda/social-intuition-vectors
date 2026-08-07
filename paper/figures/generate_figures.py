@@ -2458,19 +2458,12 @@ def paper_figure2_layer_emergence(
             fontsize=5.5, loc="upper left", ncol=1, framealpha=0.92,
         )
 
-    fig.suptitle(
-        "Warmth and competence representations emerge with depth\n"
-        "(nine open-weights models grouped by model family and generation)",
-        fontsize=10, y=0.995,
-    )
-    fig.tight_layout(rect=(0.065, 0.06, 1, 0.975), h_pad=1.6)
+    fig.tight_layout(rect=(0.065, 0.06, 1, 0.99), h_pad=1.6)
     fig.subplots_adjust(wspace=0.12)
     fig.canvas.draw()
     fig.set_layout_engine("none")  # freeze positions before adding sup-labels
 
-    # Center the shared labels on the actual axes grid, not the full figure
-    # (the multi-line suptitle above the grid would otherwise pull a
-    # figure-centered label upward relative to the plotted rows).
+    # Center the shared labels on the actual axes grid, not the full figure.
     y_top = axes[0, 0].get_position().y1
     y_bottom = axes[-1, 0].get_position().y0
     x_left = axes[0, 0].get_position().x0
