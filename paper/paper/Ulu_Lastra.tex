@@ -15,6 +15,7 @@
 \usepackage{booktabs}
 \usepackage{enumitem}
 \usepackage{longtable}
+\usepackage{float}
 \usepackage[backend=bibtex,style=authoryear,natbib=true,maxcitenames=2]{biblatex}
 \addbibresource{references.bib}
 \usepackage{appendix}
@@ -299,9 +300,12 @@ poles (\autoref{tab:story_topics} lists every topic with its word-count
 range). Following the identity controls described above, every protagonist is
 nameless and referred to only as ``they.'' A large language model generated
 the stories, which were then checked automatically for forbidden vocabulary,
-length balance, and demographic neutrality. Additional Results, Story Corpus
-by Topic, gives more detail about the stories: the full topic list, an
-assigned domain category for each, and per-topic word-count ranges.
+length balance, and demographic neutrality.
+\autoref{tab:story_prompt} records the generation and system prompt supplied
+to that model. For a concrete sense of the corpus,
+\autoref{tab:story_examples} presents one story from each of the four
+conditions on a single shared topic, with a link to the complete set of 200
+texts.
 
 \paragraph{Building the Warmth and Competence Vectors.}
 We extracted residual-stream activations from nine open-weights
@@ -451,6 +455,10 @@ complementary checks:
   share a substantial amount of evaluative content rather than capturing
   two fully separate constructs.
 \end{itemize}
+\autoref{tab:probe_validation} reports Cohen's $d$, the random-null $z$-score,
+split-half cosine, and calibrated cross-axis accuracy for all nine models;
+5-fold cross-validated and topic-holdout accuracy reach 1.00 for every model
+on both axes and are reported in Results rather than repeated in the table.
 Two further analyses look beyond a single model's own directions:
 \begin{itemize}[leftmargin=*, itemsep=2pt, topsep=4pt, parsep=0pt]
   \item \textbf{Cross-model Spearman agreement}: Nine models, trained
@@ -472,9 +480,11 @@ Two further analyses look beyond a single model's own directions:
   and looked at what the warmth and competence directions have in common
   with those neutral texts. That shared, non-specific part is then
   subtracted out of both direction vectors, leaving only what is actually
-  specific to warmth and to competence. The Supplementary Materials (PCA
-  Denoising) describe the full procedure as a robustness check.
+  specific to warmth and to competence. The full nine-model procedure,
+  run as a robustness check, is in \autoref{tab:pca_denoising}.
 \end{itemize}
+All 36 pairwise agreement scores are in \autoref{tab:cross_model_agreement};
+Results shows the same comparison as a heatmap.
 
 \paragraph{Steering the Concept Vectors.}
 Finding a direction that separates high- and low-condition stories does not
@@ -695,8 +705,118 @@ gaps, using four analyses:
 % ─────────────────────────────────────────────────────────────────────────────
 \section*{Results}
 
-\emph{Work in progress. The figures and tables below are parked for the
-redesign and are not yet integrated into finished Results prose.}
+\paragraph{Vector Validation, All Nine Models.}
+Every one of the five single-model checks and two cross-model analyses
+described in Methods was run on all nine checkpoints, and none flags a
+direction as an artifact of the specific stories used to build it.
+
+\input{../../results/tables/probe_validation_9model.tex}
+
+\autoref{tab:probe_validation} collects four of the five single-model
+checks; 5-fold cross-validated and topic-holdout accuracy are not columns
+in that table because both reach exactly 1.00 for every model on both axes
+and every fold, so there is no variation left to tabulate. Cohen's $d$
+ranges from 2.70 (Gemma-3-12B, warmth) to 9.97 (Qwen3-14B, competence), and
+the random-direction null comparison never comes close: across all nine
+models and both axes, 0 of the 1,000 random directions tested per model
+matched or exceeded the real direction's separation, with $z$-scores
+between 3.7 and 15.1. Split-half cosine stability stays in the 0.69-0.90
+range reported in Methods, and calibrated cross-axis accuracy stays between
+0.82 and 1.00, confirming that warmth and competence share substantial
+evaluative content rather than behaving as fully separate constructs.
+
+Agreement across architectures is just as consistent. Spearman correlation
+on the 36 possible model pairs never turns negative: overall ranking
+agreement (which includes the high-versus-low split itself) ranges from
+0.741 to 0.992 across both axes, and the harder within-condition comparison,
+which asks whether two models rank stories the same way inside one
+condition rather than just separating high from low, ranges from 0.095 to
+0.899 with a median near 0.46 for warmth and 0.54 for competence.
+\autoref{fig:fig6_cross_model_agreement} shows the full 9x9 pattern; the
+complete 36-pair table is in \autoref{tab:cross_model_agreement}.
+
+Neutral-corpus PCA denoising, reported in full in
+\autoref{tab:pca_denoising}, shows the same pattern across every model:
+removing the components shared with 1,500 ordinary Wikipedia paragraphs
+lowers the warmth-competence cosine but never drives it to zero. The
+reduction is largest in the two Gemma-3 checkpoints (0.749 to 0.530 and
+0.708 to 0.487) and comparatively small elsewhere, typically a few
+hundredths, suggesting that most of what remains after denoising is
+genuine conceptual overlap rather than a removable general tone.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{fig6_cross_model_story_agreement.pdf}
+\caption{\textbf{Cross-model story-ranking agreement, all nine models.}
+Each cell is a Spearman correlation between two models' projections of the
+same 200 stories onto their own warmth or competence direction. Overall
+(top row) includes the high-versus-low condition split; within-condition
+(bottom row) restricts the comparison to stories sharing one condition, so
+it isolates agreement on finer story ordering. Full pairwise values are in
+\autoref{tab:cross_model_agreement}.}
+\label{fig:fig6_cross_model_agreement}
+\end{figure*}
+
+\paragraph{Steering the Concept Vectors, All Nine Models.}
+At the narrow local grid ($\alpha \in \{-0.10,...,+0.10\}$),
+\autoref{fig:fig14_dense_steering_normalized} tracks the held-out concept
+margin against steering strength in every model, normalized by each model's
+own baseline high-low gap so the curves stay comparable despite very
+different raw logit scales. Gemma-3-12B reaches the largest positive
+endpoint on both axes (0.236 warmth, 0.141 competence), Qwen3-14B is second
+on both (0.122, 0.104), and Gemma-4-26B-A4B and Gemma-4-31B stay nearly flat
+at the competence endpoint (0.001 and 0.008) despite separating
+high-competence from low-competence stories cleanly in the checks above. A
+model can encode a concept strongly while still responding weakly to an
+additive push along its own mean-difference direction.
+
+\input{../../results/tables/concept_saturation.tex}
+
+Wide strengths tell a partly different story.
+\autoref{tab:concept_saturation} sweeps $\alpha \in \{\pm0.25,\pm0.50\}$ on
+Gemma-3-12B and Gemma-3-27B, the two models tested at this range. Three of
+the four model-axis rows show the step from $+0.25$ to $+0.50$ shrinking
+relative to the step before it, matching the saturating breakdown Methods
+describes for extreme strengths; Gemma-3-27B's warmth response is the
+exception, still accelerating at $+0.50$ rather than leveling off.
+
+\input{../../results/tables/concept_direction_specificity.tex}
+
+A single direction moving the answer does not by itself establish that the
+effect is specific to warmth or competence rather than any sufficiently
+large push. \autoref{tab:concept_direction_specificity} compares six
+directions at the local endpoint on the same two models. The dense target
+direction produces the row's largest effect in only one of the four rows
+(Gemma-3-12B warmth); in the other three, an unrelated direction, most often
+the SAE-decoded or axis-specific component, matches or exceeds it. This does
+not read as clean specificity, and points instead toward the same shared
+evaluative content the neutral-corpus PCA denoising already found between
+warmth and competence. Two further checks, reported in the Supplementary
+Materials, extend this picture: feature ablation
+(\autoref{tab:gemma_scope_ablation}) disrupts the high-low margin gap more
+when the features shared between axes are removed than when the
+axis-specific features are, in three of four rows, and cross-scale feature
+matching (\autoref{tab:gemma_scope_feature_matching}) finds Gemma-3-12B's
+and Gemma-3-27B's SAE features correlate well above a permutation null
+(\autoref{tab:gemma_scope_sae_quality} reports the underlying reconstruction
+quality behind both checks).
+
+\input{../../results/tables/concept_signal_vs_control_9model.tex}
+
+Comparing the dense target against a random-direction control extends
+across all nine models, but the control itself is not built the same way
+everywhere. \autoref{tab:concept_signal_vs_control} reports both effects for
+every model and axis, with the control's basis stated in its own column:
+five checkpoints (Gemma-4-12B, Gemma-4-26B-A4B, Gemma-4-31B, Qwen3.6-27B,
+Qwen3.6-35B-A3B) carry a calibrated set of 99 SD-matched random directions,
+while the four original checkpoints carry a single random direction. Where
+the calibrated control exists, the result splits by family: both Qwen3.6
+checkpoints place the dense-target effect clearly outside the random
+control's interval, while all three Gemma-4 checkpoints have a random
+interval wide enough to contain the dense-target effect, so this comparison
+alone does not establish specificity for that family. Extending the
+99-direction control to the four legacy checkpoints needs new GPU runs and
+is deliberately left for later rather than closed here.
 
 % ─────────────────────────────────────────────────────────────────────────────
 % Results — to be redesigned collaboratively (next round).
@@ -997,7 +1117,192 @@ the core facility SCCKN.
 The authors additionally acknowledge the Collective Computational Unit
 (CCU) for providing H100 GPU access used in part of this work.
 
-\subsection*{PCA Denoising}
+\subsection*{Story Corpus by Topic}
+
+\footnotesize
+\begin{longtable}{p{2em}p{0.52\linewidth}p{0.19\linewidth}p{0.11\linewidth}}
+\caption{Story corpus by topic ($n = 50$). Every topic contributes
+exactly one story to each of the four conditions (high warmth, low warmth,
+high competence, low competence), for 200 stories total, and every
+protagonist is nameless and referred to only as ``they'' throughout (see
+Story Preparation). The word-count range gives the shortest and longest of
+a topic's four stories. The Category column groups topics into the ten
+domains named in Story Preparation; these labels are our own assignment
+for readability and are not a field in the underlying stimuli data.}
+\label{tab:story_topics} \\
+\toprule
+No. & Topic & Category & Words \\
+\midrule
+\endfirsthead
+\toprule
+No. & Topic & Category & Words \\
+\midrule
+\endhead
+\midrule
+\multicolumn{4}{r}{\textit{continued on next page}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+1 & A team meeting where a decision needs to be made under time pressure & Workplace & 130--142 \\
+2 & Receiving critical feedback from a supervisor in front of colleagues & Workplace & 100--104 \\
+3 & Presenting results that did not go as expected to senior management & Workplace & 95--103 \\
+4 & Discovering that a colleague made a serious mistake before the deadline & Workplace & 99--103 \\
+5 & Mentoring a junior colleague on their first week at the job & Workplace & 97--105 \\
+6 & Handling an escalating complaint from a dissatisfied customer & Workplace & 93--100 \\
+7 & Negotiating project scope with a client who keeps changing requirements & Workplace & 91--92 \\
+8 & Organising a company event with a limited budget and unclear instructions & Workplace & 89--96 \\
+9 & Taking over a project mid-way when the previous lead leaves unexpectedly & Workplace & 90--101 \\
+10 & Responding to an emergency system failure at 2am on call & Workplace & 92--102 \\
+11 & Being asked to do something you believe is wrong by a manager & Learning & 91--102 \\
+12 & Learning a completely new technical skill under pressure and alone & Learning & 97--104 \\
+13 & Debugging a complex problem with no documentation and no internet & Learning & 94--99 \\
+14 & Preparing for a high-stakes exam with only two days left & Learning & 93--97 \\
+15 & Trying to understand a subject that feels overwhelming at first & Learning & 93--101 \\
+16 & Explaining a technical concept to someone with no background in it & Learning & 126--144 \\
+17 & Helping a stranger who dropped their groceries in the street & Social & 88--97 \\
+18 & A difficult conversation with a family member about money & Social & 90--100 \\
+19 & Being the only person at a party who does not know anyone & Social & 92--95 \\
+20 & Comforting a friend who just received bad news & Social & 89--102 \\
+21 & Waiting for important medical test results & Health & 92--109 \\
+22 & Supporting a parent who is beginning to lose their independence & Health & 90--95 \\
+23 & Managing a chronic illness while trying to maintain a normal schedule & Health & 88--96 \\
+24 & Recovering from an injury when you were counting on being active & Health & 90--105 \\
+25 & Organising a neighbourhood clean-up with volunteers who cancel last minute & Community & 129--140 \\
+26 & Attending a community meeting where people strongly disagree & Community & 91--100 \\
+27 & Volunteering at a food bank on an unexpectedly chaotic shift & Community & 89--99 \\
+28 & Running for a small local position against an experienced opponent & Community & 93--106 \\
+29 & Advocating for a change at the local school as a parent & Community & 90--101 \\
+30 & Deciding whether to take a pay cut for a job you believe in & Finance & 88--95 \\
+31 & Realising mid-month that you have far less money than expected & Finance & 90--104 \\
+32 & Negotiating a salary for the first time in a new job offer & Finance & 90--103 \\
+33 & Dealing with a billing dispute that has lasted several months & Finance & 89--103 \\
+34 & Coaching a sports team through a long losing streak & Sport \& Creative & 129--143 \\
+35 & Performing music in public for the first time and making a mistake & Sport \& Creative & 90--101 \\
+36 & Finishing a creative project that has been stalled for months & Sport \& Creative & 97--107 \\
+37 & Being a referee in a game where the players are friends & Sport \& Creative & 93--98 \\
+38 & Entering a competition knowing you are not the favourite & Sport \& Creative & 91--107 \\
+39 & Missing a connecting flight with no phone battery and no local currency & Travel & 125--142 \\
+40 & Navigating a city you have never been to, in a country whose language you do not speak & Travel & 90--100 \\
+41 & Being stranded overnight due to a transport strike with strangers & Travel & 93--107 \\
+42 & Starting over in a new country with no local contacts & Travel & 91--99 \\
+43 & Arriving at accommodation that is nothing like what was advertised & Travel & 93--102 \\
+44 & Realising your important data was lost and there is no backup & Technology & 90--95 \\
+45 & Trying to set up a complex technical system with no instructions & Technology & 95--105 \\
+46 & Being asked to fix someone else's code under a tight deadline & Technology & 91--100 \\
+47 & Teaching an elderly relative how to use a new device they are afraid of & Technology & 90--102 \\
+48 & Apologising sincerely to someone you have genuinely hurt & Personal Milestones & 94--104 \\
+49 & Being the first person in your family to pursue a university degree & Personal Milestones & 92--102 \\
+50 & Caring for a newborn alone for the first time with no experience & Personal Milestones & 90--98 \\
+\end{longtable}
+\normalsize
+
+\subsection*{Story Generation and System Prompt}
+
+The corpus was written manually, condition by condition, by Claude Opus~4.8
+against a fixed specification: a single nameless protagonist referred to
+only as ``they,'' a per-condition list of forbidden words that would name
+the concept directly, a show-don't-tell instruction to convey warmth or
+competence through actions rather than labels, and the 90--150 word length
+band enforced across every condition. \autoref{tab:story_prompt} reserves
+the exact generation and system prompt text.
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{p{0.9\linewidth}}
+\toprule
+\textsc{Work in progress} \\
+\bottomrule
+\end{tabular}
+\caption{Generation and system prompt supplied to the writing model. This
+table is a placeholder pending the verbatim prompt text.}
+\label{tab:story_prompt}
+\end{table}
+
+\subsection*{Example Concept Stories}
+
+\autoref{tab:story_examples} quotes one story from each of the four
+conditions, all four sharing a single topic, so that the contrast between
+conditions is visible independent of the situation described.
+
+\footnotesize
+\begin{longtable}{p{0.16\linewidth}p{0.78\linewidth}}
+\caption{Example stories, one per condition, sharing a single topic (topic
+1 of \autoref{tab:story_topics}). The complete set of all 200 story texts
+is available at \texttt{[WORK IN PROGRESS]}.}
+\label{tab:story_examples} \\
+\toprule
+Condition & Story (topic: ``A team meeting where a decision needs to be made
+under time pressure'') \\
+\midrule
+\endfirsthead
+\toprule
+Condition & Story (topic: ``A team meeting where a decision needs to be made
+under time pressure'') \\
+\midrule
+\endhead
+\midrule
+\multicolumn{2}{r}{\textit{continued on next page}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+High warmth &
+Noticing that one teammate hadn't spoken since the start, they paused and
+asked what that person was seeing from their side of the project. When two
+colleagues talked over each other, they waited, then restated each point so
+neither felt brushed aside. Aware that everyone had skipped lunch, they
+pushed the open box of crackers to the middle of the table. As the deadline
+pressed in, they made sure the quietest intern's worry about the rollout
+went up on the board alongside everyone else's. `We decide together or we
+don't decide well,' they said, watching faces rather than the clock. Once
+the group chose a direction, they stayed behind to walk the teammate who'd
+looked lost through what had been agreed, and afterwards messaged the
+intern to say the question raised had changed the final plan. \\
+\addlinespace
+Low warmth &
+Opening the meeting, they announced they already knew the right call and
+that the discussion was a formality. When a colleague tried to raise a risk
+with the vendor, they kept scrolling their phone and said there was no time
+for hypotheticals. An intern asked a clarifying question; they answered
+someone else, as though it hadn't been spoken. They read the group's
+hesitation as wasted time rather than doubt and pushed for a vote. `I don't
+need everyone comfortable, I need a decision,' they said, not looking up.
+When a teammate mentioned being away during the rollout and feeling
+worried, they replied that it wasn't their problem to manage. The group
+agreed quickly, mostly to end the meeting, and they left first without
+waiting for anyone to gather their things. \\
+\addlinespace
+High competence &
+Having read the vendor report the night before, they broke the stall by
+putting three options on the board, each already filled in with its cost
+and failure risk. They flagged that the cheapest option hid a renewal
+clause that would double the price in year two, buried on page forty. When
+someone proposed a fourth path, they tested it aloud against the deadline
+and showed exactly where it broke. They set a ten-minute limit per section
+and tracked it, steering the group back whenever it drifted. Before the
+vote they summarised the trade-offs in two sentences so no one chose
+blind. Once the decision was made, they assigned every follow-up to a
+named owner with a date, typed it into the shared doc while the group
+watched, and read it back. The meeting finished four minutes early, every
+action already logged. \\
+\addlinespace
+Low competence &
+They started the meeting before locating the file, then spent minutes
+searching their inbox while the room waited. The numbers they finally
+opened were from the previous quarter, though they insisted these were
+current until someone pointed at the date. They proposed the option with
+the highest upside without mentioning its cost, and when asked about the
+budget guessed a figure that proved wrong by half. Each risk that came up
+went onto a sticky note they then misplaced. They changed the agenda twice
+mid-discussion, reopening debates already settled. With ten minutes left
+they realised the one person who owned the rollout had never been invited.
+The group agreed to revisit it the next day, having decided nothing, and
+they promised a summary that by morning contradicted what most people
+remembered agreeing. \\
+\end{longtable}
+\normalsize
+
+\subsection*{PCA Denoising, All Nine Models}
 
 The warmth and competence direction vectors share a substantial common
 component that reflects general narrative valence: stories that portray a
@@ -1026,6 +1331,42 @@ failure of the denoising step.
 The denoised vectors serve as a robustness check; the raw dense directions
 define the primary cross-model causal comparisons and the callback-transition
 census reported in the main text.
+\autoref{tab:pca_denoising} extends this same procedure to all nine models.
+
+\input{../../results/tables/pca_denoising_9model.tex}
+
+\subsection*{Cross-Model Story-Ranking Agreement, All 36 Pairs}
+
+\autoref{tab:cross_model_agreement} lists the Spearman correlation, both
+overall and within-condition, for every one of the $\binom{9}{2}=36$
+possible model pairs on both axes, the full table behind
+\autoref{fig:fig6_cross_model_agreement} in Results.
+
+\input{../../results/tables/cross_model_agreement_9model.tex}
+
+\subsection*{Gemma Scope Steering Robustness, Gemma-3-12B/27B}
+
+Three further checks probe the direction-specificity result reported in
+Results. \autoref{tab:gemma_scope_sae_quality} first asks whether the
+Gemma Scope~2 decomposition itself is trustworthy: reconstruction cosine
+stays above 0.995 at every SAE width for both models, so the sparse
+representation preserves the original activation well, even though
+topic-holdout accuracy inside that sparse space and the decoded direction's
+alignment with the dense direction both vary more across widths.
+
+\input{../../results/tables/gemma_scope_sae_quality.tex}
+
+\autoref{tab:gemma_scope_ablation} removes, rather than adds, a feature
+group and tracks the resulting change in the high-low margin gap.
+
+\input{../../results/tables/gemma_scope_ablation.tex}
+
+\autoref{tab:gemma_scope_feature_matching} asks whether the two Gemma-3
+scales converge on similar sparse features in the first place, matching
+each Gemma-3-12B feature to its closest Gemma-3-27B counterpart and
+comparing their story-level response profiles against a permutation null.
+
+\input{../../results/tables/gemma_scope_feature_matching.tex}
 
 \section*{Additional Results}
 
@@ -1114,87 +1455,6 @@ main text should be understood as scoped to that subset rather than as a
 claim about steerable models at large.
 
 \input{../../results/tables/mediation_9model.tex}
-
-\subsection*{Story Corpus by Topic}
-
-\onecolumn
-\footnotesize
-\begin{longtable}{p{2em}p{0.52\linewidth}p{0.19\linewidth}p{0.11\linewidth}}
-\toprule
-No. & Topic & Category & Words \\
-\midrule
-\endfirsthead
-\toprule
-No. & Topic & Category & Words \\
-\midrule
-\endhead
-\midrule
-\multicolumn{4}{r}{\textit{continued on next page}} \\
-\endfoot
-\bottomrule
-\endlastfoot
-1 & A team meeting where a decision needs to be made under time pressure & Workplace & 130--142 \\
-2 & Receiving critical feedback from a supervisor in front of colleagues & Workplace & 100--104 \\
-3 & Presenting results that did not go as expected to senior management & Workplace & 95--103 \\
-4 & Discovering that a colleague made a serious mistake before the deadline & Workplace & 99--103 \\
-5 & Mentoring a junior colleague on their first week at the job & Workplace & 97--105 \\
-6 & Handling an escalating complaint from a dissatisfied customer & Workplace & 93--100 \\
-7 & Negotiating project scope with a client who keeps changing requirements & Workplace & 91--92 \\
-8 & Organising a company event with a limited budget and unclear instructions & Workplace & 89--96 \\
-9 & Taking over a project mid-way when the previous lead leaves unexpectedly & Workplace & 90--101 \\
-10 & Responding to an emergency system failure at 2am on call & Workplace & 92--102 \\
-11 & Being asked to do something you believe is wrong by a manager & Learning & 91--102 \\
-12 & Learning a completely new technical skill under pressure and alone & Learning & 97--104 \\
-13 & Debugging a complex problem with no documentation and no internet & Learning & 94--99 \\
-14 & Preparing for a high-stakes exam with only two days left & Learning & 93--97 \\
-15 & Trying to understand a subject that feels overwhelming at first & Learning & 93--101 \\
-16 & Explaining a technical concept to someone with no background in it & Learning & 126--144 \\
-17 & Helping a stranger who dropped their groceries in the street & Social & 88--97 \\
-18 & A difficult conversation with a family member about money & Social & 90--100 \\
-19 & Being the only person at a party who does not know anyone & Social & 92--95 \\
-20 & Comforting a friend who just received bad news & Social & 89--102 \\
-21 & Waiting for important medical test results & Health & 92--109 \\
-22 & Supporting a parent who is beginning to lose their independence & Health & 90--95 \\
-23 & Managing a chronic illness while trying to maintain a normal schedule & Health & 88--96 \\
-24 & Recovering from an injury when you were counting on being active & Health & 90--105 \\
-25 & Organising a neighbourhood clean-up with volunteers who cancel last minute & Community & 129--140 \\
-26 & Attending a community meeting where people strongly disagree & Community & 91--100 \\
-27 & Volunteering at a food bank on an unexpectedly chaotic shift & Community & 89--99 \\
-28 & Running for a small local position against an experienced opponent & Community & 93--106 \\
-29 & Advocating for a change at the local school as a parent & Community & 90--101 \\
-30 & Deciding whether to take a pay cut for a job you believe in & Finance & 88--95 \\
-31 & Realising mid-month that you have far less money than expected & Finance & 90--104 \\
-32 & Negotiating a salary for the first time in a new job offer & Finance & 90--103 \\
-33 & Dealing with a billing dispute that has lasted several months & Finance & 89--103 \\
-34 & Coaching a sports team through a long losing streak & Sport \& Creative & 129--143 \\
-35 & Performing music in public for the first time and making a mistake & Sport \& Creative & 90--101 \\
-36 & Finishing a creative project that has been stalled for months & Sport \& Creative & 97--107 \\
-37 & Being a referee in a game where the players are friends & Sport \& Creative & 93--98 \\
-38 & Entering a competition knowing you are not the favourite & Sport \& Creative & 91--107 \\
-39 & Missing a connecting flight with no phone battery and no local currency & Travel & 125--142 \\
-40 & Navigating a city you have never been to, in a country whose language you do not speak & Travel & 90--100 \\
-41 & Being stranded overnight due to a transport strike with strangers & Travel & 93--107 \\
-42 & Starting over in a new country with no local contacts & Travel & 91--99 \\
-43 & Arriving at accommodation that is nothing like what was advertised & Travel & 93--102 \\
-44 & Realising your important data was lost and there is no backup & Technology & 90--95 \\
-45 & Trying to set up a complex technical system with no instructions & Technology & 95--105 \\
-46 & Being asked to fix someone else's code under a tight deadline & Technology & 91--100 \\
-47 & Teaching an elderly relative how to use a new device they are afraid of & Technology & 90--102 \\
-48 & Apologising sincerely to someone you have genuinely hurt & Personal Milestones & 94--104 \\
-49 & Being the first person in your family to pursue a university degree & Personal Milestones & 92--102 \\
-50 & Caring for a newborn alone for the first time with no experience & Personal Milestones & 90--98 \\
-\end{longtable}
-\captionof{table}{Story corpus by topic ($n = 50$). Every topic contributes
-exactly one story to each of the four conditions (high warmth, low warmth,
-high competence, low competence), for 200 stories total, and every
-protagonist is nameless and referred to only as ``they'' throughout (see
-Story Preparation). The word-count range gives the shortest and longest of
-a topic's four stories. The Category column groups topics into the ten
-domains named in Story Preparation; these labels are our own assignment
-for readability and are not a field in the underlying stimuli data.}
-\label{tab:story_topics}
-\normalsize
-\twocolumn
 
 \end{appendices}
 

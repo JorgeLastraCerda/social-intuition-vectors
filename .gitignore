@@ -91,6 +91,7 @@ project_personal_plan.md
 # Deterministic validation logs, metric tables (CSV), and layer-sweep outputs
 !results/logs/validate_probes_*.json
 !results/logs/gemma_scope_*.json
+!results/logs/random_baseline_*.json
 !results/tables/probe_metrics*.csv
 !results/tables/layer_sweep*.csv
 !results/tables/layer_sweep*.meta.json

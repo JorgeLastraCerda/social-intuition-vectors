@@ -167,7 +167,9 @@ def fig1_joint_density(data: dict) -> None:
 # Figure 2 — Random-direction baseline
 # ---------------------------------------------------------------------------
 
-def fig2_random_baseline(data: dict, n_random: int = 1000, seed: int = 20260527) -> None:
+def fig2_random_baseline(
+    data: dict, n_random: int = 1000, seed: int = 20260527, label: str = "gemma3_12b"
+) -> None:
     rng = np.random.default_rng(seed)
     d = data["warmth_vec"].shape[0]
 
@@ -192,6 +194,7 @@ def fig2_random_baseline(data: dict, n_random: int = 1000, seed: int = 20260527)
     # Take absolute values so direction doesn't matter
     fig, axes = plt.subplots(1, 2, figsize=(9, 3.8), sharey=False)
 
+    random_baseline_summary: dict = {}
     for ax, null, actual, axis_label in [
         (axes[0], null_warmth,     actual_d_warmth,     "warmth"),
         (axes[1], null_competence, actual_d_competence, "competence"),
@@ -220,12 +223,25 @@ def fig2_random_baseline(data: dict, n_random: int = 1000, seed: int = 20260527)
         n_exceed = int((null >= actual).sum())
         p_val = max(n_exceed, 1) / len(null)
         print(f"  [{axis_label}] null std={null_std:.2f}  d={actual:.2f}  z={z_score:.1f}  p<{p_val:.3f}  exceed={n_exceed}/{len(null)}")
+        random_baseline_summary[axis_label] = {
+            "d": float(actual),
+            "null_std": null_std,
+            "z_score": float(z_score),
+            "n_exceed": n_exceed,
+            "p_value": float(p_val),
+            "n_random": int(len(null)),
+        }
         ax.set_xlabel("Cohen's $d$")
         ax.set_ylabel("Density" if ax is axes[0] else "")
         ax.set_title(f"Null distribution — {axis_label} axis")
 
     fig.tight_layout()
     save("fig2_random_baseline")
+
+    log_path = ROOT / "results" / "logs" / f"random_baseline_{label}.json"
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    log_path.write_text(json.dumps(random_baseline_summary, indent=2) + "\n", encoding="utf-8")
+    print(f"  [fig2] wrote {log_path}")
 
 
 # ---------------------------------------------------------------------------
@@ -510,7 +526,14 @@ def fig6_cross_model_story_agreement(
             )
             print(f"    {label:20s} overall={overall}  within={within}")
 
-    fig, axes = plt.subplots(2, 2, figsize=(10, 8))
+    # Annotation font and figure size scale with n_models: the defaults below
+    # were tuned for a handful of models and produce overlapping, illegible
+    # digits once the grid grows to nine models (36 pairs).
+    fig_side = max(10, 1.55 * n_models)
+    annot_size = max(5, 13 - n_models)
+    annot_fmt = ".3f" if n_models <= 5 else ".2f"
+
+    fig, axes = plt.subplots(2, 2, figsize=(fig_side, fig_side * 0.8))
     panels = [
         (axes[0, 0], matrices[("warmth", "overall_rho")], "Warmth: overall ranking"),
         (axes[0, 1], matrices[("competence", "overall_rho")], "Competence: overall ranking"),
@@ -531,8 +554,8 @@ def fig6_cross_model_story_agreement(
             ax=ax,
             cmap="Blues",
             vmin=0, vmax=1,
-            annot=True, fmt=".3f",
-            annot_kws={"size": 12, "weight": "bold"},
+            annot=True, fmt=annot_fmt,
+            annot_kws={"size": annot_size, "weight": "bold"},
             square=True,
             linewidths=1.5,
             linecolor="white",
@@ -540,6 +563,7 @@ def fig6_cross_model_story_agreement(
             yticklabels=model_labels,
             cbar_kws={"shrink": 0.8},
         )
+        ax.tick_params(axis="both", labelsize=max(6, annot_size - 1))
         ax.set_title(f"{title}\n(Spearman ρ)", fontsize=10, pad=8)
 
     fig.suptitle(
@@ -2744,6 +2768,13 @@ def main() -> None:
         default=None,
         help="Output directory for figures (default: paper/figures).",
     )
+    parser.add_argument(
+        "--label",
+        default=None,
+        help="Model label for figures 1-4's per-model outputs (e.g. random-null "
+             "JSON written by --fig 2). Default: inferred from --vec-dir's "
+             "basename, or 'gemma3_12b' for the default vec-dir.",
+    )
     # fig5 args
     parser.add_argument(
         "--metrics",
@@ -2863,6 +2894,12 @@ def main() -> None:
     if args.out_dir is not None:
         OUT_DIR = Path(args.out_dir)
 
+    if args.label is not None:
+        vec_dir_label = args.label
+    else:
+        base = VEC_DIR.name
+        vec_dir_label = base[len("concept_vectors_"):] if base.startswith("concept_vectors_") else "gemma3_12b"
+
     _style.apply()
 
     # Parse --fig: supports integers (1-20) and paper-figure tokens p1/p2/p3/p4.
@@ -2898,7 +2935,7 @@ def main() -> None:
 
     if 2 in selected:
         print("Figure 2: random baseline …")
-        fig2_random_baseline(data)
+        fig2_random_baseline(data, label=vec_dir_label)
 
     if 3 in selected:
         print("Figure 3: Lorenz concentration …")
