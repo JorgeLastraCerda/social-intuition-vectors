@@ -43,6 +43,13 @@
 \renewcommand{\textfraction}{0.05}
 \renewcommand{\floatpagefraction}{0.9}
 \raggedbottom
+% Double-column (figure*/table*) counterparts, needed because every
+% Results float spans both columns. Set for the Results layout pass
+% (see step_logs/STEP_LOG.md): allow tall double-column floats at the
+% page top and pack float pages instead of stranding one float per page.
+\renewcommand{\dbltopfraction}{0.9}
+\renewcommand{\dblfloatpagefraction}{0.7}
+\setcounter{dbltopnumber}{3}
 
 % Math operators
 \DeclareMathOperator*{\mean}{mean}
@@ -711,7 +718,7 @@ direction as an artifact of the specific stories used to build it.
 
 \input{../../results/tables/probe_validation_9model.tex}
 
-\begin{figure*}[t]
+\begin{figure*}[tp]
 \centering
 \includegraphics[width=\textwidth]{paper_figure1_axis_arrows.pdf}
 \caption{\textbf{Warmth and competence directions share model-dependent geometry.}
@@ -755,7 +762,7 @@ reduction is largest in the two Gemma-3 checkpoints (0.749 to 0.530 and
 hundredths, suggesting that most of what remains after denoising is
 genuine conceptual overlap rather than a removable general tone.
 
-\begin{figure*}[t]
+\begin{figure*}[p]
 \centering
 \includegraphics[width=\textwidth]{fig6_cross_model_story_agreement.pdf}
 \caption{\textbf{Cross-model story-ranking agreement, all nine models.}
@@ -767,6 +774,13 @@ it isolates agreement on finer story ordering. Full pairwise values are in
 \autoref{tab:cross_model_agreement}.}
 \label{fig:fig6_cross_model_agreement}
 \end{figure*}
+
+% Barrier: flush every pending float from Vector Validation before Steering
+% the Concept Vectors begins. \FloatBarrier (placeins) is unavailable in
+% this TeX installation (not installed, texmf tree is root-owned); floats
+% are pending at every paragraph boundary in this document, so \clearpage
+% is used here as a functional equivalent, not a positioning hack.
+\clearpage
 
 \paragraph{Steering the Concept Vectors, All Nine Models.}
 At the narrow local grid ($\alpha \in \{-0.10,...,+0.10\}$),
@@ -781,7 +795,23 @@ high-competence from low-competence stories cleanly in the checks above. A
 model can encode a concept strongly while still responding weakly to an
 additive push along its own mean-difference direction.
 
-\begin{figure*}[t]
+\begin{figure*}[tp]
+\centering
+\includegraphics[width=\textwidth]{fig14_dense_steering_normalized.pdf}
+\caption{\textbf{Normalized concept-level steerability varies across nine
+checkpoints.} Each curve shows the change in the held-out concept margin
+{\boldmath$\Delta$} (the Yes-versus-No logit difference defined in Methods)
+produced by target-direction steering, divided by the baseline
+high-versus-low gap in {\boldmath$\Delta$} for the same model and axis.
+Parentheses in the legend report the maximum
+positive steering coefficient, $\alpha=+0.10$, expressed relative to the mean
+residual norm. Normalization reduces raw logit-scale differences but does not
+establish direction specificity; calibrated random and cross-axis controls are
+interpreted in the text.}
+\label{fig:fig14_dense_steering_normalized}
+\end{figure*}
+
+\begin{figure*}[p]
 \centering
 \includegraphics[width=\textwidth]{paper_figure2_layer_emergence.pdf}
 \caption{\textbf{Warmth and competence directions emerge robustly across depth.}
@@ -838,6 +868,13 @@ alone does not establish specificity for that family. Extending the
 99-direction control to the four legacy checkpoints needs new GPU runs and
 is deliberately left for later rather than closed here.
 
+% No barrier here: Steering Hiring Decisions' own prose is short enough
+% that a \clearpage left the whole right column and lower half of the next
+% page blank (verified, then reverted). Its own floats still barrier
+% before Names, Human Ratings, and Disparity below, so containment holds;
+% only this zone's text is allowed to share a page with the previous
+% zone's tail float.
+
 \paragraph{Steering Hiring Decisions, All Nine Models.}
 Pushing the warmth or competence direction while the model reads a hiring
 application shifts the callback margin
@@ -864,7 +901,7 @@ including how often it crosses the decision boundary rather than only
 scaling an existing lean, are reported in full in
 \autoref{tab:hiring_transition_census}.
 
-\begin{figure*}[t]
+\begin{figure*}[tp]
 \centering
 \includegraphics[width=\textwidth]{paper_figure4_hiring_bidirectional_examples.pdf}
 \caption{\textbf{Matched examples show that positive concept steering can move
@@ -881,32 +918,9 @@ models and both axes appear in \autoref{tab:hiring_transition_census}.}
 \label{fig:hiring_bidirectional_examples}
 \end{figure*}
 
-% ─────────────────────────────────────────────────────────────────────────────
-% Results — to be redesigned collaboratively (next round).
-% fig14 is kept in its original position and environment so its \autoref
-% pointer from "Steering the Concept Vectors, All Nine Models" keeps
-% resolving; only its physical placement is parked here for the later
-% redesign, not touched by this edit.
-
-% parked figures for redesign
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=\textwidth]{fig14_dense_steering_normalized.pdf}
-\caption{\textbf{Normalized concept-level steerability varies across nine
-checkpoints.} Each curve shows the change in the held-out concept margin
-{\boldmath$\Delta$} (the Yes-versus-No logit difference defined in Methods)
-produced by target-direction steering, divided by the baseline
-high-versus-low gap in {\boldmath$\Delta$} for the same model and axis.
-Parentheses in the legend report the maximum
-positive steering coefficient, $\alpha=+0.10$, expressed relative to the mean
-residual norm. Normalization reduces raw logit-scale differences but does not
-establish direction specificity; calibrated random and cross-axis controls are
-interpreted in the text.}
-\label{fig:fig14_dense_steering_normalized}
-\end{figure*}
-
-% ─────────────────────────────────────────────────────────────────────────────
+% Barrier: flush every pending float from Steering Hiring Decisions before
+% Names, Human Ratings, and Disparity begins (see the barrier note above).
+\clearpage
 
 \paragraph{Names, Human Ratings, and Disparity, All Nine Models.}
 Beyond the causal steering test, four analyses ask whether the probed
@@ -983,6 +997,12 @@ like a property of the Gemma-3 generation specifically rather than a
 general feature of models whose concept directions steer well.
 
 \input{../../results/tables/mediation_9model.tex}
+
+% Barrier: flush every pending float from Names, Human Ratings, and
+% Disparity before Discussion and Conclusion begins (see the barrier note
+% above); without this, this zone's float pages bleed into Discussion body
+% text, the same containment failure this layout pass is fixing.
+\clearpage
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section*{Discussion and Conclusion}
