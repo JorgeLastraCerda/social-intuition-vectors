@@ -126,7 +126,7 @@ Cross-model figures:
 | File | Description |
 |------|-------------|
 | `fig5_cross_model.{png,pdf}` | Grouped bars: CV accuracy, Cohen's d, cos(W,C) across 3 models |
-| `fig6_cross_model_story_agreement.{png,pdf}` | 3×3 Spearman ρ heatmaps for per-story ranking agreement |
+| `fig6_cross_model_agreement.{png,pdf}` | Compact dot plot of all 36 model-pair Spearman correlations for overall and within-condition warmth/competence story ranking; active manuscript replacement for the stale heatmap |
 | `fig7_same_story_demo.{png,pdf}` | 6 exemplar stories in z-scored warmth/competence space, 3 models overlaid |
 | `fig8_layer_emergence.{png,pdf}` | Layer sweep: (left) Cohen's d emergence curves vs depth, 4 models; (right) cos(W,C) vs depth — Gemma-12B and 27B both elevated through most depths |
 | `fig9_gemma_scope_decomposition.{png,pdf}` | Gemma Scope 2 reconstruction, sparsity, topic-holdout concept signal, and decoded-direction alignment across 16k/65k/262k widths |
@@ -269,3 +269,4 @@ Paper-draft figures (prefixed `paper_figure*`; produced 2026-06-24 for superviso
 | `2026-08-04_1610_pca_denoising_verification_and_gap_closure.md` | 2026-08-04 16:10 | 9 Gemma, Qwen, and Llama checkpoints | Independently verified seven models' PCA-denoising outputs, traced why Llama-3.1-8B and Qwen3-14B were missing, queued SGE jobs to close the gap | In progress; jobs `1204966`/`1204967` queued on SCCKN (scc213/scc214), not yet complete. |
 | `2026-08-06_1333_warmth_steering_fragility_scale_9model.md` | 2026-08-06 13:33 | 9 Gemma, Qwen, and Llama checkpoints | Re-analysis of the "Fragile causal effect at scale" Limitation using already-computed local-regime hiring-steering data across all nine models | Complete; fragility is Gemma-family-specific, not a generic scale effect — no re-run performed, existing tables only. |
 | `2026-08-06_1828_hiring_bias_tables_race_gender_study.md` | 2026-08-06 18:28 | 9 Gemma, Qwen, and Llama checkpoints | Race, gender, and race × gender demographic bias tables extended with human warmth/competence and z-score model-human comparability; study-broken raw-value appendix companions added | Complete; four `results/tables/hiring_disparity_*.tex` files (two new, two extended), `src/hiring_r4.py` and `src/hiring_disparity.py` additively extended, crossed and marginal-raw appendix tables converted to `longtable` to fix page overflow. |
+| `2026-08-13_1816_manuscript_table_figure_revision.md` | 2026-08-13 18:16 | 9 Gemma, Qwen, and Llama checkpoints | Jorge handover implementation: compact tables, corrected transition summaries, active figure regeneration, manuscript integration, and layout verification | Complete; 35-page manuscript builds cleanly and the table-builder regression suite passes. |

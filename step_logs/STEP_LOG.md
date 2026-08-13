@@ -3199,3 +3199,30 @@
 - **Decision / rationale:** Split the record into two documents rather than one, because their audiences differ: the repository summary explains what changed and why for a reader who was not present, while the `org/` note carries task assignment, deadline pressure, and the GitHub-access reasoning that does not belong in a shared research repository. Recorded the cautions (that `\resizebox` gives a false legibility pass, that table height follows row count, that float containment must be re-verified if floats return to the body, and that the human race gap is near zero rather than pro-White) in the repository-facing document rather than only in the private one, since each is a conclusion someone could otherwise re-derive incorrectly.
 - **Next:** Items 1, 2, 3, 4 and parts of 8 and 9 of the table spec remain with Emre. The `style.py` change and the `[t]` table specifiers both require regeneration to take effect. Jorge retains the "Pending Updates" deletion, the style read of Methods and Results, the README rewrite, and the decision on the two related-work papers.
 - **Anti-formulaic self-check:** Not applicable (no manuscript prose changed in this step).
+
+## 2026-08-13 · Step 1 — Regenerate the requested manuscript tables and transitions
+
+- **Context:** Implement Jorge's 2026-08-10 to 2026-08-13 handover items from the current local artifacts, without relying on the stale Graphify index.
+- **Agent:** gpt-5
+- **Did:** Extended `src/build_paper_probe_tables.py`, tightened `src/build_paper_mediation_table.py`, corrected the local transition renderer, and regenerated the affected `results/tables/*.tex` and transition CSV outputs from existing JSON/CSV artifacts.
+- **Findings:** The new main disparity table has nine model rows and declares model gaps in within-model SD units versus human gaps in percentage points. Twelve of eighteen target effects exceed their reported control ranges, none of six Gemma-4 rows does; seven of eighteen broad-grid fits have $R^2 \geq 0.8$, and eight endpoint signs disagree with fitted slopes. Local transitions now use $\alpha=+0.10$ consistently.
+- **Decision / rationale:** Keep detailed demographic levels in the appendix, preserve mediation as a full-page table, and expose control-basis and range-dependence caveats in captions and prose rather than treating movement as specificity.
+- **Next:** Integrate the corrected outputs into the active manuscript and regenerate active figures.
+
+## 2026-08-13 · Step 2 — Integrate manuscript prose, citations, figures, and layout
+
+- **Context:** Apply the locked paper decisions to `paper/paper/Ulu_Lastra.tex` and the active figure set.
+- **Agent:** gpt-5
+- **Did:** Replaced the stale agreement heatmap with the nine-model dot plot, inserted the compact gap table, moved detailed tables to the Supplementary Materials, corrected transition and steering interpretations, added the Qwen3-14B competence range caveat, removed the internal pending-updates tracker, integrated two related-work citations, regenerated seven active figure pairs with shared serif styling, and rebuilt `paper/paper/Ulu_Lastra.pdf`.
+- **Findings:** The final manuscript is 35 pages. Main Results tables are readable without `\resizebox`; the large layer-emergence and mediation artifacts retain full-page treatment. The LaTeX log contains no overfull boxes, undefined references, unresolved citations, or float-too-large warnings.
+- **Decision / rationale:** Retain model disparity gaps in SD units and human gaps in percentage points, since the scales answer different comparison questions and are labeled explicitly. Keep only active figures in the manuscript.
+- **Next:** Run regression tests, visually inspect rendered pages, and document the revision.
+- **Anti-formulaic self-check:** Re-read every edited active-manuscript passage. New prose contains no em-dash punctuation, adjacent paragraphs do not repeat an opener frame, and no signal-only transition remains.
+
+## 2026-08-13 · Step 3 — Verify and report the Jorge handover implementation
+
+- **Context:** Final acceptance pass for the table, figure, transition, and manuscript revision.
+- **Agent:** gpt-5
+- **Did:** Added `tests/test_paper_table_builders.py`, ran it with the existing cross-model agreement test, compiled with `latexmk`, checked the PDF text and LaTeX log, visually inspected rendered Results and appendix pages, and wrote `paper/2026-08-13_1816_manuscript_table_figure_revision.md`; updated `paper/README.md` inventories.
+- **Findings:** Six tests pass. The verified PDF has 35 pages and all inspected tables and figures are legible, with no clipping or unresolved references. Graphify output was not used as evidence because the user identified it as stale; source files and current generated artifacts were inspected directly.
+- **Decision / rationale:** Treat the current local artifacts as authoritative for this revision and preserve unrelated untracked Graphify/build files untouched.

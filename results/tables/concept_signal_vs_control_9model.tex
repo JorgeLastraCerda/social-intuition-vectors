@@ -3,42 +3,37 @@
 % model per STEERING_DENSE_CSV (same canonical mapping verified in
 % paper/2026-07-20_0919_nine_model_normalized_steerability.md).
 % Random-control basis is genuinely heterogeneous across models: five
-% checkpoints have 99 SD-matched random directions (mean +/- 95% CI
-% shown), four have a single random direction (bootstrap CI shown).
-% This is disclosed in the Control basis column and in the caption,
-% not silently normalized away. See STEP_LOG for the deferred-GPU-work
-% decision behind this heterogeneity.
+% Five checkpoints use mean +/- 1.96 sample SD across 99 controls; four
+% use the bootstrap interval of one random direction. Caption discloses this.
 % [tp]: medium-height table, Results layout pass (see step_logs/STEP_LOG.md).
-\begin{table*}[tp]
+\begin{table}[H]
 \centering
-\small
-\setlength{\tabcolsep}{4pt}
-\resizebox{\textwidth}{!}{%
+\scriptsize
+\setlength{\tabcolsep}{1.2pt}
 \begin{tabular}{@{}llrlc@{}}
 \toprule
-Model & Axis & Dense target ($\alpha=+0.10$) & Random control & Control basis \\
+Model & Axis & Target & Control range & $>$? \\
 \midrule
-Gemma-3-12B & Warmth & +3.81 & +0.10 [-0.32, +0.49] & 1 direction \\
-Gemma-3-12B & Competence & +1.98 & +0.30 [+0.05, +0.56] & 1 direction \\
-Gemma-3-27B & Warmth & +1.02 & +0.61 [+0.32, +0.89] & 1 direction \\
-Gemma-3-27B & Competence & +0.21 & -3.36 [-4.00, -2.76] & 1 direction \\
-Llama-3.1-8B & Warmth & +0.26 & +0.06 [+0.03, +0.10] & 1 direction \\
-Llama-3.1-8B & Competence & +0.18 & -0.12 [-0.14, -0.11] & 1 direction \\
-Gemma-4-12B & Warmth & +1.84 & +0.29 $\pm$ 2.77 & 99 SD-matched dirs. \\
-Gemma-4-12B & Competence & +2.66 & +0.23 $\pm$ 2.56 & 99 SD-matched dirs. \\
-Gemma-4-26B-A4B & Warmth & +0.05 & -0.84 $\pm$ 2.94 & 99 SD-matched dirs. \\
-Gemma-4-26B-A4B & Competence & -0.07 & -0.66 $\pm$ 2.71 & 99 SD-matched dirs. \\
-Gemma-4-31B & Warmth & +0.44 & +0.85 $\pm$ 3.16 & 99 SD-matched dirs. \\
-Gemma-4-31B & Competence & -0.06 & +0.78 $\pm$ 2.54 & 99 SD-matched dirs. \\
-Qwen3-14B & Warmth & +1.20 & -0.02 [-0.10, +0.06] & 1 direction \\
-Qwen3-14B & Competence & +1.11 & +0.23 [+0.17, +0.28] & 1 direction \\
-Qwen3.6-27B & Warmth & +0.69 & +0.01 $\pm$ 0.04 & 99 SD-matched dirs. \\
-Qwen3.6-27B & Competence & +0.31 & +0.01 $\pm$ 0.03 & 99 SD-matched dirs. \\
-Qwen3.6-35B-A3B & Warmth & +0.82 & +0.00 $\pm$ 0.06 & 99 SD-matched dirs. \\
-Qwen3.6-35B-A3B & Competence & +1.45 & -0.02 $\pm$ 0.06 & 99 SD-matched dirs. \\
+G3-12B & Warmth & +3.81 & +0.10 [-0.32, +0.49] & yes \\
+G3-12B & Competence & +1.98 & +0.30 [+0.05, +0.56] & yes \\
+G3-27B & Warmth & +1.02 & +0.61 [+0.32, +0.89] & yes \\
+G3-27B & Competence & +0.21 & -3.36 [-4.00, -2.76] & yes \\
+L3.1-8B & Warmth & +0.26 & +0.06 [+0.03, +0.10] & yes \\
+L3.1-8B & Competence & +0.18 & -0.12 [-0.14, -0.11] & yes \\
+G4-12B & Warmth & +1.84 & +0.29 [-2.48, +3.07] & no \\
+G4-12B & Competence & +2.66 & +0.23 [-2.33, +2.79] & no \\
+G4-26B & Warmth & +0.05 & -0.84 [-3.79, +2.10] & no \\
+G4-26B & Competence & -0.07 & -0.66 [-3.37, +2.05] & no \\
+G4-31B & Warmth & +0.44 & +0.85 [-2.31, +4.02] & no \\
+G4-31B & Competence & -0.06 & +0.78 [-1.76, +3.32] & no \\
+Q3-14B & Warmth & +1.20 & -0.02 [-0.10, +0.06] & yes \\
+Q3-14B & Competence & +1.11 & +0.23 [+0.17, +0.28] & yes \\
+Q3.6-27B & Warmth & +0.69 & +0.01 [-0.03, +0.05] & yes \\
+Q3.6-27B & Competence & +0.31 & +0.01 [-0.02, +0.04] & yes \\
+Q3.6-35B & Warmth & +0.82 & +0.00 [-0.06, +0.07] & yes \\
+Q3.6-35B & Competence & +1.45 & -0.02 [-0.08, +0.05] & yes \\
 \bottomrule
-\end{tabular}%
-}
-\caption{\textbf{Dense-target steering versus a random-direction control, all nine models.} The random-control basis is not uniform: Gemma-4-12B, Gemma-4-26B-A4B, Gemma-4-31B, Qwen3.6-27B, and Qwen3.6-35B-A3B use 99 SD-matched random directions per model, reported as mean $\pm$ 95\% CI; Gemma-3-12B, Gemma-3-27B, Llama-3.1-8B, and Qwen3-14B use a single random direction, reported with its own bootstrap CI. Extending the calibrated 99-direction control to the remaining four models requires new GPU runs and is left for future work rather than closed here.}
+\end{tabular}
+\caption{\textbf{Dense-target steering versus a random-direction control, all nine models.} The random-control basis is not uniform: Gemma-4-12B, Gemma-4-26B-A4B, Gemma-4-31B, Qwen3.6-27B, and Qwen3.6-35B-A3B use 99 SD-matched random directions per model, reported as mean and an approximate 95\% random-direction range (mean $\pm 1.96$ sample SD); Gemma-3-12B, Gemma-3-27B, Llama-3.1-8B, and Qwen3-14B use a single random direction, reported with its own bootstrap CI. ``Exceeds?'' indicates whether the target lies outside its reported control range. 12 of 18 rows exceed control; none of the six Gemma-4 rows do.}
 \label{tab:concept_signal_vs_control}
-\end{table*}
+\end{table}

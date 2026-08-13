@@ -22,16 +22,17 @@ recommendations in some models and decreases them in others. Internal
 representations and hiring outcomes show different patterns: both Gemma-3 models
 track human warmth ratings, whereas the Llama family and earlier Qwen models
 invert them, and this alignment varies across model generations. In hiring
-outcomes, models across nearly every family favor names associated with Black and
-female applicants, contrary to the direction reported in human audit studies;
-Gemma-3-27B reverses the racial callback gap by more than one standard deviation
-while remaining the only model to reproduce the human gender direction. We
+outcomes, seven checkpoints favor names associated with Black applicants and
+eight favor names associated with female applicants. The pooled human race gap
+is near zero, so the model race results are not evidence of a consistent
+reversal; the human gender benchmark favors male applicants, and Gemma-3-27B is
+the only checkpoint that reproduces that direction. We
 conclude that linear encoding and successful steering do not imply that these
 representations reliably drive hiring decisions.
 
 ## Background
 
-Two pieces of prior work motivate this project:
+Four pieces of prior work position this project:
 
 - **Sofroniew, Lindsey et al. (2026), _Emotion Concepts and their Function in a
   Large Language Model_.** Shows that emotion concepts exist inside a language
@@ -42,6 +43,12 @@ Two pieces of prior work motivate this project:
   callback rates in meta-analyzed North American labor market experiments_.**
   Meta-analyzes correspondence studies and links perceived warmth and competence
   to callback disparities. This project uses it as the human benchmark.
+- **Deas and McKeown (2025), _Artificial Impressions_.** Probes warmth and
+  competence in open-weight model activations and connects those impressions
+  to response properties. This is the nearest same-construct probe study.
+- **Tripathy and Buckmann (2026), _Fair Outputs, Biased Internals_.** Uses
+  activation steering to test latent demographic representations in mortgage
+  underwriting. This is the nearest high-stakes representational audit.
 
 The bridge: if emotions can be represented as causal internal directions, warmth
 and competence may be represented that way too, and they may help explain hiring
@@ -114,12 +121,12 @@ for the original phased plan and `AGENTS.md` for working conventions.
   has the strongest indirect effect from name group to callback margin.
 - **Human alignment varies by model generation.** Both Gemma-3 models track
   human warmth ratings; Llama-3.1-8B and Qwen3-14B invert them.
-- **Hiring disparity mostly runs opposite to human audit studies.** Models
-  across nearly every family favor names associated with Black and female
-  applicants, the opposite direction reported in human correspondence studies.
-  Gemma-3-27B is the exception: it reverses the racial callback gap by more
-  than one standard deviation and is the only model that reproduces the human
-  gender direction.
+- **Race and gender gaps require different interpretations.** Seven models
+  favor Black-signaling names, but the pooled human race reference is only
+  +1.2 percentage points and is better treated as near zero than as a stable
+  directional penalty. Eight models favor female-signaling names against a
+  human benchmark that favors male-signaling names by 3.6 percentage points;
+  Gemma-3-27B is the only checkpoint with the human gender direction.
 - **Bottom line:** linear encoding and successful steering at the concept level
   do not imply that these representations reliably drive hiring decisions.
 
