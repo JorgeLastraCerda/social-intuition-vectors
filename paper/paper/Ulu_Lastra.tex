@@ -45,18 +45,23 @@
             marginparwidth=38pt]{geometry}
 
 % Float control
-\renewcommand{\topfraction}{0.9}
+% Float-area limits retightened 2026-08-11. The 2026-08-09 values
+% (textfraction 0.05, dbltopfraction 0.9, dbltopnumber 3) let a page be 95%
+% float and allowed three full-width floats to stack at one page top, which
+% is why tables and figures rendered back to back. These values require every
+% page to carry at least 15% text and permit one wide float per top.
+\renewcommand{\topfraction}{0.7}
 \renewcommand{\bottomfraction}{0.9}
-\renewcommand{\textfraction}{0.05}
+\renewcommand{\textfraction}{0.15}
 \renewcommand{\floatpagefraction}{0.9}
 \raggedbottom
 % Double-column (figure*/table*) counterparts, needed because every
 % Results float spans both columns. Set for the Results layout pass
 % (see step_logs/STEP_LOG.md): allow tall double-column floats at the
 % page top and pack float pages instead of stranding one float per page.
-\renewcommand{\dbltopfraction}{0.9}
+\renewcommand{\dbltopfraction}{0.6}
 \renewcommand{\dblfloatpagefraction}{0.7}
-\setcounter{dbltopnumber}{3}
+\setcounter{dbltopnumber}{1}
 
 % Math operators
 \DeclareMathOperator*{\mean}{mean}
@@ -472,7 +477,8 @@ more stable than warmth in every model. Cross-axis accuracy runs from 0.82
 to 1.00, indicating the two axes share substantial evaluative content.
 All thirty-six model pairs agree positively on both axes. Denoising lowers
 the warmth-competence cosine in every model without eliminating it.
-\autoref{appx:probe_checks} states what each check tests and why.
+The \nameref{appx:probe_checks} section of the Supplementary Materials states what
+each check tests and why.
 \autoref{tab:probe_validation} reports Cohen's $d$, the random-null $z$-score,
 split-half cosine, and calibrated cross-axis accuracy for all nine models;
 5-fold cross-validated and topic-holdout accuracy reach 1.00 for every model
@@ -721,13 +727,41 @@ gaps, using four analyses:
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section*{Results}
+% Float barriers removed 2026-08-11. The \clearpage barriers added on
+% 2026-08-09 were flushing the float queue after short paragraphs, which
+% produced float-only pages and text pages ending early. With the crossed
+% disparity and mediation tables moved to the appendix there are fewer
+% floats queued, and containment was re-verified after removal: every
+% float still lands with its owning paragraph, in narrative order.
 
 \paragraph{Vector Validation, All Nine Models.}
 Every one of the five single-model checks and two cross-model analyses
 described in Methods was run on all nine checkpoints, and none flags a
 direction as an artifact of the specific stories used to build it.
 
+\autoref{tab:probe_validation} collects four of the five single-model
+checks; 5-fold cross-validated and topic-holdout accuracy are not columns
+in that table because both reach exactly 1.00 for every model on both axes
+and every fold, so there is no variation left to tabulate. Cohen's $d$
+ranges from 2.70 (Gemma-3-12B, warmth) to 9.97 (Qwen3-14B, competence), and
+the random-direction null comparison never comes close: across all nine
+models and both axes, 0 of the 1,000 random directions tested per model
+matched or exceeded the real direction's separation, with $z$-scores
+between 3.7 and 15.1. Split-half cosine stability stays in the 0.69-0.90
+range reported in Methods, and calibrated cross-axis accuracy stays between
+0.82 and 1.00. \autoref{fig:paper_figure1_axis_arrows} shows the same
+overlap geometrically: the angle between the warmth and competence
+directions varies by model, from 41.5 degrees at Gemma-3-12B to 59.6 at
+Llama-3.1-8B, so the two axes are neither collinear nor orthogonal in any
+checkpoint. Together these confirm that warmth and competence share substantial
+evaluative content rather than behaving as fully separate constructs.
+
 \input{\tabledir/probe_validation_9model.tex}
+
+\autoref{fig:paper_figure2_layer_emergence} traces the same separation across
+depth rather than across steering strength, showing that Cohen's $d$ rises
+through the middle layers in all nine models and peaks near the fixed probe
+depth of 0.66.
 
 \begin{figure*}[tp]
 \centering
@@ -741,19 +775,6 @@ equal x/y scaling.}
 \label{fig:paper_figure1_axis_arrows}
 \end{figure*}
 
-\autoref{tab:probe_validation} collects four of the five single-model
-checks; 5-fold cross-validated and topic-holdout accuracy are not columns
-in that table because both reach exactly 1.00 for every model on both axes
-and every fold, so there is no variation left to tabulate. Cohen's $d$
-ranges from 2.70 (Gemma-3-12B, warmth) to 9.97 (Qwen3-14B, competence), and
-the random-direction null comparison never comes close: across all nine
-models and both axes, 0 of the 1,000 random directions tested per model
-matched or exceeded the real direction's separation, with $z$-scores
-between 3.7 and 15.1. Split-half cosine stability stays in the 0.69-0.90
-range reported in Methods, and calibrated cross-axis accuracy stays between
-0.82 and 1.00, confirming that warmth and competence share substantial
-evaluative content rather than behaving as fully separate constructs.
-
 Agreement across architectures is just as consistent. Spearman correlation
 on the 36 possible model pairs never turns negative: overall ranking
 agreement (which includes the high-versus-low split itself) ranges from
@@ -764,6 +785,17 @@ condition rather than just separating high from low, ranges from 0.095 to
 \autoref{fig:fig6_cross_model_agreement} shows the full 9x9 pattern; the
 complete 36-pair table is in \autoref{tab:cross_model_agreement}.
 
+% [t] not [p] (2026-08-11): [p] forbids sharing a page with body text and
+% forced float-only pages. See idea-notes table-restructure-spec Item 7.
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{paper_figure2_layer_emergence.pdf}
+\caption{\textbf{Warmth and competence directions emerge robustly across depth.}
+Layer-wise Cohen's~$d$ across nine open-weights models. The dotted vertical
+line marks the fixed probe-layer fraction of 0.66.}
+\label{fig:paper_figure2_layer_emergence}
+\end{figure*}
+
 Neutral-corpus PCA denoising, reported in full in
 \autoref{tab:pca_denoising}, shows the same pattern across every model:
 removing the components shared with 1,500 ordinary Wikipedia paragraphs
@@ -773,7 +805,9 @@ reduction is largest in the two Gemma-3 checkpoints (0.749 to 0.530 and
 hundredths, suggesting that most of what remains after denoising is
 genuine conceptual overlap rather than a removable general tone.
 
-\begin{figure*}[p]
+% [t] not [p] (2026-08-11): [p] forbids sharing a page with body text and
+% forced float-only pages. See idea-notes table-restructure-spec Item 7.
+\begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]{fig6_cross_model_story_agreement.pdf}
 \caption{\textbf{Cross-model story-ranking agreement, all nine models.}
@@ -785,13 +819,6 @@ it isolates agreement on finer story ordering. Full pairwise values are in
 \autoref{tab:cross_model_agreement}.}
 \label{fig:fig6_cross_model_agreement}
 \end{figure*}
-
-% Barrier: flush every pending float from Vector Validation before Steering
-% the Concept Vectors begins. \FloatBarrier (placeins) is unavailable in
-% this TeX installation (not installed, texmf tree is root-owned); floats
-% are pending at every paragraph boundary in this document, so \clearpage
-% is used here as a functional equivalent, not a positioning hack.
-\clearpage
 
 \paragraph{Steering the Concept Vectors, All Nine Models.}
 At the narrow local grid ($\alpha \in \{-0.10,...,+0.10\}$),
@@ -822,17 +849,6 @@ interpreted in the text.}
 \label{fig:fig14_dense_steering_normalized}
 \end{figure*}
 
-\begin{figure*}[p]
-\centering
-\includegraphics[width=\textwidth]{paper_figure2_layer_emergence.pdf}
-\caption{\textbf{Warmth and competence directions emerge robustly across depth.}
-Layer-wise Cohen's~$d$ across nine open-weights models. The dotted vertical
-line marks the fixed probe-layer fraction of 0.66.}
-\label{fig:paper_figure2_layer_emergence}
-\end{figure*}
-
-\input{\tabledir/concept_saturation.tex}
-
 Wide strengths tell a partly different story.
 \autoref{tab:concept_saturation} sweeps $\alpha \in \{\pm0.25,\pm0.50\}$ on
 Gemma-3-12B and Gemma-3-27B, the two models tested at this range. Three of
@@ -841,7 +857,7 @@ relative to the step before it, matching the saturating breakdown Methods
 describes for extreme strengths; Gemma-3-27B's warmth response is the
 exception, still accelerating at $+0.50$ rather than leveling off.
 
-\input{\tabledir/concept_direction_specificity.tex}
+\input{\tabledir/concept_saturation.tex}
 
 A single direction moving the answer does not by itself establish that the
 effect is specific to warmth or competence rather than any sufficiently
@@ -862,7 +878,7 @@ and Gemma-3-27B's SAE features correlate well above a permutation null
 (\autoref{tab:gemma_scope_sae_quality} reports the underlying reconstruction
 quality behind both checks).
 
-\input{\tabledir/concept_signal_vs_control_9model.tex}
+\input{\tabledir/concept_direction_specificity.tex}
 
 Comparing the dense target against a random-direction control extends
 across all nine models, but the control itself is not built the same way
@@ -879,12 +895,7 @@ alone does not establish specificity for that family. The calibrated
 99-direction control is not available for the four legacy checkpoints, so
 the comparison there rests on a single random draw.
 
-% No barrier here: Steering Hiring Decisions' own prose is short enough
-% that a \clearpage left the whole right column and lower half of the next
-% page blank (verified, then reverted). Its own floats still barrier
-% before Names, Human Ratings, and Disparity below, so containment holds;
-% only this zone's text is allowed to share a page with the previous
-% zone's tail float.
+\input{\tabledir/concept_signal_vs_control_9model.tex}
 
 \paragraph{Alignment with Human Ratings, All Nine Models.}
 Everything reported so far describes the nine models behaving alike: the
@@ -912,10 +923,6 @@ margin, which is not a human-alignment measure.
 
 \input{\tabledir/probe_human_correlation_9model.tex}
 
-% Barrier: flush every pending float from Steering Hiring Decisions before
-% Names, Human Ratings, and Disparity begins (see the barrier note above).
-\clearpage
-
 \paragraph{Steering Hiring Decisions, All Nine Models.}
 Pushing the warmth or competence direction while the model reads a hiring
 application shifts the callback margin
@@ -924,8 +931,6 @@ subset at the broad strength grid $\alpha\in\{\pm0.25,\pm0.50\}$, chosen
 here uniformly across all nine models so the comparison sits on one shared
 scale rather than mixing the per-model preferred endpoints used by
 \autoref{tab:hiring_transition_census}.
-
-\input{\tabledir/hiring_steering_slopes_9model.tex}
 
 \autoref{tab:hiring_steering_slopes} fits a line through each model-axis
 response and reports the slope alongside $R^2$. The fit is close to linear
@@ -937,10 +942,21 @@ delta at $\alpha=+0.50$ is actually negative despite a positive slope
 estimate. Slopes vary in sign and size as well as fit quality: Gemma-3-12B
 warmth has the steepest response (+12.91 per unit $\alpha$), and Qwen3-14B
 competence is the only row with a negative slope (-0.11), effectively flat.
+\autoref{fig:hiring_bidirectional_examples} makes the divergence concrete on
+matched examples: the same positive intervention at $\alpha=+0.10$ moves the
+mean decision from No to Yes at Gemma-3-12B and from Yes to No at
+Gemma-3-27B, using the same 60 applications in both panels.
 The categorical Yes/No transitions behind this same steering intervention,
 including how often it crosses the decision boundary rather than only
 scaling an existing lean, are reported in full in
 \autoref{tab:hiring_transition_census}.
+
+\input{\tabledir/hiring_steering_slopes_9model.tex}
+
+\paragraph{Group-Level Disparity and Mediation, All Nine Models.}
+Two further analyses move from individual names to demographic groups, and
+from correlation to the stronger question of whether the representations
+carry a group signal into the callback decision.
 
 \begin{figure*}[tp]
 \centering
@@ -958,15 +974,6 @@ are empirical; connector geometry is schematic. Complete results for all nine
 models and both axes appear in \autoref{tab:hiring_transition_census}.}
 \label{fig:hiring_bidirectional_examples}
 \end{figure*}
-
-% Barrier: flush every pending float from Steering Hiring Decisions before
-% Group-Level Disparity and Mediation begins (see the barrier note above).
-\clearpage
-
-\paragraph{Group-Level Disparity and Mediation, All Nine Models.}
-Two further analyses move from individual names to demographic groups, and
-from correlation to the stronger question of whether the representations
-carry a group signal into the callback decision.
 
 \autoref{tab:disparity_marginal} asks the alignment question at the
 group level: does a group's model-internal warmth or competence lean the
@@ -988,17 +995,10 @@ distinct names.
 
 \input{\tabledir/hiring_disparity_marginal_9model.tex}
 
-\autoref{tab:disparity_race_gender} crosses race and gender into four joint
-groups (Black-Female, Black-Male, White-Female, White-Male), recovering the
-interaction structure the marginal breakdown above collapses, using the same
-standardized comparison. The study-broken raw values behind this table are
-in \autoref{tab:disparity_crossed}.
-
-\input{\tabledir/hiring_disparity_race_gender_9model.tex}
-
 The last analysis asks whether the probed representations actually carry
 the name-group signal into the callback decision, rather than merely
-correlating with it. \autoref{tab:mediation_9model} tests this with
+correlating with it. \nameref{appx:mediation} in the Supplementary Materials
+tests this with
 bootstrap mediation along the path name group~$\to$ probe score~$\to$
 callback margin, run separately for race and gender and for warmth and
 competence, thirty-six tests across the nine models. Fourteen of the
@@ -1018,15 +1018,8 @@ already present in Qwen3-14B. Read together, the absence of mediation looks
 like a property of the Gemma-3 generation specifically rather than a
 general feature of models whose concept directions steer well.
 
-\input{\tabledir/mediation_9model.tex}
-
-% Barrier: flush every pending float from Names, Human Ratings, and
-% Disparity before Discussion and Conclusion begins (see the barrier note
-% above); without this, this zone's float pages bleed into Discussion body
-% text, the same containment failure this layout pass is fixing.
-\clearpage
-
 % ─────────────────────────────────────────────────────────────────────────────
+
 
 \section*{Discussion and Conclusion}
 % ─────────────────────────────────────────────────────────────────────────────
@@ -1136,6 +1129,15 @@ than optimized.
   \item \textbf{Limited topic coverage}: The corpus covers 50 topics.
   Broader topic coverage and larger per-condition samples would further
   test how far the directions generalize.
+  \item \textbf{The corpus cannot be regenerated exactly}: Stories were
+  written interactively rather than by a batch script, and the prompt was
+  refined during generation, most consequentially by adding the identity
+  and off-axis constraints after an audit of an early pilot. The prompts as
+  issued are reported in \autoref{tab:story_prompt}, but no seed or
+  transcript fixes the sampling, so re-running them would produce a
+  different corpus. The 200 stories are released in full and every
+  downstream result derives from that fixed text, so the analyses reported
+  here are reproducible even though the stimulus generation is not.
   \item \textbf{A fixed probe-layer heuristic, not validated per model}:
   We set $\mathrm{probe\_layer\_frac} = 0.66$ for every model based on the
   relative depth reported for emotion representations in
@@ -1300,6 +1302,13 @@ On the social-science side, extending the hiring stimuli beyond names to
 category-level signals (age, disability, religion) would broaden the
 scope of the benchmark comparison and test whether the representational
 account generalises beyond race and gender.
+The crossed race-by-gender breakdown reported under
+\nameref{appx:crossed_disparity} in the Supplementary Materials
+suggests the gender gap is not independent of race in most checkpoints, and
+that the two effects point in opposite directions across model families.
+Establishing whether that interaction is real would require standardized
+effects and interval estimates on larger cells than the present name panel
+provides.
 Translating these findings into practical debiasing interventions and
 evaluating their robustness to adversarial prompting is a natural next
 step for applied work.
@@ -1329,8 +1338,6 @@ treated as claims about that checkpoint until they are shown to replicate.
 \clearpage
 \printbibliography
 }
-
-
 
 \clearpage
 \begin{appendices}
@@ -1466,16 +1473,77 @@ competence through actions rather than labels, and the 90--150 word length
 band enforced across every condition. \autoref{tab:story_prompt} reserves
 the exact generation and system prompt text.
 
-\begin{table}[h]
+% The prompt below is quoted stimulus material, not manuscript prose.
+% Its em-dashes and capitalization reproduce the text as issued and should
+% not be normalized to the manuscript style rule.
+% [H] (float package, loaded in the preamble) pins this table inside its own
+% subsection. With [h] it drifted forward into "PCA Denoising, All Nine
+% Models" and split that section's prose.
+\begin{table}[H]
 \centering
-\small
-\begin{tabular}{p{0.9\linewidth}}
+\footnotesize
+\begin{tabular}{@{}p{0.95\linewidth}@{}}
 \toprule
-\textsc{Work in progress} \\
+\textbf{System prompt} \\
+\midrule
+You are a creative writer producing short vignettes for a psychology study.
+Follow the instructions precisely. Write only the paragraph — no titles, no
+explanations, no labels. \\
+\midrule
+\textbf{Per-story prompt} \\
+\midrule
+Write a single paragraph (90--150 words) about the following situation. \\[2pt]
+Situation: \{topic\} \\[2pt]
+The paragraph should describe ONE person's behaviour in this situation.
+That person should clearly exhibit \{condition\_description\}. \\[2pt]
+Critical rules: \\
+1. Show the quality through the person's specific actions, decisions, and
+reactions — NEVER state it directly. \\
+2. Do NOT use any of these words (or close variations):
+\{forbidden\_words\}. \\
+3. The paragraph should feel natural, like a scene from a realistic short
+story. \\
+4. Do not name the quality at any point. \\
+5. The protagonist must be nameless and referred to only as ``they,'' with
+no cues to gender, ethnicity, or national origin. \\
+6. Hold the other dimension at an ordinary level: when writing warmth, the
+person should read as neither notably competent nor notably incompetent,
+and the reverse when writing competence. \\
+7. Write only the paragraph. No title, no label, no explanation. \\
+\midrule
+\textbf{\{condition\_description\}} \\
+\midrule
+\emph{high warmth}: strong warmth — genuine care, attentiveness, and
+concern for others \\
+\emph{low warmth}: low warmth — emotional distance, self-focus, and
+indifference to others \\
+\emph{high competence}: high competence — effectiveness, careful thinking,
+and reliable execution \\
+\emph{low competence}: low competence — disorganisation, poor judgement,
+and repeated errors \\
+\midrule
+\textbf{\{forbidden\_words\}} \\
+\midrule
+\emph{high warmth}: warm, warmth, kind, kindness, caring, empathetic,
+empathy, compassionate, compassion, friendly, friendliness \\
+\emph{low warmth}: cold, coldness, unfriendly, distant, aloof, uncaring,
+indifferent, hostile \\
+\emph{high competence}: competent, competence, skilled, capable,
+capability, expert, expertise, proficient, proficiency, efficient,
+efficiency \\
+\emph{low competence}: incompetent, incompetence, unskilled, incapable,
+inefficient, inefficiency, clumsy \\
 \bottomrule
 \end{tabular}
-\caption{Generation and system prompt supplied to the writing model. This
-table is a placeholder pending the verbatim prompt text.}
+\caption{Prompts used to generate the concept-story corpus. The corpus was
+produced interactively with Claude Opus~4.8 rather than by a batch script,
+and rules 5 and 6 were added during generation after an audit of an early
+pilot found that unconstrained prompting assigned male, Anglo-named
+protagonists to the low-warmth and low-competence conditions. The
+repository's \texttt{src/generate\_stimuli.py} holds a batch template for a
+larger corpus that was specified but not run; it differs from the text
+above in its requested length band and does not carry rules 5 and 6.
+Realized story lengths were 88 to 144 words, mean 100.}
 \label{tab:story_prompt}
 \end{table}
 
@@ -1489,7 +1557,8 @@ conditions is visible independent of the situation described.
 \begin{longtable}{p{0.16\linewidth}p{0.78\linewidth}}
 \caption{Example stories, one per condition, sharing a single topic (topic
 1 of \autoref{tab:story_topics}). The complete set of all 200 story texts
-is available at \texttt{[WORK IN PROGRESS]}.}
+is available in the project repository at
+\texttt{data/stimuli/concept\_stories.jsonl}.}
 \label{tab:story_examples} \\
 \toprule
 Condition & Story (topic: ``A team meeting where a decision needs to be made
@@ -1726,12 +1795,36 @@ standardized ($z$-score) main-text version is built for that comparison.
 
 \input{\tabledir/hiring_disparity_marginal_raw_9model.tex}
 
+\subsection*{Bootstrap Mediation, All Nine Models}
+\label{appx:mediation}
+Indirect effects for the path name group to probe score to callback margin,
+for every model, both groupings, and both probes. The two figures the Results
+section reports from this table, that fourteen of the thirty-six intervals
+exclude zero uncorrected and that only the Llama-3.1-8B race--warmth path
+survives a Bonferroni threshold, are stated there; the coefficients are given
+here for readers checking them.
+
+\input{\tabledir/mediation_9model.tex}
+
+\subsection*{Crossed Race $\times$ Gender Disparity, All Nine Models}
+\label{appx:crossed_disparity}
+Race and gender are treated as separate marginal axes throughout the main
+text. Crossing them recovers interaction structure the marginal breakdown
+collapses. No result in this paper rests on the table below; it is reported
+because the gender gap is visibly not independent of race in most
+checkpoints, and that observation motivates the intersectional direction
+noted in Future Work. Cell sizes are 28 Black-female, 28 Black-male, 117
+White-female, and 73 White-male names, and no interval estimates or
+significance tests were computed for the interaction terms.
+
+\input{\tabledir/hiring_disparity_race_gender_9model.tex}
+
 \subsection*{Name-Level Warmth/Competence by Crossed Race $\times$ Gender}
 
 \autoref{tab:disparity_crossed} is the raw-value companion to
-\autoref{tab:disparity_race_gender} in the main text: race and gender crossed
+\autoref{tab:disparity_race_gender} above: race and gender crossed
 into four joint cells (Black-Female, Black-Male, White-Female, White-Male),
-recovering the interaction structure the marginal breakdown above collapses.
+recovering the interaction structure the marginal breakdown collapses.
 Within each cell, callback rates are further broken down by source study
 rather than blended together, for the same reason as above. Cell sizes range
 from a single-study group of 9 names (each Black cell under Bertrand alone)

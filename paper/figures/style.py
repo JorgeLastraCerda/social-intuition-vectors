@@ -4,14 +4,22 @@ import matplotlib as mpl
 def apply() -> None:
     mpl.style.use(["seaborn-v0_8-paper", "seaborn-v0_8-ticks"])
     mpl.rcParams.update({
-        "font.family": "sans-serif",
-        "font.sans-serif": ["Helvetica Neue", "Helvetica", "Arial", "DejaVu Sans"],
-        "font.size": 11,
-        "axes.labelsize": 12,
-        "axes.titlesize": 12,
-        "legend.fontsize": 10,
-        "xtick.labelsize": 10,
-        "ytick.labelsize": 10,
+        # Match the manuscript, which is \documentclass{article} with no font
+        # package and therefore Computer Modern serif. Sans-serif figure text
+        # read as a different document when placed next to the body type.
+        "font.family": "serif",
+        "font.serif": ["CMU Serif", "Computer Modern Roman", "DejaVu Serif",
+                       "Times New Roman"],
+        "mathtext.fontset": "cm",
+        # Sizes are set for a figure placed at \textwidth in a two-column
+        # layout, where the body font is 10pt. Previous values rendered larger
+        # than the surrounding prose.
+        "font.size": 9,
+        "axes.labelsize": 9,
+        "axes.titlesize": 10,
+        "legend.fontsize": 8,
+        "xtick.labelsize": 8,
+        "ytick.labelsize": 8,
         "axes.spines.top": False,
         "axes.spines.right": False,
         "savefig.bbox": "tight",

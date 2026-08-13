@@ -1,5 +1,34 @@
 # Table Restructure Spec: Main-Body Tables
 
+> ## ACTION LIST — start here
+>
+> Six changes, all in `src/build_paper_probe_tables.py` unless noted. Nothing below needs
+> new GPU work; every change is arithmetic or formatting over data already in
+> `results/tables/`.
+>
+> | # | Table | What must be done | Status |
+> |---|---|---|---|
+> | 1 | `hiring_disparity_marginal_9model` | New `build_table_disparity_gaps()` emitting a 9-row gap table (Black−White, Female−Male). Levels version to appendix. | **not done** |
+> | 2 | `concept_signal_vs_control_9model` | Convert every `±` to an explicit interval; add `Exceeds control?` column; move `Control basis` into the caption. Do not soften the Gemma-4 null. | **not done** |
+> | 3 | `hiring_steering_slopes_9model` | Mark rows where fitted slope and the α=+0.50 endpoint disagree in sign, with a marker distinct from the existing R² bold. | **not done** |
+> | 4 | `concept_direction_specificity` | Rewrite caption finding-first; state the two-model limitation adjacent to the table. | **not done** |
+> | 5 | `hiring_disparity_race_gender_9model` | ~~Remove from body~~ **DONE 2026-08-11 by Jorge's session.** Now in Additional Results as `appx:crossed_disparity`, referenced from Future Work. No builder change needed. | **done** |
+> | 6 | `mediation_9model` | **DONE 2026-08-11.** Moved to Additional Results as `appx:mediation`. **Note:** `fig19_hiring_mediation_forest` was NOT added, because it is stale (4 models, not 9) and has broken arrow glyphs. Results now carries this result in prose only. | **done, with caveat** |
+> | 7 | float placement | **DONE 2026-08-11.** Barriers removed, `[p]`->`[t]` on figures, float-area limits retightened, Results float order rebuilt so no two floats are adjacent, and all 8 `table*` specifiers changed to `[t]` in both builders. Verified: one float per page, 605-838 words/page. **Requires regeneration** for the table specifiers to reach the `.tex` files. | **done, needs regen** |
+> | 8 | `fig6_cross_model_story_agreement` | Replace four 9x9 heatmaps with a single-column dot plot. **Script written and tested:** run `python paper/figures/fig6_cross_model_agreement.py`, then swap the include. See Item 8. | **script ready** |
+> | 9 | narrow Results tables | **Tested and verified.** `probe_validation` builder already converted; **must be regenerated to take effect.** `probe_human_correlation` and the gap table still to do. Use narrowing, NOT `\resizebox`. See Item 9. | **partly done** |
+>
+> **Also, added 2026-08-11:** `paper/figures/style.py` was changed from Helvetica
+> sans-serif at 11pt to serif at 9pt with `mathtext.fontset: cm`, so figure text matches
+> the manuscript's Computer Modern body font. **All figures need regenerating.** This is
+> why Figure 3 currently reads as belonging to a different document.
+>
+> **Correction to the earlier Category 3 note:** `concept_saturation` (7 columns) and
+> `concept_direction_specificity` (8 columns) **cannot** be narrowed to single-column
+> floats. They genuinely need the double-column width. Results page pressure comes from
+> float count and barrier placement, not their width.
+
+
 - **Timestamp:** 2026-08-10 16:51 Europe/Berlin
 - **Requested by:** Jorge
 - **Status:** Approved change request, not yet executed
@@ -411,3 +440,436 @@ Seven tables: `tab:models`, `probe_validation`, `concept_saturation`,
 `probe_human_correlation`, plus the new nine-row `hiring_disparity_gaps`. Five figures
 unchanged. Main-body table rows fall from roughly 179 to about 90, with the largest single
 saving coming from the two crossed and marginal disparity tables.
+
+
+---
+
+# Table 9 decision: empirical basis, 2026-08-11
+
+Jorge asked whether the crossed race-by-gender table contributes anything to Results. It
+was tested rather than assumed. Interaction computed as (gender gap among Black names)
+minus (gender gap among White names), from `hiring_disparity_race_gender_9model`:
+
+| Model | Gap among Black | Gap among White | Interaction |
+|---|---:|---:|---:|
+| Gemma-3-12B | +0.107 | +0.107 | -0.000 |
+| Gemma-3-27B | -0.160 | -0.274 | +0.114 |
+| Llama-3.1-8B | +0.085 | +0.036 | +0.049 |
+| Gemma-4-12B | -0.096 | +0.043 | -0.139 |
+| Gemma-4-26B-A4B | +0.657 | +0.602 | +0.055 |
+| Gemma-4-31B | +0.101 | +0.547 | -0.446 |
+| Qwen3-14B | +0.196 | +0.392 | -0.196 |
+| Qwen3.6-27B | +0.058 | +0.160 | -0.102 |
+| Qwen3.6-35B-A3B | +0.237 | +0.366 | -0.129 |
+
+**There is a signal.** The gender gap is not independent of race in most checkpoints. In
+Gemma-4-31B the female advantage is roughly five times larger among White names; in
+Gemma-4-12B the gap reverses sign by race. The marginal table cannot show this.
+
+**Three reasons it still should not occupy a body page.**
+
+1. **The raw values are not comparable across models.** Model margins range from about
+   -0.2 (Gemma-3-12B) to about 25.8 (Gemma-4-31B), so an interaction of -0.446 means
+   something entirely different in each row. Standardizing by the within-model SDs already
+   reported in Limitations changes the ranking: Llama-3.1-8B is roughly +0.49 SD and
+   Qwen3-14B roughly -0.54 SD, comparable in magnitude but opposite in direction. The
+   printed table does not support that reading.
+2. **Cell sizes are small**: 28 Black-Female and 28 Black-Male against 117 White-Female
+   and 73 White-Male.
+3. **Nothing is tested.** No intervals, no significance testing, no correction for the
+   nine comparisons.
+
+**Decision.** Remove from the body, keep generated for the appendix, and record the
+observation in Future Work as an untested direction rather than a result. Suggested
+wording:
+
+> The crossed race-by-gender breakdown suggests the gender gap is not independent of race
+> in most checkpoints, with the two effects pointing in opposite directions across model
+> families. Establishing this would require standardized effects and interval estimates on
+> larger cells than the present design provides.
+
+Doing it properly, with within-model standardization and bootstrap intervals on the
+interaction term, is a genuine analysis task and is out of scope before the deadline.
+
+---
+
+# Item 7 — Float placement pass, 2026-08-11
+
+**Do this last, after Items 1 to 4 and 6.** Every table move invalidates the analysis below.
+
+## The diagnosis
+
+Measured from the rendered build, Results pages 11 to 14:
+
+| Page | Words | Floats | Fill |
+|---|---:|---:|---|
+| 11 | 356 | 3 | crowded |
+| 12 | 412 | 2 | reasonable |
+| 13 | 192 | 1 | a 10-row table alone, roughly 70% white |
+| 14 | 213 | 0 | one short column, rest empty |
+
+A full two-column page of this layout holds roughly 900 words. Pages 13 and 14 are running
+at about a fifth of capacity.
+
+**Two distinct causes, and they need different fixes.**
+
+### Cause 1: every medium and small float can claim a dedicated page
+
+Current specifiers:
+
+| Table | Rows | Specifier |
+|---|---:|---|
+| `probe_validation_9model` | 10 | `[tp]` |
+| `concept_saturation` | 5 | `[tp]` |
+| `concept_direction_specificity` | 5 | `[tp]` |
+| `concept_signal_vs_control_9model` | 19 | `[tp]` |
+| `hiring_steering_slopes_9model` | 19 | `[tp]` |
+| `probe_human_correlation_9model` | 10 | `[tp]` |
+
+The `p` in `[tp]` permits LaTeX to place a float alone on a float page. That is what put a
+ten-row table by itself on page 13. A table that occupies a quarter of a page should never
+be eligible for that.
+
+**Fix: change `[tp]` to `[t]` for all six.** These are `table*` environments, which LaTeX
+can only place at the top of a page or on a float page, never at the bottom, so `[t]` is
+the correct and only alternative. Removing `p` forces each one to share a page with prose.
+`\setcounter{dbltopnumber}{3}` is already set in the preamble, so up to three can stack at
+a page top, which is enough headroom to avoid long deferrals.
+
+Reserve `[p]` for floats that genuinely fill most of a page. After Items 1 and 6, the body
+may have none left.
+
+### Cause 2: the `\clearpage` barriers now flush too early
+
+Page 14 carries 213 words and no floats at all. That is a barrier firing after a short
+paragraph, ending the page with most of it unused. The barriers were added on 2026-08-09
+to stop floats drifting several pages past the prose that discusses them, which was a real
+problem at the time. With three large floats leaving the body, the condition that justified
+them largely disappears.
+
+**Fix, in this order:**
+
+1. Apply Items 1 to 4 and 6 first.
+2. Change the six specifiers above from `[tp]` to `[t]`.
+3. Rebuild, then **remove the barriers one at a time**, checking after each whether floats
+   still land in their own paragraph's zone. The 2026-08-09 entry records that one barrier
+   was already removed on measurement and saved a full page without breaking containment;
+   the same is likely true of others now.
+4. Re-run the containment check from that entry: every float in a paragraph zone should
+   land between that paragraph's prose page and the next paragraph's prose page.
+
+Expected recovery is one and a half to two pages, comparable to the entire table
+restructure.
+
+## Also fixed 2026-08-11, no action needed
+
+`tab:story_prompt` was drifting forward out of its own subsection and splitting "PCA
+Denoising, All Nine Models". Changed from `[h]` to `[H]`, which the `float` package
+supports and which is already loaded. The table now sits with its own subsection. Use `[H]`
+for any appendix table that must stay inside its section rather than float.
+
+---
+
+# Item 8 — Replace the four agreement heatmaps with a dot plot
+
+**Script already written and tested. Run it, swap the include, done.**
+
+## Why
+
+`fig6_cross_model_story_agreement` renders four 9x9 heatmaps, 324 cells. Each matrix is
+symmetric, so half of every panel is redundant, and the diagonal is 1.00 by construction.
+The two "overall" panels carry no visible variation at all, because every value falls
+between 0.74 and 0.99 and reads as uniformly dark. The axis labels are unreadable at the
+size the figure is placed. It occupies a full page while communicating four numbers.
+
+Pair identity was checked to see whether a matrix is justified. Within-condition agreement
+is slightly higher for same-family pairs (warmth median 0.56 against 0.45, competence 0.62
+against 0.51), but there are only 5 same-family pairs against 31 cross-family, which is too
+thin to build four panels around.
+
+## What to run
+
+```
+python paper/figures/fig6_cross_model_agreement.py
+```
+
+Writes `fig6_cross_model_agreement.pdf` and `.png` beside the script. Verified output:
+
+| Row | n | min | median | max |
+|---|---:|---:|---:|---:|
+| Warmth overall | 36 | 0.74 | 0.90 | 0.98 |
+| Warmth within-condition | 36 | 0.10 | 0.46 | 0.83 |
+| Competence overall | 36 | 0.78 | 0.94 | 0.99 |
+| Competence within-condition | 36 | 0.20 | 0.54 | 0.90 |
+
+These match the values already quoted in Results, so no prose needs changing.
+
+**Data source.** The script reads `results/tables/cross_model_agreement_9model.csv`. That
+file is gitignored, so it exists on the machine that generated it but not in a fresh clone.
+The script falls back to parsing the committed `.tex`, which carries the same two columns
+for all 72 rows, and prints which source it used. Run it where the CSV exists if possible.
+
+**Sizing.** The figure is 3.4 by 2.6 inches, sized for a single column. It follows the
+repository convention for hand-made figures: a same-basename `.py`, `.pdf` and `.png`
+triplet in `paper/figures/`, and it calls `style.apply()` so it picks up the serif change
+made on 2026-08-11 automatically.
+
+## Manuscript change
+
+Replace the `figure*` block for `fig6_cross_model_story_agreement` with a single-column
+`figure`:
+
+```latex
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{fig6_cross_model_agreement.pdf}
+\caption{\textbf{Cross-model story-ranking agreement, all 36 pairs.} Each point is one
+model pair. Overall correlations include the high-versus-low condition split;
+within-condition correlations restrict the comparison to stories sharing one condition and
+so reflect agreement on finer story ordering. Vertical rules mark medians. Full pairwise
+values are in \autoref{tab:cross_model_agreement}.}
+\label{fig:fig6_cross_model_agreement}
+\end{figure}
+```
+
+Update the `\autoref` in the Vector Validation paragraph to the new label. The old
+`fig6_cross_model_story_agreement` files can stay in `paper/figures/` unreferenced or be
+deleted; nothing else points at them.
+
+---
+
+# Item 9 — Convert narrow Results tables to single-column floats
+
+## Why
+
+Methods reads better than Results because Methods has one float across 3,100 words and
+uses inline `itemize` blocks that flow with the text column. Results has ten floats across
+2,000 words, and every one is a `table*` or `figure*`. A full-width float in a twocolumn
+document can only be placed at the top of a page or on a float page. It can never sit at a
+column bottom and text can never flow past it. That is why Results reads as consecutive
+slabs rather than prose with illustrations.
+
+Items 1, 5 and 6 reduce float count from ten to seven. Item 7 stops small floats claiming
+their own page. This item addresses the remaining cause.
+
+## Candidates
+
+Three tables are narrow enough that single-column placement is plausible. All three should
+be tested rather than assumed, since a single column is roughly 3.4 inches.
+
+| Table | Columns | Note |
+|---|---:|---|
+| `probe_validation_9model` | 5 | Cells are `W / C` pairs; may need `\footnotesize` |
+| `probe_human_correlation_9model` | 6 | Tightest of the three, test first |
+| new `hiring_disparity_gaps_9model` | 5 | From Item 1; design it single-column from the start |
+
+## How
+
+In the builder, change `\begin{table*}[tp]` to `\begin{table}[tb]` and drop the
+`\resizebox{\textwidth}` wrapper, since a single-column table should size to
+`\columnwidth` or simply be allowed to set naturally at `\footnotesize`. Note that `tb` is
+available here: a single-column float can go at a column bottom, which is exactly the
+behaviour that lets text flow around it and gives Methods its rhythm.
+
+Rebuild and check for overfull boxes. If a table overflows the column, either abbreviate
+the model names in that table only, for example `G3-12B`, or leave it as `table*` and
+record that it was tested and did not fit.
+
+**Do not force it.** A cramped single-column table is worse than a clean full-width one.
+The goal is that at least one or two Results floats interleave with prose, not that all of
+them do.
+
+
+---
+
+# Item 9 results, 2026-08-11: verified, with one important warning
+
+## `\resizebox` is the wrong tool
+
+The first attempt kept `\resizebox` and changed its argument from `\textwidth` to
+`\columnwidth`. It compiled with zero overfull boxes, which is misleading: `\resizebox`
+scales to whatever fits, so a five-column table squeezed into half the width rendered at
+roughly half the caption's type size. Legible in a PDF viewer at 200%, not on paper.
+
+**Narrow the content instead.** For `probe_validation` this meant three changes:
+
+1. Column heads reduced from `Cohen's $d$ (W / C)`, `Random-null $z$ (W / C)`,
+   `Split-half cosine (W / C)`, `Cross-axis accuracy (W$\to$C / C$\to$W)` to
+   `$d$`, `$z$`, `$\cos$`, `acc.`, with the definitions moved into the caption where they
+   already partly were.
+2. Model names abbreviated through a new `SHORT_NAME` map (`Gemma-4-26B-A4B` becomes
+   `G4-26B`), with the abbreviation scheme stated in the caption.
+3. `\small` to `\footnotesize`, `\tabcolsep` from 4pt to 3pt, and `\resizebox` removed
+   entirely.
+
+Result: zero overfull boxes, full-size readable type, the table sitting at the top of the
+right column with prose flowing below it, and a completely full page. This is the Methods
+rhythm the Results section was missing.
+
+## Status
+
+`build_table_probe_validation()` in `src/build_paper_probe_tables.py` has been updated to
+emit this form, and `SHORT_NAME` has been added near `STUDY_ORDER`. The change is
+syntax-checked but **could not be regenerated in the session that made it**, because
+`results/logs/split_half_stability_*.json` is gitignored and absent from a fresh clone.
+
+**Regenerate and check the rendered page, not just the log.** Zero overfull boxes does not
+prove legibility, as the first attempt shows.
+
+`probe_human_correlation_9model` (6 columns) and the Item 1 gap table still need the same
+treatment. Design the gap table single-column from the start.
+
+---
+
+# Item 6 result, 2026-08-11: done, but the forest plot could not be used
+
+The mediation table now sits in Additional Results as `appx:mediation`, and the Results
+sentence points there.
+
+**`fig19_hiring_mediation_forest` was deliberately not added to the body.** It is stale: it
+shows four models (Gemma-3-12B, Gemma-3-27B, Llama-3.1-8B, Qwen3-14B) with sixteen rows,
+from before the nine-model expansion. Its title and legend also contain broken glyphs where
+arrows and a not-equal sign should be. Placing it in a paper that claims nine models
+throughout would misrepresent the work.
+
+All nine mediation logs exist (`results/logs/hiring_mediation_*.json`), so a nine-model
+version is regenerable. Two options if there is time:
+
+1. Regenerate the forest plot for nine models. Thirty-six rows will make it tall, probably
+   a full-width float of roughly the same footprint as the table it replaced, which
+   defeats the purpose.
+2. **Preferred:** build a compact strip plot in the same style as
+   `fig6_cross_model_agreement.py`. Four rows (race-warmth, race-competence,
+   gender-warmth, gender-competence), nine points each, filled where the interval excludes
+   zero and open where it does not, with a rule at zero. That carries the finding, fits one
+   column, and matches the figure vocabulary now used elsewhere.
+
+Until one of those exists, the mediation result lives in Results prose, which already
+states both headline numbers.
+
+---
+
+# Item 7, part one: DONE 2026-08-11 (manuscript side only)
+
+Jorge asked why floats appear consecutively when the `.tex` separates them with prose.
+Diagnosed and partly fixed. **Two changes were made in `paper/paper/Ulu_Lastra.tex`. The
+table-side half of Item 7 still requires regeneration and remains open.**
+
+## Why floats were clumping
+
+Three mechanisms compounding:
+
+1. **`[p]` means float-page-only, not a preference.** Two figures carried
+   `\begin{figure*}[p]`, which *forbids* sharing a page with body text. LaTeX was obeying
+   an instruction, not ignoring one.
+2. **Full-width floats cannot sit at a page bottom.** `table*` and `figure*` accept only
+   `t` (page top) or `p` (float page). There is no `b`. So they queue waiting for tops.
+3. **Six `\clearpage` barriers flushed the queue at once.** Each barrier forces every
+   pending float out before the document continues, emitting them consecutively and ending
+   the preceding text page wherever it happened to be.
+
+## What was changed
+
+- Both `\begin{figure*}[p]` changed to `\begin{figure*}[t]`, with a source comment.
+- All six `\clearpage` barriers in Results removed, with a source comment recording why and
+  noting that containment was re-verified.
+
+## Measured effect
+
+| | Before | After |
+|---|---|---|
+| Pages | 38 | **36** |
+| Emptiest Results page | 192 words | 237 words |
+| Pages with no body text | 2 | 0 |
+| Overfull boxes | 0 | 0 |
+| Undefined refs / `??` | 0 | 0 |
+
+Per-page body words on 6 to 16 went from 810, 690, 432, 516, 709, 356, 412, 192, 213, 354,
+409 to 867, 804, 835, 525, 717, 428, 237, 656, 368, 842, 506.
+
+## Containment was checked, not assumed
+
+The 2026-08-09 entry added those barriers because floats were drifting up to nine pages
+past their prose. That risk was re-tested after removal by reading float pages from the
+`.aux` and matching each to the paragraph that first cites it. Every float now lands with
+its owning paragraph and in narrative order: Vector Validation floats on 9 to 10, Steering
+the Concept Vectors on 11 to 13, Alignment and Steering Hiring on 14, Group-Level
+Disparity on 16. The original concern does not recur, most likely because moving the
+crossed-disparity and mediation tables to the appendix removed two large floats from the
+queue.
+
+**If floats are added back to the body, re-check containment before assuming barriers are
+still unnecessary.**
+
+## What remains for Item 7
+
+The six generated tables still carry `[tp]`. The `p` there still permits a dedicated float
+page. Changing them to `[t]` requires editing the builders and regenerating, which could
+not be done in this session. Combined with Items 1, 8 and 9 this should recover further
+space.
+
+
+---
+
+# Item 7 complete, 2026-08-11: what finally fixed the clumping
+
+Four separate causes, all needed fixing. Any one left in place reproduced the problem.
+
+## 1. `[p]` on two figures
+`[p]` forbids a float from sharing a page with body text. Changed to `[t]`.
+
+## 2. Six `\clearpage` barriers
+Each flushed the whole pending float queue at once. Removed; containment re-verified from
+the `.aux`.
+
+## 3. Float-area limits permitted a 95%-float page
+The 2026-08-09 preamble set `\textfraction{0.05}`, `\dbltopfraction{0.9}` and
+`\setcounter{dbltopnumber}{3}`, which together allow a page to be 95 percent float with
+three full-width floats stacked at one top. Retightened to `\textfraction{0.15}`,
+`\topfraction{0.7}`, `\dbltopfraction{0.6}`, `\dbltopnumber{1}`.
+
+## 4. Source order placed floats back to back
+Several floats sat adjacent in the source with no prose between them. LaTeX queues in
+source order, so adjacent floats emit together regardless of placement specifiers. The
+Results float order was rebuilt programmatically: each float is now emitted after the
+paragraph that first cites it, at most one per paragraph boundary, so prose always
+separates them. Verified: zero adjacent float pairs in source.
+
+## 5. `[tp]` on the generated tables
+The `p` still permitted dedicated float pages where several tables could share. Changed to
+`[t]` in `src/build_paper_probe_tables.py` (7) and `src/build_paper_mediation_table.py`
+(1). **This is the change that requires regeneration.**
+
+## Measured result, with all five applied
+
+| | Before | After |
+|---|---|---|
+| Pages | 38 | 36 |
+| Pages with 2+ floats | 4 | 0 |
+| Emptiest Results page | 192 words | 396 words |
+| Overfull / undefined / `??` | 0 | 0 |
+
+Page map after: p9 Table 2, p10 Figure 3, p11 Table 3, p12 Table 4, p13 Table 5, p14
+Table 6, p15 Table 7, each with 561 to 838 words of body text on the same page.
+
+**Until the tables are regenerated, the `.tex` files still carry `[tp]` and pages 11 to 12
+will still stack two or three tables.** Everything else is already in the manuscript.
+
+---
+
+# Cross-reference and citation fixes, 2026-08-11
+
+- **Three broken "section" links repaired.** `\autoref` on a label attached to an
+  unnumbered `\subsection*` renders as the word "section", because the label picks up the
+  enclosing numbered counter. Affected `appx:probe_checks`, `appx:mediation` and
+  `appx:crossed_disparity`. Replaced with `\nameref`, which renders the subsection title.
+  **If any further appendix subsection gets a label, use `\nameref`, not `\autoref`.**
+- **Three figures had no citation in the body.** `fig:paper_figure1_axis_arrows` (Fig. 3)
+  and `fig:paper_figure2_layer_emergence` (Fig. 6) were cited nowhere at all;
+  `fig:hiring_bidirectional_examples` (Fig. 7) was cited only from the appendix, which is
+  why it appeared in the list of figures but nowhere in the text. All three now carry a
+  sentence in Results that states what the figure shows. Both older figures were kept, as
+  Jorge asked, and both still support their claims: the axis-arrows panel shows the
+  warmth-competence angle varying from 41.5 to 59.6 degrees across models, and the
+  layer-emergence panel shows Cohen's d rising through middle layers and peaking near the
+  0.66 probe depth.

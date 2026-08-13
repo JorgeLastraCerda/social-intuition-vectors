@@ -78,6 +78,14 @@ DISPLAY_NAME = {
 }
 
 # Display order for the study column within each race-gender group.
+
+# Compact model labels for single-column tables (spec Item 9, 2026-08-11).
+SHORT_NAME = {
+    "Gemma-3-12B": "G3-12B", "Gemma-3-27B": "G3-27B", "Llama-3.1-8B": "L3.1-8B",
+    "Gemma-4-12B": "G4-12B", "Gemma-4-26B-A4B": "G4-26B", "Gemma-4-31B": "G4-31B",
+    "Qwen3-14B": "Q3-14B", "Qwen3.6-27B": "Q3.6-27B", "Qwen3.6-35B-A3B": "Q3.6-35B",
+}
+
 STUDY_ORDER = ("bertrand", "kline", "farber", "neumark")
 
 # Canonical per-model concept-steering summary file, one row set per model.
@@ -200,7 +208,7 @@ def build_table1(cfg, log_dir: Path, out_path: Path) -> None:
         "% Ulu_Lastra.tex); a single-column table with \\resizebox{\\textwidth}",
         "% would overflow into the adjacent column. [tp]: medium-height table,",
         "% Results layout pass (see step_logs/STEP_LOG.md).",
-        r"\begin{table*}[tp]",
+        r"\begin{table*}[t]",
         r"\centering",
         r"\small",
         r"\setlength{\tabcolsep}{4pt}",
@@ -262,7 +270,7 @@ def build_table2(table_dir: Path, out_path: Path) -> None:
         "% and a plain single-column table environment overflows into the adjacent column.",
         "% [p]: 36-row table, dedicated float page, Results layout pass",
         "% (see step_logs/STEP_LOG.md).",
-        r"\begin{table*}[p]",
+        r"\begin{table*}[t]",
         r"\centering",
         r"\small",
         r"\setlength{\tabcolsep}{4pt}",
@@ -407,7 +415,7 @@ def build_table_race_gender(cfg, table_dir: Path, out_path: Path) -> None:
         "% table* + resizebox: same twocolumn-body overflow reason as Table 2 above.",
         "% [p]: 36-row table, dedicated float page, Results layout pass",
         "% (see step_logs/STEP_LOG.md).",
-        r"\begin{table*}[p]",
+        r"\begin{table*}[t]",
         r"\centering",
         r"\small",
         r"\setlength{\tabcolsep}{4pt}",
@@ -616,7 +624,7 @@ def build_table_probe_validation(log_dir: Path, out_path: Path) -> None:
         )
         rows.append(
             {
-                "model": DISPLAY_NAME[label],
+                "model": SHORT_NAME.get(DISPLAY_NAME[label], DISPLAY_NAME[label]),
                 "cohens_d": f"{vp['warmth']['cohens_d']:.2f} / {vp['competence']['cohens_d']:.2f}",
                 "null_z": f"{rb['warmth']['z_score']:.1f} / {rb['competence']['z_score']:.1f}",
                 "split_half": f"{sh['split_half_cosine_warmth']:.2f} / "
@@ -635,17 +643,18 @@ def build_table_probe_validation(log_dir: Path, out_path: Path) -> None:
         "% written by paper/figures/generate_figures.py::fig2_random_baseline).",
         "% 5-fold CV and topic-holdout accuracy are 1.00/1.00 for every model on",
         "% both axes (no variation to tabulate) and are reported in prose instead.",
-        "% table* + resizebox: same twocolumn-body overflow reason as Table 1.",
+        "% Single-column table (2026-08-11, spec Item 9): narrowed by abbreviating",
+        "% the model names and column heads rather than scaling with \\resizebox,",
+        "% which shrank the type to about half the caption size. [tb] lets it sit at",
+        "% a column bottom so prose flows past it. Verified: 0 overfull boxes.",
         "% [tp]: medium-height table, Results layout pass (see step_logs/STEP_LOG.md).",
-        r"\begin{table*}[tp]",
+        r"\begin{table}[tb]",
         r"\centering",
-        r"\small",
-        r"\setlength{\tabcolsep}{4pt}",
-        r"\resizebox{\textwidth}{!}{%",
+        r"\footnotesize",
+        r"\setlength{\tabcolsep}{3pt}",
         r"\begin{tabular}{@{}lcccc@{}}",
         r"\toprule",
-        r"Model & Cohen's $d$ (W / C) & Random-null $z$ (W / C) & "
-        r"Split-half cosine (W / C) & Cross-axis accuracy (W$\to$C / C$\to$W) \\",
+        r"Model & $d$ & $z$ & $\cos$ & acc. \\",
         r"\midrule",
     ]
     for row in rows:
@@ -656,8 +665,7 @@ def build_table_probe_validation(log_dir: Path, out_path: Path) -> None:
     lines += [
         r"\bottomrule",
         r"\end{tabular}%",
-        r"}",
-        r"\caption{\textbf{Probe validation, all nine models.} Warmth (W) and "
+        r"\caption{\textbf{Probe validation, all nine models.} Model names are abbreviated (G3, G4, L3.1, Q3, Q3.6 for the Gemma-3, Gemma-4, Llama-3.1, Qwen3 and Qwen3.6 families). Columns are Cohen\'s $d$, the random-null $z$, split-half cosine, and calibrated cross-axis accuracy. Warmth (W) and "
         r"competence (C) values in each cell. Cohen's $d$ is the effect size "
         r"separating high- and low-condition stories on the raw dense direction. "
         r"Random-null $z$ standardizes that same $d$ against 1,000 random "
@@ -670,7 +678,7 @@ def build_table_probe_validation(log_dir: Path, out_path: Path) -> None:
         r"the other axis. 5-fold cross-validated and topic-holdout accuracy "
         r"are omitted here since both are 1.00 for every model on both axes.}",
         r"\label{tab:probe_validation}",
-        r"\end{table*}",
+        r"\end{table}",
         "",
     ]
     out_path.write_text("\n".join(lines), encoding="utf-8")
@@ -831,7 +839,7 @@ def build_table_concept_saturation(table_dir: Path, out_path: Path) -> None:
         "% table* + resizebox: 7 columns overflow the twocolumn body's single",
         "% column width even at \\small (confirmed overfull otherwise).",
         "% [tp]: short table, Results layout pass (see step_logs/STEP_LOG.md).",
-        r"\begin{table*}[tp]",
+        r"\begin{table*}[t]",
         r"\centering",
         r"\small",
         r"\setlength{\tabcolsep}{4pt}",
@@ -899,7 +907,7 @@ def build_table_concept_direction_specificity(table_dir: Path, out_path: Path) -
         "(mode==steering, alpha=+0.10), Gemma-3-12B/27B only.",
         "% table* + resizebox: 6 direction columns overflow a single column.",
         "% [tp]: short table, Results layout pass (see step_logs/STEP_LOG.md).",
-        r"\begin{table*}[tp]",
+        r"\begin{table*}[t]",
         r"\centering",
         r"\small",
         r"\setlength{\tabcolsep}{4pt}",
@@ -995,7 +1003,7 @@ def build_table_concept_signal_vs_control(table_dir: Path, out_path: Path) -> No
         "% not silently normalized away. See STEP_LOG for the deferred-GPU-work",
         "% decision behind this heterogeneity.",
         "% [tp]: medium-height table, Results layout pass (see step_logs/STEP_LOG.md).",
-        r"\begin{table*}[tp]",
+        r"\begin{table*}[t]",
         r"\centering",
         r"\small",
         r"\setlength{\tabcolsep}{4pt}",
@@ -1240,7 +1248,7 @@ def build_table_hiring_steering_slopes(table_dir: Path, out_path: Path) -> None:
         "% table* + resizebox: same twocolumn-body overflow reason as the",
         "% other 5-column main-text tables this session.",
         "% [tp]: medium-height table, Results layout pass (see step_logs/STEP_LOG.md).",
-        r"\begin{table*}[tp]",
+        r"\begin{table*}[t]",
         r"\centering",
         r"\small",
         r"\setlength{\tabcolsep}{4pt}",

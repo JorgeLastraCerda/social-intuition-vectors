@@ -121,7 +121,7 @@ def build_table(log_dir: Path, out_path: Path) -> None:
         "% Table 1), and a plain single-column table environment overflows into the",
         "% adjacent column. [p]: 36-row table, dedicated float page, Results",
         "% layout pass (see step_logs/STEP_LOG.md).",
-        r"\begin{table*}[p]",
+        r"\begin{table*}[t]",
         r"\centering",
         r"\scriptsize",
         r"\setlength{\tabcolsep}{4pt}",
