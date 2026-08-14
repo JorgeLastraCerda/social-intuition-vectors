@@ -4,8 +4,7 @@ CPU-only. Loads no model and runs no forward pass; every number here is read
 from artifacts already on disk (``results/logs/hiring_probe_vs_human_*.json``,
 ``results/tables/hiring_disparity_*.csv``, ``results/tables/hiring_audit_*.csv``,
 ``data/processed/<vectors_subdir>/meta.json``) or recomputed by re-joining
-``hiring_audit_<label>.csv`` against the published human callback data with
-the same join used by ``src/hiring_r4.py``.
+``hiring_audit_<label>.csv`` against the published human callback data.
 
 Outputs (booktabs/longtable style, ``\\input``-able from the manuscript)
 --------------------------------------------------------------------------
@@ -16,8 +15,8 @@ results/tables/probe_human_correlation_9model.tex
     model's own callback margin.
 results/tables/hiring_disparity_gaps_9model.tex
     Main-text nine-model comparison of race and gender callback gaps. Model
-    margins are expressed in within-model standard-deviation units; the
-    human benchmark remains in percentage points.
+    margins and the human benchmark are expressed as standardized mean
+    differences using the relevant outcome's pooled within-group SD.
 results/tables/hiring_disparity_marginal_9model.tex
     Appendix levels table: the shared four-row human benchmark followed by
     compact nine-model grids, without repeating the human values per model.
@@ -50,6 +49,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from src.hiring_disparity import load_callback_disparity_frame
 from src.hiring_r4 import group_statistics, load_and_join
 from src.utils.config import load_config
 from src.utils.human_ratings import add_zscores, full_distribution_stats
@@ -256,41 +256,97 @@ def _marginal_rows(table_dir: Path, label: str) -> pd.DataFrame:
     return df.set_index("group").loc[["Black", "White", "Female", "Male"]]
 
 
-def build_table_disparity_gaps(table_dir: Path, out_path: Path) -> None:
+def _pooled_standardized_mean_difference(
+    frame: pd.DataFrame,
+    value_col: str,
+    group_col: str,
+    positive_group: str,
+    negative_group: str,
+) -> float:
+    """Return (positive - negative) divided by the pooled within-group SD."""
+    positive = pd.to_numeric(
+        frame.loc[frame[group_col] == positive_group, value_col], errors="coerce"
+    ).dropna()
+    negative = pd.to_numeric(
+        frame.loc[frame[group_col] == negative_group, value_col], errors="coerce"
+    ).dropna()
+    if len(positive) < 2 or len(negative) < 2:
+        raise ValueError(
+            f"{value_col}/{group_col}: each comparison group needs at least two observations"
+        )
+    pooled_variance = (
+        (len(positive) - 1) * positive.var(ddof=1)
+        + (len(negative) - 1) * negative.var(ddof=1)
+    ) / (len(positive) + len(negative) - 2)
+    pooled_sd = pooled_variance ** 0.5
+    if pd.isna(pooled_sd) or pooled_sd <= 0:
+        raise ValueError(
+            f"{value_col}/{group_col}: pooled within-group SD must be finite and positive"
+        )
+    return float((positive.mean() - negative.mean()) / pooled_sd)
+
+
+def build_table_disparity_gaps(cfg, table_dir: Path, out_path: Path) -> None:
     """Build the main-text gap comparison in comparable, declared units."""
     rows = []
+    reference_population = None
+    reference_human = None
     for label in MODEL_ORDER:
-        levels = _marginal_rows(table_dir, label)
-        audit = pd.read_csv(table_dir / f"hiring_audit_{label}.csv")
-        callback_sd = float(audit["callback_margin"].std(ddof=1))
-        if callback_sd <= 0 or pd.isna(callback_sd):
-            raise ValueError(f"{label}: callback-margin SD must be finite and positive")
+        merged = load_callback_disparity_frame(
+            table_dir / f"hiring_audit_{label}.csv", Path(cfg.paths.raw_data)
+        )
+        population = tuple(
+            merged[["first", "race", "gender"]]
+            .fillna("")
+            .sort_values("first")
+            .itertuples(index=False, name=None)
+        )
+        if reference_population is None:
+            reference_population = population
+        elif population != reference_population:
+            raise ValueError(f"{label}: matched-name population differs across models")
+
+        race_human = _pooled_standardized_mean_difference(
+            merged, "human_callback", "race", "Black", "White"
+        )
+        gender_human = _pooled_standardized_mean_difference(
+            merged, "human_callback", "gender", "Female", "Male"
+        )
+        human_pair = (race_human, gender_human)
+        if reference_human is None:
+            reference_human = human_pair
+        elif any(abs(a - b) > 1e-12 for a, b in zip(human_pair, reference_human)):
+            raise ValueError(f"{label}: shared human standardized gaps changed")
         rows.append(
             {
                 "model": SHORT_NAME[DISPLAY_NAME[label]],
-                "race_model": (levels.loc["Black", "model_callback_margin"] - levels.loc["White", "model_callback_margin"]) / callback_sd,
-                "race_human": 100 * (levels.loc["Black", "human_callback"] - levels.loc["White", "human_callback"]),
-                "gender_model": (levels.loc["Female", "model_callback_margin"] - levels.loc["Male", "model_callback_margin"]) / callback_sd,
-                "gender_human": 100 * (levels.loc["Female", "human_callback"] - levels.loc["Male", "human_callback"]),
+                "race_model": _pooled_standardized_mean_difference(
+                    merged, "callback_margin", "race", "Black", "White"
+                ),
+                "race_human": race_human,
+                "gender_model": _pooled_standardized_mean_difference(
+                    merged, "callback_margin", "gender", "Female", "Male"
+                ),
+                "gender_human": gender_human,
             }
         )
     lines = [
         "% Generated by src/build_paper_probe_tables.py.",
-        "% Model gaps use each model's full 282-name callback-margin SD; human gaps use percentage points.",
+        "% Model and human gaps use outcome-specific pooled within-group SDs on the matched-name population.",
         r"\begin{table}[H]", r"\centering", r"\scriptsize", r"\setlength{\tabcolsep}{2.2pt}",
         r"\begin{tabular}{@{}lrrrr@{}}", r"\toprule",
         r"& \multicolumn{2}{c}{Race: Black $-$ White} & \multicolumn{2}{c}{Gender: Female $-$ Male} \\",
         r"\cmidrule(lr){2-3}\cmidrule(l){4-5}",
-        r"Model & Model (SD) & Human (pp) & Model (SD) & Human (pp) \\", r"\midrule",
+        r"Model & Model $d$ & Human $d$ & Model $d$ & Human $d$ \\", r"\midrule",
     ]
     for row in rows:
         lines.append(
-            f"{row['model']} & {row['race_model']:+.2f} & {row['race_human']:+.1f} & "
-            f"{row['gender_model']:+.2f} & {row['gender_human']:+.1f} \\\\"
+            f"{row['model']} & {row['race_model']:+.2f} & {row['race_human']:+.2f} & "
+            f"{row['gender_model']:+.2f} & {row['gender_human']:+.2f} \\\\"
         )
     lines += [
         r"\bottomrule", r"\end{tabular}",
-        r"\caption{\textbf{Model and human callback gaps by demographic axis.} Model gaps are differences in mean unsteered callback margin divided by the within-model standard deviation across all 282 names. Human gaps are percentage-point differences in the pooled correspondence-study callback rate and repeat because every model is compared with the same benchmark. Positive race values favor Black-signaling names; positive gender values favor female-signaling names. The human race gap is near zero, whereas the human gender gap favors male-signaling names. Underlying group levels are reported in \autoref{tab:disparity_marginal}.}",
+        r"\caption{\textbf{Model and human callback gaps by demographic axis.} Every entry is a standardized mean difference, $d$, computed as the positive-group mean minus the negative-group mean divided by that outcome's pooled within-group SD on the exact matched-name population. Race compares 47 Black-signaling with 180 White-signaling names; gender compares 154 female-signaling with 115 male-signaling names. Human values repeat because every model uses the same benchmark and name roster. Positive race values favor Black-signaling names; positive gender values favor female-signaling names. Underlying group levels are reported in \autoref{tab:disparity_marginal}.}",
         r"\label{tab:disparity_gaps}", r"\end{table}", "",
     ]
     out_path.write_text("\n".join(lines), encoding="utf-8")
@@ -653,7 +709,7 @@ def build_table_probe_validation(log_dir: Path, out_path: Path) -> None:
         "% the model names and column heads rather than scaling with \\resizebox,",
         "% which shrank the type to about half the caption size. [tb] lets it sit at",
         "% a column bottom so prose flows past it. Verified: 0 overfull boxes.",
-        "% [tp]: medium-height table, Results layout pass (see step_logs/STEP_LOG.md).",
+        "% [tb]: single-column float, top or column bottom (see step_logs/STEP_LOG.md).",
         r"\begin{table}[tb]",
         r"\centering",
         r"\footnotesize",
@@ -843,7 +899,8 @@ def build_table_concept_saturation(table_dir: Path, out_path: Path) -> None:
         "% Vectors' saturation claim refers to; the narrow +/-0.10 grid used",
         "% for all nine models is in tab:probe_validation-adjacent Results text.",
         "% Full-width appendix table; natural-size tabular preserves legibility.",
-        "% [tp]: short table, Results layout pass (see step_logs/STEP_LOG.md).",
+        "% [t]: page top only. The p option was dropped on 2026-08-11 because it",
+        "% let short tables claim a dedicated float page (see step_logs/STEP_LOG.md).",
         r"\begin{table*}[t]",
         r"\centering",
         r"\small",
@@ -909,7 +966,8 @@ def build_table_concept_direction_specificity(table_dir: Path, out_path: Path) -
         "% Source: results/tables/gemma_scope_causality_<label>_local.csv "
         "(mode==steering, alpha=+0.10), Gemma-3-12B/27B only.",
         "% Full-width natural-size table; no resizebox.",
-        "% [tp]: short table, Results layout pass (see step_logs/STEP_LOG.md).",
+        "% [t]: page top only. The p option was dropped on 2026-08-11 because it",
+        "% let short tables claim a dedicated float page (see step_logs/STEP_LOG.md).",
         r"\begin{table*}[t]",
         r"\centering",
         r"\small",
@@ -1000,16 +1058,21 @@ def build_table_concept_signal_vs_control(table_dir: Path, out_path: Path) -> No
         "% model per STEERING_DENSE_CSV (same canonical mapping verified in",
         "% paper/2026-07-20_0919_nine_model_normalized_steerability.md).",
         "% Random-control basis is genuinely heterogeneous across models: five",
-        "% Five checkpoints use mean +/- 1.96 sample SD across 99 controls; four",
+        "% checkpoints use mean +/- 1.96 sample SD across 99 controls; four",
         "% use the bootstrap interval of one random direction. Caption discloses this.",
-        "% [tp]: medium-height table, Results layout pass (see step_logs/STEP_LOG.md).",
+        "% [H] (float package): pinned in place so this table stays with the",
+        "% paragraph that cites it. Placement was measured on the rendered build",
+        "% in the 2026-08-14 float rounds (see step_logs/STEP_LOG.md).",
         r"\begin{table}[H]",
         r"\centering",
         r"\scriptsize",
         r"\setlength{\tabcolsep}{1.2pt}",
         r"\begin{tabular}{@{}llrlc@{}}",
         r"\toprule",
-        r"Model & Axis & Target & Control range & $>$? \\",
+        # Two-line head via the LaTeX kernel's \shortstack: makecell is not
+        # installed in the local TeX Live Basic tree, and the spec's full
+        # wording does not fit this single-column table on one line.
+        r"Model & Axis & Target & Control range & \shortstack{Exceeds\\control?} \\",
         r"\midrule",
     ]
     for row in rows:
@@ -1026,7 +1089,7 @@ def build_table_concept_signal_vs_control(table_dir: Path, out_path: Path) -> No
         r"reported as mean and an approximate 95\% random-direction range "
         r"(mean $\pm 1.96$ sample SD); Gemma-3-12B, Gemma-3-27B, "
         r"Llama-3.1-8B, and Qwen3-14B use a single random direction, reported "
-        r"with its own bootstrap CI. ``Exceeds?'' indicates whether the target lies "
+        r"with its own bootstrap CI. ``Exceeds control?'' indicates whether the target lies "
         rf"outside its reported control range. {sum(r['exceeds'] for r in rows)} of "
         rf"{len(rows)} rows exceed control; none of the six Gemma-4 rows do.}}",
         r"\label{tab:concept_signal_vs_control}",
@@ -1127,10 +1190,10 @@ def build_table_gemma_scope_ablation(table_dir: Path, out_path: Path) -> None:
         r"\caption{\textbf{Feature ablation, Gemma-3-12B/27B.} Change in the "
         r"high-versus-low margin gap when the named group of SAE features is "
         r"zeroed out rather than added to; a negative value means ablation "
-        r"shrinks the gap. Shared-feature ablation shrinks the gap more than "
-        r"target-axis ablation in three of the four rows, echoing the "
-        r"substantial shared component already documented in PCA denoising "
-        r"rather than a clean axis-specific routing.}",
+        r"shrinks the gap. Shared-feature ablation shrinks both gaps only in "
+        r"Gemma-3-27B and increases both gaps in Gemma-3-12B. The shared "
+        r"feature set therefore shows scale-specific necessity rather than a "
+        r"uniform mechanism across checkpoints.}",
         r"\label{tab:gemma_scope_ablation}",
         r"\end{table}",
         "",
@@ -1246,8 +1309,10 @@ def build_table_hiring_steering_slopes(table_dir: Path, out_path: Path) -> None:
         "% HIRING_STEERING_BROAD_CSV. Slope/R^2 from a plain OLS fit of the",
         "% per-strength mean delta (60 names each); endpoint is the raw mean",
         "% delta at alpha=+0.50, not the fitted value.",
-        "% Full-width natural-size table; no resizebox.",
-        "% [tp]: medium-height table, Results layout pass (see step_logs/STEP_LOG.md).",
+        "% Single-column natural-size table; no resizebox.",
+        "% [H] (float package): pinned in place so this table stays with the",
+        "% paragraph that cites it. Placement was measured on the rendered build",
+        "% in the 2026-08-14 float rounds (see step_logs/STEP_LOG.md).",
         r"\begin{table}[H]",
         r"\centering",
         r"\scriptsize",
@@ -1290,7 +1355,7 @@ def main() -> None:
     log_dir = Path(cfg.paths.logs)
 
     build_table1(cfg, log_dir, table_dir / "probe_human_correlation_9model.tex")
-    build_table_disparity_gaps(table_dir, table_dir / "hiring_disparity_gaps_9model.tex")
+    build_table_disparity_gaps(cfg, table_dir, table_dir / "hiring_disparity_gaps_9model.tex")
     build_table2(table_dir, table_dir / "hiring_disparity_marginal_9model.tex")
     build_table2_raw_by_study(
         cfg, table_dir, table_dir / "hiring_disparity_marginal_raw_9model.tex"

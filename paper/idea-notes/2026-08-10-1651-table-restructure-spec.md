@@ -8,15 +8,15 @@
 >
 > | # | Table | What must be done | Status |
 > |---|---|---|---|
-> | 1 | `hiring_disparity_marginal_9model` | New `build_table_disparity_gaps()` emitting a 9-row gap table (Black−White, Female−Male). Levels version to appendix. | **not done** |
-> | 2 | `concept_signal_vs_control_9model` | Convert every `±` to an explicit interval; add `Exceeds control?` column; move `Control basis` into the caption. Do not soften the Gemma-4 null. | **not done** |
-> | 3 | `hiring_steering_slopes_9model` | Mark rows where fitted slope and the α=+0.50 endpoint disagree in sign, with a marker distinct from the existing R² bold. | **not done** |
-> | 4 | `concept_direction_specificity` | Rewrite caption finding-first; state the two-model limitation adjacent to the table. | **not done** |
+> | 1 | `hiring_disparity_marginal_9model` | New `build_table_disparity_gaps()` emitting a 9-row gap table (Black−White, Female−Male). Levels version to appendix. | **DONE 2026-08-13/14.** `tab:disparity_gaps`, 9 rows. **Deviation:** both sides are standardized mean differences (`d`), not raw margin against percentage points. See Execution status. |
+> | 2 | `concept_signal_vs_control_9model` | Convert every `±` to an explicit interval; add `Exceeds control?` column; move `Control basis` into the caption. Do not soften the Gemma-4 null. | **DONE 2026-08-13/14.** One interval convention, `Exceeds control?` column (two-line head), basis in caption, 12 of 18 and the Gemma-4 null stated plainly. |
+> | 3 | `hiring_steering_slopes_9model` | Mark rows where fitted slope and the α=+0.50 endpoint disagree in sign, with a marker distinct from the existing R² bold. | **DONE 2026-08-13.** Dagger marker, 8 of 18, count given in the caption; R² bold untouched. |
+> | 4 | `concept_direction_specificity` | Rewrite caption finding-first; state the two-model limitation adjacent to the table. | **DONE 2026-08-13.** Caption opens with "strongest in only one of four model-axis comparisons"; Gemma Scope 2 limitation is the second sentence. |
 > | 5 | `hiring_disparity_race_gender_9model` | ~~Remove from body~~ **DONE 2026-08-11 by Jorge's session.** Now in Additional Results as `appx:crossed_disparity`, referenced from Future Work. No builder change needed. | **done** |
 > | 6 | `mediation_9model` | **DONE 2026-08-11.** Moved to Additional Results as `appx:mediation`. **Note:** `fig19_hiring_mediation_forest` was NOT added, because it is stale (4 models, not 9) and has broken arrow glyphs. Results now carries this result in prose only. | **done, with caveat** |
-> | 7 | float placement | **DONE 2026-08-11.** Barriers removed, `[p]`->`[t]` on figures, float-area limits retightened, Results float order rebuilt so no two floats are adjacent, and all 8 `table*` specifiers changed to `[t]` in both builders. Verified: one float per page, 605-838 words/page. **Requires regeneration** for the table specifiers to reach the `.tex` files. | **done, needs regen** |
-> | 8 | `fig6_cross_model_story_agreement` | Replace four 9x9 heatmaps with a single-column dot plot. **Script written and tested:** run `python paper/figures/fig6_cross_model_agreement.py`, then swap the include. See Item 8. | **script ready** |
-> | 9 | narrow Results tables | **Tested and verified.** `probe_validation` builder already converted; **must be regenerated to take effect.** `probe_human_correlation` and the gap table still to do. Use narrowing, NOT `\resizebox`. See Item 9. | **partly done** |
+> | 7 | float placement | **DONE 2026-08-11, regenerated 2026-08-13, finished 2026-08-14.** Tables regenerated so the specifiers reached the `.tex` files; two further placement rounds followed (see the 2026-08-13 float spec and `paper/2026-08-14_1236_pooled_disparity_float_round_a.md`). Final build: 34 pages, no float-only page in the body, 0 overfull boxes. | **done** |
+> | 8 | `fig6_cross_model_story_agreement` | Replace four 9x9 heatmaps with a single-column dot plot. **Script written and tested:** run `python paper/figures/fig6_cross_model_agreement.py`, then swap the include. See Item 8. | **DONE 2026-08-13.** Dot plot generated and included as a single-column `figure`; the old heatmap is no longer referenced. |
+> | 9 | narrow Results tables | **Tested and verified.** `probe_validation` builder already converted; **must be regenerated to take effect.** `probe_human_correlation` and the gap table still to do. Use narrowing, NOT `\resizebox`. See Item 9. | **DONE 2026-08-13/14.** All three narrowed and regenerated; no `\resizebox` anywhere in the Results tables. |
 >
 > **Also, added 2026-08-11:** `paper/figures/style.py` was changed from Helvetica
 > sans-serif at 11pt to serif at 9pt with `mathtext.fontset: cm`, so figure text matches
@@ -873,3 +873,68 @@ will still stack two or three tables.** Everything else is already in the manusc
   warmth-competence angle varying from 41.5 to 59.6 degrees across models, and the
   layer-emergence panel shows Cohen's d rising through middle layers and peaking near the
   0.66 probe depth.
+
+---
+
+# Execution status, 2026-08-14
+
+Every item in the ACTION LIST is now closed. This block records where each one landed, the
+two places where the executed version differs from the spec, and three constraints a later
+session should not rediscover the hard way.
+
+## Where the work lives
+
+| Item | Landed in |
+|---|---|
+| 1 | `build_table_disparity_gaps()`, `src/build_paper_probe_tables.py`; `tab:disparity_gaps` in Results |
+| 2 | `build_table_concept_signal_vs_control()`; `tab:concept_signal_vs_control` |
+| 3 | `build_table_hiring_steering_slopes()`; dagger marker plus caption count |
+| 4 | `build_table_concept_direction_specificity()`, caption only |
+| 8 | `paper/figures/fig6_cross_model_agreement.py`, included as a single-column `figure` |
+| 9 | `probe_validation`, `probe_human_correlation` and the gap table, all narrowed |
+| 7 | `Ulu_Lastra.tex` float specifiers plus the two placement rounds of 2026-08-14 |
+
+Reports: `paper/2026-08-13_1816_manuscript_table_figure_revision.md` and
+`paper/2026-08-14_1236_pooled_disparity_float_round_a.md`. The second supersedes the first on
+gap units and final layout.
+
+## Two deliberate deviations
+
+**The gap table reports `d` on both sides, not margin against percentage points.** The spec's
+worked example put the model gap in raw callback margin next to a human gap in percentage
+points. Those two columns cannot be read against each other, which is the same objection the
+spec raises against the old marginal table. Both sides are now standardized mean differences
+on the matched-name population: positive-group mean minus negative-group mean over the pooled
+within-group SD. Human reference gaps are `d=+0.15` for race and `d=-0.474` for gender. The
+builder recomputes them per model and raises if the matched population or the shared human
+values drift, so the repetition down the human columns is enforced rather than assumed.
+
+**The marginal pivot is 4+9+9 rows, not 13.** The 2026-08-13 float spec proposed one 9-row
+model block with grouped columns. Nine columns of `w/c` pairs plus four margin columns did not
+set cleanly at `\textwidth`, so the spec's own fallback was used: the human benchmark once,
+then a representation grid and a callback-margin grid. The table is in the appendix and no
+longer competes for a body page. Verified by extracting every numeric token from the old and
+new `.tex` and comparing as multisets: no value was lost, the only difference is explicit `+`
+signs.
+
+## Three constraints for later sessions
+
+1. **The local TeX Live tree is Basic.** `placeins.sty` and `makecell.sty` are both absent.
+   Layout fixes have to be dependency-free: `[!t]` was used instead of a `\FloatBarrier`, and
+   the two-line `Exceeds control?` head uses the kernel's `\shortstack` rather than
+   `\makecell`. Check with `kpsewhich` before reaching for a package.
+2. **The builders must be run as modules.** `python src/build_paper_probe_tables.py` fails on
+   `ModuleNotFoundError: No module named 'src'`. Use
+   `PYTHONPATH=. paper/figures/.venv/bin/python -m src.build_paper_probe_tables`. The root
+   interpreter still lacks `pandas`.
+3. **Regeneration is now reproducible.** Re-running both builders after the 2026-08-14 edits
+   changed only the comment blocks and the one header line; every number stayed byte-identical.
+   If a future regeneration moves a value, that is a real input change and should be
+   investigated, not committed.
+
+## Still outstanding
+
+- **Overleaf.** The regenerated `results/tables/*.tex` carry the specifiers and the new head.
+  Until they are re-uploaded, Jorge's Overleaf build will keep showing the old layout.
+- **Unrelated:** `tests/test_hiring_r4.py` has had two failures since 2026-08-06 (`5ff1a0e`),
+  a `KeyError: 'study'`. Untouched by this work and deliberately left out of scope.

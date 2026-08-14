@@ -478,10 +478,8 @@ Llama-3.1-8B-Instruct   & 4096 & 20/32 & 11.4     & TL     \\
 \end{table}
 
 We check that each direction is a genuine, generalizable signal rather than
-an artifact of the specific stories used to build it, using five
-complementary checks:
-Seven checks test whether a recovered direction reflects the concept
-rather than the particular stories it was built from. Five apply within a
+an artifact of the specific stories used to build it, using seven
+complementary checks. Five apply within a
 single model: 5-fold cross-validated accuracy, topic-holdout accuracy,
 Cohen's~$d$ against a 1,000-direction random null, split-half cosine
 stability, and cross-axis classification. Two compare across models:
@@ -563,7 +561,7 @@ that story yields a fixed answer rather than a graded one. Because
 that behavior is a property of the task and not of any single
 checkpoint, we did not repeat the wide sweep on the other seven models
 and applied the narrow range uniformly to all nine. The full
-saturation curves are reported in the Results. For each strength, the direction is applied to 10 held-out
+saturation curves are reported in the Supplementary Materials. For each strength, the direction is applied to 10 held-out
 topics it was never built from, separate from the 40 topics used to
 build it. For the Gemma-4 and Qwen3.6 checkpoints this yes-or-no question
 is presented through each model's native chat template, since these more
@@ -714,23 +712,25 @@ gaps, using four analyses:
   \item \textbf{Group-level callback disparity}: Callback disparities are
   computed as differences in mean callback margin between name groups
   (race: 47 Black-signaling versus 180 White-signaling names; gender: 154
-  female versus 115 male), standardized by the within-model standard
-  deviation of the callback margin so that models with different logit
-  scales can be compared on equal footing. For the Gemma-4 and Qwen3.6
+  female versus 115 male). Each model difference is divided by the pooled
+  within-group standard deviation of its callback margin. The corresponding
+  human difference uses the same matched-name roster and the pooled
+  within-group standard deviation of the published callback rate, which puts
+  both outcomes on the same standardized mean-difference scale. For the Gemma-4 and Qwen3.6
   checkpoints the hiring prompt is presented through each model's native
   chat template, since these more recent chat-tuned checkpoints do not
   reliably return a clean single-token Yes or No to a raw-text prompt; the
   other five models receive it as raw text.
-  \item \textbf{Human reference gaps}: These come from the published
-  per-name callback rates, matched by first name and source study rather
-  than first name alone, since the same first name can carry a different
-  callback rate in each source study. A name rated under more than one
-  study is matched separately against each study's own rate rather than
-  blended into a single value. Some source studies (Neumark, Farber) also
-  vary applicant age as an experimental factor; since our own name ratings
-  carry no age dimension, callback rates are averaged across age within
-  each name-study pair before matching. In total, 246 name-study
-  observations across 186 distinct names match the benchmark this way.
+  \item \textbf{Human reference gaps}: The main standardized comparison
+  averages the published callback observations to one rate per first name
+  before matching, so each matched name receives one observation and the
+  human gap uses exactly the same roster as the corresponding model gap.
+  The study-specific raw companion analysis retains one observation per
+  name-study pair instead. Some source studies (Neumark, Farber) also vary
+  applicant age as an experimental factor; because our name ratings carry no
+  age dimension, that companion averages callback rates across age within
+  each name-study pair. In total, 246 name-study observations across 186
+  distinct names match the study-specific benchmark.
   \item \textbf{Bootstrap mediation}: Finally, we test whether the
   internal warmth and competence representations actually carry the
   name-group signal into the callback decision, using bootstrap mediation
@@ -767,19 +767,14 @@ between 3.7 and 15.1. Split-half cosine stability stays in the 0.69-0.90
 range reported in Methods, and calibrated cross-axis accuracy stays between
 0.82 and 1.00. \autoref{fig:paper_figure1_axis_arrows} shows the same
 overlap geometrically: the angle between the warmth and competence
-directions varies by model, from 41.5 degrees at Gemma-3-12B to 59.6 at
-Llama-3.1-8B, so the two axes are neither collinear nor orthogonal in any
+directions varies by model, from 41.5 degrees at Gemma-3-12B to 60.4 at
+Gemma-4-12B, so the two axes are neither collinear nor orthogonal in any
 checkpoint. Together these confirm that warmth and competence share substantial
 evaluative content rather than behaving as fully separate constructs.
 
 \input{\tabledir/probe_validation_9model.tex}
 
-\autoref{fig:paper_figure2_layer_emergence} traces the same separation across
-depth rather than across steering strength, showing that Cohen's $d$ rises
-through the middle layers in all nine models and peaks near the fixed probe
-depth of 0.66.
-
-\begin{figure*}[tp]
+\begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]{paper_figure1_axis_arrows.pdf}
 \caption{\textbf{Warmth and competence directions share model-dependent geometry.}
@@ -789,6 +784,24 @@ directions in an oblique basis. The arrow angle equals
 alignment. All panels use model-internal z-scores, shared axis limits, and
 equal x/y scaling.}
 \label{fig:paper_figure1_axis_arrows}
+\end{figure*}
+
+\autoref{fig:paper_figure2_layer_emergence} traces the same separation across
+depth rather than across steering strength. Cohen's $d$ generally strengthens
+through the early and middle layers, while the dotted line marks the
+prespecified probe depth of 0.66 used for every model. This shared reference
+point is not a model-specific optimum and rarely coincides with peak
+separability, as discussed in Limitations.
+
+% [!t] not [p] (2026-08-11): [p] forbids sharing a page with body text and
+% forced float-only pages. See idea-notes table-restructure-spec Item 7.
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=\textwidth]{paper_figure2_layer_emergence.pdf}
+\caption{\textbf{Warmth and competence directions emerge robustly across depth.}
+Layer-wise Cohen's~$d$ across nine open-weights models. The dotted vertical
+line marks the fixed probe-layer fraction of 0.66.}
+\label{fig:paper_figure2_layer_emergence}
 \end{figure*}
 
 Agreement across architectures is just as consistent. Spearman correlation
@@ -802,15 +815,17 @@ condition rather than just separating high from low, ranges from 0.095 to
 summary; the complete numeric table is in
 \autoref{tab:cross_model_agreement}.
 
-% [t] not [p] (2026-08-11): [p] forbids sharing a page with body text and
-% forced float-only pages. See idea-notes table-restructure-spec Item 7.
+% Keep this compact plot in the same two-column float queue as Figure 4 so
+% visual order cannot overtake source order; retain its single-column width.
 \begin{figure*}[t]
 \centering
-\includegraphics[width=\textwidth]{paper_figure2_layer_emergence.pdf}
-\caption{\textbf{Warmth and competence directions emerge robustly across depth.}
-Layer-wise Cohen's~$d$ across nine open-weights models. The dotted vertical
-line marks the fixed probe-layer fraction of 0.66.}
-\label{fig:paper_figure2_layer_emergence}
+\includegraphics[width=\columnwidth]{fig6_cross_model_agreement.pdf}
+\caption{\textbf{Cross-model story-ranking agreement, all nine models.}
+Each dot is one of the 36 model pairs. Overall correlations include the
+high-versus-low split; within-condition correlations compare story ordering
+inside a shared condition. Vertical marks show medians. Full pairwise values
+are in \autoref{tab:cross_model_agreement}.}
+\label{fig:fig6_cross_model_agreement}
 \end{figure*}
 
 Neutral-corpus PCA denoising, reported in full in
@@ -822,19 +837,6 @@ reduction is largest in the two Gemma-3 checkpoints (0.749 to 0.530 and
 hundredths, suggesting that most of what remains after denoising is
 genuine conceptual overlap rather than a removable general tone.
 
-% [t] not [p] (2026-08-11): [p] forbids sharing a page with body text and
-% forced float-only pages. See idea-notes table-restructure-spec Item 7.
-\begin{figure}[H]
-\centering
-\includegraphics[width=\columnwidth]{fig6_cross_model_agreement.pdf}
-\caption{\textbf{Cross-model story-ranking agreement, all nine models.}
-Each dot is one of the 36 model pairs. Overall correlations include the
-high-versus-low split; within-condition correlations compare story ordering
-inside a shared condition. Vertical marks show medians. Full pairwise values
-are in \autoref{tab:cross_model_agreement}.}
-\label{fig:fig6_cross_model_agreement}
-\end{figure}
-
 \paragraph{Steering the Concept Vectors, All Nine Models.}
 At the narrow local grid ($\alpha \in \{-0.10,...,+0.10\}$),
 \autoref{fig:fig14_dense_steering_normalized} tracks the held-out concept
@@ -843,12 +845,15 @@ own baseline high-low gap so the curves stay comparable despite very
 different raw logit scales. Gemma-3-12B reaches the largest positive
 endpoint on both axes (0.236 warmth, 0.141 competence), Qwen3-14B is second
 on both (0.122, 0.104), and Gemma-4-26B-A4B and Gemma-4-31B stay nearly flat
-at the competence endpoint (0.001 and 0.008) despite separating
+at the competence endpoint ($-0.002$ and $-0.001$) despite separating
 high-competence from low-competence stories cleanly in the checks above. A
 model can encode a concept strongly while still responding weakly to an
 additive push along its own mean-difference direction.
 
-\begin{figure*}[tp]
+% [t] not [tp] (2026-08-14): the p option still allowed this figure to claim a
+% dedicated float page. Last float in the body carrying it; now aligned with
+% every other figure after the 2026-08-11 and 2026-08-14 placement rounds.
+\begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]{fig14_dense_steering_normalized.pdf}
 \caption{\textbf{Normalized concept-level steerability varies across nine
@@ -885,10 +890,11 @@ not read as clean specificity, and points instead toward the same shared
 evaluative content the neutral-corpus PCA denoising already found between
 warmth and competence. Two further checks, reported in the Supplementary
 Materials, extend this picture: feature ablation
-(\autoref{tab:gemma_scope_ablation}) disrupts the high-low margin gap more
-when the features shared between axes are removed than when the
-axis-specific features are, in three of four rows, and cross-scale feature
-matching (\autoref{tab:gemma_scope_feature_matching}) finds Gemma-3-12B's
+(\autoref{tab:gemma_scope_ablation}) shows scale-specific necessity. Removing
+the features shared between axes shrinks both gaps in Gemma-3-27B but
+increases both gaps in Gemma-3-12B, so the same shared mechanism does not hold
+uniformly across checkpoints. Cross-scale feature matching
+(\autoref{tab:gemma_scope_feature_matching}) finds Gemma-3-12B's
 and Gemma-3-27B's SAE features correlate well above a permutation null
 (\autoref{tab:gemma_scope_sae_quality} reports the underlying reconstruction
 quality behind both checks).
@@ -931,8 +937,10 @@ from $\rho = -0.287$ (Llama-3.1-8B) to $+0.388$ (Gemma-3-27B); competence
 alignment ranges from $\rho = -0.058$, not significant (Llama-3.1-8B), to
 $+0.466$ (Qwen3-14B). Competence tracks human perception more consistently
 than warmth: four of the nine models show a warmth correlation that is
-either negative or not significant, while every model's competence
-correlation is positive, and all but one reach significance. The same
+either negative or not significant, while seven competence correlations are
+positive and significant. The remaining two are very slightly negative and
+nonsignificant (Llama-3.1-8B, $\rho=-0.058$; Gemma-4-26B-A4B,
+$\rho=-0.044$). The same
 table's callback columns report a separate quantity, the correlation
 between each model's own probe projection and its own unsteered callback
 margin, which is not a human-alignment measure.
@@ -996,15 +1004,15 @@ from correlation to the stronger question of whether the representations
 carry a group signal into the callback decision.
 
 \autoref{tab:disparity_gaps} compares race and gender callback gaps on
-declared scales. Seven models favor Black-signaling names and two favor
-White-signaling names, but the pooled human race reference is only $+1.2$
-percentage points and is therefore better described as near zero than as a
-directional penalty. Gender produces the clearer mismatch: eight models favor
+one standardized scale. Seven models favor Black-signaling names and two favor
+White-signaling names, while the pooled human race reference is small at
+$d=+0.15$ and is therefore better described as near zero than as a directional
+penalty. Gender produces the clearer mismatch: eight models favor
 female-signaling names, whereas the human benchmark favors male-signaling
-names by $3.6$ percentage points. Gemma-3-27B is the only checkpoint with a
-negative model gender gap, at $-0.45$ within-model SD. Model gaps divide the
-group difference in callback margin by that checkpoint's standard deviation
-across all 282 names; human gaps remain percentage-point differences. The
+names at $d=-0.47$. Gemma-3-27B is the only checkpoint with a negative model
+gender gap, at $d=-0.46$. Each value divides the group mean difference by the
+pooled within-group standard deviation for that outcome on the exact matched-name
+population. The
 underlying standardized representation scores and raw group margins are in
 \autoref{tab:disparity_marginal}, with study-specific values in
 \autoref{tab:disparity_marginal_raw}.
@@ -1033,9 +1041,6 @@ spread of significant warmth and competence paths, matching the pattern
 already present in Qwen3-14B. Read together, the absence of mediation looks
 like a property of the Gemma-3 generation specifically rather than a
 general feature of models whose concept directions steer well.
-
-% Keep the final Results table ahead of Discussion.
-\clearpage
 
 % ─────────────────────────────────────────────────────────────────────────────
 
@@ -1174,7 +1179,7 @@ than optimized.
   versus 11.49) show comparable gaps. This mismatch does not fully explain
   the weak or inverted name-level correlations reported above: Gemma-4-12B
   already reaches a high separability score at its selected layer
-  ($d = 8.46$), yet the resulting warmth probe fails to correlate with
+  ($d = 8.63$), yet the resulting warmth probe fails to correlate with
   human name ratings ($\rho = +0.009$, n.s.). Story-level separability,
   which guided layer selection, therefore does not guarantee that the
   resulting direction generalizes to bare applicant names, a case the
@@ -1254,27 +1259,26 @@ outcome whose resolution both have known limits.
   more thorough methodology would calibrate this range separately for
   each model rather than reusing one pair's calibration across
   architectures that differ substantially in scale.
-  \item \textbf{Callback-margin quantization}: Callback margins are
-  quantized to a 0.125-unit grid due to bf16 precision in the model's
-  output logits; this quantization is inherent to bf16 inference and is
-  not resolved by float32 subtraction. We attempted a partial fix by
-  casting the Yes/No logits to float32 before subtracting them, which
-  removes rounding in the subtraction step itself, but the two operands
-  are already bf16-quantized by the time they reach that subtraction, so
-  the 0.125 grid persists regardless. A complete fix would require running
-  inference itself in float32, which roughly doubles GPU memory usage and
-  is likely infeasible for the 27B checkpoint on the available cluster
-  hardware, so it was not attempted here.
+  \item \textbf{Callback-margin resolution}: Callback margins have finite,
+  model-dependent resolution under reduced-precision inference. Several
+  checkpoints, including both Gemma-3 models, Qwen3-14B, and both Qwen3.6
+  models, fall on a 0.125-unit grid in the canonical 282-name audits, while
+  Llama-3.1-8B and the Gemma-4 models exhibit different or finer spacing.
+  Casting the Yes/No logits to float32 before subtracting them prevents an
+  additional rounding step, but it cannot recover precision already lost
+  when the logits were produced. Full float32 inference would roughly
+  double GPU memory usage and is likely infeasible for the 27B checkpoint
+  on the available cluster hardware, so it was not attempted here.
   \item \textbf{Narrow callback variance at some checkpoints}: At
-  Gemma-3-12B the callback margin standard deviation is 0.14 with only
-  seven unique values, making group-level disparity estimates at 12B
+  Gemma-3-12B the callback margin standard deviation is 0.15 with only
+  eight unique values, making group-level disparity estimates at 12B
   unreliable; the 12B R4 results should not be cited as empirical
-  findings. Llama-3.1-8B shows a comparably narrow spread (SD $= 0.10$,
-  10 unique values), so its group-level gaps should be read with the same
-  caution. At Gemma-3-27B the larger variance (SD $= 0.45$, 19 unique
+  findings. Llama-3.1-8B shows a comparably narrow spread (SD $= 0.12$,
+  12 unique values), so its group-level gaps should be read with the same
+  caution. At Gemma-3-27B the larger variance (SD $= 0.43$, 20 unique
   values) makes group gaps of approximately 0.5 SD detectable, but the
   grid structure introduces discrete steps in all reported gap
-  magnitudes. Qwen3-14B (SD $= 0.36$, 16 unique values) falls in the same
+  magnitudes. Qwen3-14B (SD $= 0.35$, 17 unique values) falls in the same
   usable range as 27B.
   \item \textbf{Open architectural question}: The architectural source of
   the elevated warmth/competence vector cosine observed in Gemma-3

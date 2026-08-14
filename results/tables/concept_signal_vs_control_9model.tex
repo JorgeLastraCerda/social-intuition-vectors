@@ -3,16 +3,18 @@
 % model per STEERING_DENSE_CSV (same canonical mapping verified in
 % paper/2026-07-20_0919_nine_model_normalized_steerability.md).
 % Random-control basis is genuinely heterogeneous across models: five
-% Five checkpoints use mean +/- 1.96 sample SD across 99 controls; four
+% checkpoints use mean +/- 1.96 sample SD across 99 controls; four
 % use the bootstrap interval of one random direction. Caption discloses this.
-% [tp]: medium-height table, Results layout pass (see step_logs/STEP_LOG.md).
+% [H] (float package): pinned in place so this table stays with the
+% paragraph that cites it. Placement was measured on the rendered build
+% in the 2026-08-14 float rounds (see step_logs/STEP_LOG.md).
 \begin{table}[H]
 \centering
 \scriptsize
 \setlength{\tabcolsep}{1.2pt}
 \begin{tabular}{@{}llrlc@{}}
 \toprule
-Model & Axis & Target & Control range & $>$? \\
+Model & Axis & Target & Control range & \shortstack{Exceeds\\control?} \\
 \midrule
 G3-12B & Warmth & +3.81 & +0.10 [-0.32, +0.49] & yes \\
 G3-12B & Competence & +1.98 & +0.30 [+0.05, +0.56] & yes \\
@@ -34,6 +36,6 @@ Q3.6-35B & Warmth & +0.82 & +0.00 [-0.06, +0.07] & yes \\
 Q3.6-35B & Competence & +1.45 & -0.02 [-0.08, +0.05] & yes \\
 \bottomrule
 \end{tabular}
-\caption{\textbf{Dense-target steering versus a random-direction control, all nine models.} The random-control basis is not uniform: Gemma-4-12B, Gemma-4-26B-A4B, Gemma-4-31B, Qwen3.6-27B, and Qwen3.6-35B-A3B use 99 SD-matched random directions per model, reported as mean and an approximate 95\% random-direction range (mean $\pm 1.96$ sample SD); Gemma-3-12B, Gemma-3-27B, Llama-3.1-8B, and Qwen3-14B use a single random direction, reported with its own bootstrap CI. ``Exceeds?'' indicates whether the target lies outside its reported control range. 12 of 18 rows exceed control; none of the six Gemma-4 rows do.}
+\caption{\textbf{Dense-target steering versus a random-direction control, all nine models.} The random-control basis is not uniform: Gemma-4-12B, Gemma-4-26B-A4B, Gemma-4-31B, Qwen3.6-27B, and Qwen3.6-35B-A3B use 99 SD-matched random directions per model, reported as mean and an approximate 95\% random-direction range (mean $\pm 1.96$ sample SD); Gemma-3-12B, Gemma-3-27B, Llama-3.1-8B, and Qwen3-14B use a single random direction, reported with its own bootstrap CI. ``Exceeds control?'' indicates whether the target lies outside its reported control range. 12 of 18 rows exceed control; none of the six Gemma-4 rows do.}
 \label{tab:concept_signal_vs_control}
 \end{table}

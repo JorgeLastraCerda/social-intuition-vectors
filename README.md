@@ -121,12 +121,12 @@ for the original phased plan and `AGENTS.md` for working conventions.
   has the strongest indirect effect from name group to callback margin.
 - **Human alignment varies by model generation.** Both Gemma-3 models track
   human warmth ratings; Llama-3.1-8B and Qwen3-14B invert them.
-- **Race and gender gaps require different interpretations.** Seven models
-  favor Black-signaling names, but the pooled human race reference is only
-  +1.2 percentage points and is better treated as near zero than as a stable
-  directional penalty. Eight models favor female-signaling names against a
-  human benchmark that favors male-signaling names by 3.6 percentage points;
-  Gemma-3-27B is the only checkpoint with the human gender direction.
+- **Race and gender gaps require different interpretations.** On the shared
+  pooled within-group SD scale, seven models favor Black-signaling names, but
+  the human race reference is only $d=+0.15$ and is better treated as near zero
+  than as a stable directional penalty. Eight models favor female-signaling
+  names against a human benchmark of $d=-0.47$, which favors male-signaling
+  names; Gemma-3-27B is the only checkpoint with the human gender direction.
 - **Bottom line:** linear encoding and successful steering at the concept level
   do not imply that these representations reliably drive hiring decisions.
 

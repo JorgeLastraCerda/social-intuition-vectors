@@ -112,6 +112,45 @@ def bootstrap_mediation(
     }
 
 
+def load_callback_disparity_frame(
+    audit_csv: Path,
+    raw_data_dir: Path,
+) -> pd.DataFrame:
+    """Join one model audit to the one-row-per-first-name human benchmark.
+
+    This is the canonical population for the marginal callback-disparity
+    analysis. Published callback observations are averaged within first name
+    before the join, preserving the weighting used by this module.
+    """
+    audit = pd.read_csv(audit_csv)
+    pub_csv = (
+        Path(raw_data_dir)
+        / "SocialPerceptions-Predict-Callback-main"
+        / "0_data"
+        / "published_data"
+        / "df_all.csv"
+    )
+    pub = pd.read_csv(pub_csv)
+    pub["first"] = pub["name"].str.split().str[0].str.lower()
+    pub_agg = (
+        pub.groupby("first")
+        .agg(
+            human_callback=("callback", "mean"),
+            race=("race", "first"),
+            gender=("gender", "first"),
+        )
+        .reset_index()
+    )
+
+    audit["first"] = audit["name"].str.split().str[0].str.lower()
+    merged = audit.merge(pub_agg, on="first", how="inner")
+    if merged.empty:
+        raise ValueError(
+            "Join produced 0 rows. Check name formats in audit table and published_data."
+        )
+    return merged
+
+
 def main() -> None:
     args = parse_args()
     cfg_path = args.config
@@ -134,7 +173,8 @@ def main() -> None:
     audit = pd.read_csv(audit_csv)
     print(f"[input] audit table: {len(audit)} rows from {audit_csv}", flush=True)
 
-    # --- load published human callback data ---
+    # --- load and join the one-row-per-first-name human benchmark ---
+    merged = load_callback_disparity_frame(audit_csv, Path(cfg.paths.raw_data))
     pub_csv = (
         Path(cfg.paths.raw_data)
         / "SocialPerceptions-Predict-Callback-main"
@@ -143,29 +183,15 @@ def main() -> None:
         / "df_all.csv"
     )
     pub = pd.read_csv(pub_csv)
-    # collapse to one row per first-name × race × gender
-    pub["first"] = pub["name"].str.split().str[0].str.lower()
-    pub_agg = (
-        pub.groupby("first")
-        .agg(human_callback=("callback", "mean"), race=("race", "first"), gender=("gender", "first"))
-        .reset_index()
-    )
+    n_unique_first = pub["name"].str.split().str[0].str.lower().nunique()
     print(
-        f"[human] published_data: {len(pub)} rows → {len(pub_agg)} unique first-names",
+        f"[human] published_data: {len(pub)} rows → {n_unique_first} unique first-names",
         flush=True,
     )
-
-    # --- join on first name ---
-    audit["first"] = audit["name"].str.split().str[0].str.lower()
-    merged = audit.merge(pub_agg, on="first", how="inner")
     print(
         f"[join] {len(merged)} / {len(audit)} rated names matched to published callback data",
         flush=True,
     )
-    if len(merged) == 0:
-        raise ValueError(
-            "Join produced 0 rows. Check name formats in audit table and published_data."
-        )
 
     # --- disparity tables ---
     disparity_rows: list[dict] = []

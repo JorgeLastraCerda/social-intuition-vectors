@@ -13,6 +13,6 @@ Gemma-3-27B & Warmth & +0.075 & -0.725 & +0.044 & +0.200 \\
 Gemma-3-27B & Competence & -0.087 & -0.319 & +0.013 & +0.025 \\
 \bottomrule
 \end{tabular}
-\caption{\textbf{Feature ablation, Gemma-3-12B/27B.} Change in the high-versus-low margin gap when the named group of SAE features is zeroed out rather than added to; a negative value means ablation shrinks the gap. Shared-feature ablation shrinks the gap more than target-axis ablation in three of the four rows, echoing the substantial shared component already documented in PCA denoising rather than a clean axis-specific routing.}
+\caption{\textbf{Feature ablation, Gemma-3-12B/27B.} Change in the high-versus-low margin gap when the named group of SAE features is zeroed out rather than added to; a negative value means ablation shrinks the gap. Shared-feature ablation shrinks both gaps only in Gemma-3-27B and increases both gaps in Gemma-3-12B. The shared feature set therefore shows scale-specific necessity rather than a uniform mechanism across checkpoints.}
 \label{tab:gemma_scope_ablation}
 \end{table}
