@@ -513,8 +513,9 @@ Two further analyses look beyond a single model's own directions:
   competence have in common in the model has nothing to do with either
   concept specifically; it looks more like a general tone the model
   applies regardless of topic. To find and remove that general tone, we
-  ran 1,500 real Wikipedia articles on ordinary, unrelated topics, text
-  with nothing to do with warmth or competence, through the same model
+  assembled 1,500 length-matched introductory passages drawn from distinct
+  Wikipedia articles on ordinary, unrelated topics, with nothing to do with
+  warmth or competence, and ran them through the same model
   and looked at what the warmth and competence directions have in common
   with those neutral texts. That shared, non-specific part is then
   subtracted out of both direction vectors, leaving only what is actually
@@ -755,10 +756,13 @@ Every one of the five single-model checks and two cross-model analyses
 described in Methods was run on all nine checkpoints, and none flags a
 direction as an artifact of the specific stories used to build it.
 
-\autoref{tab:probe_validation} collects four of the five single-model
-checks; 5-fold cross-validated and topic-holdout accuracy are not columns
-in that table because both reach exactly 1.00 for every model on both axes
-and every fold, so there is no variation left to tabulate. Cohen's $d$
+\autoref{tab:probe_validation} summarizes three of the five single-model
+checks in four reported statistics. Cohen's $d$ and the random-null
+$z$-score jointly report the random-direction separation check, followed by
+split-half cosine and calibrated cross-axis accuracy. The 5-fold
+cross-validated and topic-holdout checks are not columns in that table
+because both reach exactly 1.00 for every model on both axes and every fold,
+so there is no variation left to tabulate. Cohen's $d$
 ranges from 2.70 (Gemma-3-12B, warmth) to 9.97 (Qwen3-14B, competence), and
 the random-direction null comparison never comes close: across all nine
 models and both axes, 0 of the 1,000 random directions tested per model
@@ -830,8 +834,9 @@ are in \autoref{tab:cross_model_agreement}.}
 
 Neutral-corpus PCA denoising, reported in full in
 \autoref{tab:pca_denoising}, shows the same pattern across every model:
-removing the components shared with 1,500 ordinary Wikipedia paragraphs
-lowers the warmth-competence cosine but never drives it to zero. The
+removing the components shared with 1,500 length-matched introductory
+passages drawn from distinct Wikipedia articles lowers the
+warmth-competence cosine but never drives it to zero. The
 reduction is largest in the two Gemma-3 checkpoints (0.749 to 0.530 and
 0.708 to 0.487) and comparatively small elsewhere, typically a few
 hundredths, suggesting that most of what remains after denoising is
@@ -935,10 +940,13 @@ ratings behind them (16{,}557 rater judgments from 787 raters across nine
 source studies) using Spearman rank correlation. Warmth alignment ranges
 from $\rho = -0.287$ (Llama-3.1-8B) to $+0.388$ (Gemma-3-27B); competence
 alignment ranges from $\rho = -0.058$, not significant (Llama-3.1-8B), to
-$+0.466$ (Qwen3-14B). Competence tracks human perception more consistently
-than warmth: four of the nine models show a warmth correlation that is
-either negative or not significant, while seven competence correlations are
-positive and significant. The remaining two are very slightly negative and
+$+0.466$ (Qwen3-14B). Three models show significant negative warmth
+alignment: Llama-3.1-8B ($\rho=-0.287$), Gemma-4-26B-A4B
+($\rho=-0.190$), and Qwen3-14B ($\rho=-0.178$). Gemma-4-12B is the fourth
+model without positive significant warmth alignment, with a near-zero,
+nonsignificant correlation ($\rho=+0.009$). Competence tracks human
+perception more consistently: seven correlations are positive and
+significant, while the remaining two are slightly negative and
 nonsignificant (Llama-3.1-8B, $\rho=-0.058$; Gemma-4-26B-A4B,
 $\rho=-0.044$). The same
 table's callback columns report a separate quantity, the correlation
@@ -958,9 +966,9 @@ scale rather than mixing the per-model preferred endpoints used by
 
 \autoref{tab:hiring_steering_slopes} fits a line through each model-axis
 response and reports the slope alongside $R^2$. The fit is close to linear
-in only 7 of the 18 rows, Gemma-3-12B warmth, both Llama-3.1-8B axes,
-Gemma-4-26B-A4B warmth, and both Qwen3.6-27B and Qwen3.6-35B-A3B warmth
-axes; the remaining eleven depart from a straight line, most visibly
+in only 7 of the 18 rows: Gemma-3-12B warmth; both Llama-3.1-8B axes;
+Gemma-4-26B-A4B warmth; both Qwen3.6-27B axes; and Qwen3.6-35B-A3B warmth.
+The remaining eleven depart from a straight line, most visibly
 Gemma-3-27B, where $R^2$ stays below 0.35 on both axes and the endpoint
 delta at $\alpha=+0.50$ is actually negative despite a positive slope
 estimate. Slopes vary in sign and size as well as fit quality: Gemma-3-12B
@@ -1026,21 +1034,19 @@ tests this with
 bootstrap mediation along the path name group~$\to$ probe score~$\to$
 callback margin, run separately for race and gender and for warmth and
 competence, thirty-six tests across the nine models. Fourteen of the
-thirty-six indirect effects exclude zero at the uncorrected 95\% level;
-under a Bonferroni threshold across all thirty-six ($\alpha = 0.05/36$),
-only the Llama-3.1-8B race--warmth path survives
-($\mathrm{IE} = +0.190$, 95\% CI $[+0.111, +0.292]$), so every other entry
-should be read as suggestive rather than confirmed. The two Gemma-3
-checkpoints show no significant mediation path on either grouping or
-probe, consistent with representations that steer cleanly but do not
-themselves drive the hiring decision. The later checkpoints complicate that
-picture: all three Gemma-4 models show a significant race--competence
-indirect effect, Gemma-4-26B-A4B additionally shows a significant
-gender--warmth path, and the two Qwen3.6 checkpoints show a comparable
-spread of significant warmth and competence paths, matching the pattern
-already present in Qwen3-14B. Read together, the absence of mediation looks
-like a property of the Gemma-3 generation specifically rather than a
-general feature of models whose concept directions steer well.
+thirty-six indirect effects have unadjusted 95\% bootstrap intervals that
+exclude zero. No multiplicity-adjusted inference is reported, so all path
+comparisons are exploratory. At this unadjusted threshold, the two Gemma-3
+checkpoints have no interval excluding zero on either grouping or probe,
+consistent with representations that steer cleanly but are not clearly
+shown here to carry the hiring decision. The later checkpoints complicate
+that picture: all three Gemma-4 models have a race--competence interval that
+excludes zero, Gemma-4-26B-A4B additionally has a gender--warmth interval
+that excludes zero, and the two Qwen3.6 checkpoints show a comparable spread
+across warmth and competence, matching the pattern already present in
+Qwen3-14B. These unadjusted patterns suggest that the absence of mediation
+may be specific to the Gemma-3 generation, but they do not establish that
+model-generation difference confirmatorily.
 
 % ─────────────────────────────────────────────────────────────────────────────
 
@@ -1125,15 +1131,16 @@ whether the intervention behaves predictably.
 \paragraph{Steerability and Mediation Come Apart.}
 External steerability and internal mediation do not track each other in our
 results. Gemma-3-12B carries the largest normalized warmth steerability yet
-shows no mediation path that survives correction, while Llama-3.1-8B, whose
-concept-level response is far smaller, produces the one indirect effect that
-holds under a Bonferroni threshold across all thirty-six tests
-($\mathrm{IE} = +0.190$, 95\% CI $[+0.111, +0.292]$). Responding strongly to
-an imposed intervention and routing a name-group signal through that same
-representation unprompted appear to be different properties. The two Gemma-3
-checkpoints show no significant mediation on either grouping, whereas the
-Gemma-4 and Qwen3.6 checkpoints show several, which locates the null in a
-model generation rather than in steerable models as a class.
+has no mediation interval that excludes zero at the unadjusted 95\% level.
+Llama-3.1-8B, whose concept-level response is far smaller, has a
+race--warmth indirect effect of $+0.190$ with a 95\% interval of
+$[+0.111, +0.292]$. Responding strongly to an imposed intervention and
+routing a name-group signal through that same representation unprompted may
+therefore be different properties. The two Gemma-3 checkpoints have no
+unadjusted interval excluding zero on either grouping, whereas the Gemma-4
+and Qwen3.6 checkpoints have several. Because no multiple-comparison
+adjustment is reported, this contrast is exploratory and does not identify
+a confirmed model-family difference.
 
 \paragraph{Limitations.}
 This study has several limitations, grouped below by the aspect of the
@@ -1224,14 +1231,16 @@ bear directly on that gap.
   (Gemma-3-12B, Gemma-3-27B) reach only moderate correlations even at their
   best. Taken together, the model's internal probes capture a component of
   human social perception rather than replicating it faithfully, and warmth
-  is the less reliably captured of the two constructs. The subset of models
-  with inverted warmth alignment is discussed separately below.
-  \item \textbf{Inverted warmth construct in two models}: The warmth
-  anti-alignment in Llama-3.1-8B ($\rho = -0.287$) and Qwen3-14B
-  ($\rho = -0.178$) means that for these models the mean-difference
-  direction captures a construct systematically inverted relative to the
-  human warmth scale; results for these models should be interpreted with
-  this inversion in mind.
+  is the less reliably captured of the two constructs. The subset with
+  significant negative warmth alignment is discussed separately below.
+  \item \textbf{Significant negative name-level warmth alignment in three
+  models}: Warmth scores correlate negatively with human ratings in
+  Llama-3.1-8B ($\rho = -0.287$), Gemma-4-26B-A4B ($\rho = -0.190$), and
+  Qwen3-14B ($\rho = -0.178$), with all three correlations significant.
+  Results involving name-level warmth for these models should be interpreted
+  with this negative correspondence in mind. This evidence concerns the
+  relation between the extracted score and human ratings; it does not by
+  itself establish that the model encodes a fully inverted warmth construct.
   \item \textbf{Direction specificity is not established}: In the
   six-direction comparison the mean-difference direction is the largest
   intervention in only one of four model-axis rows, and in the three
@@ -1293,9 +1302,9 @@ the benchmark, and the vectors the name-level analyses were run on.
 \begin{itemize}[leftmargin=*, itemsep=2pt, topsep=4pt, parsep=0pt]
   \item \textbf{Uncorrected mediation tests}: Across all nine models, the
   thirty-six mediation tests are presented uncorrected for multiple
-  comparisons; only the Llama-3.1-8B race--warmth indirect effect survives
-  a Bonferroni-corrected threshold ($\alpha = 0.05/36$), and the smaller
-  significant paths should be treated as suggestive rather than confirmed.
+  comparisons. Fourteen unadjusted 95\% bootstrap intervals exclude zero,
+  but no multiplicity-adjusted inference is reported and no corrected winner
+  is identified. These paths should therefore be treated as exploratory.
   \item \textbf{Simplified hiring prompt}: The hiring prompt is simplified
   relative to real-world screening contexts (single role, fixed
   qualifications), and results may differ under richer evaluation
@@ -1725,9 +1734,9 @@ region of the residual stream, and the same holds for negatively valenced
 stories.
 To separate conceptual content from this shared evaluative polarity, we
 follow the neutral-corpus denoising procedure of \citet{sofroniew2026emotion}.
-We build a neutral corpus of 1,500 Wikipedia introduction paragraphs,
-length-matched to the concept stories (90--200 words) and filtered to
-exclude emotionally charged or violent content, and extract residual-stream
+We build a neutral corpus of 1,500 length-matched introductory passages
+drawn from distinct Wikipedia articles (90--200 words) and filtered to
+exclude emotionally charged or violent content, then extract residual-stream
 activations at the same layer and pooling rule used for the concept stories.
 We then fit principal component analysis (PCA) on these neutral activations
 and project out, from both direction vectors, the top components that
@@ -1842,13 +1851,13 @@ standardized ($z$-score) main-text version is built for that comparison.
 \subsection*{Bootstrap Mediation, All Nine Models}
 \label{appx:mediation}
 Indirect effects for the path name group to probe score to callback margin,
-for every model, both groupings, and both probes. The two figures the Results
-section reports from this table, that fourteen of the thirty-six intervals
-exclude zero uncorrected and that only the Llama-3.1-8B race--warmth path
-survives a Bonferroni threshold, are stated there; the coefficients are given
-here for readers checking them.
+for every model, both groupings, and both probes. Fourteen of the thirty-six
+unadjusted 95\% bootstrap intervals exclude zero. No multiplicity-adjusted
+inference is reported, so the coefficients are provided for exploratory
+comparison rather than as confirmed path selections.
 
 \input{\tabledir/mediation_9model.tex}
+\clearpage
 
 \subsection*{Crossed Race $\times$ Gender Disparity, All Nine Models}
 \label{appx:crossed_disparity}
@@ -1862,6 +1871,7 @@ White-female, and 73 White-male names, and no interval estimates or
 significance tests were computed for the interaction terms.
 
 \input{\tabledir/hiring_disparity_race_gender_9model.tex}
+\clearpage
 
 \subsection*{Name-Level Warmth/Competence by Crossed Race $\times$ Gender}
 

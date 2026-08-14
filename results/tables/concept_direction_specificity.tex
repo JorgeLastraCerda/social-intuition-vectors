@@ -12,9 +12,9 @@
 Model & Axis & Dense target & SAE decoded & Axis-specific & Shared & Opposing axis & Random \\
 \midrule
 G3-12B & Warmth & \textbf{+3.88} & +2.30 & +2.10 & +2.16 & +3.24 & -0.32 \\
-G3-12B & Competence & +2.01 & +3.69 & +3.12 & +2.34 & +2.38 & +2.88 \\
-G3-27B & Warmth & +1.02 & -0.19 & -1.38 & +0.69 & +2.86 & +1.34 \\
-G3-27B & Competence & +0.21 & +3.53 & +4.36 & +1.61 & +0.31 & +2.67 \\
+G3-12B & Competence & +2.01 & \textbf{+3.69} & +3.12 & +2.34 & +2.38 & +2.88 \\
+G3-27B & Warmth & +1.02 & -0.19 & -1.38 & +0.69 & \textbf{+2.86} & +1.34 \\
+G3-27B & Competence & +0.21 & +3.53 & \textbf{+4.36} & +1.61 & +0.31 & +2.67 \\
 \bottomrule
 \end{tabular}
 \caption{\textbf{The dense target is strongest in only one of four model-axis comparisons.} This comparison is limited to Gemma-3-12B and Gemma-3-27B because Gemma Scope~2 is available only for these checkpoints. Cells report the change in the held-out Yes-versus-No logit margin for six directions at $\alpha=+0.10$. Dense target is the same mean-difference direction used everywhere else in this study; SAE decoded, axis-specific, and shared are built from a Gemma Scope~2 sparse decomposition; opposing axis steers along the other concept's direction; random is a single orthogonalized control. Bold marks the row's largest effect. Dense target is largest in only 1 of the four model-axis rows; the other three are matched or exceeded by at least one unrelated direction, most often the SAE-decoded or axis-specific component, which does not support a clean specificity reading and is discussed in the text alongside the shared warmth-competence overlap already noted in PCA denoising.}

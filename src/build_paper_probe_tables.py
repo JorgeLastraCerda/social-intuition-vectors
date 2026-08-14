@@ -45,6 +45,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from pathlib import Path
 
 import pandas as pd
@@ -948,13 +949,20 @@ def build_table_concept_direction_specificity(table_dir: Path, out_path: Path) -
                 & (df["axis"] == axis)
                 & (df["strength"].astype(str) == "0.1")
             ].set_index("direction")
-            cells = [f"{sub.loc[d, 'effect']:+.2f}" for d in DIRECTION_ORDER]
-            dense_is_max = sub.loc["raw_dense", "effect"] == sub["effect"].max()
+            effects = [float(sub.loc[d, "effect"]) for d in DIRECTION_ORDER]
+            max_effect = max(effects)
+            cells = [f"{effect:+.2f}" for effect in effects]
+            is_max = [
+                math.isclose(effect, max_effect, rel_tol=1e-12, abs_tol=1e-12)
+                for effect in effects
+            ]
+            dense_is_max = is_max[0]
             rows.append(
                 {
                     "model": SHORT_NAME[DISPLAY_NAME[label]],
                     "axis": axis.capitalize(),
                     "cells": cells,
+                    "is_max": is_max,
                     "dense_is_max": dense_is_max,
                 }
             )
@@ -979,8 +987,10 @@ def build_table_concept_direction_specificity(table_dir: Path, out_path: Path) -
     ]
     for row in rows:
         cells = list(row["cells"])
-        if row["dense_is_max"]:
-            cells[0] = r"\textbf{" + cells[0] + "}"
+        cells = [
+            r"\textbf{" + cell + "}" if is_max else cell
+            for cell, is_max in zip(cells, row["is_max"])
+        ]
         lines.append(f"{row['model']} & {row['axis']} & " + " & ".join(cells) + r" \\")
     lines += [
         r"\bottomrule",
@@ -1293,7 +1303,7 @@ def build_table_hiring_steering_slopes(table_dir: Path, out_path: Path) -> None:
                     "model": SHORT_NAME[DISPLAY_NAME[label]],
                     "axis": axis.capitalize(),
                     "slope": f"{slope:+.2f}",
-                    "r2": f"{r2:.2f}",
+                    "r2": f"{r2:.3f}",
                     "r2_hi": r2 >= 0.8,
                     "endpoint": f"{endpoint:+.2f}",
                     "sign_disagree": slope * endpoint < 0,
@@ -1336,7 +1346,7 @@ def build_table_hiring_steering_slopes(table_dir: Path, out_path: Path) -> None:
         r"$\Delta_{\text{callback}}$ across the 60-name subset, at "
         r"$\alpha\in\{\pm0.25,\pm0.50\}$. Slope and $R^2$ come from an "
         r"ordinary least-squares fit of the five per-strength means; bold "
-        rf"marks $R^2\ge0.8$. A dagger marks an endpoint whose sign disagrees "
+        rf"marks $R^2\ge0.800$. A dagger marks an endpoint whose sign disagrees "
         rf"with the fitted slope ({n_disagree} of 18 rows). The fit is close to linear in only {n_hi} of "
         r"the 18 model-axis rows; several others, most visibly Gemma-3-27B "
         r"on both axes, show weak or non-monotonic trends instead.}",

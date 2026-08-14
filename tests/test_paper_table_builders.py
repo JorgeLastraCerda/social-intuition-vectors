@@ -24,6 +24,8 @@ from src.utils.config import load_config
 ROOT = Path(__file__).resolve().parents[1]
 TABLES = ROOT / "results" / "tables"
 LOGS = ROOT / "results" / "logs"
+MANUSCRIPT = ROOT / "paper" / "paper" / "Ulu_Lastra.tex"
+MEDIATION_TABLE_BUILDER = ROOT / "src" / "build_paper_mediation_table.py"
 
 
 def test_disparity_gap_table_has_declared_units_and_nine_models() -> None:
@@ -181,3 +183,86 @@ def test_competence_human_alignment_has_two_small_nonsignificant_negatives() -> 
     assert all(abs(rho) < 0.06 and p > 0.05 for rho, p in negative.values())
     assert len(positive) == 7
     assert all(rho > 0 and p < 0.05 for rho, p in positive.values())
+
+
+def test_specificity_table_bolds_every_row_maximum() -> None:
+    text = (TABLES / "concept_direction_specificity.tex").read_text()
+    bold_effects = re.findall(r"\\textbf\{([+-]\d+\.\d{2})\}", text)
+    assert bold_effects == ["+3.88", "+3.69", "+2.86", "+4.36"]
+
+    data_rows = [line for line in text.splitlines() if re.match(r"G3-(?:12|27)B &", line)]
+    assert len(data_rows) == 4
+    assert all(row.count(r"\textbf{") == 1 for row in data_rows)
+
+
+def test_broad_slope_r2_threshold_uses_raw_values_and_three_decimals() -> None:
+    high_r2 = set()
+    for label in MODEL_ORDER:
+        df = pd.read_csv(TABLES / HIRING_STEERING_BROAD_CSV[label])
+        for axis in ("warmth", "competence"):
+            means = df[df["axis"] == axis].groupby("strength")["delta"].mean().sort_index()
+            _, _, r2 = _ols_slope_r2(list(means.index.astype(float)), list(means.values))
+            if r2 >= 0.8:
+                high_r2.add((label, axis))
+
+    assert high_r2 == {
+        ("gemma3_12b", "warmth"),
+        ("llama31_8b", "warmth"),
+        ("llama31_8b", "competence"),
+        ("gemma4_26b_a4b", "warmth"),
+        ("qwen36_27b", "warmth"),
+        ("qwen36_27b", "competence"),
+        ("qwen36_35b_a3b", "warmth"),
+    }
+    text = (TABLES / "hiring_steering_slopes_9model.tex").read_text()
+    qwen_warmth = next(line for line in text.splitlines() if line.startswith("Q3-14B & Warmth"))
+    assert " & 0.799 & " in qwen_warmth
+    assert r"\textbf{0.799}" not in qwen_warmth
+    assert r"R^2\ge0.800" in text
+
+
+def test_warmth_human_alignment_has_three_significant_negatives() -> None:
+    significant_negative = set()
+    for label in MODEL_ORDER:
+        report = json.loads((LOGS / f"hiring_probe_vs_human_{label}.json").read_text())
+        row = next(item for item in report["correlations"] if item["pair"] == "warmth")
+        if float(row["spearman_rho"]) < 0 and float(row["spearman_p"]) < 0.05:
+            significant_negative.add(label)
+
+    assert significant_negative == {"llama31_8b", "gemma4_26b_a4b", "qwen3_14b"}
+    gemma4_12b = json.loads((LOGS / "hiring_probe_vs_human_gemma4_12b.json").read_text())
+    warmth = next(item for item in gemma4_12b["correlations"] if item["pair"] == "warmth")
+    assert float(warmth["spearman_rho"]) == pytest.approx(0.009, abs=0.001)
+    assert float(warmth["spearman_p"]) > 0.05
+
+
+def test_mediation_language_matches_available_unadjusted_intervals() -> None:
+    n_excluding_zero = 0
+    n_total = 0
+    for label in MODEL_ORDER:
+        report = json.loads((LOGS / f"hiring_mediation_{label}.json").read_text())
+        n_total += len(report["mediation"])
+        n_excluding_zero += sum(bool(row["significant_95"]) for row in report["mediation"])
+    assert (n_excluding_zero, n_total) == (14, 36)
+
+    active_text = "\n".join(
+        path.read_text()
+        for path in (MANUSCRIPT, MEDIATION_TABLE_BUILDER, TABLES / "mediation_9model.tex")
+    )
+    assert "Bonferroni" not in active_text
+    assert "survives correction" not in active_text
+    generated = (TABLES / "mediation_9model.tex").read_text()
+    assert "14 of 36 intervals exclude zero at this unadjusted threshold" in generated
+    assert "No multiplicity-adjusted inference is reported" in generated
+    assert "exploratory" in generated
+
+
+def test_manuscript_closeout_wording_is_arithmetically_consistent() -> None:
+    text = " ".join(MANUSCRIPT.read_text().split())
+    assert "summarizes three of the five single-model checks in four reported statistics" in text
+    assert "collects four of the five single-model checks" not in text
+    assert text.count(
+        "1,500 length-matched introductory passages drawn from distinct Wikipedia articles"
+    ) == 3
+    assert "both Qwen3.6-27B axes; and Qwen3.6-35B-A3B warmth" in text
+    assert "Significant negative name-level warmth alignment in three models" in text

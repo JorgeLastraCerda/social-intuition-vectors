@@ -9,7 +9,7 @@ later). No mediation bootstrap is re-run here.
 Output (booktabs style, ``\\input``-able from the manuscript)
 ---------------------------------------------------------------
 results/tables/mediation_9model.tex
-    Main-text Results table (table*, spans both columns): for each of the
+    Appendix table (table*, spans both columns): for each of the
     nine models, four rows (race x warmth, race x competence, gender x
     warmth, gender x competence) giving the standardized path coefficients
     a, b, the bootstrap indirect effect a*b with its 95% CI, and a
@@ -153,11 +153,9 @@ def build_table(log_dir: Path, out_path: Path) -> None:
         r"probe score on callback margin, controlling for group; IE $= a \times b$ is "
         r"the indirect (mediated) effect. "
         r"$^{\dagger}$ marks a 95\% bootstrap CI that excludes zero. "
-        f"{n_sig} of {n_total} tests are significant at this uncorrected threshold; "
-        r"only the Llama-3.1-8B race--warmth path survives a "
-        f"Bonferroni correction across all {n_total} tests "
-        r"($\alpha = 0.05/" + str(n_total) + r"$), so the remaining paths listed here "
-        r"should be read as suggestive rather than confirmed.}",
+        f"{n_sig} of {n_total} intervals exclude zero at this unadjusted threshold. "
+        r"No multiplicity-adjusted inference is reported, so all paths should be "
+        r"read as exploratory.}",
         r"\label{tab:mediation_9model}",
         r"\end{table*}",
         "",
