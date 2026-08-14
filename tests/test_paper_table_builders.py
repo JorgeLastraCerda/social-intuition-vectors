@@ -266,3 +266,40 @@ def test_manuscript_closeout_wording_is_arithmetically_consistent() -> None:
     ) == 3
     assert "both Qwen3.6-27B axes; and Qwen3.6-35B-A3B warmth" in text
     assert "Significant negative name-level warmth alignment in three models" in text
+
+
+def test_manuscript_human_alignment_counts_match_source_logs() -> None:
+    counts = {"competence": {"sig_pos": 0, "other": 0}, "warmth": {"sig_pos": 0, "other": 0}}
+    for label in MODEL_ORDER:
+        report = json.loads((LOGS / f"hiring_probe_vs_human_{label}.json").read_text())
+        for axis in counts:
+            row = next(item for item in report["correlations"] if item["pair"] == axis)
+            positive_and_significant = (
+                float(row["spearman_rho"]) > 0 and float(row["spearman_p"]) < 0.05
+            )
+            counts[axis]["sig_pos" if positive_and_significant else "other"] += 1
+
+    # Competence is positive and significant in 7 of 9; the other 2 are negative
+    # and nonsignificant. Warmth is negative or nonsignificant in 4 of 9.
+    assert counts["competence"] == {"sig_pos": 7, "other": 2}
+    assert counts["warmth"] == {"sig_pos": 5, "other": 4}
+
+    text = " ".join(MANUSCRIPT.read_text().split())
+    assert "Competence tracks human ratings in seven of the nine checkpoints" in text
+    assert (
+        "positive and significant in seven of the nine, with the remaining two "
+        "small, negative, and nonsignificant"
+    ) in text
+    assert "Competence tracks human ratings in every checkpoint" not in text
+    assert "positive in all nine, reaching significance in all but one" not in text
+
+
+def test_manuscript_avoids_unqualified_encoding_claims() -> None:
+    text = " ".join(MANUSCRIPT.read_text().split())
+    assert "appear to be encoded in all nine models" not in text
+    assert "The structure of social perception appears to be present" not in text
+    assert (
+        "Warmth- and competence-associated contrastive directions are recoverable "
+        "in all nine models"
+    ) in text
+    assert "A direction that separates our warmth and competence stories exists" in text

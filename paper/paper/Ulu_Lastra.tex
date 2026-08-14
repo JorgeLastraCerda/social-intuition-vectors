@@ -175,9 +175,9 @@ result. Extraction succeeds everywhere: all nine checkpoints yield
 directions that separate held-out stories, stand well outside a
 random-direction null, and reconstruct stably from disjoint halves of the
 corpus. Beyond that point the models diverge. Competence tracks human
-ratings in every checkpoint, while warmth correlates negatively or
-insignificantly in four of the nine. Steering shifts the stated concept
-judgment everywhere, but its effect on callback recommendations varies in
+ratings in seven of the nine checkpoints, while warmth correlates negatively
+or insignificantly in four. Steering shifts the stated concept judgment
+everywhere, but its effect on callback recommendations varies in
 size, in linearity, and in some checkpoints in sign, reversing between
 moderate and larger interventions. Whether the representation carries a
 demographic signal into the decision at all depends on the model.
@@ -1065,15 +1065,17 @@ representation of social perception.
 The rest of our results complicate that reading. What the recovered
 directions correspond to, and what happens when they are pushed, varies
 across checkpoints in ways the extraction statistics do not anticipate.
-Warmth and competence appear to be encoded in all nine models, but not in a
-form that can be assumed identical from one model to the next.
+Warmth- and competence-associated contrastive directions are recoverable in
+all nine models, but what those directions correspond to cannot be assumed
+identical from one model to the next.
 
 \paragraph{Warmth Is the Less Stable Axis.}
 Competence behaves as the more orderly of the two dimensions throughout.
 Its split-half reconstructions are more stable than warmth in every model
 without exception, and its correlation with human name ratings is positive
-in all nine, reaching significance in all but one. Warmth does not follow
-suit. Four checkpoints return a warmth correlation that is negative or
+and significant in seven of the nine, with the remaining two small, negative,
+and nonsignificant. Warmth does not follow suit. Four checkpoints return a
+warmth correlation that is negative or
 indistinguishable from zero, with Llama-3.1-8B at $\rho = -0.287$ while
 Gemma-3-27B reaches $+0.388$ on the same names and the same rating data.
 
@@ -1356,9 +1358,9 @@ directions changes the judgments the models state. Beyond that shared
 foundation the models diverge. They disagree on whether the warmth direction
 points the way human raters do, on whether a stronger intervention amplifies
 or reverses a weaker one, and on whether the representation carries a
-demographic signal into a hiring recommendation at all. The structure of
-social perception appears to be present in all of these systems; its
-particular realization appears to be a property of the individual model.
+demographic signal into a hiring recommendation at all. A direction that
+separates our warmth and competence stories exists in all of these systems;
+what it corresponds to appears to be a property of the individual model.
 Findings obtained from a single checkpoint, our own included, should be
 treated as claims about that checkpoint until they are shown to replicate.
 
