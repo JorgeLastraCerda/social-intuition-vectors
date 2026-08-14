@@ -3323,3 +3323,11 @@
 - **Decision / rationale:** State only the demonstrated result, that warmth- and competence-associated contrastive directions are recoverable, because the "Naming a Direction Is a Claim We Make" paragraph and the direction-specificity result both contradict an unqualified encoding claim. Leave the abstract, the Introduction research question, and the hedged Discussion opening untouched so the section keeps its confident-opening-then-complication structure. Tie the new count test to the source JSON so a future rerun fails loudly instead of desynchronizing the prose again.
 - **Next:** Retranslate `paper/paper/Ulu_Lastra-tr.tex` if it is ever revived; it still describes four architectures and predates the nine-model expansion.
 - **Anti-formulaic self-check:** Re-read all three edited passages after rendering. No em-dash entered the prose, no two adjacent sentences share an opener frame, and no signal-only transition was added. The Conclusion paragraph uses "recovered" once, so the replacement sentence was built on "separates" and "exists" rather than repeating it.
+
+## 2026-08-14 · Step 11 — Remove the first-page preprint footer
+- **Context:** Author asked for the "This version has not been peer reviewed" first-page footer to be removed.
+- **Agent:** claude-opus-5
+- **Did:** Deleted the `firstpage` fancypagestyle block, its `\thispagestyle{firstpage}` invocation, and the now-unused `\usepackage{fancyhdr}` from `paper/paper/Ulu_Lastra.tex`; rebuilt the PDF.
+- **Findings:** `fancyhdr` served only this footer, so the whole block was removed rather than blanked. The rebuilt PDF has 34 pages and 0 overfull boxes, no undefined control sequences, references, or citations, and page 1 no longer carries the notice. Focused tests still pass 18 of 18.
+- **Decision / rationale:** Remove the package along with the footer to avoid leaving an unused dependency and an empty page style behind.
+- **Anti-formulaic self-check:** Not applicable; no manuscript prose changed.
