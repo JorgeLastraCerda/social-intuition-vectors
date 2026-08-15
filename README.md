@@ -297,13 +297,12 @@ append-only chronological record of how the project got there.
 
 ## AI Assistance
 
-AI coding assistants were used in this project to help write and refactor
+We used AI coding assistants in this project to help write and refactor
 pipeline code, generate LaTeX tables and figures, and draft and edit prose.
 
-The authors designed the study, chose the methods, ran the experiments, and
-verified every reported number against the stored result artifacts. All
-scientific claims, interpretations, and errors are the authors' own
-responsibility.
+We designed the study, chose the methods, ran the experiments, and verified
+every reported number against the stored result artifacts. All scientific
+claims, interpretations, and errors are our own responsibility.
 
 ## Data and Secrets
 
@@ -331,8 +330,8 @@ GPU resources, and scratch paths; fill those in on the cluster before
 submitting heavy jobs. HuggingFace/model caches are kept on scratch or work
 storage via `HF_HOME`, not in the home directory.
 
-The authors acknowledge support by the local computing resources through the
-core facility SCCKN.
+We acknowledge support by the local computing resources through the core
+facility SCCKN.
 
 ## Caveats
 

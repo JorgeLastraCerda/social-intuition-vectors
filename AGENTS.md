@@ -44,6 +44,9 @@ This project runs primarily on the Universität Konstanz SCCKN cluster.
 - Keep scheduler support modular so a future `jobs/slurm/` backend can be added if another compute environment becomes available.
 - If SCCKN is used in a paper, include this acknowledgement:
   "The authors acknowledge support by the local computing resources through the core facility SCCKN."
+  By author preference the manuscript and README use the first-person variant,
+  "We acknowledge support by the local computing resources through the core
+  facility SCCKN." It names the same facility and resources; do not revert it.
 
 ## Step Logging
 
