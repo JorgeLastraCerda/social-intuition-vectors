@@ -206,9 +206,10 @@ cd social-intuition-vectors
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 
-# Regenerate the LaTeX tables the manuscript reads
-python src/build_paper_probe_tables.py
-python src/build_paper_mediation_table.py
+# Regenerate the LaTeX tables the manuscript reads.
+# Run these as modules (-m), from the repository root: they import from src/.
+python -m src.build_paper_probe_tables
+python -m src.build_paper_mediation_table
 
 # Confirm the regenerated tables match what is committed
 git diff --stat results/tables/     # expect no output
@@ -217,7 +218,9 @@ git diff --stat results/tables/     # expect no output
 cd paper/paper && pdflatex Ulu_Lastra && pdflatex Ulu_Lastra
 ```
 
-The result is a 34-page PDF. `src/build_paper_mediation_table.py` reproduces
+The result is a 34-page PDF. Verified from a fresh clone: both builders run to
+completion and every regenerated table matches the committed version byte for
+byte. `src/build_paper_mediation_table.py` reproduces
 `results/tables/mediation_9model.tex` byte for byte from the stored bootstrap
 logs (seed 20260527, 36 mediation tests, 14 with unadjusted 95% intervals
 excluding zero), so the mediation numbers in the paper can be checked directly
