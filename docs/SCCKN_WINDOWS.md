@@ -1,8 +1,8 @@
 # SCCKN Cluster — Windows Setup Guide
 
 This file documents how to connect to the SCCKN cluster from a Windows PC and how to
-run jobs. It mirrors `archive/target_self_affect_leakage/scckn/SCCKN_SETUP.md` (the
-original Mac setup), adapted for Windows 11 with the built-in OpenSSH client.
+run jobs. It mirrors `scckn/SCCKN_SETUP.md` (the macOS setup), adapted for
+Windows 11 with the built-in OpenSSH client.
 
 ---
 

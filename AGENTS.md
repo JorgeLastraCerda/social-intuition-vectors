@@ -6,17 +6,6 @@ Read this file at the start of every session. This repository is the active work
 
 The project studies whether open-weights language models encode **warmth** and **competence** as linearly probeable internal representations, and whether steering those representations causally changes hiring callback recommendations.
 
-## Archive Map
-
-- `archive/target_self_affect_leakage/`
-  - Previous project titled "Who Feels the Fear?"
-  - Core prior source for workflow, phase discipline, validation/logging style, and SCCKN operational notes.
-  - Do not keep its research question active unless the user explicitly connects it to the new project.
-  - Useful references:
-    - `archive/target_self_affect_leakage/who_feels_the_fear_project_plan.md`
-    - `archive/target_self_affect_leakage/scripts/`
-    - `archive/target_self_affect_leakage/scckn/`
-
 ## What This Project Is
 
 A mechanistic-interpretability study of hiring bias in LLMs. We extract internal warmth and competence representations, inspired by the Stereotype Content Model, from an open-weights model and test whether they causally influence callback recommendations.

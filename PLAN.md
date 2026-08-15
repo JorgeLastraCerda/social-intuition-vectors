@@ -44,7 +44,7 @@ tests/
 Repository rules:
 
 - All active docs, code, comments, filenames, and scripts are English.
-- `archive/target_self_affect_leakage/` is the core prior source for workflow and SCCKN operational conventions.
+- `scckn/` holds the SCCKN operational conventions this project follows.
 - Heavy jobs target SCCKN Grid Engine first, via `jobs/sge/`.
 
 ## Phase 2: Method Notes

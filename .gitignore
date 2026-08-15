@@ -6,8 +6,16 @@ __pycache__/
 .ruff_cache/
 
 # Environments and local secrets
+# Leading-slash-free patterns so a venv created inside a subdirectory
+# (paper/figures/.venv once reached 1 GB) is ignored too.
 .venv/
+**/.venv/
 venv/
+**/venv/
+
+# Local tool scratch output; never part of the handover.
+graphify-out/
+**/graphify-out/
 .env
 .env.*
 **/.env
