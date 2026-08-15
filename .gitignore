@@ -74,6 +74,11 @@ huggingface/
 models/
 checkpoints/
 
+# Reference PDFs are not redistributed from this public repository.
+# Keep local copies here if you want them; cite by DOI in README.md instead.
+literature/*.pdf
+!literature/.gitkeep
+
 # Keep directory placeholders
 !data/processed/.gitkeep
 !results/logs/.gitkeep

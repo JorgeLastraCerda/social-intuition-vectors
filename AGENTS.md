@@ -154,7 +154,9 @@ For future hand-made paper figures, keep a same-basename triplet side by side in
 - `<name>.py` or the equivalent generating script
 
 Figures produced by the existing central `paper/figures/generate_figures.py` do not need per-figure scripts retroactively.
-Reference papers and downloaded PDFs remain under `literature/`.
+Reference papers and downloaded PDFs may be kept locally under `literature/`,
+but they are not committed: this repository is public, so cite sources by DOI
+in `README.md` rather than redistributing the PDFs.
 
 ## Working Conventions
 
