@@ -8,8 +8,8 @@
 | | |
 |---|---|
 | **Paper** | [`paper/paper/Ulu_Lastra.pdf`](paper/paper/Ulu_Lastra.pdf) · source: [`Ulu_Lastra.tex`](paper/paper/Ulu_Lastra.tex) |
-| **Final presentation** | [`presentation/Ulu_Lastra_slides_v8.pptx`](presentation/Ulu_Lastra_slides_v8.pptx) |
-| **Preliminary presentation** | [`presentation/normalcy_axis_preliminary.pptx`](presentation/normalcy_axis_preliminary.pptx) · [PDF](presentation/normalcy_axis_preliminary.pdf) |
+| **Final presentation** | [PDF](presentation/Ulu_Lastra_slides_v8.pdf) · [`Ulu_Lastra_slides_v8.pptx`](presentation/Ulu_Lastra_slides_v8.pptx) |
+| **Preliminary presentation** | [PDF](presentation/normalcy_axis_preliminary.pdf) · [`normalcy_axis_preliminary.pptx`](presentation/normalcy_axis_preliminary.pptx) |
 
 ## Abstract
 
@@ -170,7 +170,8 @@ literature/      Empty placeholder. The two source papers are cited by DOI
 tests/           Pytest suite covering config, steering calibration, and
                  per-model pipeline stages.
 scckn/           SCCKN cluster operational docs and job templates.
-presentation/    Final slide deck (v8) and the preliminary deck.
+presentation/    Final slide deck (v8) and the preliminary deck, each as
+                 both .pptx and .pdf.
 ```
 
 ## Setup
