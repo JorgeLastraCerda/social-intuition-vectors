@@ -148,8 +148,8 @@ config/          Project configuration. Baseline model in config/config.yaml
 src/             Pipeline package: stimulus generation, vector extraction,
                  denoising, steering, hiring evaluation/steering/disparity/
                  mediation, per-family (Gemma Scope, Qwen3.6) helpers.
-data/raw/        Downloaded source datasets (e.g. the Gallo–Hausladen repo).
-                 Ignored by git except .gitkeep.
+data/raw/        Vendored source data, including the Gallo–Hausladen
+                 replication package. Tracked in git: no download needed.
 data/stimuli/    Generated concept stories, neutral corpus, name roster.
 data/processed/  Concept vectors and derived arrays per model, tracked in git
                  under data/processed/concept_vectors*/.
@@ -161,12 +161,12 @@ paper/           Dated findings reports (one per result/decision), figures,
                  idea notes, and the active manuscript in paper/paper/.
 step_logs/       Append-only research log, step_logs/STEP_LOG.md.
 notebooks/       Exploratory notebooks for hiring steering, audit, disparity.
-literature/      The two motivating source PDFs.
+literature/      Empty placeholder. The two source papers are cited by DOI
+                 under References rather than redistributed here.
 tests/           Pytest suite covering config, steering calibration, and
                  per-model pipeline stages.
 scckn/           SCCKN cluster operational docs and job templates.
-archive/         Previous project (target_self_affect_leakage) kept as a
-                 workflow and SCCKN reference; not an active research question.
+presentation/    Slide deck and presentation plan.
 ```
 
 ## Setup
@@ -193,10 +193,63 @@ Runs against the other eight checkpoints use the matching config under
 `config/` (e.g. `config/qwen36_35b_a3b.yaml`); scripts do not hardcode a model
 name.
 
+## Reproducing the Paper
+
+Every table and figure in the manuscript rebuilds from files tracked in this
+repository. **No GPU and no cluster access are required for this step**, because
+the activations, probe directions, and per-model result files are all committed.
+GPUs are needed only to re-extract activations from scratch.
+
+```bash
+git clone https://github.com/JorgeLastraCerda/social-intuition-vectors
+cd social-intuition-vectors
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+
+# Regenerate the LaTeX tables the manuscript reads
+python src/build_paper_probe_tables.py
+python src/build_paper_mediation_table.py
+
+# Confirm the regenerated tables match what is committed
+git diff --stat results/tables/     # expect no output
+
+# Build the manuscript (two passes resolve references)
+cd paper/paper && pdflatex Ulu_Lastra && pdflatex Ulu_Lastra
+```
+
+The result is a 34-page PDF. `src/build_paper_mediation_table.py` reproduces
+`results/tables/mediation_9model.tex` byte for byte from the stored bootstrap
+logs (seed 20260527, 36 mediation tests, 14 with unadjusted 95% intervals
+excluding zero), so the mediation numbers in the paper can be checked directly
+against the artifacts.
+
+Run the test suite with `pytest tests/`. Two tests in `tests/test_hiring_r4.py`
+are known to fail against the current pandas version; every other test passes.
+
+## Reading the Evidence
+
+The paper is supported by dated findings reports under `paper/`, one per result
+or methodological decision. Each report opens with an `## Artifacts` block
+listing the exact scripts, inputs, outputs, and figures behind it, so any claim
+in the manuscript can be traced to the files that produced it.
+`paper/README.md` indexes all of them; `step_logs/STEP_LOG.md` is the
+append-only chronological record of how the project got there.
+
+## AI Assistance
+
+AI coding assistants were used in this project to help write and refactor
+pipeline code, generate LaTeX tables and figures, and draft and edit prose.
+
+The authors designed the study, chose the methods, ran the experiments, and
+verified every reported number against the stored result artifacts. All
+scientific claims, interpretations, and errors are the authors' own
+responsibility.
+
 ## Data and Secrets
 
-Local `.env` files, credentials, downloaded papers, raw datasets, model
-caches, activations, and cluster logs are ignored by git. Do not commit
+Local `.env` files, credentials, reference PDFs, model caches, and cluster
+logs are ignored by git. Raw benchmark data under `data/raw/` is an exception:
+it is vendored so the analysis reproduces without any download. Do not commit
 secrets or local SCCKN paths. Concept vectors, validation logs, and metric
 tables produced by the pipeline are tracked in git and synced with
 `bash jobs/sync_outputs.sh`; model weights are never committed.
@@ -232,7 +285,9 @@ core facility SCCKN.
 
 - Sofroniew, Kauvar, Saunders, Chen, et al. (2026). _Emotion Concepts and their
   Function in a Large Language Model._ arXiv:2604.07729.
+  <https://arxiv.org/abs/2604.07729>
 - Gallo, Hausladen, Hsu, Jenkins, Ona, Camerer (2024). _Perceived warmth and
   competence predict callback rates in meta-analyzed North American labor
   market experiments._ PLOS ONE 19(7): e0304723.
   doi:10.1371/journal.pone.0304723.
+  <https://doi.org/10.1371/journal.pone.0304723>
