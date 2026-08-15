@@ -3,9 +3,13 @@
 **Emrecan Ulu** and **Jorge Lastra Cerda**, University of Konstanz
 `emrecan.ulu@uni-konstanz.de` · `jorge.lastra-cerda@uni-konstanz.de`
 
-This manuscript has not been peer reviewed. The active source lives at
-[`paper/paper/Ulu_Lastra.tex`](paper/paper/Ulu_Lastra.tex) (compiled PDF:
-`paper/paper/Ulu_Lastra.pdf`).
+### Deliverables
+
+| | |
+|---|---|
+| **Paper** | [`paper/paper/Ulu_Lastra.pdf`](paper/paper/Ulu_Lastra.pdf) · source: [`Ulu_Lastra.tex`](paper/paper/Ulu_Lastra.tex) |
+| **Final presentation** | [`presentation/Ulu_Lastra_slides_v8.pptx`](presentation/Ulu_Lastra_slides_v8.pptx) |
+| **Preliminary presentation** | [`presentation/normalcy_axis_preliminary.pptx`](presentation/normalcy_axis_preliminary.pptx) · [PDF](presentation/normalcy_axis_preliminary.pdf) |
 
 ## Abstract
 
@@ -166,7 +170,7 @@ literature/      Empty placeholder. The two source papers are cited by DOI
 tests/           Pytest suite covering config, steering calibration, and
                  per-model pipeline stages.
 scckn/           SCCKN cluster operational docs and job templates.
-presentation/    Slide deck and presentation plan.
+presentation/    Final slide deck (v8) and the preliminary deck.
 ```
 
 ## Setup
