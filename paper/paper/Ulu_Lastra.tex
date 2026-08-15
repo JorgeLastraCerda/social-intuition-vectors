@@ -116,6 +116,10 @@ correspondence with human perceptions and causal influence on hiring decisions
 are not uniform.
 \vspace{0.50cm}
 \end{abstract}
+\begin{center}
+\small Code and data:
+\url{https://github.com/JorgeLastraCerda/social-intuition-vectors}
+\end{center}
   \end{@twocolumnfalse}
 ]
 
@@ -128,11 +132,11 @@ intelligence somewhere in recruiting \citep{shrm2025talent}. Judgments that
 were once made by a person reading an application are increasingly produced,
 or at least shaped, by systems whose reasoning cannot be inspected from the
 outside. The question of whether those systems treat applicants evenly is no
-longer a hypothetical one.
+longer a hypothetical one. Existing evidence says they often do not.
 
-Existing evidence says they often do not. Correspondence studies established
-decades ago that otherwise identical applications receive different responses
-depending on the demographic signal a name carries
+Correspondence studies established decades ago that otherwise identical
+applications receive different responses depending on the demographic signal
+a name carries
 \citep{bertrand2004emily}, and behavioral audits of language models report
 the same pattern in model-generated callback recommendations
 \citep{an2024llm, an_measuring_2025, gaebler2024auditing}. These audits share
@@ -513,7 +517,8 @@ Two further analyses look beyond a single model's own directions:
   run as a robustness check, is in \autoref{tab:pca_denoising}.
 \end{itemize}
 All 36 pairwise agreement scores are in \autoref{tab:cross_model_agreement};
-Results summarizes the same comparison in a compact dot plot.
+Results summarizes the same comparison in a compact dot plot
+(\autoref{fig:fig6_cross_model_agreement}).
 
 \paragraph{Steering the Concept Vectors.}
 Finding a direction that separates high- and low-condition stories does not
