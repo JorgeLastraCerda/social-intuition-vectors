@@ -11,6 +11,58 @@
 | **Final presentation** | [PDF](presentation/Ulu_Lastra_slides_v8.pdf) · [`Ulu_Lastra_slides_v8.pptx`](presentation/Ulu_Lastra_slides_v8.pptx) |
 | **Preliminary presentation** | [PDF](presentation/normalcy_axis_preliminary.pdf) · [`normalcy_axis_preliminary.pptx`](presentation/normalcy_axis_preliminary.pptx) |
 
+## What This Is, in Plain Language
+
+Companies increasingly use AI to screen job applications. When a model treats two
+otherwise identical applications differently because of the name at the top, we
+would like to know *why* it happened, not just *that* it happened.
+
+The usual way to test this is from the outside: swap the name, watch the decision
+change, measure the gap. That tells you a disparity exists. It tells you nothing
+about what produced it. This project looks inside the model instead.
+
+**The idea we borrowed.** Recent research found that concepts inside a language
+model are not scattered at random. A concept like an emotion has its own
+*direction* in the model's internal state, a bit like a dial the model turns up or
+down as it reads. Once you locate the dial, you can do two things: read how far it
+is turned, and turn it yourself and watch what changes.
+
+**What we looked for.** Psychology says people size each other up along two axes:
+**warmth** (is this person kind and trustworthy?) and **competence** (are they
+capable?). Together these two judgments explain a great deal of how humans treat
+each other, including in hiring. So we went looking for a warmth dial and a
+competence dial inside nine freely available models from Google, Alibaba, and
+Meta.
+
+**How.** We wrote 200 short stories about a nameless person, half warm and half
+cold, half competent and half incompetent, and watched how the model's internal
+state differed between them. The difference *is* the dial. Then we asked the model
+to make callback decisions on real applicant names, and compared what we found
+against a large study of actual human hiring experiments.
+
+### What we found
+
+1. **The dials are real.** All nine models separate warm from cold and competent
+   from incompetent, cleanly and consistently. This part was not close.
+2. **But the label is ours, not the model's.** We *called* one dial "warmth"
+   because of the stories we wrote. When we checked it against how real people
+   rate the warmth of names, only some models agreed. Three actually pointed the
+   opposite way. The dial is doing something reliable inside each model; the
+   models simply disagree about what.
+3. **Turning the dial changes what the model says.** Push the warmth direction and
+   the model's stated opinion about warmth moves, every time, in every model.
+4. **But it does not reliably change hiring.** Push harder and callbacks go up in
+   some models, down in others, and sometimes reverse direction between a moderate
+   push and a strong one.
+
+**Why this matters.** There is a growing idea that we could audit AI systems by
+inspecting their internal representations rather than only their outputs. Our
+results say: be careful. We found a direction, we named it, and we could steer it,
+yet none of that established that this direction is what actually drives the
+hiring decision. A behavioral audit measures something whose meaning is fixed
+outside the model. An audit of internal representations measures something whose
+meaning has to be argued for, and that argument may need remaking for every model.
+
 ## Abstract
 
 Recent interpretability work shows that emotions are encoded as linear directions
