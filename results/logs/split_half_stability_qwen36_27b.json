@@ -1,0 +1,12 @@
+{
+  "label": "qwen36_27b",
+  "model": "Qwen/Qwen3.6-27B",
+  "seed": 20260527,
+  "n_high_warmth": 50,
+  "n_low_warmth": 50,
+  "n_high_competence": 50,
+  "n_low_competence": 50,
+  "split_half_cosine_warmth": 0.759697,
+  "split_half_cosine_competence": 0.859954,
+  "source_script": "src/compute_split_half_stability.py"
+}

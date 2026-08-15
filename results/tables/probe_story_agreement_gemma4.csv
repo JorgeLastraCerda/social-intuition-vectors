@@ -1,0 +1,7 @@
+axis,model_a,model_b,n_stories,n_per_condition,overall_rho,within_condition_rho,high_warmth_rho,low_warmth_rho,high_competence_rho,low_competence_rho
+warmth,Gemma-4-12B,Gemma-4-26B-A4B,200,50,0.910697,0.434454,0.599808,0.3406,0.433565,0.363842
+warmth,Gemma-4-12B,Gemma-4-31B,200,50,0.940135,0.574142,0.766339,0.426843,0.703721,0.399664
+warmth,Gemma-4-26B-A4B,Gemma-4-31B,200,50,0.905073,0.466723,0.569076,0.372965,0.413685,0.511164
+competence,Gemma-4-12B,Gemma-4-26B-A4B,200,50,0.959845,0.618031,0.563601,0.55928,0.728691,0.620552
+competence,Gemma-4-12B,Gemma-4-31B,200,50,0.952233,0.64461,0.754238,0.532581,0.67952,0.612101
+competence,Gemma-4-26B-A4B,Gemma-4-31B,200,50,0.946563,0.619112,0.583866,0.532101,0.685954,0.674526

@@ -111,6 +111,13 @@ project_personal_plan.md
 !results/logs/hiring_full282_gate_*.json
 !results/logs/smoke_gemma4_*.json
 !results/logs/smoke_qwen36_*.json
+# Required to rebuild main-text tables and figures on a clean clone.
+# Without these, src/build_paper_probe_tables.py raises FileNotFoundError on
+# the split-half column of the probe-validation table.
+!results/logs/split_half_stability_*.json
+!results/tables/concept_steerability_*.csv
+!results/tables/cross_model_agreement_*.csv
+!results/tables/probe_story_agreement_*.csv
 !results/logs/qwen36_smoke_submission_*.json
 !results/logs/qwen36_*_stage*.json
 !results/logs/qwen36_full_submission_*.json
