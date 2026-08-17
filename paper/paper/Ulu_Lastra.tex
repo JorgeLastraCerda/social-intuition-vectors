@@ -254,7 +254,7 @@ recipe and demonstrated it across a range of models and behaviors.
 Most recently, \citet{sofroniew2026emotion} applied this recipe to emotion
 concepts in Claude Sonnet. They extracted mean-difference directions from
 contrastive texts, steered the residual stream, and observed systematic
-behavioral shifts. We also adopt their neutral-corpus PCA denoising procedure
+behavioral shifts \autoref{fig:emotion_vector}. We also adopt their neutral-corpus PCA denoising procedure
 to separate concept content from shared narrative polarity.
 
 \begin{figure}[t]
@@ -409,7 +409,7 @@ background variation. Pairwise Spearman correlations test whether models
 rank the stories similarly. PCA denoising estimates common components from
 1,500 length-matched introductory passages drawn from distinct Wikipedia
 articles, then subtracts those components from the concept directions.
-Supplementary Sections~\ref{appx:probe_checks} and~\ref{appx:pca_denoising}
+\autoref{tab:pca_denoising} and \autoref{tab:cross_model_agreement}
 give the complete procedures and numeric results.
 
 \paragraph{Steering the Concept Vectors.}
