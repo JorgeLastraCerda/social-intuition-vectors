@@ -3394,3 +3394,21 @@
 - **Decision / rationale:** Enforce caption position and label/reference completeness in tests and update generators alongside generated tables, so later regeneration cannot silently reintroduce the layout defects.
 - **Next:** Review the active PDF; commit or push only on explicit request.
 - **Anti-formulaic self-check:** Re-read the edited appendix prose. It contains no em-dash punctuation, adjacent repeated opener frame, threefold recurring sentence frame, or signal-only transition.
+
+## 2026-08-17 · Step 5 — Pull collaborator fixes, rebuild, and separate the word budget
+- **Context:** Pull the collaborator's latest update, compile the omitted PDF, and report normal text, figures, tables, references, and appendix counts separately.
+- **Agent:** gpt-5
+- **Did:** Fast-forwarded `main` through commits `dba69c6` and `bdf54c2`; rebuilt `paper/paper/Ulu_Lastra.pdf` with three `pdflatex` passes; rendered the 32-page PDF; separated PDF-visible main prose, figure, table, reference, and supplement tokens; ran focused and full tests; and created `paper/2026-08-17_2101_post_pull_build_word_count.md`. Graphify was not used because the author identified its index as stale.
+- **Findings:** Normal main text is 5,599 words, seven main figures contain 1,161, and five main tables contain 1,029, giving an additive all-inclusive main total of 7,789 and 211 words of headroom. References contain 815 words, Supplementary Materials including Acknowledgements contain 10,182, and their combined count is 10,997. The established conservative compliance ledger rises by four tokens from 7,867 to 7,871, leaving 129 words below 8,000. The PDF has no unresolved references, overfull boxes, LaTeX errors, or rerun warnings. Focused tests pass 20 of 20; the full suite passes 115 of 117 with the same two pre-existing `tests/test_hiring_r4.py` fixture failures.
+- **Decision / rationale:** Use the additive Poppler split for category reporting because every row shares one PDF-visible tokenization method, and retain the established conservative ledger as a separate ceiling check. Leave the rebuilt PDF local because this request authorized pulling and compiling, not committing or pushing.
+- **Next:** Review the rebuilt PDF and word-budget table; commit or push the generated PDF and audit records only on explicit request.
+- **Anti-formulaic self-check:** Not applicable; no active-manuscript prose was authored during this audit.
+
+## 2026-08-17 · Step 6 — Prepare the rebuilt paper and audit for publication
+- **Context:** Publish the collaborator-synchronized PDF and its word-count audit after the author explicitly requested a Git push.
+- **Agent:** gpt-5
+- **Did:** Re-fetched `origin/main`, confirmed 0 ahead and 0 behind before staging, reviewed all local changes, added the current word-count audit beside the Paper deliverable in `README.md`, and retained its dated index entry in `paper/README.md`.
+- **Findings:** The scoped publication set contains the rebuilt 32-page PDF, the 21:01 word-count report, the two README references, and Steps 5 and 6 in the append-only log. No active TeX source, `_long` archive, result data, cache, credential, or unrelated file is included.
+- **Decision / rationale:** Publish the generated PDF and its audit together so the repository's primary deliverable and both documentation entry points describe the same current manuscript state.
+- **Next:** Commit the reviewed five-file set, push `main` to `origin/main`, and verify 0 ahead and 0 behind.
+- **Anti-formulaic self-check:** Not applicable; no active-manuscript prose changed in this publication step.
