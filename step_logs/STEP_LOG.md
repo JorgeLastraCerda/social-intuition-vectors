@@ -3412,3 +3412,12 @@
 - **Decision / rationale:** Publish the generated PDF and its audit together so the repository's primary deliverable and both documentation entry points describe the same current manuscript state.
 - **Next:** Commit the reviewed five-file set, push `main` to `origin/main`, and verify 0 ahead and 0 behind.
 - **Anti-formulaic self-check:** Not applicable; no active-manuscript prose changed in this publication step.
+
+## 2026-08-17 · Step 7 — Remove the internal audit from the public deliverables row
+- **Context:** The author asked to remove the `current word-count audit` link from the root README and push the correction.
+- **Agent:** gpt-5
+- **Did:** Restored the root `README.md` Paper row to the PDF and TeX source links only. The dated report remains in `paper/README.md`, which is the repository's internal findings index.
+- **Findings:** The public Deliverables table no longer advertises the internal word-count audit; the active paper links are unchanged.
+- **Decision / rationale:** Keep the landing-page deliverables focused on submission artifacts while preserving the required technical provenance under `paper/`.
+- **Next:** Commit and push the two-file documentation correction, then verify 0 ahead and 0 behind.
+- **Anti-formulaic self-check:** Not applicable; no active-manuscript prose changed.

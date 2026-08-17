@@ -7,7 +7,7 @@
 
 | | |
 |---|---|
-| **Paper** | [`paper/paper/Ulu_Lastra.pdf`](paper/paper/Ulu_Lastra.pdf) · source: [`Ulu_Lastra.tex`](paper/paper/Ulu_Lastra.tex) · [current word-count audit](paper/2026-08-17_2101_post_pull_build_word_count.md) |
+| **Paper** | [`paper/paper/Ulu_Lastra.pdf`](paper/paper/Ulu_Lastra.pdf) · source: [`Ulu_Lastra.tex`](paper/paper/Ulu_Lastra.tex) |
 | **Final presentation** | [PDF](presentation/Ulu_Lastra_slides_v8.pdf) · [`Ulu_Lastra_slides_v8.pptx`](presentation/Ulu_Lastra_slides_v8.pptx) |
 | **Preliminary presentation** | [PDF](presentation/normalcy_axis_preliminary.pdf) · [`normalcy_axis_preliminary.pptx`](presentation/normalcy_axis_preliminary.pptx) |
 
