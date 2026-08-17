@@ -4,9 +4,8 @@
 % Vectors' saturation claim refers to; the narrow +/-0.10 grid used
 % for all nine models is in tab:probe_validation-adjacent Results text.
 % Full-width appendix table; natural-size tabular preserves legibility.
-% [t]: page top only. The p option was dropped on 2026-08-11 because it
-% let short tables claim a dedicated float page (see step_logs/STEP_LOG.md).
-\begin{table*}[t]
+% [H]: keep S.11 after S.9 and S.10 in physical reading order.
+\begin{table}[H]
 \centering
 \small
 \setlength{\tabcolsep}{4pt}
@@ -22,4 +21,4 @@ Gemma-3-27B & Competence & +4.28 & +1.23 & +0.00 & +3.68 & +5.08 \\
 \end{tabular}
 \caption{\textbf{Concept-level steering at wide strengths.} Change in the held-out Yes-versus-No logit margin under dense-target steering, Gemma-3-12B and Gemma-3-27B, the two models where the wide strength grid was tested. The step from $+0.25$ to $+0.50$ is smaller than the step before it for three of the four rows, consistent with the saturating breakdown Methods describes; Gemma-3-27B warmth is the exception, still accelerating at $+0.50$.}
 \label{tab:concept_saturation}
-\end{table*}
+\end{table}

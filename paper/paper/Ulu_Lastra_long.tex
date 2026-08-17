@@ -26,7 +26,6 @@
 \usepackage[backend=bibtex,style=numeric,natbib=true,maxcitenames=2]{biblatex}
 \addbibresource{references.bib}
 \usepackage{appendix}
-\usepackage{balance}
 
 
 % Page geometry
@@ -177,9 +176,8 @@ size, in linearity, and in some checkpoints in sign, reversing between
 moderate and larger interventions. Whether the representation carries a
 demographic signal into the decision at all depends on the model.
 
-Our contribution connects lines of work that have usually been studied
-separately. Recent research has probed warmth and competence in
-language-model activations
+The contribution is primarily one of connection. Recent work has already
+probed warmth and competence in language-model activations
 \citep{deas2025artificial}, while representational audits in mortgage
 underwriting have used activation steering to expose latent demographic
 signals \citep{tripathy2026fair}. We combine elements that these lines of
@@ -189,6 +187,16 @@ callback rates for the same applicant names, and a comparison across nine
 open-weight checkpoints. This design tests whether a representational result
 replicates across models and whether it connects to a matched behavioral and
 human benchmark.
+
+The paper proceeds as follows. The next section describes how concepts are
+read out of a language model and why warmth and competence are the
+constructs we pursue. Methods documents the story corpus, the extraction and
+validation procedure, the steering interventions, and the benchmark
+comparison. Results reports vector validation, concept-level steering,
+alignment with human ratings, hiring steering, and group-level disparity and
+mediation, in that order. The Discussion considers what the divergence
+between models implies for interpreting and auditing representations of this
+kind, together with the limitations that bound these conclusions.
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section*{Background: Reading a Concept Out of a Language Model}
@@ -251,12 +259,19 @@ participates causally in the model's computation.
 Activation addition \citep{turner2023activation} and representation
 engineering \citep{zou2023repeng} established this intervene-and-observe
 recipe and demonstrated it across a range of models and behaviors.
-Most recently, \citet{sofroniew2026emotion} applied this recipe to emotion
-concepts in Claude Sonnet. They extracted mean-difference directions from
-contrastive texts, steered the residual stream, and observed systematic
-behavioral shifts. We also adopt their neutral-corpus PCA denoising procedure
-to separate concept content from shared narrative polarity.
-
+Most recently, \citet{sofroniew2026emotion} applied exactly this recipe to
+emotion concepts in Claude Sonnet: building contrastive text pairs for each
+emotion, they extracted mean-difference directions in the residual stream,
+pushed the model's state along those directions during inference, and
+observed systematic, interpretable shifts in the model's behavior.
+Their study also introduced a neutral-corpus PCA denoising procedure that
+strips out general evaluative valence from a direction vector, a step we
+adopt to separate warmth and competence content from shared narrative
+polarity (detailed in the Supplementary Materials).
+\autoref{fig:emotion_vector} illustrates the resulting picture: each emotion
+occupies its own direction in residual-stream space, with a numeric
+representation that can be extracted, inspected, and used to steer the
+model.
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.85\columnwidth]{background_emotion_vector.pdf}
@@ -374,16 +389,29 @@ with TransformerLens \citep{nanda2022transformerlens} for the Gemma-3,
 Qwen3-14B, and Llama-3.1 checkpoints, with its Bridge interface for the
 three Gemma-4 checkpoints, and with a native Hugging Face backend for the
 two Qwen3.6 checkpoints, which the released TransformerLens build does not
-yet support. Supplementary Table~\ref{tab:models} gives widths, layer indices,
-activation norms, and backends for every checkpoint.
-
-Following the relative depth used by \citet{sofroniew2026emotion}, we fixed
-$\mathrm{probe\_layer\_frac}=0.66$ before examining layer sweeps. Integer
-rounding placed the selected block between 63 and 66 percent of model depth.
-For each story, we mean-pooled activations from token position~50 onward so
-that early, input-agnostic outliers did not dominate the representation
-\citep{sun2024massive, xiao2023streaming}. The same prespecified offset was
-used for every architecture.
+yet support. The \textit{Backend} column of \autoref{tab:models} lists the
+tool used for each checkpoint.
+\citet{sofroniew2026emotion}, whose emotion-vector method motivates our
+approach, describe a progression from token-level emotional connotations in
+early layers to context-integrated representations in middle-to-late layers.
+They report most analyses at a layer approximately two thirds through the
+model, where their evidence indicates that emotion representations encode
+abstract content relevant to upcoming token predictions. Guided by this
+result, we operationalized the same relative depth as
+$\mathrm{probe\_layer\_frac}=0.66$ and fixed it across models before conducting
+the layer sweeps, rather than selecting a model-specific optimum. Integer
+rounding placed the probe
+between 63 and 66 percent of model depth; \autoref{tab:models} reports the
+exact layer index, model width, and mean residual-stream norm for each model.
+For each story, activations were mean-pooled across token positions from
+position~50 to the end of the story, giving one $d_\mathrm{model}$-dimensional
+vector per story. This offset was fixed in advance and applied uniformly
+across models rather than tuned per architecture: the earliest token positions carry
+input-agnostic outlier activations that would otherwise dominate the pooled
+mean \citep{sun2024massive, xiao2023streaming}, and because the concept
+stories ran roughly 100 to 170 tokens, starting at position~50 discards about
+the first third of each narrative so that the pooled state reflects text where
+the warmth or competence content is already established.
 High- and low-condition stories cluster in distinct regions of this space
 (\autoref{fig:concept_geometry}). The warmth and competence direction
 vectors are simply the mean difference between the two clusters:
@@ -392,25 +420,105 @@ vectors are simply the mean difference between the two clusters:
   v_C = \bar{x}_{\text{high comp.}} - \bar{x}_{\text{low comp.}}
 \end{gather*}
 where $\bar{x}_{\text{high warmth}}$ is the average pooled activation
-across the 50 high-warmth stories and $\bar{x}_{\text{low warmth}}$ is the
-corresponding low-condition average; competence is constructed identically.
-The opposing conditions are required by this construction rather than an
-incidental design choice. A mean-difference direction needs two story sets to
-define its orientation; a single graded scale would leave no contrast to
-subtract. This requirement is why the concept corpus uses explicit high and
-low poles even though the name-level analyses retain continuous ratings.
-All models used the same stories, pooling rule, and seed (20260527).
+across the 50 high-warmth stories, $\bar{x}_{\text{low warmth}}$ is the
+same average across the 50 low-warmth stories, and $v_W$ (respectively
+$v_C$ for competence) is the resulting direction vector.
+The high and low conditions are a requirement of this construction rather
+than an incidental design choice: a mean-difference direction can only be
+recovered from a contrast, so each concept needs an opposing pair of story
+sets to define which way its vector points. A single graded warmth or
+competence scale would leave nothing to subtract.
+All nine models
+used the same stories, pooling rule, and prespecified seed
+(20260527), enabling comparison across architectures.
 
-We evaluated each direction with five within-model checks: 5-fold
-cross-validated accuracy, topic-holdout accuracy, Cohen's~$d$ against 1,000
-random directions, split-half cosine stability, and cross-axis
-classification. Two additional checks compare models and remove shared
-background variation. Pairwise Spearman correlations test whether models
-rank the stories similarly. PCA denoising estimates common components from
-1,500 length-matched introductory passages drawn from distinct Wikipedia
-articles, then subtracts those components from the concept directions.
-Supplementary Sections~\ref{appx:probe_checks} and~\ref{appx:pca_denoising}
-give the complete procedures and numeric results.
+\begin{table}[t]
+\centering
+\footnotesize
+\captionsetup{font=footnotesize}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lcccc}
+\toprule
+Model & $d_\mathrm{model}$ & Probe layer & $\bar{\|h\|}$ & Backend \\
+\midrule
+Gemma-3-12B-it          & 3840 & 31/48 & 79{,}722 & TL     \\
+Gemma-3-27B-it          & 5376 & 40/62 & 61{,}576 & TL     \\
+Gemma-4-12B             & 3840 & 31/48 & 97.8     & Bridge \\
+Gemma-4-26B-A4B         & 2816 & 19/30 & 68.4     & Bridge \\
+Gemma-4-31B             & 5376 & 39/60 & 188.5    & Bridge \\
+\addlinespace
+Qwen3-14B               & 5120 & 26/40 & 206.6    & TL     \\
+Qwen3.6-27B             & 5120 & 42/64 & 71.9     & HF     \\
+Qwen3.6-35B-A3B         & 2048 & 26/40 & 3.6      & HF     \\
+\addlinespace
+Llama-3.1-8B-Instruct   & 4096 & 20/32 & 11.4     & TL     \\
+\bottomrule
+\end{tabular}
+\caption{%
+  Model architecture and activation scale for nine checkpoints.
+  $d_\mathrm{model}$ is the number of activation values carried at each token,
+  or the representation width. Probe layer gives the zero-indexed block used
+  to build the directions and the total blocks; 31/48 means index 31 of a
+  48-block model. $\bar{\|h\|}$ is the typical activation size there: for each
+  of 200 stories, token activations are averaged and the resulting vector's
+  length is measured; the table reports the mean of these lengths. This value
+  calibrates steering to each model's own scale, so larger values do not imply
+  better or stronger models. Backend is the tool used to read activations: TL
+  is TransformerLens, Bridge is its Hugging Face Bridge interface, and HF a
+  native Hugging Face backend used for the Qwen3.6 checkpoints that
+  TransformerLens does not yet support.
+}
+\label{tab:models}
+\end{table}
+
+We check that each direction is a genuine, generalizable signal rather than
+an artifact of the specific stories used to build it, using seven
+complementary checks. Five apply within a
+single model: 5-fold cross-validated accuracy, topic-holdout accuracy,
+Cohen's~$d$ against a 1,000-direction random null, split-half cosine
+stability, and cross-axis classification. Two compare across models:
+pairwise Spearman agreement on story rankings, and neutral-corpus PCA
+denoising. Cross-validated and topic-holdout accuracy reach 1.00 for every
+model on both axes. Cohen's~$d$ exceeds all 1,000 random directions in
+every case. Split-half cosine stays between 0.69 and 0.90, with competence
+more stable than warmth in every model. Cross-axis accuracy runs from 0.82
+to 1.00, indicating the two axes share substantial evaluative content.
+All thirty-six model pairs agree positively on both axes. Denoising lowers
+the warmth-competence cosine in every model without eliminating it.
+The \nameref{appx:probe_checks} section of the Supplementary Materials states what
+each check tests and why.
+\autoref{tab:probe_validation} reports Cohen's $d$, the random-null $z$-score,
+split-half cosine, and calibrated cross-axis accuracy for all nine models;
+5-fold cross-validated and topic-holdout accuracy reach 1.00 for every model
+on both axes and are reported in Results rather than repeated in the table.
+Two further analyses look beyond a single model's own directions:
+\begin{itemize}[leftmargin=*, itemsep=2pt, topsep=4pt, parsep=0pt]
+  \item \textbf{Cross-model Spearman agreement}: Nine models, trained
+  independently by different organizations, could each encode warmth as
+  their own unrelated pattern, with no reason for their story rankings to
+  agree with one another. To test this, every pair of the nine models is
+  compared: each story is projected onto both models' own directions to
+  give one score per model, and the two resulting sets of scores are
+  correlated with Spearman's rank correlation. All thirty-six pairs show
+  positive agreement on both axes, which means the nine architectures are
+  converging on a shared cross-architecture construct rather than nine
+  independent, unrelated ones.
+  \item \textbf{Neutral-corpus PCA denoising}: Some of what warmth and
+  competence have in common in the model has nothing to do with either
+  concept specifically; it looks more like a general tone the model
+  applies regardless of topic. To find and remove that general tone, we
+  assembled 1,500 length-matched introductory passages drawn from distinct
+  Wikipedia articles on ordinary, unrelated topics, with nothing to do with
+  warmth or competence, and ran them through the same model
+  and looked at what the warmth and competence directions have in common
+  with those neutral texts. That shared, non-specific part is then
+  subtracted out of both direction vectors, leaving only what is actually
+  specific to warmth and to competence. The full nine-model procedure,
+  run as a robustness check, is in \autoref{tab:pca_denoising}.
+\end{itemize}
+All 36 pairwise agreement scores are in \autoref{tab:cross_model_agreement};
+Results summarizes the same comparison in a compact dot plot
+(\autoref{fig:fig6_cross_model_agreement}).
 
 \paragraph{Steering the Concept Vectors.}
 Finding a direction that separates high- and low-condition stories does not
@@ -436,34 +544,85 @@ strength we choose.
 At the concept level, the model answers a direct yes-or-no question: is
 this protagonist high in warmth (or competence)? Five strengths are
 tested, $\alpha \in \{-0.10,\,-0.05,\,0,\,+0.05,\,+0.10\}$, spanning a
-strong pull toward ``low'' to a strong pull toward ``high.'' An initial
-$\alpha \in \{\pm0.25,\pm0.50\}$ sweep on the two Gemma-3 checkpoints
-saturated the concept response, so the narrower range was fixed for all
-nine models. Each direction is applied to 10 held-out topics that were not
-used to estimate it. Gemma-4 and Qwen3.6 receive the question through their
-native chat templates, while the other checkpoints receive raw text. Full
-prompts, saturation curves, and template details are reported in the
-Supplementary Materials.
+strong pull toward ``low'' to a strong pull toward ``high.'' This range was fixed after an initial sweep that also tested the wider
+strengths $\alpha \in \{\pm 0.25,\,\pm 0.50\}$ on Gemma-3-12B and
+Gemma-3-27B, where the strong settings saturated the response instead
+of shifting it cleanly: at $\pm 0.50$ the model stops tracking the
+story and returns Yes or No almost mechanically, the same breakdown at
+high steering strength that \citet{turner2023activation} report for
+activation steering more generally. Saturation here follows from the
+structure of the concept prompt, whose answer depends directly on the
+story the model is asked to read, so a push strong enough to drown out
+that story yields a fixed answer rather than a graded one. Because
+that behavior is a property of the task and not of any single
+checkpoint, we did not repeat the wide sweep on the other seven models
+and applied the narrow range uniformly to all nine. The full
+saturation curves are reported in the Supplementary Materials. For each strength, the direction is applied to 10 held-out
+topics it was never built from, separate from the 40 topics used to
+build it. For the Gemma-4 and Qwen3.6 checkpoints this yes-or-no question
+is presented through each model's native chat template, since these more
+recent chat-tuned checkpoints do not reliably return a clean single-token
+Yes or No to a raw-text prompt; the other four models receive it as raw
+text, matching how each checkpoint was run throughout.
 
 We record how much more the model favors Yes over No at each
 strength, the next-token logit margin:
 \begin{equation*}
   \Delta = \mathrm{logit}(\text{Yes}) - \mathrm{logit}(\text{No}),
 \end{equation*}
-so a positive $\Delta$ means that the model favors Yes. Raw dense directions
-define the primary causal comparison; PCA-denoised vectors are a robustness
-check.
+where $\mathrm{logit}(\text{Yes})$ and $\mathrm{logit}(\text{No})$ are the
+model's raw output scores for the two answer tokens before any softmax
+normalization, so a positive $\Delta$ means the model favors Yes and a
+larger $\Delta$ means a stronger preference. Throughout, the raw dense
+directions define the primary causal comparisons reported here; the
+PCA-denoised vectors serve as a robustness check (Supplementary, PCA
+Denoising).
 
-Specificity is tested by comparing the dense target with a random-direction
-control in all nine checkpoints. Gemma-3-12B and Gemma-3-27B also support a
-six-direction comparison using Gemma Scope~2 \citep{deepmind2025gemmascope2}:
-the dense target, an SAE-decoded target, axis-specific and shared SAE
-components, the opposing concept axis, and an orthogonal random direction.
-The calibrated all-model control uses 99 standard-deviation-matched random
-directions where available and a single random draw in the four legacy
-checkpoints. Paired topic bootstrap resampling estimates uncertainty. The
-full six-direction results appear in Supplementary
-Table~\ref{tab:concept_direction_specificity}.
+A single steering result does not tell us whether the effect is specific
+to warmth or competence, or whether it would show up for almost any
+direction we pushed along. To check this, we compare six different
+directions and see how each one shifts the model's answer:
+\begin{itemize}[leftmargin=*, itemsep=2pt, topsep=4pt, parsep=0pt]
+  \item \textbf{Dense target direction}: The same warmth or competence
+  direction used everywhere else in this study, the difference between
+  the average high- and low-condition activations. This is the main
+  direction we are actually trying to validate.
+  \item \gsbadge\textbf{Decoded Gemma Scope~2 SAE direction}: Gemma Scope~2
+  \citep{deepmind2025gemmascope2} is a separate tool from Google DeepMind
+  that breaks a model's internal activity down into thousands of smaller,
+  more specific pieces. We compute the same warmth/competence contrast
+  inside this alternative breakdown, then translate it back into the
+  model's own activation space, to see whether steering still works when
+  built from a completely different representation.
+  \item \gsbadge\textbf{Axis-specific component}: Within that breakdown, some
+  pieces move together for both warmth and competence, and some move only
+  for whichever concept is being tested. This direction keeps only the
+  part specific to the one concept being tested.
+  \item \gsbadge\textbf{Component shared between the two axes}: The opposite of
+  the direction above, only the part that moves for both warmth and
+  competence together, the piece that is not specific to either concept
+  on its own.
+  \item \gsbadge\textbf{Opposing concept axis}: When testing warmth, we steer
+  along the competence direction instead, and vice versa when testing
+  competence, to see whether an unrelated concept's direction moves the
+  answer too.
+  \item \textbf{Random orthogonal control}: A direction chosen at random
+  and adjusted so it does not overlap at all with the real target
+  direction, our chance-level baseline.
+\end{itemize}
+The dense target direction and a random orthogonal control were both
+tested on all nine models; the other four were tested only on
+Gemma-3-12B and Gemma-3-27B. Those four, marked \gsbadge\ above, are built
+from a Gemma Scope~2 decomposition, and that tool covers only the Gemma-3
+generation \citep{deepmind2025gemmascope2}, so they could not be extended
+to Gemma-4, Qwen, or Llama. The nine-model random control is a
+differently constructed, calibrated set of many random directions per
+model rather than the single orthogonalized vector compared here, but it
+serves the same chance-level baseline role. If steering only shifts the answer along the real target
+direction, and not along the unrelated ones, that supports the effect
+being specific to warmth or competence rather than an artifact of pushing
+the residual stream in any direction. Uncertainty throughout is estimated
+by paired topic bootstrap resampling.
 
 \begin{figure}[t]
 \centering
@@ -511,26 +670,72 @@ roster. Strength is swept broadly at $\alpha \in \{\pm 0.25,\,\pm 0.50\}$ and
 refined at $\{\pm 0.05,\,\pm 0.10\}$ on all nine models, so that a push on the
 warmth or competence direction can be traced directly to a shift in the
 callback margin.
-No high-versus-low split is applied to names; signed $\alpha$ is the only
-intervention. Both ranges remain usable because the hiring response does not
-saturate as the direct concept judgment does. We report broad-grid slopes and
-local endpoint changes because several responses are nonlinear.
+No high-versus-low split is applied to the names at this stage either; the
+intervention lives entirely in the signed strength $\alpha$, which varies
+continuously, while each name only fixes which application the model reads.
+Unlike the concept judgment, the hiring decision does not saturate under
+the wider strengths, so both regimes stay usable here. Its callback
+answer turns on a single applicant name set against a fixed, neutral
+application, and the model already leans one way before any push, so
+steering at $\pm 0.50$ scales that existing leaning up or down rather
+than locking the answer, and the response stays close to linear across
+the broad grid for roughly a third of model-axis combinations, though
+several checkpoints depart from it (Results reports the per-model fit).
+Refining to $\pm 0.05$ and $\pm 0.10$ then resolves the
+smaller, near-baseline shifts that the wider grid steps over. Per-model
+steering curves and slopes are reported in the Results.
 
 \paragraph{Names, Human Ratings, and Disparity.}
-Beyond steering, four analyses connect representations to human perception
-and demographic gaps. First, each name is placed in the neutral carrier
-sentence ``The job applicant's name is \{Name\}.'' and projected onto the
-raw directions. Spearman correlations compare those scores with 16{,}557
-human judgments from 787 raters. Second, callback disparities compare 47
-Black-signaling with 180 White-signaling names and 154 female with 115 male
-names. Model and human differences are divided by their respective pooled
-within-group standard deviations on the same matched-name roster. Third, a
-study-specific companion retains 246 name-study observations across 186
-names. Finally, exploratory bootstrap mediation tests the path name
-group~$\to$ probe score~$\to$ callback margin using 5{,}000 resamples, seed
-20260527, and 95\% intervals. No multiplicity-adjusted inference is reported.
-Complete matching and mediation specifications appear in the Supplementary
-Materials.
+Beyond the causal steering test, we ask whether the underlying
+representations track real human perception and real-world demographic
+gaps, using four analyses:
+\begin{itemize}[leftmargin=*, itemsep=2pt, topsep=4pt, parsep=0pt]
+  \item \textbf{Probe-versus-human alignment}: Independently of the hiring
+  prompt, each applicant name is embedded in the neutral carrier sentence
+  ``The job applicant's name is \{Name\}.'', and the resulting
+  residual-stream activation is projected onto the raw warmth and
+  competence directions to yield a per-name probe score; no denoised
+  counterpart is computed at this stage. We compare these scores against
+  the aggregated human ratings behind them (16{,}557 rater judgments from
+  787 raters across nine source studies) using Spearman rank correlation,
+  which tells us whether the model's internal sense of a name's warmth or
+  competence lines up with how people actually perceive that name.
+  Each name already carries a continuous crowdsourced warmth and competence
+  score, so no high-versus-low grouping is imposed here, unlike the concept
+  stories used to build the directions. The correlation runs directly on the
+  graded ratings, since sorting names into poles would discard information
+  the continuous scale already carries.
+  \item \textbf{Group-level callback disparity}: Callback disparities are
+  computed as differences in mean callback margin between name groups
+  (race: 47 Black-signaling versus 180 White-signaling names; gender: 154
+  female versus 115 male). Each model difference is divided by the pooled
+  within-group standard deviation of its callback margin. The corresponding
+  human difference uses the same matched-name roster and the pooled
+  within-group standard deviation of the published callback rate, which puts
+  both outcomes on the same standardized mean-difference scale. For the Gemma-4 and Qwen3.6
+  checkpoints the hiring prompt is presented through each model's native
+  chat template, since these more recent chat-tuned checkpoints do not
+  reliably return a clean single-token Yes or No to a raw-text prompt; the
+  other five models receive it as raw text.
+  \item \textbf{Human reference gaps}: The main standardized comparison
+  averages the published callback observations to one rate per first name
+  before matching, so each matched name receives one observation and the
+  human gap uses exactly the same roster as the corresponding model gap.
+  The study-specific raw companion analysis retains one observation per
+  name-study pair instead. Some source studies (Neumark, Farber) also vary
+  applicant age as an experimental factor; because our name ratings carry no
+  age dimension, that companion averages callback rates across age within
+  each name-study pair. In total, 246 name-study observations across 186
+  distinct names match the study-specific benchmark.
+  \item \textbf{Bootstrap mediation}: Finally, we test whether the
+  internal warmth and competence representations actually carry the
+  name-group signal into the callback decision, using bootstrap mediation
+  along the path name group~$\to$ probe score~$\to$ callback margin
+  (5{,}000 resamples, seed 20260527, $n = 269$ names with complete data,
+  race subset $n = 227$), reporting indirect effects with 95\% confidence
+  intervals. Results reports this procedure for all nine models and both
+  race and gender groupings, thirty-six combinations in total.
+\end{itemize}
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section*{Results}
@@ -609,6 +814,8 @@ condition rather than just separating high from low, ranges from 0.095 to
 summary; the complete numeric table is in
 \autoref{tab:cross_model_agreement}.
 
+% Keep this compact plot in the same two-column float queue as Figure 4 so
+% visual order cannot overtake source order; retain its single-column width.
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\columnwidth]{fig6_cross_model_agreement.pdf}
@@ -662,32 +869,62 @@ interpreted in the text.}
 \label{fig:fig14_dense_steering_normalized}
 \end{figure*}
 
-The broad concept sweep on the two Gemma-3 checkpoints saturates in three of
-four model-axis rows; Gemma-3-27B warmth continues to accelerate. These
-calibration results are reported in Supplementary
-Table~\ref{tab:concept_saturation} because the other seven checkpoints were
-not tested at this range.
+Wide strengths tell a partly different story. The sweep reported in
+\autoref{tab:concept_saturation} tests $\alpha \in \{\pm0.25,\pm0.50\}$ on
+Gemma-3-12B and Gemma-3-27B, the two models tested at this range. Three of
+the four model-axis rows show the step from $+0.25$ to $+0.50$ shrinking
+relative to the step before it, matching the saturating breakdown Methods
+describes for extreme strengths; Gemma-3-27B's warmth response is the
+exception, still accelerating at $+0.50$ rather than leveling off. The
+two-model table is retained in the Supplementary Materials because this
+calibration sweep is not available for the other seven checkpoints.
 
-Specificity is less consistent. In Supplementary
-Table~\ref{tab:concept_direction_specificity}, the dense target is the
-largest intervention in only one of four Gemma-3 model-axis rows; an
-SAE-derived or opposing direction matches or exceeds it in the other three.
-Feature ablation also reverses across model size, while cross-scale SAE
-features correlate above a permutation null. These checks support shared
-evaluative content, not one uniform mechanism.
+A single direction moving the answer does not by itself establish that the
+effect is specific to warmth or competence rather than any sufficiently
+large push. \autoref{tab:concept_direction_specificity} compares six
+directions at the local endpoint on the same two models. The dense target
+direction produces the row's largest effect in only one of the four rows
+(Gemma-3-12B warmth); in the other three, an unrelated direction, most often
+the SAE-decoded or axis-specific component, matches or exceeds it. This does
+not read as clean specificity, and points instead toward the same shared
+evaluative content the neutral-corpus PCA denoising already found between
+warmth and competence. Two further checks, reported in the Supplementary
+Materials, extend this picture: feature ablation
+(\autoref{tab:gemma_scope_ablation}) shows scale-specific necessity. Removing
+the features shared between axes shrinks both gaps in Gemma-3-27B but
+increases both gaps in Gemma-3-12B, so the same shared mechanism does not hold
+uniformly across checkpoints. Cross-scale feature matching
+(\autoref{tab:gemma_scope_feature_matching}) finds Gemma-3-12B's
+and Gemma-3-27B's SAE features correlate well above a permutation null
+(\autoref{tab:gemma_scope_sae_quality} reports the underlying reconstruction
+quality behind both checks).
 
-\autoref{tab:concept_signal_vs_control} extends the random comparison to all
-nine models. Five checkpoints use 99 standard-deviation-matched random
-directions; the four legacy checkpoints use one draw. Both Qwen3.6 targets
-fall outside their calibrated control intervals, but all three Gemma-4
-targets remain inside. The evidence for direction specificity therefore
-depends on model family and control strength.
+\input{\tabledir/concept_direction_specificity.tex}
+
+Comparing the dense target against a random-direction control extends
+across all nine models, but the control itself is not built the same way
+everywhere. \autoref{tab:concept_signal_vs_control} reports both effects for
+every model and axis, with the heterogeneous control basis stated in the
+caption:
+five checkpoints (Gemma-4-12B, Gemma-4-26B-A4B, Gemma-4-31B, Qwen3.6-27B,
+Qwen3.6-35B-A3B) carry a calibrated set of 99 SD-matched random directions,
+while the four original checkpoints carry a single random direction. Where
+the calibrated control exists, the result splits by family: both Qwen3.6
+checkpoints place the dense-target effect clearly outside the random
+control's interval, while all three Gemma-4 checkpoints have a random
+interval wide enough to contain the dense-target effect, so this comparison
+alone does not establish specificity for that family. The calibrated
+99-direction control is not available for the four legacy checkpoints, so
+the comparison there rests on a single random draw.
 
 \input{\tabledir/concept_signal_vs_control_9model.tex}
 
 \paragraph{Alignment with Human Ratings, All Nine Models.}
-Story separation is uniform across models, but correspondence with human
-social perception is not.
+Everything reported so far describes the nine models behaving alike: the
+directions separate the stories everywhere, and steering moves the stated
+concept judgment everywhere. Whether those directions correspond to human
+social perception is a separate question, and it is the point at which the
+models stop agreeing.
 
 Independently of the hiring prompt, each of the 282 rated applicant names
 is embedded in the neutral carrier sentence ``The job applicant's name is
@@ -706,28 +943,43 @@ nonsignificant correlation ($\rho=+0.009$). Competence tracks human
 perception more consistently: seven correlations are positive and
 significant, while the remaining two are slightly negative and
 nonsignificant (Llama-3.1-8B, $\rho=-0.058$; Gemma-4-26B-A4B,
-$\rho=-0.044$). The callback columns instead correlate each model's probe
-projection with its own unsteered callback margin.
+$\rho=-0.044$). The same
+table's callback columns report a separate quantity, the correlation
+between each model's own probe projection and its own unsteered callback
+margin, which is not a human-alignment measure.
 
 \input{\tabledir/probe_human_correlation_9model.tex}
 
 \paragraph{Steering Hiring Decisions, All Nine Models.}
-Hiring steering uses the same 60 names and broad grid
-$\alpha\in\{\pm0.25,\pm0.50\}$ in every checkpoint.
+Pushing the warmth or competence direction while the model reads a hiring
+application shifts the callback margin
+$\Delta_{\text{callback}}$ in every model, tested on the same 60-name
+subset at the broad strength grid $\alpha\in\{\pm0.25,\pm0.50\}$, chosen
+here uniformly across all nine models so the comparison sits on one shared
+scale rather than mixing the per-model preferred endpoints used by
+\autoref{tab:hiring_transition_census}.
 
 \autoref{tab:hiring_steering_slopes} fits a line through each model-axis
 response and reports the slope alongside $R^2$. The fit is close to linear
 in only 7 of the 18 rows: Gemma-3-12B warmth; both Llama-3.1-8B axes;
 Gemma-4-26B-A4B warmth; both Qwen3.6-27B axes; and Qwen3.6-35B-A3B warmth.
-The other eleven depart from a straight line. Gemma-3-27B has $R^2<0.35$
-on both axes and a negative $+0.50$ endpoint despite positive fitted slopes.
-Gemma-3-12B warmth is steepest (+12.91 per unit $\alpha$); Qwen3-14B
-competence is nearly flat and changes sign between broad and local ranges.
+The remaining eleven depart from a straight line, most visibly
+Gemma-3-27B, where $R^2$ stays below 0.35 on both axes and the endpoint
+delta at $\alpha=+0.50$ is actually negative despite a positive slope
+estimate. Slopes vary in sign and size as well as fit quality: Gemma-3-12B
+warmth has the steepest response (+12.91 per unit $\alpha$), and Qwen3-14B
+competence is the only row with a negative slope (-0.11), effectively flat.
+That broad negative fit is range-dependent: on the local grid, Qwen3-14B
+competence increases by $+0.010$ at $\alpha=+0.10$ and by $+0.204$ from
+$\alpha=-0.10$ to $+0.10$. The sign therefore changes with the tested
+range, while the local endpoint remains practically small.
 \autoref{fig:hiring_bidirectional_examples} makes the divergence concrete on
 matched examples: the same positive intervention at $\alpha=+0.10$ moves the
 mean decision from No to Yes at Gemma-3-12B and from Yes to No at
 Gemma-3-27B, using the same 60 applications in both panels.
-Complete categorical transitions are in
+The categorical Yes/No transitions behind this same steering intervention,
+including how often it crosses the decision boundary rather than only
+scaling an existing lean, are reported in full in
 \autoref{tab:hiring_transition_census}.
 
 \input{\tabledir/hiring_steering_slopes_9model.tex}
@@ -770,13 +1022,26 @@ underlying standardized representation scores and raw group margins are in
 
 \input{\tabledir/hiring_disparity_gaps_9model.tex}
 
-Exploratory mediation asks whether probe scores carry the group signal into
-callback margins. Fourteen of 36 unadjusted 95\% intervals exclude zero, but
-neither Gemma-3 checkpoint has such an interval. All three Gemma-4 models do
-for race and competence, and both Qwen3.6 checkpoints show several paths.
-Without multiplicity adjustment, these patterns do not confirm a
-model-generation difference. Full coefficients appear under
-\nameref{appx:mediation}.
+The last analysis asks whether the probed representations actually carry
+the name-group signal into the callback decision, rather than merely
+correlating with it. \nameref{appx:mediation} in the Supplementary Materials
+tests this with
+bootstrap mediation along the path name group~$\to$ probe score~$\to$
+callback margin, run separately for race and gender and for warmth and
+competence, thirty-six tests across the nine models. Fourteen of the
+thirty-six indirect effects have unadjusted 95\% bootstrap intervals that
+exclude zero. No multiplicity-adjusted inference is reported, so all path
+comparisons are exploratory. At this unadjusted threshold, the two Gemma-3
+checkpoints have no interval excluding zero on either grouping or probe,
+consistent with representations that steer cleanly but are not clearly
+shown here to carry the hiring decision. The later checkpoints complicate
+that picture: all three Gemma-4 models have a race--competence interval that
+excludes zero, Gemma-4-26B-A4B additionally has a gender--warmth interval
+that excludes zero, and the two Qwen3.6 checkpoints show a comparable spread
+across warmth and competence, matching the pattern already present in
+Qwen3-14B. These unadjusted patterns suggest that the absence of mediation
+may be specific to the Gemma-3 generation, but they do not establish that
+model-generation difference confirmatorily.
 
 % ─────────────────────────────────────────────────────────────────────────────
 
@@ -784,11 +1049,17 @@ model-generation difference. Full coefficients appear under
 \section*{Discussion and Conclusion}
 % ─────────────────────────────────────────────────────────────────────────────
 
-One extraction procedure recovers warmth and competence directions across
-nine checkpoints. Held-out separation, random-null effect sizes, and
-split-half reconstruction suggest a stable signal. What those directions
-correspond to, and what happens when they are pushed, varies in ways these
-extraction statistics do not anticipate.
+One extraction procedure, applied without modification to nine checkpoints
+from three model families, recovers warmth and competence directions in
+every one of them. The probes reach ceiling accuracy on held-out topics,
+their effect sizes stand far outside a random-direction null, and rebuilding
+a direction from disjoint halves of the corpus returns nearly the same
+vector. Read on its own, that pattern suggests a stable and widely shared
+representation of social perception.
+
+The rest of our results complicate that reading. What the recovered
+directions correspond to, and what happens when they are pushed, varies
+across checkpoints in ways the extraction statistics do not anticipate.
 Warmth- and competence-associated contrastive directions are recoverable in
 all nine models, but what those directions correspond to cannot be assumed
 identical from one model to the next.
@@ -803,10 +1074,15 @@ warmth correlation that is negative or
 indistinguishable from zero, with Llama-3.1-8B at $\rho = -0.287$ while
 Gemma-3-27B reaches $+0.388$ on the same names and the same rating data.
 
-Both models separate the warmth stories cleanly but disagree about which
-names the direction favors. Warmth may depend more on training and alignment
-because perceived intent has weaker textual regularities than observable
-competence. Our data leave that explanation as a hypothesis.
+A sign difference of that size is not easily read as noise. Both models
+separate our warmth stories cleanly, so the direction is doing something
+consistent inside each model; the two simply disagree about which names it
+should favor. One reading is that warmth, which the Stereotype Content
+Model ties to perceived intent rather than to observable outcomes, has
+weaker and more contested textual regularities than competence, so its
+encoding depends more heavily on the particular training corpus and
+alignment procedure. We cannot test that account with these data, and offer
+it as a hypothesis rather than a conclusion.
 
 \paragraph{Naming a Direction Is a Claim We Make.}
 That a vector separates warmth-contrastive stories does not by itself
@@ -816,21 +1092,38 @@ the direction so labeled does not track how people actually rate the warmth
 of a name, which suggests the construct governing model behavior on our
 stimuli may not be the construct the label names.
 
-For auditing, an outcome such as a callback gap has a meaning fixed outside
-the model. An internal direction requires an interpretive argument, and our
-results indicate that this argument must be validated for each checkpoint.
+This distinction seems worth taking seriously for auditing practice. A
+behavioral audit measures a quantity whose meaning is fixed outside the
+model, such as whether names associated with one group receive fewer
+callbacks. An audit conducted at the level of internal representations
+measures something whose interpretation has to be argued for, and our
+results suggest that argument may need to be remade for each model rather
+than established once for a method. Proposals to assess systems by
+inspecting their internal social representations would therefore seem to
+carry a validation burden that outcome-based auditing does not.
 
 \paragraph{Response to Intervention Is Range-Dependent.}
-Only seven of eighteen model-axis steering responses are well described by a
-line. Gemma-3-27B ends with a negative delta despite positive fitted slopes,
-while Qwen3-14B competence changes from a slightly negative broad-grid slope
-to a small positive local effect. Baseline margins leave room to move, so
-saturation alone cannot explain these reversals. Interaction with other
-representations is one plausible account.
+Fitting a line through each model-axis steering response describes the data
+well in only seven of eighteen cases. The departures are not uniform.
+Gemma-3-27B holds $R^2$ below 0.35 on both axes and ends at a negative
+delta despite a positive fitted slope, and comparable sign changes between
+moderate and larger interventions appear in several later checkpoints. The
+Qwen3-14B competence response makes the range issue especially compact: its
+broad-grid slope is slightly negative, while the local $-0.10$ to $+0.10$
+change is positive and its $+0.10$ endpoint effect is only $+0.010$.
+The
+baseline in these cases leaves room to move, so saturation alone does not
+account for the pattern. A direction that interacts with other
+representations, rather than acting on an isolated axis, would produce this
+behavior more readily than one that scales cleanly.
 
-An intervention whose sign depends on magnitude is not a reliable mitigation
-without evidence of stability across its operating range. A single chosen
-strength can conceal this decisive property.
+The practical consequence is that a claim of the form ``steering this
+direction shifts the callback margin upward'' may hold only within the
+range where it was measured. An intervention whose sign depends on its
+magnitude is difficult to treat as a mitigation without evidence that it
+remains stable across the range in which it would operate. Reporting an
+effect at one chosen strength can conceal the property that determines
+whether the intervention behaves predictably.
 
 \paragraph{Steerability and Mediation Come Apart.}
 External steerability and internal mediation do not track each other in our
@@ -847,179 +1140,6 @@ adjustment is reported, this contrast is exploratory and does not identify
 a confirmed model-family difference.
 
 \paragraph{Limitations.}
-Four boundaries are central to interpreting these results; the Supplementary
-Materials provides the complete limitation inventory and supporting values.
-
-\textit{Probe construction.} The 200 stimuli were generated by a language
-model and cover 50 topics. The generator differs from every probed model, but
-shared stylistic regularities may still make the contrasts easier to separate
-than human-authored text would. Ceiling cross-validation also has limited
-diagnostic value because each axis contains only 100 stories in activation
-spaces with thousands of dimensions. Topic holdout, random-direction effect
-sizes, and split-half reconstruction reduce this concern without eliminating
-it. The fixed layer fraction of 0.66 rarely selects the layer with maximum
-story separation, and a layer that separates stories need not transfer to
-bare applicant names.
-
-\textit{Construct validity.} Probe-to-human correlations are moderate at
-best, and warmth is negative or nonsignificant in four checkpoints. The
-six-direction comparison identifies the dense target as the strongest
-intervention in only one of four Gemma-3 model-axis cases. In all three
-Gemma-4 checkpoints, calibrated random intervals contain the dense-target
-effect. These results support labeling the vectors as warmth- and
-competence-associated contrasts, but they do not establish a unique or
-human-equivalent representation.
-
-\textit{Intervention and measurement.} The local concept-steering range was
-calibrated on two Gemma-3 models and transferred to the other architectures.
-Hiring effects are often nonlinear, and some change sign across strength
-ranges. Callback margins also have finite, model-dependent resolution under
-reduced-precision inference. Gemma-3-12B and Llama-3.1-8B show particularly
-narrow baseline variation, so their standardized group gaps require caution.
-A reliable mitigation would need per-model calibration and stability over the
-full operating range.
-
-\textit{Scope.} The hiring prompt uses one role with fixed qualifications,
-while the human ratings and callback data come from North American studies.
-Name-level alignment, disparity, and mediation use raw dense vectors; the PCA
-denoising robustness check was not extended to those analyses. The mediation
-intervals are unadjusted across 36 tests and remain exploratory. Accordingly,
-our results do not generalize directly to other jobs, demographic cues,
-cultural settings, or deployed screening systems.
-
-\balance
-\paragraph{Future Work.}
-The immediate next step is expanding the hiring stimuli to additional
-job roles to test whether results generalize beyond administrative
-assistant.
-The SAE decomposition performed here on Gemma-3 can be extended to
-Llama-3.1 using the Llama Scope sparse autoencoders \citep{lindsey2025llama},
-enabling a model-family comparison at the feature level.
-Validating the concept probes against a human-authored warmth/competence
-dataset would address the circularity concern associated with
-AI-generated stimuli.
-On the social-science side, extending the hiring stimuli beyond names to
-category-level signals (age, disability, religion) would broaden the
-scope of the benchmark comparison and test whether the representational
-account generalizes beyond race and gender.
-The crossed race-by-gender breakdown reported under
-\nameref{appx:crossed_disparity} in the Supplementary Materials
-suggests the gender gap is not independent of race in most checkpoints, and
-that the two effects point in opposite directions across model families.
-Establishing whether that interaction is real would require standardized
-effects and interval estimates on larger cells than the present name panel
-provides.
-Translating these findings into practical debiasing interventions and
-evaluating their robustness to adversarial prompting is a natural next
-step for applied work.
-
-\paragraph{Conclusion.}
-Warmth and competence can be recovered as linear directions from nine
-open-weight models using one unmodified procedure, and pushing those
-directions changes the judgments the models state. Beyond that shared
-foundation the models diverge. They disagree on whether the warmth direction
-points the way human raters do, on whether a stronger intervention amplifies
-or reverses a weaker one, and on whether the representation carries a
-demographic signal into a hiring recommendation at all. A direction that
-separates our warmth and competence stories exists in all of these systems;
-what it corresponds to appears to be a property of the individual model.
-Findings obtained from a single checkpoint, our own included, should be
-treated as claims about that checkpoint until they are shown to replicate.
-
-% ─────────────────────────────────────────────────────────────────────────────
-% Parked discussion prose (removed 2026-08-06, four-model-era narrative
-% predating the nine-model expansion) — restore/rewrite once Results is
-% redesigned. See step_logs/STEP_LOG.md for the removal record.
-% ─────────────────────────────────────────────────────────────────────────────
-
-{
-\small
-
-\clearpage
-\printbibliography
-}
-
-\clearpage
-\begin{appendices}
-\onecolumn
-\setcounter{figure}{0}
-\setcounter{table}{0}
-\renewcommand{\thesection}{\Alph{section}}%
-\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
-\renewcommand\thefigure{S.\arabic{figure}}
-\renewcommand\thetable{S.\arabic{table}}
-\begin{center}
-    \begin{minipage}{\textwidth}
-        \centering
-        \fontsize{16}{20}\selectfont
-        Supplementary Materials
-    \end{minipage}
-\end{center}
-\vspace{.5cm}
-
-\section*{Acknowledgements}
-We acknowledge support by the local computing resources through the core
-facility SCCKN.
-We additionally acknowledge the Collective Computational Unit (CCU) for
-providing H100 GPU access used in part of this work.
-Hardware details for both environments are given in
-\nameref{apx:methods}.
-
-\paragraph{Use of AI Assistance.}
-AI coding assistants helped us write and refactor the analysis pipeline,
-generate the tables and figures, and draft and edit the text. We designed the
-study, selected the methods, ran the experiments, and checked every reported
-value against the stored result artifacts. Responsibility for all scientific
-claims and interpretations rests with us.
-
-\section*{Secondary Tables}
-The model inventory and six-direction specificity comparison are reported
-here so that the main body can focus on the central argument.
-
-\begin{table}[htbp]
-\centering
-\footnotesize
-\captionsetup{font=footnotesize}
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{lcccc}
-\toprule
-Model & $d_\mathrm{model}$ & Probe layer & $\bar{\|h\|}$ & Backend \\
-\midrule
-Gemma-3-12B-it          & 3840 & 31/48 & 79{,}722 & TL     \\
-Gemma-3-27B-it          & 5376 & 40/62 & 61{,}576 & TL     \\
-Gemma-4-12B             & 3840 & 31/48 & 97.8     & Bridge \\
-Gemma-4-26B-A4B         & 2816 & 19/30 & 68.4     & Bridge \\
-Gemma-4-31B             & 5376 & 39/60 & 188.5    & Bridge \\
-\addlinespace
-Qwen3-14B               & 5120 & 26/40 & 206.6    & TL     \\
-Qwen3.6-27B             & 5120 & 42/64 & 71.9     & HF     \\
-Qwen3.6-35B-A3B         & 2048 & 26/40 & 3.6      & HF     \\
-\addlinespace
-Llama-3.1-8B-Instruct   & 4096 & 20/32 & 11.4     & TL     \\
-\bottomrule
-\end{tabular}
-\caption{%
-  Model architecture and activation scale for nine checkpoints.
-  $d_\mathrm{model}$ is the number of activation values carried at each token,
-  or the representation width. Probe layer gives the zero-indexed block used
-  to build the directions and the total blocks; 31/48 means index 31 of a
-  48-block model. $\bar{\|h\|}$ is the typical activation size there: for each
-  of 200 stories, token activations are averaged and the resulting vector's
-  length is measured; the table reports the mean of these lengths. This value
-  calibrates steering to each model's own scale, so larger values do not imply
-  better or stronger models. Backend is the tool used to read activations: TL
-  is TransformerLens, Bridge is its Hugging Face Bridge interface, and HF a
-  native Hugging Face backend used for the Qwen3.6 checkpoints that
-  TransformerLens does not yet support.
-}
-\label{tab:models}
-\end{table}
-
-\input{\tabledir/concept_direction_specificity.tex}
-\clearpage
-
-\section*{Detailed Limitation Inventory}
-\label{appx:detailed_limitations}
 This study has several limitations, grouped below by the aspect of the
 design each one bears on.
 
@@ -1201,6 +1321,89 @@ the benchmark, and the vectors the name-level analyses were run on.
   perception in general.
 \end{itemize}
 
+\paragraph{Future Work.}
+The immediate next step is expanding the hiring stimuli to additional
+job roles to test whether results generalise beyond administrative
+assistant.
+The SAE decomposition performed here on Gemma-3 can be extended to
+Llama-3.1 using the Llama Scope sparse autoencoders \citep{lindsey2025llama},
+enabling a model-family comparison at the feature level.
+Validating the concept probes against a human-authored warmth/competence
+dataset would address the circularity concern associated with
+AI-generated stimuli.
+On the social-science side, extending the hiring stimuli beyond names to
+category-level signals (age, disability, religion) would broaden the
+scope of the benchmark comparison and test whether the representational
+account generalises beyond race and gender.
+The crossed race-by-gender breakdown reported under
+\nameref{appx:crossed_disparity} in the Supplementary Materials
+suggests the gender gap is not independent of race in most checkpoints, and
+that the two effects point in opposite directions across model families.
+Establishing whether that interaction is real would require standardized
+effects and interval estimates on larger cells than the present name panel
+provides.
+Translating these findings into practical debiasing interventions and
+evaluating their robustness to adversarial prompting is a natural next
+step for applied work.
+
+\paragraph{Conclusion.}
+Warmth and competence can be recovered as linear directions from nine
+open-weight models using one unmodified procedure, and pushing those
+directions changes the judgments the models state. Beyond that shared
+foundation the models diverge. They disagree on whether the warmth direction
+points the way human raters do, on whether a stronger intervention amplifies
+or reverses a weaker one, and on whether the representation carries a
+demographic signal into a hiring recommendation at all. A direction that
+separates our warmth and competence stories exists in all of these systems;
+what it corresponds to appears to be a property of the individual model.
+Findings obtained from a single checkpoint, our own included, should be
+treated as claims about that checkpoint until they are shown to replicate.
+
+% ─────────────────────────────────────────────────────────────────────────────
+% Parked discussion prose (removed 2026-08-06, four-model-era narrative
+% predating the nine-model expansion) — restore/rewrite once Results is
+% redesigned. See step_logs/STEP_LOG.md for the removal record.
+% ─────────────────────────────────────────────────────────────────────────────
+
+\section*{Acknowledgements}
+We acknowledge support by the local computing resources through the core
+facility SCCKN.
+We additionally acknowledge the Collective Computational Unit (CCU) for
+providing H100 GPU access used in part of this work.
+Hardware details for both environments are given in
+\nameref{apx:methods}.
+
+\paragraph{Use of AI Assistance.}
+AI coding assistants helped us write and refactor the analysis pipeline,
+generate the tables and figures, and draft and edit the text. We designed the
+study, selected the methods, ran the experiments, and checked every reported
+value against the stored result artifacts. Responsibility for all scientific
+claims and interpretations rests with us.
+
+{
+\small
+
+\clearpage
+\printbibliography
+}
+
+\clearpage
+\begin{appendices}
+\onecolumn
+\setcounter{figure}{0}
+\setcounter{table}{0}
+\renewcommand{\thesection}{\Alph{section}}%
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+\renewcommand\thefigure{S.\arabic{figure}}
+\renewcommand\thetable{S.\arabic{table}}
+\begin{center}
+    \begin{minipage}{\textwidth}
+        \centering
+        \fontsize{16}{20}\selectfont
+        Supplementary Materials
+    \end{minipage}
+\end{center}
+\vspace{.5cm}
 
 \section*{Details on Methods}
 \label{apx:methods}
@@ -1228,6 +1431,15 @@ on NVIDIA H100 GPUs at the Collective Computational Unit (CCU).
 
 \footnotesize
 \begin{longtable}{p{2em}p{0.52\linewidth}p{0.19\linewidth}p{0.11\linewidth}}
+\caption{Story corpus by topic ($n = 50$). Every topic contributes
+exactly one story to each of the four conditions (high warmth, low warmth,
+high competence, low competence), for 200 stories total, and every
+protagonist is nameless and referred to only as ``they'' throughout (see
+Story Preparation). The word-count range gives the shortest and longest of
+a topic's four stories. The Category column groups topics into the ten
+domains named in Story Preparation; these labels are our own assignment
+for readability and are not a field in the underlying stimuli data.}
+\label{tab:story_topics} \\
 \toprule
 No. & Topic & Category & Words \\
 \midrule
@@ -1291,15 +1503,6 @@ No. & Topic & Category & Words \\
 48 & Apologising sincerely to someone you have genuinely hurt & Personal Milestones & 94--104 \\
 49 & Being the first person in your family to pursue a university degree & Personal Milestones & 92--102 \\
 50 & Caring for a newborn alone for the first time with no experience & Personal Milestones & 90--98 \\
-\caption{Story corpus by topic ($n = 50$). Every topic contributes
-exactly one story to each of the four conditions (high warmth, low warmth,
-high competence, low competence), for 200 stories total, and every
-protagonist is nameless and referred to only as ``they'' throughout (see
-Story Preparation). The word-count range gives the shortest and longest of
-a topic's four stories. The Category column groups topics into the ten
-domains named in Story Preparation; these labels are our own assignment
-for readability and are not a field in the underlying stimuli data.}
-\label{tab:story_topics} \\
 \end{longtable}
 \normalsize
 
@@ -1395,6 +1598,11 @@ conditions is visible independent of the situation described.
 
 \footnotesize
 \begin{longtable}{p{0.16\linewidth}p{0.78\linewidth}}
+\caption{Example stories, one per condition, sharing a single topic (topic
+1 of \autoref{tab:story_topics}). The complete set of all 200 story texts
+is available in the project repository at
+\texttt{data/stimuli/concept\_stories.jsonl}.}
+\label{tab:story_examples} \\
 \toprule
 Condition & Story (topic: ``A team meeting where a decision needs to be made
 under time pressure'') \\
@@ -1463,11 +1671,6 @@ they realised the one person who owned the rollout had never been invited.
 The group agreed to revisit it the next day, having decided nothing, and
 they promised a summary that by morning contradicted what most people
 remembered agreeing. \\
-\caption{Example stories, one per condition, sharing a single topic (topic
-1 of \autoref{tab:story_topics}). The complete set of all 200 story texts
-is available in the project repository at
-\texttt{data/stimuli/concept\_stories.jsonl}.}
-\label{tab:story_examples} \\
 \end{longtable}
 \normalsize
 
@@ -1530,7 +1733,6 @@ Results for all nine models are summarized in Methods.
 \end{itemize}
 
 \subsection*{PCA Denoising, All Nine Models}
-\label{appx:pca_denoising}
 
 The warmth and competence direction vectors share a substantial common
 component that reflects general narrative valence: stories that portray a
@@ -1558,7 +1760,7 @@ residual overlap reflects real conceptual co-variation rather than a
 failure of the denoising step.
 The denoised vectors serve as a robustness check; the raw dense directions
 define the primary cross-model causal comparisons and the callback-transition
-census summarized in the main text and tabulated below.
+census reported in the main text.
 \autoref{tab:pca_denoising} extends this same procedure to all nine models.
 
 \input{\tabledir/pca_denoising_9model.tex}
@@ -1641,7 +1843,7 @@ callback margins for every group.
 \subsection*{Name-Level Warmth/Competence by Marginal Group, Raw Values by Study}
 
 \autoref{tab:disparity_marginal_raw} is the raw-value companion to
-the preceding appendix table, \autoref{tab:disparity_marginal}: the same race and gender
+\autoref{tab:disparity_marginal} in the main text: the same race and gender
 marginal groups, broken down by source study rather than blended across it,
 since a name rated under more than one correspondence study can carry a
 substantially different callback rate across studies (Bertrand's ``aisha''
@@ -1649,7 +1851,7 @@ callback is 0.022, Kline's is 0.246). Model warmth and competence values are
 raw, unnormalized projections onto the concept direction, and human warmth
 and competence are the 0-100 Likert averages behind them, so neither is
 comparable in magnitude across models or against each other; the
-preceding standardized ($z$-score) appendix version is built for that comparison.
+standardized ($z$-score) main-text version is built for that comparison.
 
 \input{\tabledir/hiring_disparity_marginal_raw_9model.tex}
 

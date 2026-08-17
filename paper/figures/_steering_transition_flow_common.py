@@ -328,11 +328,6 @@ def write_summary_tex(summaries: list[TransitionSummary], path: Path) -> None:
         "% Source: results/tables/hiring_steering_transition_summary_9model.csv.",
         "\\begin{table*}[t]",
         "\\centering",
-        "\\caption{\\textbf{Complete positive-endpoint callback transitions.} "
-        "Mean baseline and steered callback margins are followed by their decision "
-        "category in parentheses. Transition cells list every nonzero individual-name "
-        "transition among No (N), Tie (T), and Yes (Y); each cell sums to 60.}",
-        "\\label{tab:hiring_transition_census}",
         "\\scriptsize",
         "\\setlength{\\tabcolsep}{2.2pt}",
         "\\begin{tabular}{@{}lcccccccc@{}}",
@@ -367,8 +362,13 @@ def write_summary_tex(summaries: list[TransitionSummary], path: Path) -> None:
     lines.extend(
         (
             "\\bottomrule",
-        "\\end{tabular}",
-        "\\end{table*}",
+            "\\end{tabular}",
+            "\\caption{\\textbf{Complete positive-endpoint callback transitions.} "
+            "Mean baseline and steered callback margins are followed by their decision "
+            "category in parentheses. Transition cells list every nonzero individual-name "
+            "transition among No (N), Tie (T), and Yes (Y); each cell sums to 60.}",
+            "\\label{tab:hiring_transition_census}",
+            "\\end{table*}",
         )
     )
     path.parent.mkdir(parents=True, exist_ok=True)

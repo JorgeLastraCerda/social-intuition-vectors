@@ -6,7 +6,6 @@
 \begingroup
 \small
 \begin{longtable}{@{}llrr@{}}
-\caption{\textbf{Cross-model Spearman story-ranking agreement, all 36 model pairs.} For each pair and axis, every one of the 200 concept stories is projected onto both models' own warmth or competence direction, and the two resulting score lists are correlated with Spearman's $\rho$. ``Overall'' includes the high/low condition separation itself; ``within-condition'' restricts the correlation to stories sharing one condition, so it reflects agreement on finer-grained story ordering rather than the coarse high-versus-low split. The four per-condition $\rho$ values behind the within-condition summary are in \texttt{results/tables/cross\_model\_agreement\_9model.csv}.} \label{tab:cross_model_agreement} \\
 \toprule
 Model A & Model B & Overall $\rho$ & Within-condition $\rho$ \\
 \midrule
@@ -94,5 +93,7 @@ Qwen3-14B & Qwen3.6-27B & 0.981 & 0.783 \\
 Qwen3-14B & Qwen3.6-35B-A3B & 0.952 & 0.584 \\
 Qwen3.6-27B & Qwen3.6-35B-A3B & 0.957 & 0.630 \\
 \addlinespace
+\caption{\textbf{Cross-model Spearman story-ranking agreement, all 36 model pairs.} For each pair and axis, every one of the 200 concept stories is projected onto both models' own warmth or competence direction, and the two resulting score lists are correlated with Spearman's $\rho$. ``Overall'' includes the high/low condition separation itself; ``within-condition'' restricts the correlation to stories sharing one condition, so it reflects agreement on finer-grained story ordering rather than the coarse high-versus-low split. The four per-condition $\rho$ values behind the within-condition summary are in \texttt{results/tables/cross\_model\_agreement\_9model.csv}.}
+\label{tab:cross_model_agreement} \\
 \end{longtable}
 \endgroup

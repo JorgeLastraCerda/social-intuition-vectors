@@ -303,3 +303,63 @@ def test_manuscript_avoids_unqualified_encoding_claims() -> None:
         "in all nine models"
     ) in text
     assert "A direction that separates our warmth and competence stories exists" in text
+
+
+def _active_table_sources() -> list[tuple[Path, str]]:
+    manuscript = MANUSCRIPT.read_text()
+    sources = [(MANUSCRIPT, manuscript)]
+    included = re.findall(r"\\input\{\\tabledir/([^}]+\.tex)\}", manuscript)
+    sources.extend((TABLES / name, (TABLES / name).read_text()) for name in included)
+    return sources
+
+
+def test_every_active_table_caption_is_below_its_table() -> None:
+    table_blocks: list[tuple[Path, str]] = []
+    longtable_blocks: list[tuple[Path, str]] = []
+    for path, text in _active_table_sources():
+        table_blocks.extend(
+            (path, match.group(0))
+            for match in re.finditer(
+                r"\\begin\{table\*?\}.*?\\end\{table\*?\}", text, flags=re.DOTALL
+            )
+        )
+        longtable_blocks.extend(
+            (path, match.group(0))
+            for match in re.finditer(
+                r"\\begin\{longtable\}.*?\\end\{longtable\}", text, flags=re.DOTALL
+            )
+        )
+
+    assert len(table_blocks) + len(longtable_blocks) == 22
+    for path, block in table_blocks:
+        assert block.count(r"\caption{") == 1, path
+        assert block.count(r"\label{tab:") == 1, path
+        assert block.index(r"\caption{") > block.rindex(r"\end{tabular}"), path
+        assert block.index(r"\label{tab:") > block.index(r"\caption{"), path
+
+    for path, block in longtable_blocks:
+        assert block.count(r"\caption{") == 1, path
+        assert block.count(r"\label{tab:") == 1, path
+        last_data_row = max(
+            block.rfind(line)
+            for line in block.splitlines()
+            if line.rstrip().endswith(r"\\")
+            and r"\caption{" not in line
+            and r"\label{" not in line
+        )
+        assert block.index(r"\caption{") > last_data_row, path
+        assert block.index(r"\label{tab:") > block.index(r"\caption{"), path
+
+
+def test_active_table_labels_and_references_are_complete_and_unique() -> None:
+    combined = "\n".join(text for _, text in _active_table_sources())
+    labels = re.findall(r"\\label\{(tab:[^}]+)\}", combined)
+    references = re.findall(r"\\(?:auto)?ref\{(tab:[^}]+)\}", combined)
+
+    assert len(labels) == 22
+    assert len(labels) == len(set(labels))
+    assert set(references) <= set(labels)
+    assert "tab:disparity_race_gender" in labels
+    assert r"\begin{table}[H]" in (TABLES / "concept_saturation.tex").read_text()
+    assert r"\autoref{tab:disparity_marginal} in the main text" not in combined
+    assert "census reported in the main text" not in combined

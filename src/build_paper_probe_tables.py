@@ -420,13 +420,6 @@ def build_table2_raw_by_study(cfg, table_dir: Path, out_path: Path) -> None:
         r"\scriptsize",
         r"\setlength{\tabcolsep}{4pt}",
         r"\begin{longtable}{@{}lllrrrr@{}}",
-        r"\caption{\textbf{Warmth/competence bias by marginal demographic group, broken "
-        r"down by source study, raw values.} Companion to \autoref{tab:disparity_marginal}: "
-        r"the same race and gender marginal groups, not blended across studies. Model "
-        r"warmth/competence are raw (unnormalized) projections and are not comparable in "
-        r"magnitude across models or against the 0-100 human warmth/competence scale; see "
-        r"\autoref{tab:disparity_marginal} for the standardized ($z$-score) comparison.} "
-        r"\label{tab:disparity_marginal_raw} \\",
         r"\toprule",
         r"Model & Axis & Group $\times$ Study & $n$ & Model warmth/competence & "
         r"Human warmth/competence & Human callback \\",
@@ -469,6 +462,13 @@ def build_table2_raw_by_study(cfg, table_dir: Path, out_path: Path) -> None:
                     first_row_of_value = False
         lines.append(r"\addlinespace")
     lines += [
+        r"\caption{\textbf{Warmth/competence bias by marginal demographic group, broken "
+        r"down by source study, raw values.} Companion to \autoref{tab:disparity_marginal}: "
+        r"the same race and gender marginal groups, not blended across studies. Model "
+        r"warmth/competence are raw (unnormalized) projections and are not comparable in "
+        r"magnitude across models or against the 0-100 human warmth/competence scale; see "
+        r"\autoref{tab:disparity_marginal} for the standardized ($z$-score) comparison.}",
+        r"\label{tab:disparity_marginal_raw} \\",
         r"\end{longtable}",
         r"\endgroup",
         "",
@@ -600,18 +600,6 @@ def build_table3(cfg, table_dir: Path, out_path: Path) -> None:
         r"\scriptsize",
         r"\setlength{\tabcolsep}{2pt}",
         r"\begin{longtable}{@{}lllrrrrr@{}}",
-        r"\caption{\textbf{Name-level warmth/competence and callback margin by crossed "
-        r"race $\times$ gender group, broken down by source study, raw values.} "
-        r"Applicant names are joined to \citet{gallo2024warmth}'s published "
-        r"race/gender/callback labels by lowercase first name and matching study "
-        r"(\texttt{src/hiring\_r4.py}); a name rated under more than one source study "
-        r"(e.g. Bertrand and Kline) contributes one row per study rather than being "
-        r"collapsed to a single value, since callback rates differ meaningfully by study. "
-        r"Model warmth/competence are raw projections and are not comparable in magnitude "
-        r"across models or against the 0-100 human warmth/competence scale; see "
-        r"\autoref{tab:disparity_race_gender} for the standardized ($z$-score), "
-        r"study-collapsed comparison.} "
-        r"\label{tab:disparity_crossed} \\",
         r"\toprule",
         r"Model & Race $\times$ Gender & Study & $n$ & Model warmth/competence & "
         r"Human warmth/competence & Human callback & Model margin \\",
@@ -654,6 +642,18 @@ def build_table3(cfg, table_dir: Path, out_path: Path) -> None:
                 first_row_of_group = False
         lines.append(r"\addlinespace")
     lines += [
+        r"\caption{\textbf{Name-level warmth/competence and callback margin by crossed "
+        r"race $\times$ gender group, broken down by source study, raw values.} "
+        r"Applicant names are joined to \citet{gallo2024warmth}'s published "
+        r"race/gender/callback labels by lowercase first name and matching study "
+        r"(\texttt{src/hiring\_r4.py}); a name rated under more than one source study "
+        r"(e.g. Bertrand and Kline) contributes one row per study rather than being "
+        r"collapsed to a single value, since callback rates differ meaningfully by study. "
+        r"Model warmth/competence are raw projections and are not comparable in magnitude "
+        r"across models or against the 0-100 human warmth/competence scale; see "
+        r"\autoref{tab:disparity_race_gender} for the standardized ($z$-score), "
+        r"study-collapsed comparison.}",
+        r"\label{tab:disparity_crossed} \\",
         r"\end{longtable}",
         r"\endgroup",
         "",
@@ -770,18 +770,6 @@ def build_table_cross_model_agreement(table_dir: Path, out_path: Path) -> None:
         r"\begingroup",
         r"\small",
         r"\begin{longtable}{@{}llrr@{}}",
-        r"\caption{\textbf{Cross-model Spearman story-ranking agreement, all "
-        r"36 model pairs.} For each pair and axis, every one of the 200 "
-        r"concept stories is projected onto both models' own warmth or "
-        r"competence direction, and the two resulting score lists are "
-        r"correlated with Spearman's $\rho$. ``Overall'' includes the "
-        r"high/low condition separation itself; ``within-condition'' "
-        r"restricts the correlation to stories sharing one condition, so it "
-        r"reflects agreement on finer-grained story ordering rather than "
-        r"the coarse high-versus-low split. The four per-condition $\rho$ "
-        r"values behind the within-condition summary are in "
-        r"\texttt{results/tables/cross\_model\_agreement\_9model.csv}.} "
-        r"\label{tab:cross_model_agreement} \\",
         r"\toprule",
         r"Model A & Model B & Overall $\rho$ & Within-condition $\rho$ \\",
         r"\midrule",
@@ -804,6 +792,18 @@ def build_table_cross_model_agreement(table_dir: Path, out_path: Path) -> None:
             )
         lines.append(r"\addlinespace")
     lines += [
+        r"\caption{\textbf{Cross-model Spearman story-ranking agreement, all "
+        r"36 model pairs.} For each pair and axis, every one of the 200 "
+        r"concept stories is projected onto both models' own warmth or "
+        r"competence direction, and the two resulting score lists are "
+        r"correlated with Spearman's $\rho$. ``Overall'' includes the "
+        r"high/low condition separation itself; ``within-condition'' "
+        r"restricts the correlation to stories sharing one condition, so it "
+        r"reflects agreement on finer-grained story ordering rather than "
+        r"the coarse high-versus-low split. The four per-condition $\rho$ "
+        r"values behind the within-condition summary are in "
+        r"\texttt{results/tables/cross\_model\_agreement\_9model.csv}.}",
+        r"\label{tab:cross_model_agreement} \\",
         r"\end{longtable}",
         r"\endgroup",
         "",
@@ -900,9 +900,8 @@ def build_table_concept_saturation(table_dir: Path, out_path: Path) -> None:
         "% Vectors' saturation claim refers to; the narrow +/-0.10 grid used",
         "% for all nine models is in tab:probe_validation-adjacent Results text.",
         "% Full-width appendix table; natural-size tabular preserves legibility.",
-        "% [t]: page top only. The p option was dropped on 2026-08-11 because it",
-        "% let short tables claim a dedicated float page (see step_logs/STEP_LOG.md).",
-        r"\begin{table*}[t]",
+        "% [H]: keep S.11 after S.9 and S.10 in physical reading order.",
+        r"\begin{table}[H]",
         r"\centering",
         r"\small",
         r"\setlength{\tabcolsep}{4pt}",
@@ -925,7 +924,7 @@ def build_table_concept_saturation(table_dir: Path, out_path: Path) -> None:
         r"Gemma-3-27B warmth is the exception, still accelerating at "
         r"$+0.50$.}",
         r"\label{tab:concept_saturation}",
-        r"\end{table*}",
+        r"\end{table}",
         "",
     ]
     out_path.write_text("\n".join(lines), encoding="utf-8")
